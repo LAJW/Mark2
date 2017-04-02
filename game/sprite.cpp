@@ -1,0 +1,26 @@
+#include "sprite.h"
+#include "resource_image.h"
+
+mark::sprite::sprite(std::shared_ptr<const mark::resource::image> image, double x, double y, float size, float rotation, size_t frame)
+	:m_image(std::move(image)), m_x(x), m_y(y), m_size(size), m_rotation(rotation), m_frame(frame) {
+}
+
+auto mark::sprite::image() const -> const mark::resource::image& {
+	return *m_image;
+}
+
+auto mark::sprite::x() const -> double {
+	return m_x;
+}
+
+auto mark::sprite::y() const -> double {
+	return m_y;
+}
+
+auto mark::sprite::rotation() const -> float {
+	return m_rotation;
+}
+
+auto mark::sprite::size() const -> float {
+	return m_size;
+}
