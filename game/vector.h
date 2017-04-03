@@ -15,4 +15,8 @@ namespace mark {
 		auto py = vector.x * sn + vector.y * cs;
 		return T(px, py);
 	}
+	template<typename T>
+	auto length(mark::vector<T> vector) {
+		return std::sqrt(vector.x * vector.x + vector.y * vectory.y);
+	}
 }

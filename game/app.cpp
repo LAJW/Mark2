@@ -5,6 +5,7 @@
 #include "resource_manager.h"
 #include "world.h"
 #include "sprite.h"
+#include <iostream>
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
@@ -26,10 +27,16 @@ void mark::app::main() {
 			last = now;
 
 			sf::Event event;
-			while (m_window.pollEvent(event))
-			{
-				if (event.type == sf::Event::Closed)
+			while (m_window.pollEvent(event)) {
+				if (event.type == sf::Event::Closed) {
 					m_window.close();
+				}
+				if (event.type == sf::Event::KeyPressed) {
+					std::cout << event.key.code << std::endl;
+				}
+				if (event.type == sf::Event::KeyReleased) {
+
+				}
 			}
 
 

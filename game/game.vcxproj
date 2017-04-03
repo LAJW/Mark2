@@ -154,6 +154,7 @@
     <ClCompile Include="resource_manager.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="unit_modular.cpp" />
+    <ClCompile Include="wall.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +172,7 @@
     <ClInclude Include="unit_base.h" />
     <ClInclude Include="unit_modular.h" />
     <ClInclude Include="vector.h" />
+    <ClInclude Include="wall.h" />
     <ClInclude Include="world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
