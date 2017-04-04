@@ -6,6 +6,7 @@
 #include "module_core.h"
 #include "sprite.h"
 #include "terrain_floor.h"
+#include "terrain_wall.h"
 #include <random>
 #include "unit_minion.h"
 
@@ -22,16 +23,40 @@ static auto make_map(mark::world& world) {
 		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
 		const auto length = dist_1_100(gen);
 
+		for (int k = -4; k <= 4; k++) {
+			const auto cur = point - direction * 6 + orto * k;
+			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
+				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
+			}
+		}
 		for (int j = -5; j < length + 5; j++) {
 			const auto step = point + direction * j;
-			for (int k = -3; k < 3; k++) {
+			for (int k = -3; k <= 3; k++) {
 				const auto cur = step + orto * k;
 				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000) {
 					floor[cur.x][cur.y] = std::make_shared<mark::terrain::floor>(world);
 				}
 			}
+			{
+				const auto cur = step + orto * 4;
+				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
+					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
+				}
+			}
+			{
+				const auto cur = step + orto * -4;
+				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
+					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
+				}
+			}
 		}
 		point += direction * length;
+		for (int k = -4; k <= 4; k++) {
+			const auto cur = point + direction + orto * k;
+			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
+				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
+			}
+		}
 	}
 
 	return floor;

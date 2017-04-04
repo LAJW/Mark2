@@ -6,6 +6,7 @@
 #include "exception.h"
 #include "sprite.h"
 #include "world.h"
+#include "terrain_base.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -58,7 +59,7 @@ void mark::unit::modular::tick(double dt) {
 	const auto new_pos = step + m_pos;
 	const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
 	const auto& map = m_world.map();
-	if (map[map_pos.x][map_pos.y] != nullptr) {
+	if (map[map_pos.x][map_pos.y] != nullptr && map[map_pos.x][map_pos.y]->traversable()) {
 		m_pos = new_pos;
 	}
 	m_rotation += 30.0 * dt;
