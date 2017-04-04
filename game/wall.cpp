@@ -5,7 +5,7 @@
 
 mark::unit::wall::wall(mark::world& world, mark::vector<double> pos)
 	:mark::unit::base(world, pos) {
-	m_image = world.resource_manager().image("image.png");
+	m_image = world.resource_manager().image("wall.png");
 }
 
 auto mark::unit::wall::render() const -> std::vector<mark::sprite> {

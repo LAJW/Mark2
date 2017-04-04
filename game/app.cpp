@@ -69,20 +69,20 @@ void mark::app::main() {
 			world.tick(dt);
 			auto sprites = world.render();
 			for (auto& sprite : sprites) {
-				render(sprite);
+				render(sprite, world.camera());
 			}
 			m_window.display();
 		}
 	}
 }
 
-void mark::app::render(const mark::sprite& sprite) {
+void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& camera) {
 	sf::Sprite tmp;
 	const auto texture_size = static_cast<float>(sprite.image().getSize().y);
 	const auto scale = sprite.size() / texture_size;
 	tmp.setTexture(sprite.image());
 	tmp.scale(scale, scale);
 	tmp.rotate(sprite.rotation());
-	tmp.move(static_cast<float>(sprite.x() + 300.0), static_cast<float>(sprite.y() + 300.0));
+	tmp.move(static_cast<float>(sprite.x() - camera.x + 500), static_cast<float>(sprite.y() - camera.y + 300.0));
 	m_window.draw(tmp);
 }

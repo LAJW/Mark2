@@ -13,6 +13,9 @@ namespace mark {
 	namespace unit {
 		class base;
 	}
+	namespace terrain {
+		class base;
+	}
 
 	class world {
 	public:
@@ -21,10 +24,13 @@ namespace mark {
 		auto resource_manager() -> mark::resource::manager&;
 		void tick(double dt);
 		Property<mark::vector<float>> direction = mark::vector<float>(0, 0);
-		auto map() const->const std::vector<std::vector<int>>&;
+		auto map() const->const std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>&;
+		auto camera() const->mark::vector<double> { return m_camera; }
 	private:
-		std::vector<std::vector<int>> m_map;
+		std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
 		mark::resource::manager& m_resource_manager;
+		std::weak_ptr<mark::unit::base> m_camera_target;
+		mark::vector<double> m_camera;
 	};
 }

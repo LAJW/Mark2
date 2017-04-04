@@ -54,11 +54,11 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(double dt) {
-	const auto step = mark::vector<double>(m_world.direction()) * 32.0 * dt;
+	const auto step = mark::vector<double>(m_world.direction()) * 320.0 * dt;
 	const auto new_pos = step + m_pos;
-	const auto map_pos = mark::vector<int>(new_pos / 32.0) + mark::vector<int>(500, 500);
+	const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
 	const auto& map = m_world.map();
-	if (map[map_pos.x][map_pos.y] == 1) {
+	if (map[map_pos.x][map_pos.y] != nullptr) {
 		m_pos = new_pos;
 	}
 	m_rotation += 30.0 * dt;

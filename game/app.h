@@ -1,6 +1,7 @@
 #pragma once
 #include "resource_manager.h"
 #include <SFML/Graphics.hpp>
+#include "vector.h"
 
 namespace mark {
 	class sprite;
@@ -10,7 +11,7 @@ namespace mark {
 		app(std::vector<std::string> arguments);
 		void main();
 	private:
-		void render(const mark::sprite&);
+		void render(const mark::sprite&, const mark::vector<double>& camera);
 
 		sf::RenderWindow m_window;
 		mark::resource::manager m_resource_manager;
