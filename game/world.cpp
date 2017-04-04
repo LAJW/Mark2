@@ -7,7 +7,7 @@
 #include "sprite.h"
 #include "terrain_floor.h"
 #include <random>
-#include <array>
+#include "unit_minion.h"
 
 static auto make_map(mark::world& world) {
 	std::random_device rd;
@@ -48,7 +48,8 @@ mark::world::world(mark::resource::manager& resource_manager)
 	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { -3, -1 });
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
-
+	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
+	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }
 
 auto mark::world::map() const -> const std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>& {

@@ -48,6 +48,9 @@
     <ClCompile Include="terrain_floor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="unit_minion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iserializable.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="terrain_floor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_minion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

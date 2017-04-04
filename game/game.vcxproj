@@ -154,6 +154,7 @@
     <ClCompile Include="resource_manager.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="terrain_floor.cpp" />
+    <ClCompile Include="unit_minion.cpp" />
     <ClCompile Include="unit_modular.cpp" />
     <ClCompile Include="wall.cpp" />
     <ClCompile Include="world.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="terrain_base.h" />
     <ClInclude Include="terrain_floor.h" />
     <ClInclude Include="unit_base.h" />
+    <ClInclude Include="unit_minion.h" />
     <ClInclude Include="unit_modular.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="wall.h" />
