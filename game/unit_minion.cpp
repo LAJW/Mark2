@@ -14,12 +14,15 @@ auto mark::unit::minion::render() const -> std::vector<mark::sprite> {
 
 void mark::unit::minion::tick(double dt) {
 	const auto distance = m_world.camera() - m_pos;
-	const auto direction = distance / mark::length(distance);
-	const auto step = direction * 100.0 * dt;
-	const auto new_pos = step + m_pos;
-	const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
-	const auto& map = m_world.map();
-	if (map[map_pos.x][map_pos.y] != nullptr) {
-		m_pos = new_pos;
+	const auto length = mark::length(distance);
+	if (length != 0) {
+		const auto direction = distance / length;
+		const auto step = direction * 100.0 * dt;
+		const auto new_pos = step + m_pos;
+		const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
+		const auto& map = m_world.map();
+		if (map[map_pos.x][map_pos.y] != nullptr) {
+			m_pos = new_pos;
+		}
 	}
 }
