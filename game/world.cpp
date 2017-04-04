@@ -96,6 +96,6 @@ void mark::world::tick(double dt) {
 	}
 	const auto camera_target = m_camera_target.lock();
 	if (camera_target) {
-		m_camera = camera_target->pos();
+		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * dt;
 	}
 }

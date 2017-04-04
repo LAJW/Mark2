@@ -12,7 +12,7 @@ mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
 
 mark::app::app(std::vector<std::string> arguments) 
-	:m_window(sf::VideoMode(1280, 720), "MARK2") {
+	:m_window(sf::VideoMode(1920, 1080), "MARK2") {
 }
 
 void mark::app::main() {
@@ -83,6 +83,6 @@ void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& c
 	tmp.setTexture(sprite.image());
 	tmp.scale(scale, scale);
 	tmp.rotate(sprite.rotation());
-	tmp.move(static_cast<float>(sprite.x() - camera.x + 500), static_cast<float>(sprite.y() - camera.y + 300.0));
+	tmp.move(static_cast<float>(sprite.x() - camera.x + m_window.getSize().x / 2.0), static_cast<float>(sprite.y() - camera.y + m_window.getSize().y / 2.0));
 	m_window.draw(tmp);
 }
