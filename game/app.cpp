@@ -5,6 +5,7 @@
 #include "resource_manager.h"
 #include "world.h"
 #include "sprite.h"
+#include "vector.h"
 #include <iostream>
 
 mark::app::app(const int argc, const char* argv[])
@@ -19,26 +20,50 @@ void mark::app::main() {
 
 	auto last = std::chrono::system_clock::now();
 
+
+	mark::vector<float> direction;
 	while (m_window.isOpen()) {
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(now - last).count()) / 1000000.0;
 
 		if (dt >= 1.0 / 60.0) {
 			last = now;
-
 			sf::Event event;
+
 			while (m_window.pollEvent(event)) {
 				if (event.type == sf::Event::Closed) {
 					m_window.close();
 				}
 				if (event.type == sf::Event::KeyPressed) {
-					std::cout << event.key.code << std::endl;
+					if (event.key.code == 22) { // W
+						direction.y = -1;
+					} else if (event.key.code == 18) { // S
+						direction.y = 1;
+					} else if (event.key.code == 0) { // A
+						direction.x = -1;
+					} else if (event.key.code == 3) { // D
+						direction.x = 1;
+					}
 				}
 				if (event.type == sf::Event::KeyReleased) {
-
+					if (event.key.code == 22) { // W
+						direction.y = 0;
+					} else if (event.key.code == 18) { // S
+						direction.y = 0;
+					} else if (event.key.code == 0) { // A
+						direction.x = 0;
+					} else if (event.key.code == 3) { // D
+						direction.x = 0;
+					}
 				}
 			}
 
+			auto length = mark::length(direction);
+			auto direction2 = direction;
+			if (length) {
+				direction2 /= length;
+			}
+			world.direction(direction2);
 
 			m_window.clear();
 			world.tick(dt);
@@ -58,6 +83,6 @@ void mark::app::render(const mark::sprite& sprite) {
 	tmp.setTexture(sprite.image());
 	tmp.scale(scale, scale);
 	tmp.rotate(sprite.rotation());
-	tmp.move(static_cast<float>(sprite.x()), static_cast<float>(sprite.y()));
+	tmp.move(static_cast<float>(sprite.x() + 300.0), static_cast<float>(sprite.y() + 300.0));
 	m_window.draw(tmp);
 }

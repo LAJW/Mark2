@@ -9,7 +9,7 @@
 #include <random>
 #include <array>
 
-static auto make_floor(mark::world& world) {
+static auto make_map() {
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
 	std::uniform_int_distribution<> dist_1_100(1, 10);
@@ -21,7 +21,7 @@ static auto make_floor(mark::world& world) {
 		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
 		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
 		const auto length = dist_1_100(gen);
-		
+
 		for (int j = -5; j < length + 5; j++) {
 			const auto step = point + direction * j;
 			for (int k = -3; k < 3; k++) {
@@ -33,12 +33,16 @@ static auto make_floor(mark::world& world) {
 		}
 		point += direction * length;
 	}
-	
+
+	return floor;
+}
+
+static auto make_floor(mark::world& world, const std::vector<std::vector<int>>& map) {
 	std::vector<std::shared_ptr<mark::unit::base>> walls;
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			if (floor[x][y] == 1) {
-				walls.emplace_back(std::make_shared<mark::unit::wall>(world, mark::vector<double>((x - 500) * 32.0 + 300.0, (y - 500) * 32.0 + 300.0)));
+			if (map[x][y] == 1) {
+				walls.emplace_back(std::make_shared<mark::unit::wall>(world, mark::vector<double>((x - 500) * 32.0, (y - 500) * 32.0)));
 			}
 		}
 	}
@@ -49,12 +53,12 @@ static auto make_floor(mark::world& world) {
 
 mark::world::world(mark::resource::manager& resource_manager)
 	:m_resource_manager(resource_manager) {
+	m_map = make_map();
 
-
-	const auto corner = make_floor(*this);
+	const auto corner = make_floor(*this, m_map);
 	m_units.insert(m_units.end(), corner.begin(), corner.end());
 
-	auto vessel = std::make_shared<mark::unit::modular>(*this, mark::vector<double>{ 300.0, 300.0 }, 10.0);
+	auto vessel = std::make_shared<mark::unit::modular>(*this, mark::vector<double>{ 0, 0 }, 10.0);
 	auto core = std::make_unique<mark::module::core>(m_resource_manager);
 	vessel->attach(std::move(core), { -1, -1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { 1, -1 });
@@ -63,6 +67,9 @@ mark::world::world(mark::resource::manager& resource_manager)
 
 }
 
+auto mark::world::map() const -> const std::vector<std::vector<int>>& {
+	return m_map;
+}
 
 auto mark::world::render() const -> std::vector<mark::sprite> {
 	std::vector<mark::sprite> sprites;

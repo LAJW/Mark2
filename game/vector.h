@@ -17,6 +17,6 @@ namespace mark {
 	}
 	template<typename T>
 	auto length(mark::vector<T> vector) {
-		return std::sqrt(vector.x * vector.x + vector.y * vectory.y);
+		return std::sqrt(vector.x * vector.x + vector.y * vector.y);
 	}
 }

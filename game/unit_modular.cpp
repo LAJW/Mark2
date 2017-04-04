@@ -5,6 +5,7 @@
 #include "module_core.h"
 #include "exception.h"
 #include "sprite.h"
+#include "world.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -53,7 +54,13 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(double dt) {
-	m_pos += mark::vector<double>(10, 0) * dt;
+	const auto step = mark::vector<double>(m_world.direction()) * 32.0 * dt;
+	const auto new_pos = step + m_pos;
+	const auto map_pos = mark::vector<int>(new_pos / 32.0) + mark::vector<int>(500, 500);
+	const auto& map = m_world.map();
+	if (map[map_pos.x][map_pos.y] == 1) {
+		m_pos = new_pos;
+	}
 	m_rotation += 30.0 * dt;
 }
 
