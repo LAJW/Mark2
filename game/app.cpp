@@ -7,6 +7,7 @@
 #include "sprite.h"
 #include "vector.h"
 #include <iostream>
+#include "yaml-cpp\yaml.h"
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
@@ -19,7 +20,6 @@ void mark::app::main() {
 	mark::world world(m_resource_manager);
 
 	auto last = std::chrono::system_clock::now();
-
 
 	mark::vector<float> direction;
 	while (m_window.isOpen()) {
@@ -34,26 +34,10 @@ void mark::app::main() {
 				if (event.type == sf::Event::Closed) {
 					m_window.close();
 				}
-				if (event.type == sf::Event::KeyPressed) {
-					if (event.key.code == 22) { // W
-						direction.y = -1;
-					} else if (event.key.code == 18) { // S
-						direction.y = 1;
-					} else if (event.key.code == 0) { // A
-						direction.x = -1;
-					} else if (event.key.code == 3) { // D
-						direction.x = 1;
-					}
-				}
-				if (event.type == sf::Event::KeyReleased) {
-					if (event.key.code == 22) { // W
-						direction.y = 0;
-					} else if (event.key.code == 18) { // S
-						direction.y = 0;
-					} else if (event.key.code == 0) { // A
-						direction.x = 0;
-					} else if (event.key.code == 3) { // D
-						direction.x = 0;
+				if (event.type == sf::Event::MouseButtonPressed) {
+					direction = mark::vector<float>(sf::Mouse::getPosition(m_window)) - mark::vector<float>(m_window.getSize()) / 2.f;
+					if (mark::length(direction)) {
+						direction /= mark::length(direction);
 					}
 				}
 			}

@@ -26,6 +26,7 @@ namespace mark {
 		Property<mark::vector<float>> direction = mark::vector<float>(0, 0);
 		auto map() const->const std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>&;
 		auto camera() const->mark::vector<double> { return m_camera; }
+		auto find(mark::vector<double> pos, double radius)->std::vector<std::shared_ptr<mark::unit::base>>;
 	private:
 		std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;

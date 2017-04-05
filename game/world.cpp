@@ -18,17 +18,11 @@ static auto make_map(mark::world& world) {
 
 	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
 	auto point = mark::vector<int>(500, 500);
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 20; i++) {
 		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
 		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
 		const auto length = dist_1_100(gen);
 
-		for (int k = -4; k <= 4; k++) {
-			const auto cur = point - direction * 6 + orto * k;
-			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
-			}
-		}
 		for (int j = -5; j < length + 5; j++) {
 			const auto step = point + direction * j;
 			for (int k = -3; k <= 3; k++) {
@@ -50,13 +44,19 @@ static auto make_map(mark::world& world) {
 				}
 			}
 		}
-		point += direction * length;
 		for (int k = -4; k <= 4; k++) {
-			const auto cur = point + direction + orto * k;
+			const auto cur = point - direction * 6 + orto * k;
 			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
 				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
 			}
 		}
+		for (int k = -4; k <= 4; k++) {
+			const auto cur = point + direction * (length + 5) + orto * k;
+			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
+				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
+			}
+		}
+		point += direction * length;
 	}
 
 	return floor;
@@ -124,4 +124,14 @@ void mark::world::tick(double dt) {
 	if (camera_target) {
 		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * dt;
 	}
+}
+
+auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<std::shared_ptr<mark::unit::base>> {
+	std::vector<std::shared_ptr<mark::unit::base>> out;
+	for (auto& unit : m_units) {
+		if (mark::length(unit->pos() - pos) < radius) {
+			out.push_back(unit);
+		}
+	}
+	return out;
 }
