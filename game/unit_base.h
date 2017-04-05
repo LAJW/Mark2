@@ -8,6 +8,7 @@ namespace mark {
 
 	class sprite;
 	class world;
+	class command;
 
 	namespace unit {
 		class base : public iserializable {
@@ -17,6 +18,7 @@ namespace mark {
 			virtual ~base() = default;
 			virtual auto render() const -> std::vector<mark::sprite> = 0;
 			virtual void tick(double dt) = 0;
+			virtual void command(const mark::command&) { };
 			auto inline pos() const { return m_pos; }
 		protected:
 			mark::vector<double> m_pos;

@@ -8,6 +8,7 @@
 #include "vector.h"
 #include <iostream>
 #include "yaml-cpp\yaml.h"
+#include "command.h"
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
@@ -21,7 +22,6 @@ void mark::app::main() {
 
 	auto last = std::chrono::system_clock::now();
 
-	mark::vector<float> direction;
 	while (m_window.isOpen()) {
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(now - last).count()) / 1000000.0;
@@ -30,24 +30,16 @@ void mark::app::main() {
 			last = now;
 			sf::Event event;
 
+
 			while (m_window.pollEvent(event)) {
 				if (event.type == sf::Event::Closed) {
 					m_window.close();
 				}
 				if (event.type == sf::Event::MouseButtonPressed) {
-					direction = mark::vector<float>(sf::Mouse::getPosition(m_window)) - mark::vector<float>(m_window.getSize()) / 2.f;
-					if (mark::length(direction)) {
-						direction /= mark::length(direction);
-					}
+					const auto target = world.camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
+					world.command(mark::command{ mark::command::type::move, target });
 				}
 			}
-
-			auto length = mark::length(direction);
-			auto direction2 = direction;
-			if (length) {
-				direction2 /= length;
-			}
-			world.direction(direction2);
 
 			m_window.clear();
 			world.tick(dt);

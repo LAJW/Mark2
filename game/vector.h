@@ -19,4 +19,13 @@ namespace mark {
 	auto length(mark::vector<T> vector) {
 		return std::sqrt(vector.x * vector.x + vector.y * vector.y);
 	}
+	template<typename T>
+	auto normalize(mark::vector<T> vector) {
+		const auto length = mark::length(vector);
+		if (length) {
+			return vector / length;
+		} else {
+			return mark::vector<T>(0, 0);
+		}
+	}
 }

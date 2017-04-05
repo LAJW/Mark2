@@ -7,6 +7,7 @@
 #include "sprite.h"
 #include "world.h"
 #include "terrain_base.h"
+#include "command.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -55,14 +56,22 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(double dt) {
-	const auto step = mark::vector<double>(m_world.direction()) * 320.0 * dt;
-	const auto new_pos = step + m_pos;
-	const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
-	const auto& map = m_world.map();
-	if (map[map_pos.x][map_pos.y] != nullptr && map[map_pos.x][map_pos.y]->traversable()) {
-		m_pos = new_pos;
+	if (m_command.type == mark::command::type::move) {
+		if (mark::length(m_command.pos - pos()) > 320.0 * dt) {
+			const auto direction = mark::normalize(m_command.pos - pos());
+			const auto step = mark::vector<double>(direction) * 320.0 * dt;
+			const auto new_pos = step + m_pos;
+			const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
+			const auto& map = m_world.map();
+			if (map[map_pos.x][map_pos.y] != nullptr && map[map_pos.x][map_pos.y]->traversable()) {
+				m_pos = new_pos;
+			}
+			m_rotation += 30.0 * dt;
+		} else {
+			m_pos = m_command.pos;
+		}
+
 	}
-	m_rotation += 30.0 * dt;
 }
 
 auto mark::unit::modular::get_attached(const socket&, mark::vector<int>) ->
@@ -118,4 +127,8 @@ auto mark::unit::modular::render() const -> std::vector<mark::sprite> {
 		);
 	}
 	return sprites;
+}
+
+void mark::unit::modular::command(const mark::command& command) {
+	m_command = command;
 }

@@ -110,5 +110,8 @@
     <ClInclude Include="terrain_wall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="command.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

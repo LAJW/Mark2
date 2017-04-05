@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include "unit_base.h"
+#include "command.h"
 
 namespace mark {
 
@@ -33,6 +34,7 @@ namespace mark {
 			};
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
+			void command(const mark::command& command) override;
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
 			auto get_attached(const socket&, mark::vector<int> pos)->std::vector<std::reference_wrapper<socket>>;
 			auto get_core()->mark::module::core&;
@@ -43,6 +45,7 @@ namespace mark {
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
+			mark::command m_command;
 		};
 	}
 }

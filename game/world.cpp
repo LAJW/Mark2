@@ -9,6 +9,7 @@
 #include "terrain_wall.h"
 #include <random>
 #include "unit_minion.h"
+#include "command.h"
 
 static auto make_map(mark::world& world) {
 	std::random_device rd;
@@ -134,4 +135,11 @@ auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<s
 		}
 	}
 	return out;
+}
+
+void mark::world::command(const mark::command& command) {
+	auto& camera_target = m_camera_target.lock();
+	if (camera_target) {
+		camera_target->command(command);
+	}
 }
