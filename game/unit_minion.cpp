@@ -3,6 +3,7 @@
 #include "sprite.h"
 #include "resource_manager.h"
 #include "terrain_base.h"
+#include "find_path.h"
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos)
 	:mark::unit::base(world, pos) {
@@ -35,13 +36,11 @@ void mark::unit::minion::tick(double dt) {
 			m_pos = new_pos;
 		}
 	} else if (length != 0) {
-		const auto direction = distance / length;
-		const auto step = (direction + direction2 * 0.7) * 100.0 * dt;
-		const auto new_pos = step + m_pos;
-		const auto map_pos = mark::vector<int>(std::floor(new_pos.x / 32.0), std::floor(new_pos.y / 32.0)) + mark::vector<int>(500, 500);
-		const auto& map = m_world.map();
-		if (map[map_pos.x][map_pos.y] != nullptr && map[map_pos.x][map_pos.y]->traversable()) {
-			m_pos = new_pos;
+		const auto map_pos = mark::vector<int>(std::ceil(pos().x / 32.0), std::ceil(pos().y / 32.0)) + mark::vector<int>(500, 500);
+		const auto path = mark::find_path(m_world.map(), map_pos, mark::vector<int>(m_world.camera()) / 32 + mark::vector<int>(500, 500));
+		if (path.size() > 3) {
+			const auto first = mark::vector<double>(path[path.size() - 3] - mark::vector<int>(500, 500)) * 32.0 + mark::vector<double>(16.0, 16.0);
+			m_pos += mark::normalize((first - pos())) * 100.0 * dt;
 		}
 	}
 }

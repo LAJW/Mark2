@@ -51,6 +51,9 @@
     <ClCompile Include="terrain_wall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="find_path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iserializable.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="command.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="find_path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

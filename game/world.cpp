@@ -118,6 +118,9 @@ auto mark::world::resource_manager() -> mark::resource::manager& {
 }
 
 void mark::world::tick(double dt) {
+	if (dt > 0.1) {
+		dt = 0.1;
+	}
 	for (auto& unit : m_units) {
 		unit->tick(dt);
 	}
