@@ -5,67 +5,13 @@
 #include "module_cargo.h"
 #include "module_core.h"
 #include "sprite.h"
-#include "terrain_floor.h"
-#include "terrain_wall.h"
 #include <random>
 #include "unit_minion.h"
 #include "command.h"
 
-static auto make_map(mark::world& world) {
-	std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::uniform_int_distribution<> dist_1_100(1, 10);
-	std::uniform_int_distribution<> dist_0_3(0, 3);
-
-	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
-	auto point = mark::vector<int>(500, 500);
-	for (int i = 0; i < 20; i++) {
-		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
-		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
-		const auto length = dist_1_100(gen);
-
-		for (int j = -5; j < length + 5; j++) {
-			const auto step = point + direction * j;
-			for (int k = -3; k <= 3; k++) {
-				const auto cur = step + orto * k;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::floor>(world);
-				}
-			}
-			{
-				const auto cur = step + orto * 4;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
-				}
-			}
-			{
-				const auto cur = step + orto * -4;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
-				}
-			}
-		}
-		for (int k = -4; k <= 4; k++) {
-			const auto cur = point - direction * 6 + orto * k;
-			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
-			}
-		}
-		for (int k = -4; k <= 4; k++) {
-			const auto cur = point + direction * (length + 5) + orto * k;
-			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(world);
-			}
-		}
-		point += direction * length;
-	}
-
-	return floor;
-}
 
 mark::world::world(mark::resource::manager& resource_manager)
-	:m_resource_manager(resource_manager) {
-	m_map = make_map(*this);
+	:m_resource_manager(resource_manager), m_map(resource_manager) {
 
 	auto vessel = std::make_shared<mark::unit::modular>(*this, mark::vector<double>{ 0, 0 }, 10.0);
 	auto core = std::make_unique<mark::module::core>(m_resource_manager);
@@ -78,27 +24,12 @@ mark::world::world(mark::resource::manager& resource_manager)
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }
 
-auto mark::world::map() const -> const std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>& {
+auto mark::world::map() const -> const mark::map& {
 	return m_map;
 }
 
 auto mark::world::render() const -> std::vector<mark::sprite> {
-	std::vector<mark::sprite> sprites;
-
-
-	for (int x = 100; x < 800; x++) {
-		for (int y = 100; y < 600; y++) {
-			const auto& point = m_map[x][y];
-			if (point) {
-				auto tmp = m_map[x][y]->render({ x - 500, y - 500 });
-				sprites.insert(
-					sprites.end(),
-					std::make_move_iterator(tmp.begin()),
-					std::make_move_iterator(tmp.end())
-				);
-			}
-		}
-	}
+	std::vector<mark::sprite> sprites = m_map.render();
 
 	for (auto& unit : m_units) {
 		auto socket_sprites = unit->render();

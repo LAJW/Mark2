@@ -3,8 +3,8 @@
 #include "sprite.h"
 #include "resource_manager.h"
 
-mark::terrain::wall::wall(mark::world& world)
-	:m_image(world.resource_manager().image("wall.png")) {
+mark::terrain::wall::wall(mark::resource::manager& resource_manager)
+	:m_image(resource_manager.image("wall.png")) {
 }
 
 auto mark::terrain::wall::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {

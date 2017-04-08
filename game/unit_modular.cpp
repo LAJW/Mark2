@@ -8,9 +8,6 @@
 #include "world.h"
 #include "terrain_base.h"
 #include "command.h"
-#include "find_path.h"
-
-
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -61,17 +58,13 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 void mark::unit::modular::tick(double dt) {
 	if (m_command.type == mark::command::type::move) {
 		if (mark::length(m_command.pos - pos()) > 320.0 * dt) {
-			const auto map_pos = mark::vector<int>(std::ceil(pos().x / 32.0), std::ceil(pos().y / 32.0)) + mark::vector<int>(500, 500);
-			const auto path = mark::find_path(m_world.map(), map_pos, mark::vector<int>(m_command.pos) / 32 + mark::vector<int>(500, 500));
+			const auto path = m_world.map().find_path(m_pos, m_command.pos);
 			if (path.size() > 3) {
-				const auto first = mark::vector<double>(path[path.size() - 3] - mark::vector<int>(500, 500)) * 32.0 + mark::vector<double>(16.0, 16.0);
-				m_pos += mark::normalize((first - pos())) * 320.0 * dt;
+				const auto first = path[path.size() - 3];
+				m_pos += mark::normalize(first - m_pos) * 320.0 * dt;
 			} else if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
 				const auto step = mark::normalize(m_command.pos - m_pos) * 320.0 * dt;
-				const auto map_pos = mark::vector<int>(std::ceil((step.x + pos().x)/ 32.0), std::ceil(step.y + pos().y / 32.0)) + mark::vector<int>(500, 500);
-				if (map_pos.x > 0 && map_pos.x < 1000 && map_pos.y > 0
-					&& map_pos.y < 1000 && m_world.map()[map_pos.x][map_pos.y]
-					&& m_world.map()[map_pos.x][map_pos.y]->traversable()) {
+				if (m_world.map().traversable(m_pos + step)) {
 					m_pos += step;
 				}
 			}

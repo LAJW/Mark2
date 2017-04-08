@@ -5,11 +5,14 @@
 
 namespace mark {
 	class world;
+	namespace resource {
+		class manager;
+	}
 
 	namespace terrain {
 		class floor : public mark::terrain::base {
 		public:
-			floor(mark::world& world);
+			floor(mark::resource::manager& resource_manager);
 			auto traversable() const -> bool override { return true; };
 			auto render(mark::vector<int> map_pos) const->std::vector<mark::sprite> override;
 		private:

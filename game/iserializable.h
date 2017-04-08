@@ -6,7 +6,8 @@ namespace mark {
 	class iserializable {
 	public:
 		static std::unique_ptr<iserializable> deserialize(const json&);
-		virtual ~iserializable() = default;
 		json serialize();
+	protected:
+		virtual ~iserializable() = default;
 	};
 }

@@ -147,8 +147,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
-    <ClCompile Include="find_path.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="map.cpp" />
     <ClCompile Include="module_base.cpp" />
     <ClCompile Include="module_cargo.cpp" />
     <ClCompile Include="module_core.cpp" />
@@ -164,7 +164,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="exception.h" />
-    <ClInclude Include="find_path.h" />
+    <ClInclude Include="map.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="property.h" />
     <ClInclude Include="resource_image.h" />

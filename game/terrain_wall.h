@@ -3,13 +3,15 @@
 #include "resource_image.h"
 
 namespace mark {
-	class world;
+	namespace resource {
+		class manager;
+	}
 	class sprite;
 
 	namespace terrain {
 		class wall : public mark::terrain::base {
 		public:
-			wall(mark::world& world);
+			wall(mark::resource::manager& resource_manager);
 			auto traversable() const -> bool override { return false; };
 			auto render(mark::vector<int> map_pos) const->std::vector<mark::sprite> override;
 		private:

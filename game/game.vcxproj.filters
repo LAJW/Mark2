@@ -51,7 +51,7 @@
     <ClCompile Include="terrain_wall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="find_path.cpp">
+    <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,7 +116,7 @@
     <ClInclude Include="command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="find_path.h">
+    <ClInclude Include="map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
