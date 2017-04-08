@@ -6,11 +6,12 @@
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos)
 	:mark::unit::base(world, pos) {
-	m_image = world.resource_manager().image("shield-generator.png");
+	m_image = world.resource_manager().image("mark1.png");
 }
 
 auto mark::unit::minion::render() const -> std::vector<mark::sprite> {
-	return { mark::sprite(m_image, m_pos.x, m_pos.y, 50.f) };
+	const auto rotation = mark::atan(m_direction) + 90.f;
+	return { mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation) };
 }
 
 void mark::unit::minion::tick(double dt) {
@@ -29,6 +30,9 @@ void mark::unit::minion::tick(double dt) {
 	const auto path = m_world.map().find_path(m_pos, m_world.camera());
 	if (path.size() > 3) {
 		const auto first = mark::vector<double>(path[path.size() - 3]);
-		m_pos += mark::normalize((first - m_pos)) + mark::normalize(direction2) * 100.0 * dt;
+		const auto direction = mark::normalize((first - m_pos)) + mark::normalize(direction2);
+		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -mark::atan(m_direction))));
+		m_direction = rotate(m_direction, turn_direction  * 180.f * dt);
+		m_pos += direction * 100.0 * dt;
 	}
 }

@@ -12,6 +12,7 @@ namespace mark {
 			void tick(double dt);
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
+			mark::vector<float> m_direction = { 1, 0 };
 		};
 	}
 }

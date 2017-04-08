@@ -28,4 +28,19 @@ namespace mark {
 			return mark::vector<T>(0, 0);
 		}
 	}
+	// get vector's arcus tangens in degrees
+	template<typename T>
+	auto atan(const mark::vector<T>& vector) {
+		return std::atan2(vector.y, vector.x) / static_cast<float>(M_PI) * 180.f;
+	}
+	template<typename T>
+	T sgn(T val) {
+		if (val > 0) {
+			return 1;
+		} else if (val < 0) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
 }
