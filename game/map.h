@@ -18,7 +18,7 @@ namespace mark {
 	public:
 		map(mark::resource::manager& resource_manager);
 		auto traversable(mark::vector<double> pos) const -> bool;
-		auto render() const->std::vector<mark::sprite>;
+		auto render(mark::vector<double> top_left, mark::vector<double> bottom_right) const->std::vector<mark::sprite>;
 		auto find_path(mark::vector<double> start, mark::vector<double> end) const->std::vector<mark::vector<double>>;
 	private:
 		auto size() const -> mark::vector<int>;

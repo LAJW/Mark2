@@ -28,8 +28,8 @@ auto mark::world::map() const -> const mark::map& {
 	return m_map;
 }
 
-auto mark::world::render() const -> std::vector<mark::sprite> {
-	std::vector<mark::sprite> sprites = m_map.render();
+auto mark::world::render(mark::vector<double> screen_size) const -> std::vector<mark::sprite> {
+	std::vector<mark::sprite> sprites = m_map.render(m_camera - screen_size / 2.0 - mark::vector<double>(64, 64), m_camera + screen_size / 2.0 + mark::vector<double>(64, 64));
 
 	for (auto& unit : m_units) {
 		auto socket_sprites = unit->render();

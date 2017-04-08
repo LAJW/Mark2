@@ -25,7 +25,7 @@ static auto make_map(mark::resource::manager& resource_manager) {
 
 	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
 	auto point = mark::vector<int>(500, 500);
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 100; i++) {
 		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
 		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
 		const auto length = dist_1_100(gen);
@@ -87,11 +87,13 @@ auto mark::map::traversable(mark::vector<int> pos) const -> bool {
 		&& m_terrain[pos.x][pos.y]->traversable();
 }
 
-auto mark::map::render() const->std::vector<mark::sprite> {
+auto mark::map::render(mark::vector<double> world_tl, mark::vector<double> world_br) const->std::vector<mark::sprite> {
 	const auto size = this->size();
+	const auto tl = world_to_map(world_tl, size);
+	const auto br = world_to_map(world_br, size);
 	std::vector<mark::sprite> sprites;
-	for (int x = 0; x < size.x; x++) {
-		for (int y = 0; y < size.y; y++) {
+	for (int x = std::max(tl.x, 0); x < std::min(size.x, br.x); x++) {
+		for (int y = std::max(tl.y, 0); y < std::min(size.y, br.y); y++) {
 			const auto& point = m_terrain[x][y];
 			if (point) {
 				auto tmp = m_terrain[x][y]->render(mark::vector<int>(x, y) - size / 2);

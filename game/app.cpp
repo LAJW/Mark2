@@ -43,7 +43,7 @@ void mark::app::main() {
 
 			m_window.clear();
 			world.tick(dt);
-			auto sprites = world.render();
+			auto sprites = world.render(mark::vector<double>(m_window.getSize()));
 			for (auto& sprite : sprites) {
 				render(sprite, world.camera());
 			}

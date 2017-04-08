@@ -22,7 +22,7 @@ namespace mark {
 	class world {
 	public:
 		world(mark::resource::manager& resource_manager);
-		auto render() const->std::vector<mark::sprite>;
+		auto render(mark::vector<double> screen_size) const->std::vector<mark::sprite>;
 		auto resource_manager() -> mark::resource::manager&;
 		void tick(double dt);
 		auto map() const->const mark::map&;
