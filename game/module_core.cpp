@@ -5,7 +5,7 @@
 #include "sprite.h"
 
 mark::module::core::core(mark::resource::manager& resource_manager)
-	:base({ 2, 2 }), m_image(resource_manager.image("shield-generator.png")) {
+	:base({ 2, 2 }), m_image(resource_manager.image("core.png")) {
 	
 }
 

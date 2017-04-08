@@ -4,6 +4,7 @@
 #include "unit_modular.h"
 #include "module_cargo.h"
 #include "module_core.h"
+#include "module_shield_generator.h"
 #include "sprite.h"
 #include <random>
 #include "unit_minion.h"
@@ -18,6 +19,7 @@ mark::world::world(mark::resource::manager& resource_manager)
 	vessel->attach(std::move(core), { -1, -1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { 1, -1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { -3, -1 });
+	vessel->attach(std::make_unique<mark::module::shield_generator>(m_resource_manager), { -1, 1 });
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));

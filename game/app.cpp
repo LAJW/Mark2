@@ -18,7 +18,7 @@ mark::app::app(std::vector<std::string> arguments)
 }
 
 void mark::app::main() {
-	mark::world world(m_resource_manager);
+	auto world = std::make_unique<mark::world>(m_resource_manager);
 
 	auto last = std::chrono::system_clock::now();
 
@@ -36,16 +36,19 @@ void mark::app::main() {
 					m_window.close();
 				}
 				if (event.type == sf::Event::MouseButtonPressed) {
-					const auto target = world.camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
-					world.command(mark::command{ mark::command::type::move, target });
+					const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
+					world->command(mark::command{ mark::command::type::move, target });
+				}
+				if (event.type == sf::Event::KeyPressed && event.key.code == 17) {
+					world = std::make_unique<mark::world>(m_resource_manager);
 				}
 			}
 
 			m_window.clear();
-			world.tick(dt);
-			auto sprites = world.render(mark::vector<double>(m_window.getSize()));
+			world->tick(dt);
+			auto sprites = world->render(mark::vector<double>(m_window.getSize()));
 			for (auto& sprite : sprites) {
-				render(sprite, world.camera());
+				render(sprite, world->camera());
 			}
 			m_window.display();
 		}

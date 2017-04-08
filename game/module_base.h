@@ -33,11 +33,6 @@ namespace mark {
 		private:
 		};
 
-		class shield_generator : public base {
-		public:
-		private:
-		};
-
 		class armor : public base {
 		public:
 		private:
