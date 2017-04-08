@@ -8,6 +8,7 @@
 #include "world.h"
 #include "terrain_base.h"
 #include "command.h"
+#include "resource_manager.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -41,7 +42,8 @@ inline auto mark::unit::modular::socket::size() const->mark::vector<unsigned> {
 }
 
 auto mark::unit::modular::socket::relative_pos() const->mark::vector<double> {
-	return m_parent.pos() + mark::vector<double>(rotate(mark::vector<float>(m_pos) * static_cast<float>(mark::module::size), m_parent.rotation()));
+	const auto pos = (mark::vector<float>(m_pos) + mark::vector<float>(this->size()) / 2.f) * static_cast<float>(mark::module::size);
+	return m_parent.pos() + mark::vector<double>(rotate(pos, m_parent.rotation()));
 }
 
 auto mark::unit::modular::socket::rotation() const -> float {
@@ -57,12 +59,13 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 
 void mark::unit::modular::tick(double dt) {
 	if (m_command.type == mark::command::type::move) {
-		if (mark::length(m_command.pos - pos()) > 320.0 * dt) {
+		if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
 			const auto path = m_world.map().find_path(m_pos, m_command.pos);
+			m_path = path;
 			if (path.size() > 3) {
 				const auto first = path[path.size() - 3];
 				m_pos += mark::normalize(first - m_pos) * 320.0 * dt;
-			} else if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
+			} else {
 				const auto step = mark::normalize(m_command.pos - m_pos) * 320.0 * dt;
 				if (m_world.map().traversable(m_pos + step)) {
 					m_pos += step;
@@ -128,6 +131,11 @@ auto mark::unit::modular::render() const -> std::vector<mark::sprite> {
 			std::make_move_iterator(socket_sprites.end())
 		);
 	}
+#ifdef _DEBUG
+	for (const auto& step : m_path) {
+		sprites.push_back(mark::sprite(m_world.resource_manager().image("generator.png"), step.x, step.y));
+	}
+#endif // !_DEBUG
 	return sprites;
 }
 

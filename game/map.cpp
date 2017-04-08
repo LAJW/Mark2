@@ -9,6 +9,14 @@
 #include "terrain_floor.h"
 #include "terrain_wall.h"
 
+static auto world_to_map(const mark::vector<double>& pos, const mark::vector<int>& map_size) {
+	return mark::vector<int>(std::round(pos.x / 32.0), std::round(pos.y / 32.0)) + map_size / 2;
+}
+
+static auto map_to_world(const mark::vector<int>& pos, const mark::vector<int>& map_size) {
+	return mark::vector<double>(pos - map_size / 2) * 32.0;
+}
+
 static auto make_map(mark::resource::manager& resource_manager) {
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
@@ -68,8 +76,7 @@ mark::map::map(mark::resource::manager& resource_manager) {
 
 auto mark::map::traversable(mark::vector<double> pos) const -> bool {
 	const auto size = this->size();
-	const auto map_pos = mark::vector<int>(pos / 32.0) - size / 2;
-	return this->traversable(map_pos);
+	return this->traversable(world_to_map(pos, size));
 }
 
 auto mark::map::traversable(mark::vector<int> pos) const -> bool {
@@ -111,8 +118,8 @@ struct Node {
 
 auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double> world_end) const -> std::vector<mark::vector<double>> {
 	const auto size = this->size();
-	const auto start = mark::vector<int>(world_start / 32.0) + size / 2;
-	const auto end = mark::vector<int>(world_end / 32.0) + size / 2;
+	const auto start = world_to_map(world_start, size);
+	const auto end = world_to_map(world_end, size);
 	std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
 	std::vector<std::unique_ptr<Node>> closed;
 
@@ -131,7 +138,7 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 			std::vector<mark::vector<double>> out;
 			auto node = current.get();
 			while (node) {
-				out.push_back(mark::vector<double>(node->pos - size / 2) * 32.0 + mark::vector<double>(16.0, 16.0));
+				out.push_back(map_to_world(node->pos, size));
 				node = node->parent;
 			}
 			return out;

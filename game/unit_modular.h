@@ -46,6 +46,7 @@ namespace mark {
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
 			mark::command m_command;
+			std::vector<mark::vector<double>> m_path;
 		};
 	}
 }
