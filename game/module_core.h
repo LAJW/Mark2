@@ -13,7 +13,7 @@ namespace mark {
 		class core : public base {
 		public:
 			core(mark::resource::manager& resource_manager);
-			auto render() const -> std::vector<mark::sprite> override;
+			virtual void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;

@@ -22,7 +22,7 @@ namespace mark {
 			base(mark::vector<unsigned> size);
 			virtual ~base() = default;
 			inline auto size() const { return m_size; }
-			virtual auto render() const->std::vector<mark::sprite> = 0;
+			virtual void tick(mark::tick_context& context) = 0;
 			virtual auto dead() const -> bool = 0;
 			Property<mark::unit::modular::socket*> socket = nullptr;
 		private:

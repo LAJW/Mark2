@@ -10,7 +10,7 @@ namespace mark {
 		class turret : public mark::module::base {
 		public:
 			turret(mark::resource::manager& manager);
-			auto render() const->std::vector<mark::sprite> override;
+			virtual void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;

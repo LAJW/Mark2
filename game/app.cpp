@@ -45,10 +45,11 @@ void mark::app::main() {
 			}
 
 			m_window.clear();
-			world->tick(dt);
-			auto sprites = world->render(mark::vector<double>(m_window.getSize()));
-			for (auto& sprite : sprites) {
-				render(sprite, world->camera());
+			auto sprites = world->tick(dt, mark::vector<double>(m_window.getSize()));
+			for (const auto& layer : sprites) {
+				for (const auto& sprite : layer.second) {
+					render(sprite, world->camera());
+				}
 			}
 			m_window.display();
 		}

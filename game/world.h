@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <vector>
 #include "iserializable.h"
@@ -22,9 +23,8 @@ namespace mark {
 	class world {
 	public:
 		world(mark::resource::manager& resource_manager);
-		auto render(mark::vector<double> screen_size) const->std::vector<mark::sprite>;
 		auto resource_manager() -> mark::resource::manager&;
-		void tick(double dt);
+		auto tick(double dt, mark::vector<double> screen_size) -> std::map<int, std::vector<mark::sprite>>;
 		auto map() const->const mark::map&;
 		auto camera() const->mark::vector<double> { return m_camera; }
 		auto find(mark::vector<double> pos, double radius)->std::vector<std::shared_ptr<mark::unit::base>>;

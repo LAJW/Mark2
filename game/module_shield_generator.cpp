@@ -3,6 +3,7 @@
 #include "resource_manager.h"
 #include "resource_image.h"
 #include "sprite.h"
+#include "tick_context.h"
 
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
 	base({ 2, 2 }),
@@ -11,10 +12,8 @@ mark::module::shield_generator::shield_generator(mark::resource::manager& resour
 
 }
 
-auto mark::module::shield_generator::render() const -> std::vector<mark::sprite> {
+void mark::module::shield_generator::tick(mark::tick_context& context) {
 	auto pos = socket()->relative_pos();
-	return {
-		mark::sprite(m_im_generator, pos.x, pos.y, 32.f, socket()->rotation()),
-		mark::sprite(m_im_shield, pos.x, pos.y, 128.f)
-	};
+	context.sprites[0].push_back(mark::sprite(m_im_generator, pos.x, pos.y, 32.f, socket()->rotation()));
+	context.sprites[1].push_back(mark::sprite(m_im_shield, pos.x, pos.y, 128.f));
 }

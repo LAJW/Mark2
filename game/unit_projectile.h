@@ -8,7 +8,6 @@ namespace mark {
 		class projectile final : public mark::unit::base {
 		public:
 			projectile(mark::world& world, mark::vector<double> pos, float rotation);
-			auto render() const->std::vector<mark::sprite>;
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 		private:

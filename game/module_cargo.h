@@ -10,7 +10,7 @@ namespace mark {
 		class cargo : public mark::module::base {
 		public:
 			cargo(mark::resource::manager& manager);
-			auto render() const->std::vector<mark::sprite> override;
+			virtual void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;

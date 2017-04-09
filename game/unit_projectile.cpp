@@ -10,17 +10,15 @@ mark::unit::projectile::projectile(mark::world& world, mark::vector<double> pos,
 	m_image = world.resource_manager().image("shell.png");
 }
 
-auto mark::unit::projectile::render() const -> std::vector<mark::sprite> {
-	const auto rotation = m_rotation + 90.f;
-	return { mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation) };
-}
-
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	m_pos += mark::rotate(mark::vector<double>(1, 0), m_rotation) * 100.0 * dt;
 	if (m_world.map().traversable(m_pos)) {
 		m_dead = true;
 	}
+
+	const auto rotation = m_rotation + 90.f;
+	context.sprites[1].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation));
 }
 
 auto mark::unit::projectile::dead() const -> bool {

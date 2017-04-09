@@ -3,6 +3,7 @@
 #include "resource_manager.h"
 #include "resource_image.h"
 #include "sprite.h"
+#include "tick_context.h"
 
 mark::module::turret::turret(mark::resource::manager& resource_manager):
 	base({ 2, 2 }),
@@ -11,9 +12,9 @@ mark::module::turret::turret(mark::resource::manager& resource_manager):
 
 }
 
-auto mark::module::turret::render() const -> std::vector<mark::sprite> {
+void mark::module::turret::tick(mark::tick_context& context) {
 	auto pos = socket()->relative_pos();
-	return { mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()) };
+	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
 }
 
 auto mark::module::turret::dead() const -> bool {

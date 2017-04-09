@@ -25,7 +25,7 @@ namespace mark {
 				inline auto size() const -> mark::vector<unsigned>;
 				inline auto pos() const { return m_pos; }
 				auto relative_pos() const->mark::vector<double>;
-				auto render() const->std::vector<mark::sprite>;
+				void tick(mark::tick_context& context);
 				auto rotation() const -> float;
 				auto dead() const -> bool;
 			private:
@@ -39,7 +39,6 @@ namespace mark {
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
 			auto get_attached(const socket&, mark::vector<int> pos)->std::vector<std::reference_wrapper<socket>>;
 			auto get_core()->mark::module::core&;
-			auto render() const->std::vector<mark::sprite> override;
 			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;

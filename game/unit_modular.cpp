@@ -34,8 +34,8 @@ auto mark::unit::modular::socket::get_attached() ->
 	return out;
 }
 
-auto mark::unit::modular::socket::render() const -> std::vector<mark::sprite> {
-	return m_module->render();
+void mark::unit::modular::socket::tick(mark::tick_context& context) {
+	m_module->tick(context);
 }
 
 inline auto mark::unit::modular::socket::size() const->mark::vector<unsigned> {
@@ -63,6 +63,9 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(mark::tick_context& context) {
+	for (auto& socket : m_sockets) {
+		socket.tick(context);
+	}
 	double dt = context.dt;
 	if (m_command.type == mark::command::type::move) {
 		if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
@@ -82,7 +85,13 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		}
 	}
 
-	m_rotation += 30.0 * dt;
+#ifdef _DEBUG
+	for (const auto& step : m_path) {
+		sprites.push_back(mark::sprite(m_world.resource_manager().image("generator.png"), step.x, step.y));
+	}
+#endif // !_DEBUG
+
+	m_rotation += 30.f * static_cast<float>(dt);
 }
 
 auto mark::unit::modular::get_attached(const socket&, mark::vector<int>) ->
@@ -125,24 +134,6 @@ auto mark::unit::modular::get_core() -> mark::module::core& {
 	} else {
 		throw mark::user_error("NO_CORE");
 	}
-}
-
-auto mark::unit::modular::render() const -> std::vector<mark::sprite> {
-	std::vector<mark::sprite> sprites;
-	for (auto& socket : m_sockets) {
-		auto socket_sprites = socket.render();
-		sprites.insert(
-			sprites.end(),
-			std::make_move_iterator(socket_sprites.begin()),
-			std::make_move_iterator(socket_sprites.end())
-		);
-	}
-#ifdef _DEBUG
-	for (const auto& step : m_path) {
-		sprites.push_back(mark::sprite(m_world.resource_manager().image("generator.png"), step.x, step.y));
-	}
-#endif // !_DEBUG
-	return sprites;
 }
 
 void mark::unit::modular::command(const mark::command& command) {

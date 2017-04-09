@@ -34,34 +34,25 @@ auto mark::world::map() const -> const mark::map&{
 	return m_map;
 }
 
-auto mark::world::render(mark::vector<double> screen_size) const -> std::vector<mark::sprite> {
-	std::vector<mark::sprite> sprites = m_map.render(
-		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
-		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64)
-	);
-
-	for (auto& unit : m_units) {
-		auto socket_sprites = unit->render();
-		sprites.insert(
-			sprites.end(),
-			std::make_move_iterator(socket_sprites.begin()),
-			std::make_move_iterator(socket_sprites.end())
-		);
-	}
-
-
-	return sprites;
-}
-
 auto mark::world::resource_manager() -> mark::resource::manager& {
 	return m_resource_manager;
 }
 
-void mark::world::tick(double dt) {
+auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<int, std::vector<mark::sprite>> {
 	if (dt > 0.1) {
 		dt = 0.1;
 	}
 	mark::tick_context context;
+	std::vector<mark::sprite> sprites = m_map.render(
+		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
+		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64)
+	);
+	context.sprites[0].insert(
+		context.sprites[0].end(),
+		std::make_move_iterator(sprites.begin()),
+		std::make_move_iterator(sprites.end())
+	);
+
 	context.dt = dt;
 	for (auto& unit : m_units) {
 		unit->tick(context);
@@ -79,6 +70,7 @@ void mark::world::tick(double dt) {
 	if (camera_target) {
 		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * dt;
 	}
+	return context.sprites;
 }
 
 auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<std::shared_ptr<mark::unit::base>> {

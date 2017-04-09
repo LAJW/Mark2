@@ -37,6 +37,9 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 		m_direction = rotate(m_direction, turn_direction  * 180.f * dt);
 		m_pos += direction * 100.0 * dt;
 	}
+
+	const auto rotation = mark::atan(m_direction) + 90.f;
+	context.sprites[0].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation));
 }
 
 auto mark::unit::minion::dead() const -> bool {
