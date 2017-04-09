@@ -15,6 +15,7 @@ namespace mark {
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;
 			std::shared_ptr<const mark::resource::image> m_im_cannon;
+			float m_cur_cooldown = 0;
 		};
 	}
 }

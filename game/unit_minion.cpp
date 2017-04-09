@@ -10,11 +10,6 @@ mark::unit::minion::minion(mark::world& world, mark::vector<double> pos)
 	m_image = world.resource_manager().image("mark1.png");
 }
 
-auto mark::unit::minion::render() const -> std::vector<mark::sprite> {
-	const auto rotation = mark::atan(m_direction) + 90.f;
-	return { mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation) };
-}
-
 void mark::unit::minion::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	auto neighbors = m_world.find(m_pos, 50.0);
@@ -38,7 +33,7 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 		m_pos += direction * 100.0 * dt;
 	}
 
-	const auto rotation = mark::atan(m_direction) + 90.f;
+	const auto rotation = mark::atan(m_direction);
 	context.sprites[0].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation));
 }
 

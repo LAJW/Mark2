@@ -8,7 +8,6 @@ namespace mark {
 		class minion final : public mark::unit::base {
 		public:
 			minion(mark::world& world, mark::vector<double> pos);
-			auto render() const->std::vector<mark::sprite>;
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 		private:

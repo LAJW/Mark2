@@ -4,7 +4,7 @@
 #include "tick_context.h"
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager)
-	:mark::module::base({ 2, 4 }), m_image(resource_manager.image("cargo.png")) {
+	:mark::module::base({ 4, 2 }), m_image(resource_manager.image("cargo.png")) {
 }
 
 void mark::module::cargo::tick(mark::tick_context& context) {

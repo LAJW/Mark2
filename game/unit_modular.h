@@ -28,10 +28,11 @@ namespace mark {
 				void tick(mark::tick_context& context);
 				auto rotation() const -> float;
 				auto dead() const -> bool;
+				inline auto world() -> mark::world& { return m_parent.world(); }
 			private:
 				const mark::vector<int> m_pos;
 				std::unique_ptr<module::base> m_module;
-				modular& m_parent;
+				mark::unit::modular& m_parent;
 			};
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
@@ -42,6 +43,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;
+			inline auto world() -> mark::world& { return m_world; }
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
