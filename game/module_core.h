@@ -14,8 +14,10 @@ namespace mark {
 		public:
 			core(mark::resource::manager& resource_manager);
 			auto render() const -> std::vector<mark::sprite> override;
+			auto dead() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
+			int m_health = 100;
 		};
 	}
 }

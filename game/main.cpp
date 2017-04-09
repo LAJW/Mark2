@@ -7,6 +7,7 @@ int main(const int argc, const char* argv[]) {
 		app.main();
 	} catch (std::exception& error) {
 		std::cout << "ERROR: " << error.what() << std::endl;
+		std::cin.get();
 		return 1;
 	}
 	return 0;

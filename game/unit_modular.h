@@ -14,9 +14,9 @@ namespace mark {
 	class world;
 
 	namespace unit {
-		class modular : public base {
+		class modular final : public base {
 		public:
-			class socket {
+			class socket final {
 			public:
 				socket(modular& parent, std::unique_ptr<module::base>, mark::vector<int> pos);
 				socket(mark::unit::modular::socket&& other);
@@ -27,6 +27,7 @@ namespace mark {
 				auto relative_pos() const->mark::vector<double>;
 				auto render() const->std::vector<mark::sprite>;
 				auto rotation() const -> float;
+				auto dead() const -> bool;
 			private:
 				const mark::vector<int> m_pos;
 				std::unique_ptr<module::base> m_module;
@@ -39,8 +40,9 @@ namespace mark {
 			auto get_attached(const socket&, mark::vector<int> pos)->std::vector<std::reference_wrapper<socket>>;
 			auto get_core()->mark::module::core&;
 			auto render() const->std::vector<mark::sprite> override;
-			void tick(double dt) override;
+			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }
+			auto dead() const -> bool override;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

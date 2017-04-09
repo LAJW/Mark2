@@ -11,6 +11,7 @@ namespace mark {
 		public:
 			cargo(mark::resource::manager& manager);
 			auto render() const->std::vector<mark::sprite> override;
+			inline auto dead() const -> bool override { return false; }
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 		};

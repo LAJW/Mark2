@@ -3,6 +3,7 @@
 #include "sprite.h"
 #include "resource_manager.h"
 #include "terrain_base.h"
+#include "tick_context.h"
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos)
 	:mark::unit::base(world, pos) {
@@ -14,7 +15,8 @@ auto mark::unit::minion::render() const -> std::vector<mark::sprite> {
 	return { mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation) };
 }
 
-void mark::unit::minion::tick(double dt) {
+void mark::unit::minion::tick(mark::tick_context& context) {
+	double dt = context.dt;
 	auto neighbors = m_world.find(m_pos, 50.0);
 	const auto distance = m_world.camera() - m_pos;
 	const auto length = mark::length(distance);
@@ -35,4 +37,8 @@ void mark::unit::minion::tick(double dt) {
 		m_direction = rotate(m_direction, turn_direction  * 180.f * dt);
 		m_pos += direction * 100.0 * dt;
 	}
+}
+
+auto mark::unit::minion::dead() const -> bool {
+	return m_health <= 0;
 }

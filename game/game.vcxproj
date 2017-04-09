@@ -153,12 +153,14 @@
     <ClCompile Include="module_cargo.cpp" />
     <ClCompile Include="module_core.cpp" />
     <ClCompile Include="module_shield_generator.cpp" />
+    <ClCompile Include="module_turret.cpp" />
     <ClCompile Include="resource_manager.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="terrain_floor.cpp" />
     <ClCompile Include="unit_minion.cpp" />
     <ClCompile Include="unit_modular.cpp" />
     <ClCompile Include="terrain_wall.cpp" />
+    <ClCompile Include="unit_projectile.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +170,9 @@
     <ClInclude Include="map.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="module_shield_generator.h" />
+    <ClInclude Include="module_turret.h" />
+    <ClInclude Include="tick_context.h" />
+    <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="property.h" />
     <ClInclude Include="resource_image.h" />
     <ClInclude Include="iserializable.h" />

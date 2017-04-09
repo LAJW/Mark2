@@ -5,16 +5,16 @@
 namespace mark {
 	class world;
 	namespace unit {
-		class minion final : public mark::unit::base {
+		class projectile final : public mark::unit::base {
 		public:
-			minion(mark::world& world, mark::vector<double> pos);
+			projectile(mark::world& world, mark::vector<double> pos, float rotation);
 			auto render() const->std::vector<mark::sprite>;
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
-			mark::vector<float> m_direction = { 1, 0 };
-			int m_health = 100;
+			float m_rotation = 0;
+			bool m_dead = false;
 		};
 	}
 }

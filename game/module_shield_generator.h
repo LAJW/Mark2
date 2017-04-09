@@ -14,8 +14,10 @@ namespace mark {
 		public:
 			shield_generator(mark::resource::manager& resource_manager);
 			auto render() const->std::vector<mark::sprite> override;
+			inline auto dead() const -> bool override { return false; }
 		private:
-			std::shared_ptr<const mark::resource::image> m_image;
+			std::shared_ptr<const mark::resource::image> m_im_generator;
+			std::shared_ptr<const mark::resource::image> m_im_shield;
 		};
 	}
 }

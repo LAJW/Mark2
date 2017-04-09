@@ -23,9 +23,10 @@ namespace mark {
 			virtual ~base() = default;
 			inline auto size() const { return m_size; }
 			virtual auto render() const->std::vector<mark::sprite> = 0;
+			virtual auto dead() const -> bool = 0;
 			Property<mark::unit::modular::socket*> socket = nullptr;
 		private:
-			mark::vector<unsigned> m_size;
+			const mark::vector<unsigned> m_size;
 		};
 
 		class energy_generator : public base {
@@ -34,11 +35,6 @@ namespace mark {
 		};
 
 		class armor : public base {
-		public:
-		private:
-		};
-
-		class turret : public base {
 		public:
 		private:
 		};
@@ -53,17 +49,7 @@ namespace mark {
 		private:
 		};
 
-		class laser_turret : public turret {
-		public:
-		private:
-		};
-
 		class rocket_gun : public gun {
-		public:
-		private:
-		};
-
-		class rocket_turret : public turret {
 		public:
 		private:
 		};
@@ -73,27 +59,12 @@ namespace mark {
 		private:
 		};
 
-		class emp_turret : public turret {
-		public:
-		private:
-		};
-
 		class antimatter_gun : public gun {
 		public:
 		private:
 		};
 
-		class antimatter_turret : public turret {
-		public:
-		private:
-		};
-
 		class flamethrower_gun : public gun {
-		public:
-		private:
-		};
-
-		class flamethrower_turret : public turret {
 		public:
 		private:
 		};

@@ -9,6 +9,7 @@
 #include "terrain_base.h"
 #include "command.h"
 #include "resource_manager.h"
+#include "tick_context.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -50,6 +51,10 @@ auto mark::unit::modular::socket::rotation() const -> float {
 	return m_parent.rotation();
 }
 
+auto mark::unit::modular::socket::dead() const -> bool {
+	return m_module->dead();
+}
+
 // MODULAR
 
 mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation)
@@ -57,7 +62,8 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 
 }
 
-void mark::unit::modular::tick(double dt) {
+void mark::unit::modular::tick(mark::tick_context& context) {
+	double dt = context.dt;
 	if (m_command.type == mark::command::type::move) {
 		if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
 			const auto path = m_world.map().find_path(m_pos, m_command.pos);
@@ -92,7 +98,7 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 	assert(module);
 	// check collisions with other modules
 	auto insert_right = pos.x + static_cast<int>(module->size().x);
-	auto insert_bottom = pos.x + static_cast<int>(module->size().y);
+	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
 	for (auto& socket : m_sockets) {
 		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
 		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
@@ -141,4 +147,8 @@ auto mark::unit::modular::render() const -> std::vector<mark::sprite> {
 
 void mark::unit::modular::command(const mark::command& command) {
 	m_command = command;
+}
+
+auto mark::unit::modular::dead() const -> bool {
+	return m_core && m_core->dead();
 }

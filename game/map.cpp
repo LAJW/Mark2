@@ -10,7 +10,7 @@
 #include "terrain_wall.h"
 
 static auto world_to_map(const mark::vector<double>& pos, const mark::vector<int>& map_size) {
-	return mark::vector<int>(std::round(pos.x / 32.0), std::round(pos.y / 32.0)) + map_size / 2;
+	return mark::vector<int>(static_cast<int>(std::round(pos.x / 32.0)), static_cast<int>(std::round(pos.y / 32.0))) + map_size / 2;
 }
 
 static auto map_to_world(const mark::vector<int>& pos, const mark::vector<int>& map_size) {
