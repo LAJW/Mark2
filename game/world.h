@@ -6,6 +6,7 @@
 #include "property.h"
 #include "vector.h"
 #include "map.h"
+#include "particle.h"
 
 namespace mark {
 	class sprite;
@@ -35,5 +36,6 @@ namespace mark {
 		mark::resource::manager& m_resource_manager;
 		std::weak_ptr<mark::unit::base> m_camera_target;
 		mark::vector<double> m_camera;
+		std::vector<mark::particle> m_particles;
 	};
 }

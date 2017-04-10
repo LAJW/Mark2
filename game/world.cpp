@@ -57,15 +57,37 @@ auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<
 	for (auto& unit : m_units) {
 		unit->tick(context);
 	}
-	auto last = std::remove_if(m_units.begin(), m_units.end(), [](const std::shared_ptr<mark::unit::base>& base) {
-		return base->dead();
-	});
-	m_units.erase(last, m_units.end());
-	m_units.insert(
-		m_units.end(),
-		std::make_move_iterator(context.units.begin()),
-		std::make_move_iterator(context.units.end())
-	);
+	for (auto& particle : m_particles) {
+		particle.tick(dt, context.sprites);
+	}
+	// Add/Remove units
+	{
+		auto last = std::remove_if(m_units.begin(), m_units.end(), [](const std::shared_ptr<mark::unit::base>& base) {
+			return base->dead();
+		});
+		m_units.erase(last, m_units.end());
+		m_units.insert(
+			m_units.end(),
+			std::make_move_iterator(context.units.begin()),
+			std::make_move_iterator(context.units.end())
+		);
+	}
+	// Add/remove particles
+	{
+		auto last = std::remove_if(
+			m_particles.begin(),
+			m_particles.end(),
+			[](const mark::particle& particle) {
+			return particle.dead();
+		});
+		m_particles.erase(last, m_particles.end());
+		m_particles.insert(
+			m_particles.end(),
+			std::make_move_iterator(context.particles.begin()),
+			std::make_move_iterator(context.particles.end())
+		);
+	}
+
 	const auto camera_target = m_camera_target.lock();
 	if (camera_target) {
 		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * dt;

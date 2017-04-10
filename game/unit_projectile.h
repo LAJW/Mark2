@@ -12,6 +12,7 @@ namespace mark {
 			auto dead() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
+			std::shared_ptr<const mark::resource::image> m_im_tail;
 			float m_rotation = 0;
 			bool m_dead = false;
 		};

@@ -19,7 +19,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= context.dt;
 	} else {
-		m_cur_cooldown = 1.f;
+		m_cur_cooldown = 0.5f;
 		context.units.push_back(std::make_shared<mark::unit::projectile>(socket()->world(), pos, socket()->rotation()));
 	}
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));

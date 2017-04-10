@@ -7,19 +7,26 @@
 
 mark::unit::projectile::projectile(mark::world& world, mark::vector<double> pos, float rotation):
 	mark::unit::base(world, pos),
-	m_rotation(rotation) {
-	m_image = world.resource_manager().image("shell.png");
+	m_rotation(rotation),
+	m_image(world.resource_manager().image("shell.png")),
+	m_im_tail(world.resource_manager().image("glare.png")) {
 }
 
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
-	m_pos += mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
+	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
+	m_pos += step;
 	if (!m_world.map().traversable(m_pos)) {
 		m_dead = true;
 	}
 
-	const auto rotation = m_rotation;
-	context.sprites[1].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 10.f, rotation));
+	for (int i = 0; i < 4; i++) {
+		const auto rotation = m_rotation;
+		context.sprites[1].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 10.f, rotation));
+		float direction = static_cast<float>(m_world.resource_manager().random_double(-15.0, 15.0)) + 180.f + m_rotation;
+		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
+		context.particles.emplace_back(m_im_tail, pos, 100.f, direction, 0.25f);
+	}
 }
 
 auto mark::unit::projectile::dead() const -> bool {
