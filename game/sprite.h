@@ -1,16 +1,32 @@
 #pragma once
 #include <memory>
 #include "resource_image.h"
+#include "vector.h"
+#include <SFML/Graphics/Color.hpp>
 
 namespace mark {
 	class sprite {
 	public:
-		sprite(std::shared_ptr<const mark::resource::image> image, double x, double y, float size = 16.f, float rotation = 0.f, size_t frame = 0);
+		sprite(
+			std::shared_ptr<const mark::resource::image> image,
+			double x, double y,
+			float size = 16.f,
+			float rotation = 0.f,
+			size_t frame = 0,
+			sf::Color color = sf::Color::White);
+		sprite(
+			std::shared_ptr<const mark::resource::image> image,
+			const mark::vector<double>& pos,
+			float size = 16.f,
+			float rotation = 0.f,
+			size_t frame = 0,
+			sf::Color color = sf::Color::White);
 		auto image() const -> const mark::resource::image&;
 		auto x() const -> double;
 		auto y() const -> double;
 		auto rotation() const -> float;
 		auto size() const -> float;
+		inline auto color() const -> sf::Color { return m_color; }
 	private:
 		std::shared_ptr<const mark::resource::image> m_image;
 		double m_x;
@@ -18,5 +34,6 @@ namespace mark {
 		float m_size;
 		float m_rotation;
 		size_t m_frame;
+		sf::Color m_color;
 	};
 }

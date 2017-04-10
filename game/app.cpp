@@ -64,6 +64,7 @@ void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& c
 	tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
 	tmp.scale(scale, scale);
 	tmp.rotate(sprite.rotation());
+	tmp.setColor(sprite.color());
 	tmp.move(static_cast<float>(sprite.x() - camera.x + m_window.getSize().x / 2.0), static_cast<float>(sprite.y() - camera.y + m_window.getSize().y / 2.0));
 	m_window.draw(tmp);
 }

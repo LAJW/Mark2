@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="lfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="module_base.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="exception.h" />
+    <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="module_shield_generator.h" />

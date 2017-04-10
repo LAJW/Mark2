@@ -13,7 +13,7 @@ mark::unit::projectile::projectile(mark::world& world, mark::vector<double> pos,
 
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
-	m_pos += mark::rotate(mark::vector<double>(1, 0), m_rotation) * 100.0 * dt;
+	m_pos += mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
 	if (!m_world.map().traversable(m_pos)) {
 		m_dead = true;
 	}

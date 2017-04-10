@@ -1,6 +1,9 @@
 #include "resource_manager.h"
 #include "resource_image.h"
 
+mark::resource::manager::manager():
+	m_gen(m_rd()) { }
+
 auto mark::resource::manager::image(const std::string& filename) -> std::shared_ptr<const mark::resource::image> {
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
@@ -12,4 +15,14 @@ auto mark::resource::manager::image(const std::string& filename) -> std::shared_
 	} else {
 		return image;
 	}
+}
+
+auto mark::resource::manager::random_int(int min, int max) -> int {
+	std::uniform_int_distribution<> dist(min, max);
+	return dist(m_gen);
+}
+
+auto mark::resource::manager::random_double(double min, double max) -> double {
+	std::uniform_real_distribution<> dist(min, max);
+	return dist(m_gen);
 }
