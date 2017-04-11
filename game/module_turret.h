@@ -1,4 +1,5 @@
 #pragma once
+#include "adsr.h"
 #include "module_base.h"
 #include "resource_image.h"
 
@@ -15,6 +16,7 @@ namespace mark {
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;
 			std::shared_ptr<const mark::resource::image> m_im_cannon;
+			mark::adsr m_adsr;
 			float m_cur_cooldown = 0;
 		};
 	}

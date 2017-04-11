@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="adsr.h" />
     <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="exception.h" />
