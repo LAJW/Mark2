@@ -16,7 +16,15 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
 	m_pos += step;
-	if (!m_world.map().traversable(m_pos)) {
+	auto nearby = m_world.find(m_pos, 50.f);
+	auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
+		return unit->team() != this->team();
+	});
+	if (!m_world.map().traversable(m_pos)
+		|| enemy_it != nearby.end()) {
+		if (enemy_it != nearby.end()) {
+			(*enemy_it)->damage(10, m_pos - step);
+		}
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
 			float speed = static_cast<float>(m_world.resource_manager().random_double(5.0, 75.0));

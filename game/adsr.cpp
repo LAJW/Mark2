@@ -27,8 +27,8 @@ double mark::adsr::get() const {
 	} else if (m_state < m_attack + m_sustain) {
 		return m_decay;
 	} else if (m_state < m_attack + m_sustain + m_release) {
-		return m_decay - m_state * m_decay / m_release;
+		return m_decay - (m_state - m_attack - m_sustain) * m_decay / m_release;
 	} else {
-		return 0;
+		return 0.f;
 	}
 }

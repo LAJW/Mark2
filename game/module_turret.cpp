@@ -23,7 +23,9 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	} else {
 		m_cur_cooldown = 0.5f;
 		m_adsr.trigger();
-		context.units.push_back(std::make_shared<mark::unit::projectile>(socket()->world(), pos, socket()->rotation()));
+		auto projectile = std::make_shared<mark::unit::projectile>(socket()->world(), pos, socket()->rotation());
+		projectile->team(socket()->team());
+		context.units.emplace_back(std::move(projectile));
 	}
 	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.f, 0.0), socket()->rotation()), 32.f, socket()->rotation()));
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));

@@ -17,6 +17,7 @@ mark::world::world(mark::resource::manager& resource_manager)
 	:m_resource_manager(resource_manager), m_map(resource_manager) {
 
 	auto vessel = std::make_shared<mark::unit::modular>(*this, mark::vector<double>(0.0, 0.0), 10.f);
+	vessel->team(1);
 	auto core = std::make_unique<mark::module::core>(m_resource_manager);
 	vessel->attach(std::move(core), { -1, -1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { -1, 1 });

@@ -10,6 +10,7 @@ namespace mark {
 			projectile(mark::world& world, mark::vector<double> pos, float rotation);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
+			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;

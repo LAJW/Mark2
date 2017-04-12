@@ -29,6 +29,7 @@ namespace mark {
 				auto rotation() const -> float;
 				auto dead() const -> bool;
 				inline auto world() -> mark::world& { return m_parent.world(); }
+				inline auto team() const -> int { return m_parent.team(); }
 			private:
 				const mark::vector<int> m_pos;
 				std::unique_ptr<module::base> m_module;
@@ -44,6 +45,7 @@ namespace mark {
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;
 			inline auto world() -> mark::world& { return m_world; }
+			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
