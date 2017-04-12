@@ -70,6 +70,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	if (mark::length(m_moveto - m_pos) > 320.0 * dt) {
 		const auto path = m_world.map().find_path(m_pos, m_moveto);
 		m_path = path;
+		const auto dir = mark::normalize(m_moveto - m_pos);
 		if (path.size() > 3) {
 			const auto first = path[path.size() - 3];
 			m_pos += mark::normalize(first - m_pos) * 320.0 * dt;

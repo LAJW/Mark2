@@ -39,6 +39,11 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -mark::atan(m_direction))));
 		m_direction = rotate(m_direction, static_cast<float>(turn_direction  * 180.f * dt));
 		m_pos += direction * 100.0 * dt;
+	} else if (mark::length(m_world.camera() - m_pos) > 320.0) {
+		const auto direction = mark::normalize((m_world.camera() - m_pos)) + mark::normalize(direction2);
+		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -mark::atan(m_direction))));
+		m_direction = rotate(m_direction, static_cast<float>(turn_direction  * 180.f * dt));
+		m_pos += direction * 100.0 * dt;
 	}
 	if (m_frame_cooldown.trigger()) {
 		m_frame = (m_frame + 1) % static_cast<int>(m_image->getSize().x / m_image->getSize().y);

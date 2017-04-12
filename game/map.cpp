@@ -119,6 +119,20 @@ struct Node {
 };
 
 auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double> world_end) const -> std::vector<mark::vector<double>> {
+	// first check if path is reachable directly
+	bool straight_exists = true;
+	const auto dir = mark::normalize(world_end - world_start);
+	const auto ort = mark::rotate(dir, 90.0);
+	const auto dist = mark::length(world_end - world_start);
+	for (double i = 0.0; i < dist; i += 24.0) {
+		const auto cur = dir * i + world_start;
+		if (!this->traversable(cur) || !this->traversable(cur + ort * 24.0) || !this->traversable(cur - ort * 24.0)) {
+			straight_exists = false;
+		}
+	}
+	if (straight_exists) {
+		return { world_end };
+	}
 	const auto size = this->size();
 	const auto start = world_to_map(world_start, size);
 	const auto end = world_to_map(world_end, size);
