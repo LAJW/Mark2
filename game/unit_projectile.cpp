@@ -18,7 +18,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	m_pos += step;
 	auto nearby = m_world.find(m_pos, 50.f);
 	auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
-		return unit->team() != this->team();
+		return unit->team() != this->team() && !unit->invincible();
 	});
 	if (!m_world.map().traversable(m_pos)
 		|| enemy_it != nearby.end()) {
@@ -50,4 +50,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 
 auto mark::unit::projectile::dead() const -> bool {
 	return m_dead;
+}
+
+auto mark::unit::projectile::invincible() const -> bool {
+	return true;
 }

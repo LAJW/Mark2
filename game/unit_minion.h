@@ -1,5 +1,6 @@
 #pragma once
 #include "adsr.h"
+#include "cooldown.h"
 #include "unit_base.h"
 #include "resource_image.h"
 
@@ -12,6 +13,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 			void damage(unsigned amount, mark::vector<double> pos);
+			auto invincible() const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_shield;
@@ -20,7 +22,8 @@ namespace mark {
 			mark::adsr m_bareer_reaction;
 			float m_bareer_direction = 0;
 			size_t m_frame = 0;
-			float m_clock = 0.f;
+			mark::cooldown m_gun_cooldown;
+			mark::cooldown m_frame_cooldown;
 		};
 	}
 }

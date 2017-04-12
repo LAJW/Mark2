@@ -46,6 +46,7 @@ namespace mark {
 			auto dead() const -> bool override;
 			inline auto world() -> mark::world& { return m_world; }
 			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
+			auto invincible() const -> bool override;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

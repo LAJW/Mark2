@@ -26,7 +26,7 @@ namespace mark {
 		auto y() const -> double;
 		auto rotation() const -> float;
 		auto size() const -> float;
-		auto frame() const -> int { return m_frame; }
+		auto frame() const -> size_t { return m_frame; }
 		inline auto color() const -> sf::Color { return m_color; }
 	private:
 		std::shared_ptr<const mark::resource::image> m_image;

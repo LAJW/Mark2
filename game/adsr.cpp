@@ -15,7 +15,7 @@ void mark::adsr::trigger() {
 }
 
 void mark::adsr::tick(double dt) {
-	m_state += dt;
+	m_state += static_cast<float>(dt);
 	if (m_state > m_attack + m_sustain + m_release) {
 		m_state = m_attack + m_sustain + m_release;
 	}

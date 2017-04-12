@@ -22,6 +22,7 @@ namespace mark {
 			auto inline pos() const { return m_pos; }
 			virtual auto dead() const -> bool = 0;
 			virtual void damage(unsigned amount, mark::vector<double> pos) = 0;
+			virtual bool invincible() const = 0;
 			Property<int> team = 0;
 		protected:
 			virtual ~base() = default;

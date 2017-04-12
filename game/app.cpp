@@ -61,7 +61,7 @@ void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& c
 	const auto texture_size = static_cast<float>(sprite.image().getSize().y);
 	const auto scale = sprite.size() / texture_size;
 	tmp.setTexture(sprite.image());
-	tmp.setTextureRect({ static_cast<int>(texture_size) * sprite.frame(), 0, static_cast<int>(texture_size), static_cast<int>(texture_size)  });
+	tmp.setTextureRect({ static_cast<int>(texture_size) * static_cast<int>(sprite.frame()), 0, static_cast<int>(texture_size), static_cast<int>(texture_size)  });
 	tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
 	tmp.scale(scale, scale);
 	tmp.rotate(sprite.rotation());

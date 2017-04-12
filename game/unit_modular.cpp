@@ -87,7 +87,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 
 #ifdef _DEBUG
 	for (const auto& step : m_path) {
-		sprites.push_back(mark::sprite(m_world.resource_manager().image("generator.png"), step.x, step.y));
+		context.sprites[100].emplace_back(m_world.resource_manager().image("generator.png"), step);
 	}
 #endif // !_DEBUG
 
@@ -142,4 +142,8 @@ void mark::unit::modular::command(const mark::command& command) {
 
 auto mark::unit::modular::dead() const -> bool {
 	return m_core && m_core->dead();
+}
+
+auto mark::unit::modular::invincible() const -> bool {
+	return false;
 }
