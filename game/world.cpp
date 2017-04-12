@@ -11,6 +11,7 @@
 #include "unit_minion.h"
 #include "command.h"
 #include "tick_context.h"
+#include "module_cannon.h"
 
 
 mark::world::world(mark::resource::manager& resource_manager)
@@ -25,6 +26,8 @@ mark::world::world(mark::resource::manager& resource_manager)
 	vessel->attach(std::make_unique<mark::module::shield_generator>(m_resource_manager), { 1, -1 });
 	vessel->attach(std::make_unique<mark::module::turret>(m_resource_manager), { -3, -3 });
 	vessel->attach(std::make_unique<mark::module::turret>(m_resource_manager), { -3, 1 });
+	vessel->attach(std::make_unique<mark::module::cannon>(m_resource_manager), { -1, 3 });
+	vessel->attach(std::make_unique<mark::module::cannon>(m_resource_manager), { -1, -5 });
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));

@@ -5,7 +5,8 @@ namespace mark {
 	class command {
 	public:
 		enum class type {
-			move
+			move,
+			guide
 		} type;
 		mark::vector<double> pos;
 	};

@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="module_cannon.cpp" />
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="main.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="exception.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="module_cannon.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="module_shield_generator.h" />
     <ClInclude Include="module_turret.h" />

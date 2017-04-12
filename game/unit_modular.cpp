@@ -67,22 +67,28 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		socket.tick(context);
 	}
 	double dt = context.dt;
-	if (m_command.type == mark::command::type::move) {
-		if (mark::length(m_command.pos - m_pos) > 320.0 * dt) {
-			const auto path = m_world.map().find_path(m_pos, m_command.pos);
-			m_path = path;
-			if (path.size() > 3) {
-				const auto first = path[path.size() - 3];
-				m_pos += mark::normalize(first - m_pos) * 320.0 * dt;
-			} else {
-				const auto step = mark::normalize(m_command.pos - m_pos) * 320.0 * dt;
-				if (m_world.map().traversable(m_pos + step)) {
-					m_pos += step;
-				}
-			}
+	if (mark::length(m_moveto - m_pos) > 320.0 * dt) {
+		const auto path = m_world.map().find_path(m_pos, m_moveto);
+		m_path = path;
+		if (path.size() > 3) {
+			const auto first = path[path.size() - 3];
+			m_pos += mark::normalize(first - m_pos) * 320.0 * dt;
 		} else {
-			m_pos = m_command.pos;
+			const auto step = mark::normalize(m_moveto - m_pos) * 320.0 * dt;
+			if (m_world.map().traversable(m_pos + step)) {
+				m_pos += step;
+			}
 		}
+	} else {
+		m_pos = m_moveto;
+	}
+	const auto direction = mark::normalize((m_lookat - m_pos));
+	const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+	const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
+	if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+		m_rotation = mark::atan(direction);
+	} else {
+		m_rotation += rot_step;
 	}
 
 #ifdef _DEBUG
@@ -91,7 +97,6 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	}
 #endif // !_DEBUG
 
-	m_rotation += 30.f * static_cast<float>(dt);
 }
 
 auto mark::unit::modular::get_attached(const socket&, mark::vector<int>) ->
@@ -137,7 +142,11 @@ auto mark::unit::modular::get_core() -> mark::module::core& {
 }
 
 void mark::unit::modular::command(const mark::command& command) {
-	m_command = command;
+	if (command.type == mark::command::type::move) {
+		m_moveto = command.pos;
+	} else if (command.type == mark::command::type::guide) {
+		m_lookat = command.pos;
+	}
 }
 
 auto mark::unit::modular::dead() const -> bool {

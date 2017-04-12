@@ -53,6 +53,8 @@ namespace mark {
 			float m_rotation = 0.f;
 			mark::command m_command;
 			std::vector<mark::vector<double>> m_path;
+			mark::vector<double> m_moveto;
+			mark::vector<double> m_lookat;
 		};
 	}
 }
