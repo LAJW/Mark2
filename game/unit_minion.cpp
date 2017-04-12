@@ -4,6 +4,7 @@
 #include "resource_manager.h"
 #include "terrain_base.h"
 #include "tick_context.h"
+#include "unit_projectile.h"
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
 	mark::unit::base(world, pos),
@@ -35,10 +36,21 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 		m_direction = rotate(m_direction, turn_direction  * 180.f * dt);
 		m_pos += direction * 100.0 * dt;
 	}
+	m_clock += context.dt;
+	if (m_clock > 0.2f) {
+		m_frame = (m_frame + 1) % static_cast<int>(m_image->getSize().x / m_image->getSize().y);
+		m_clock = 0.f;
+
+		auto projectile = std::make_shared<mark::unit::projectile>(m_world, m_pos, mark::atan(m_direction));
+		projectile->team(this->team());
+		context.units.emplace_back(std::move(projectile));
+	}
 
 	const auto rotation = mark::atan(m_direction);
-	context.sprites[0].push_back(mark::sprite(m_image, m_pos.x, m_pos.y, 50.f, rotation));
-	context.sprites[0].push_back(mark::sprite(m_im_shield, m_pos, 50.f, m_bareer_direction, 0, sf::Color(155, 255, 255, static_cast<uint8_t>(m_bareer_reaction.get() + 1.f))));
+	context.sprites[1].push_back(mark::sprite(m_image, m_pos, 116.f, rotation, m_frame));
+	context.sprites[2].push_back(mark::sprite(m_im_shield, m_pos, 116.f, m_bareer_direction, 0, sf::Color(155, 255, 255, static_cast<uint8_t>(m_bareer_reaction.get() + 1.f))));
+	m_clock += context.dt;
+
 }
 
 auto mark::unit::minion::dead() const -> bool {

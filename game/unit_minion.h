@@ -19,6 +19,8 @@ namespace mark {
 			int m_health = 100;
 			mark::adsr m_bareer_reaction;
 			float m_bareer_direction = 0;
+			size_t m_frame = 0;
+			float m_clock = 0.f;
 		};
 	}
 }
