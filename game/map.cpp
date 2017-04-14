@@ -78,35 +78,47 @@ static auto make_map(mark::resource::manager& resource_manager) {
 			auto bl = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y + 1].get());
 			auto b = dynamic_cast<mark::terrain::wall*>(floor[x][y + 1].get());
 			auto br = dynamic_cast<mark::terrain::wall*>(floor[x + 1][y + 1].get());
+			auto rand = resource_manager.random_int(0, 2) * 13;
+			auto rand2 = resource_manager.random_double(0, 1);
 			if (cur) {
 				if (t) {
 					if (l) {
-						cur->variant(0);
+						cur->variant(0 + rand);
 					} else if (r) {
-						cur->variant(2);
+						cur->variant(2 + rand);
 					} else {
-						cur->variant(1);
+						cur->variant(1 + rand);
 					}
 				} else if (b) {
 					if (l) {
-						cur->variant(6);
+						cur->variant(6 + rand);
 					} else if (r) {
-						cur->variant(8);
+						cur->variant(8 + rand);
 					} else {
-						cur->variant(7);
+						cur->variant(7 + rand);
 					}
 				} else if (l) {
-					cur->variant(3);
+					cur->variant(3 + rand);
 				} else if (r) {
-					cur->variant(5);
+					cur->variant(5 + rand);
 				} else if (tl) {
-					cur->variant(9);
+					cur->variant(12 + rand);
 				} else if (tr) {
-					cur->variant(10);
+					cur->variant(11 + rand);
 				} else if (bl) {
-					cur->variant(11);
+					cur->variant(10 + rand);
 				} else if (br) {
-					cur->variant(12);
+					cur->variant(9 + rand);
+				} else {
+					int rand3;
+					if (rand2 > 0.05) {
+						rand3 = 0;
+					} else if (rand2 > 0.025) {
+						rand3 = 1;
+					} else {
+						rand3 = 2;
+					}
+					cur->variant(4 + rand3 * 13);
 				}
 			}
 		}

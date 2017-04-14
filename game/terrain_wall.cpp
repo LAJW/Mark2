@@ -4,7 +4,7 @@
 #include "resource_manager.h"
 
 mark::terrain::wall::wall(mark::resource::manager& resource_manager)
-	:m_image(resource_manager.image("wall.png")) {
+	:m_image(resource_manager.image("snow.png")) {
 }
 
 auto mark::terrain::wall::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {
