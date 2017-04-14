@@ -6,7 +6,6 @@ mark::adsr::adsr(float attack, float decay, float sustain, float release):
 	m_sustain(sustain),
 	m_release(release),
 	m_state(attack + sustain + release) {
-	assert(attack > 0);
 	assert(release > 0);
 }
 

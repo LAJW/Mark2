@@ -8,7 +8,7 @@
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
 	mark::unit::base(world, pos),
-	m_bareer_reaction(0.01f, 255.f, 0.1f, 1.f),
+	m_bareer_reaction(0.f, 255.f, 0.1f, 1.f),
 	m_image(world.resource_manager().image("mark1.png")),
 	m_im_shield(world.resource_manager().image("shield-reaction.png")),
 	m_gun_cooldown(0.5f),
