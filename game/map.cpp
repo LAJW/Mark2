@@ -65,6 +65,52 @@ static auto make_map(mark::resource::manager& resource_manager) {
 		}
 		point += direction * length;
 	}
+	// fix corners
+
+	for (size_t x = 1; x < 999; x++) {
+		for (size_t y = 1; y < 999; y++) {
+			auto cur = dynamic_cast<mark::terrain::floor*>(floor[x][y].get());
+			auto tl = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y - 1].get());
+			auto t = dynamic_cast<mark::terrain::wall*>(floor[x][y - 1].get());
+			auto tr = dynamic_cast<mark::terrain::wall*>(floor[x + 1][y - 1].get());
+			auto l = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y].get());
+			auto r = dynamic_cast<mark::terrain::wall*>(floor[x + 1][y].get());
+			auto bl = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y + 1].get());
+			auto b = dynamic_cast<mark::terrain::wall*>(floor[x][y + 1].get());
+			auto br = dynamic_cast<mark::terrain::wall*>(floor[x + 1][y + 1].get());
+			if (cur) {
+				if (t) {
+					if (l) {
+						cur->variant(0);
+					} else if (r) {
+						cur->variant(2);
+					} else {
+						cur->variant(1);
+					}
+				} else if (b) {
+					if (l) {
+						cur->variant(6);
+					} else if (r) {
+						cur->variant(8);
+					} else {
+						cur->variant(7);
+					}
+				} else if (l) {
+					cur->variant(3);
+				} else if (r) {
+					cur->variant(5);
+				} else if (tl) {
+					cur->variant(9);
+				} else if (tr) {
+					cur->variant(10);
+				} else if (bl) {
+					cur->variant(11);
+				} else if (br) {
+					cur->variant(12);
+				}
+			}
+		}
+	}
 
 	return floor;
 }
