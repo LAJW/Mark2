@@ -17,7 +17,7 @@ mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr
 }
 
 mark::unit::modular::socket::socket(mark::unit::modular::socket&& other)
-	:m_parent(other.m_parent), m_module(std::move(other.m_module)), m_pos(other.m_pos) {
+	: m_parent(other.m_parent), m_module(std::move(other.m_module)), m_pos(other.m_pos) {
 	m_module->socket(this);
 }
 
@@ -26,7 +26,7 @@ mark::unit::modular::socket::~socket() {
 }
 
 auto mark::unit::modular::socket::get_attached() ->
-	std::vector<std::reference_wrapper<mark::module::base>> {
+std::vector<std::reference_wrapper<mark::module::base>> {
 	std::vector<std::reference_wrapper<mark::module::base>> out;
 	for (auto socket : m_parent.get_attached(*this, m_pos)) {
 		out.push_back(*socket.get().m_module);
@@ -67,21 +67,33 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		socket.tick(context);
 	}
 	double dt = context.dt;
-	if (mark::length(m_moveto - m_pos) > 320.0 * dt) {
+	double speed = m_ai ? 64.0 : 320.0;
+	if (mark::length(m_moveto - m_pos) > speed * dt) {
 		const auto path = m_world.map().find_path(m_pos, m_moveto);
 		m_path = path;
 		const auto dir = mark::normalize(m_moveto - m_pos);
 		if (path.size() > 3) {
 			const auto first = path[path.size() - 3];
-			m_pos += mark::normalize(first - m_pos) * 320.0 * dt;
+			m_pos += mark::normalize(first - m_pos) * speed * dt;
 		} else {
-			const auto step = mark::normalize(m_moveto - m_pos) * 320.0 * dt;
+			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
 			if (m_world.map().traversable(m_pos + step)) {
 				m_pos += step;
 			}
 		}
 	} else {
 		m_pos = m_moveto;
+	}
+	if (m_ai) {
+		auto nearby = m_world.find(m_pos, 1000.f);
+		auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
+			return unit->team() != this->team() && !unit->invincible();
+		});
+		if (enemy_it != nearby.end()) {
+			auto enemy = *enemy_it;
+			m_lookat = enemy->pos();
+			m_moveto = enemy->pos();
+		}
 	}
 	const auto direction = mark::normalize((m_lookat - m_pos));
 	const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
@@ -147,6 +159,8 @@ void mark::unit::modular::command(const mark::command& command) {
 		m_moveto = command.pos;
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
+	} else if (command.type == mark::command::type::ai) {
+		m_ai = true;
 	}
 }
 

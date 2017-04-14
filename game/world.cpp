@@ -14,25 +14,32 @@
 #include "module_cannon.h"
 #include "module_mortar.h"
 
+auto create_ship(mark::resource::manager& resource_manager, mark::world& world) {
+	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
+	auto core = std::make_unique<mark::module::core>(resource_manager);
+	vessel->attach(std::move(core), { -1, -1 });
+	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, 1 });
+	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
+	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
+	vessel->attach(std::make_unique<mark::module::turret>(resource_manager), { -3, -3 });
+	vessel->attach(std::make_unique<mark::module::turret>(resource_manager), { -3, 1 });
+	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, 3 });
+	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, -5 });
+	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, -5 });
+	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, 3 });
+	return vessel;
+}
 
 mark::world::world(mark::resource::manager& resource_manager)
 	:m_resource_manager(resource_manager), m_map(resource_manager) {
-
-	auto vessel = std::make_shared<mark::unit::modular>(*this, mark::vector<double>(0.0, 0.0), 10.f);
+	auto vessel = create_ship(resource_manager, *this);
 	vessel->team(1);
-	auto core = std::make_unique<mark::module::core>(m_resource_manager);
-	vessel->attach(std::move(core), { -1, -1 });
-	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { -1, 1 });
-	vessel->attach(std::make_unique<mark::module::cargo>(m_resource_manager), { -1, -3 });
-	vessel->attach(std::make_unique<mark::module::shield_generator>(m_resource_manager), { 1, -1 });
-	vessel->attach(std::make_unique<mark::module::turret>(m_resource_manager), { -3, -3 });
-	vessel->attach(std::make_unique<mark::module::turret>(m_resource_manager), { -3, 1 });
-	vessel->attach(std::make_unique<mark::module::cannon>(m_resource_manager), { -1, 3 });
-	vessel->attach(std::make_unique<mark::module::cannon>(m_resource_manager), { -1, -5 });
-	vessel->attach(std::make_unique<mark::module::mortar>(m_resource_manager), { -3, -5 });
-	vessel->attach(std::make_unique<mark::module::mortar>(m_resource_manager), { -3, 3 });
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
+	m_units.push_back(create_ship(resource_manager, *this));
+	mark::command command;
+	command.type = mark::command::type::ai;
+	m_units.back()->command(command);
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }

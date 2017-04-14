@@ -51,10 +51,10 @@ namespace mark {
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
-			mark::command m_command;
 			std::vector<mark::vector<double>> m_path;
 			mark::vector<double> m_moveto;
 			mark::vector<double> m_lookat;
+			bool m_ai = false;
 		};
 	}
 }
