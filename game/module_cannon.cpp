@@ -22,14 +22,13 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	const auto rotation = socket()->rotation();
 	for (int i = 0; i < 200; i++) {
 		const auto cur = pos + mark::rotate(mark::vector<double>(16.0, 0.0), rotation) * static_cast<double>(i);
-		auto nearby = socket()->world().find(cur, 50.f);
-		auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
-			return unit->team() != this->socket()->team() && !unit->invincible();
+		auto enemy = socket()->world().find_one(cur, 50.f, [this](const mark::unit::base& unit) {
+			return unit.team() != this->socket()->team() && !unit.invincible();
 		});
 		if (!socket()->world().map().traversable(cur)
-			|| enemy_it != nearby.end()) {
-			if (enemy_it != nearby.end()) {
-				(*enemy_it)->damage(1, cur);
+			|| enemy) {
+			if (enemy) {
+				enemy->damage(1, cur);
 			}
 			for (int i = 0; i < 4; i++) {
 				const auto velocity = socket()->world().resource_manager().random_double(25, 50);

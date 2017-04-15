@@ -10,7 +10,7 @@ mark::terrain::floor::floor(mark::resource::manager& resource_manager, int varia
 }
 
 auto mark::terrain::floor::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {
-	return { mark::sprite(m_image, map_pos.x * 32.f, map_pos.y * 32.f, 32.f, 0.f, m_variant) };
+	return { mark::sprite(m_image, mark::vector<double>(map_pos) * mark::terrain::grid_size, mark::terrain::grid_size, 0.f, m_variant) };
 }
 
 void mark::terrain::floor::variant(int variant) {

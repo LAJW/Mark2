@@ -14,12 +14,10 @@ mark::unit::heat_seeker::heat_seeker(mark::world& world, mark::vector<double> po
 
 void mark::unit::heat_seeker::tick(mark::tick_context& context) {
 	double dt = context.dt;
-	auto targets = m_world.find(m_pos, 1000.f);
-	auto target_it = std::find_if(targets.begin(), targets.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
-		return unit->team() != this->team() && !unit->invincible();
+	auto target = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
+		return unit.team() != this->team() && !unit.invincible();
 	});
-	if (target_it != targets.end()) {
-		auto& target = *target_it;
+	if (target) {
 		const auto direction = mark::normalize((target->pos() - m_pos));
 		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
 		const auto rot_step = static_cast<float>(turn_direction  * 500.f * dt);
@@ -31,14 +29,12 @@ void mark::unit::heat_seeker::tick(mark::tick_context& context) {
 	}
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
 	m_pos += step;
-	auto nearby = m_world.find(m_pos, 50.f);
-	auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
-		return unit->team() != this->team() && !unit->invincible();
+	auto enemy = m_world.find_one(m_pos, 50.f, [this](const mark::unit::base& unit) {
+		return unit.team() != this->team() && !unit.invincible();
 	});
-	if (!m_world.map().traversable(m_pos)
-		|| enemy_it != nearby.end()) {
-		if (enemy_it != nearby.end()) {
-			(*enemy_it)->damage(5, m_pos - step);
+	if (enemy || !m_world.map().traversable(m_pos)) {
+		if (enemy) {
+			enemy->damage(5, m_pos - step);
 		}
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));

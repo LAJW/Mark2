@@ -86,12 +86,10 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		m_pos = m_moveto;
 	}
 	if (m_ai) {
-		auto nearby = m_world.find(m_pos, 1000.f);
-		auto enemy_it = std::find_if(nearby.begin(), nearby.end(), [this](std::shared_ptr<mark::unit::base>& unit) {
-			return unit->team() != this->team() && !unit->invincible();
+		auto enemy = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
+			return unit.team() != this->team() && !unit.invincible();
 		});
-		if (enemy_it != nearby.end()) {
-			auto enemy = *enemy_it;
+		if (enemy) {
 			m_lookat = enemy->pos();
 			m_moveto = enemy->pos();
 		}

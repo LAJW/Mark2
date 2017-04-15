@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
@@ -29,6 +30,10 @@ namespace mark {
 		auto map() const->const mark::map&;
 		auto camera() const->mark::vector<double> { return m_camera; }
 		auto find(mark::vector<double> pos, double radius)->std::vector<std::shared_ptr<mark::unit::base>>;
+		auto find(mark::vector<double> pos, double radius, const std::function<bool(const mark::unit::base&)>& pred)
+			->std::vector<std::shared_ptr<mark::unit::base>>;
+		auto find_one(mark::vector<double> pos, double radius, const std::function<bool(const mark::unit::base&)>& pred)
+			->std::shared_ptr<mark::unit::base>;
 		void command(const mark::command& command);
 	private:
 		mark::map m_map;

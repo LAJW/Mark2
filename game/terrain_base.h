@@ -6,6 +6,7 @@
 namespace mark {
 	class sprite;
 	namespace terrain {
+		constexpr double grid_size = 32.0;
 		class base : public iserializable {
 		public:
 			virtual ~base() = default;

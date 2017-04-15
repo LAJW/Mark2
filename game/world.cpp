@@ -119,6 +119,29 @@ auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<s
 	return out;
 }
 
+auto mark::world::find(mark::vector<double> pos, double radius,
+	const std::function<bool(const mark::unit::base&)>& pred)
+	-> std::vector<std::shared_ptr<mark::unit::base>> {
+	std::vector<std::shared_ptr<mark::unit::base>> out;
+	for (auto& unit : m_units) {
+		if (mark::length(unit->pos() - pos) < radius && pred(*unit)) {
+			out.push_back(unit);
+		}
+	}
+	return out;
+}
+
+auto mark::world::find_one(mark::vector<double> pos, double radius,
+	const std::function<bool(const mark::unit::base&)>& pred)
+	-> std::shared_ptr<mark::unit::base> {
+	for (auto& unit : m_units) {
+		if (mark::length(unit->pos() - pos) < radius && pred(*unit)) {
+			return unit;
+		}
+	}
+	return nullptr;
+}
+
 void mark::world::command(const mark::command& command) {
 	auto& camera_target = m_camera_target.lock();
 	if (camera_target) {

@@ -9,12 +9,17 @@
 #include "terrain_floor.h"
 #include "terrain_wall.h"
 
-static auto world_to_map(const mark::vector<double>& pos, const mark::vector<int>& map_size) {
-	return mark::vector<int>(static_cast<int>(std::round(pos.x / 32.0)), static_cast<int>(std::round(pos.y / 32.0))) + map_size / 2;
+
+static auto world_to_map(
+	const mark::vector<double>& pos,
+	const mark::vector<int>& map_size) {
+	return mark::vector<int>(static_cast<int>(std::round(pos.x / mark::terrain::grid_size)),
+			static_cast<int>(std::round(pos.y / mark::terrain::grid_size)))
+		+ map_size / 2;
 }
 
 static auto map_to_world(const mark::vector<int>& pos, const mark::vector<int>& map_size) {
-	return mark::vector<double>(pos - map_size / 2) * 32.0;
+	return mark::vector<double>(pos - map_size / 2) * mark::terrain::grid_size;
 }
 
 static auto make_map(mark::resource::manager& resource_manager) {
@@ -133,7 +138,7 @@ mark::map::map(mark::resource::manager& resource_manager) {
 }
 
 auto mark::map::traversable(const mark::vector<double> pos, const double radius) const -> bool {
-	return this->traversable(world_to_map(pos, this->size()), static_cast<int>(std::ceil(radius / 32.0)));
+	return this->traversable(world_to_map(pos, this->size()), static_cast<int>(std::ceil(radius / mark::terrain::grid_size)));
 }
 
 auto mark::map::traversable(const mark::vector<int> i_pos, const int radius) const -> bool {
@@ -188,12 +193,12 @@ struct Node {
 };
 
 auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double> world_end, double radius) const -> std::vector<mark::vector<double>> {
-	const auto map_radius = static_cast<int>(std::ceil(radius / 32.0));
+	const auto map_radius = static_cast<int>(std::ceil(radius / mark::terrain::grid_size));
 	// if end is not traversable, find nearest traversable point, and update world end
 	if (!this->traversable(world_end, radius)) {
 		for (int r = 0; r < 100; r++) {
 			for (int d = 0; d < 8; d++) {
-				const auto direction = mark::rotate(mark::vector<double>(r * 32.0, 0.0), static_cast<double>(d * 45));
+				const auto direction = mark::rotate(mark::vector<double>(r * mark::terrain::grid_size, 0.0), static_cast<double>(d * 45));
 				if (traversable(world_end + direction, radius)) {
 					world_end = world_end + direction;
 					goto end;
