@@ -94,14 +94,17 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			m_moveto = enemy->pos();
 		}
 	}
-	const auto direction = mark::normalize((m_lookat - m_pos));
-	const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-	const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
-	if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
-		m_rotation = mark::atan(direction);
-	} else {
-		m_rotation += rot_step;
+	if (m_lookat != m_pos) {
+		const auto direction = mark::normalize((m_lookat - m_pos));
+		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+		const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
+		if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+			m_rotation = mark::atan(direction);
+		} else {
+			m_rotation += rot_step;
+		}
 	}
+
 
 #ifdef _DEBUG
 	for (const auto& step : m_path) {
