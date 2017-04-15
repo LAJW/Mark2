@@ -9,16 +9,15 @@
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
 	mark::unit::base(world, pos),
 	m_bareer_reaction(0.f, 255.f, 0.1f, 1.f),
-	m_image(world.resource_manager().image("mark1.png")),
+	m_model(world.resource_manager().image("mark1.png")),
 	m_im_shield(world.resource_manager().image("shield-reaction.png")),
-	m_gun_cooldown(0.5f),
-	m_frame_cooldown(0.2f) { }
+	m_gun_cooldown(0.5f) { }
 
 void mark::unit::minion::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	m_bareer_reaction.tick(dt);
 	m_gun_cooldown.tick(dt);
-	m_frame_cooldown.tick(dt);
+	m_model.tick(dt);
 
 	auto neighbors = m_world.find(m_pos, 50.0);
 	const auto distance = m_world.camera() - m_pos;
@@ -45,9 +44,6 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 		m_direction = rotate(m_direction, static_cast<float>(turn_direction  * 180.f * dt));
 		m_pos += direction * 100.0 * dt;
 	}
-	if (m_frame_cooldown.trigger()) {
-		m_frame = (m_frame + 1) % static_cast<int>(m_image->getSize().x / m_image->getSize().y);
-	}
 	if (m_gun_cooldown.trigger()) {
 		auto projectile = std::make_shared<mark::unit::projectile>(m_world, m_pos, mark::atan(m_direction));
 		projectile->team(this->team());
@@ -56,7 +52,7 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 
 
 	const auto rotation = mark::atan(m_direction);
-	context.sprites[1].push_back(mark::sprite(m_image, m_pos, 116.f, rotation, m_frame));
+	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
 	context.sprites[2].push_back(mark::sprite(m_im_shield, m_pos, 116.f, m_bareer_direction, 0, sf::Color(155, 255, 255, static_cast<uint8_t>(m_bareer_reaction.get() + 1.f))));
 }
 

@@ -84,6 +84,9 @@
     <ClCompile Include="unit_heat_seeker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="model_animated.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iserializable.h">
@@ -180,6 +183,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="unit_heat_seeker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model_animated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

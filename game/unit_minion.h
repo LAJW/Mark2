@@ -3,6 +3,7 @@
 #include "cooldown.h"
 #include "unit_base.h"
 #include "resource_image.h"
+#include "model_animated.h"
 
 namespace mark {
 	class world;
@@ -15,15 +16,13 @@ namespace mark {
 			void damage(unsigned amount, mark::vector<double> pos);
 			auto invincible() const -> bool override;
 		private:
-			std::shared_ptr<const mark::resource::image> m_image;
+			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_shield;
 			mark::vector<float> m_direction = { 1, 0 };
 			int m_health = 100;
 			mark::adsr m_bareer_reaction;
 			float m_bareer_direction = 0;
-			size_t m_frame = 0;
 			mark::cooldown m_gun_cooldown;
-			mark::cooldown m_frame_cooldown;
 		};
 	}
 }

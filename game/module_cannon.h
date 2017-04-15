@@ -2,6 +2,7 @@
 #include "module_base.h"
 #include "resource_image.h"
 #include "cooldown.h"
+#include "model_animated.h"
 
 namespace mark {
 	namespace resource {
@@ -14,10 +15,8 @@ namespace mark {
 			virtual void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
 		private:
-			std::shared_ptr<const mark::resource::image> m_im_body;
+			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_ray;
-			mark::cooldown m_frame_cooldown;
-			unsigned m_frame = 0;
 		};
 	}
 }

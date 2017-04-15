@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="model_animated.cpp" />
     <ClCompile Include="module_cannon.cpp" />
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="lfo.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="exception.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="model_animated.h" />
     <ClInclude Include="module_cannon.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="module_mortar.h" />
