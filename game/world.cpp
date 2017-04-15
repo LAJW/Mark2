@@ -13,6 +13,7 @@
 #include "tick_context.h"
 #include "module_cannon.h"
 #include "module_mortar.h"
+#include "unit_landing_pad.h"
 
 auto create_ship(mark::resource::manager& resource_manager, mark::world& world) {
 	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
@@ -32,14 +33,23 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 
 mark::world::world(mark::resource::manager& resource_manager)
 	:m_resource_manager(resource_manager), m_map(resource_manager) {
+	for (int x = 0; x < 1000; x++) {
+		for (int y = 0; y < 1000; y++) {
+			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 320.0)) {
+				m_units.push_back(std::make_shared<mark::unit::landing_pad>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+				goto end;
+			}
+		}
+	}
+	end:;
 	auto vessel = create_ship(resource_manager, *this);
 	vessel->team(1);
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
-	m_units.push_back(create_ship(resource_manager, *this));
+	// m_units.push_back(create_ship(resource_manager, *this));
 	mark::command command;
 	command.type = mark::command::type::ai;
-	m_units.back()->command(command);
+	// m_units.back()->command(command);
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
 	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }

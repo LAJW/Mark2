@@ -42,6 +42,8 @@ void mark::app::main() {
 				} else if (event.type == sf::Event::MouseMoved) {
 					const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
 					world->command(mark::command{ mark::command::type::guide, target });
+				} else if (event.type == sf::Event::KeyPressed && event.key.code == 5) {
+					world->command(mark::command{ mark::command::type::activate, mark::vector<double>() });
 				}
 			}
 

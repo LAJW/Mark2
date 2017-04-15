@@ -19,7 +19,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	m_adsr.tick(context.dt);
 	auto pos = socket()->relative_pos();
 	if (m_cur_cooldown >= 0) {
-		m_cur_cooldown -= context.dt;
+		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else {
 		m_cur_cooldown = 0.5f;
 		m_adsr.trigger();

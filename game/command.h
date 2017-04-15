@@ -7,7 +7,8 @@ namespace mark {
 		enum class type {
 			move,
 			guide,
-			ai
+			ai,
+			activate
 		} type;
 		mark::vector<double> pos;
 	};

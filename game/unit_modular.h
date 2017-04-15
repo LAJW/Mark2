@@ -14,6 +14,7 @@ namespace mark {
 	class world;
 
 	namespace unit {
+		class landing_pad;
 		class modular final : public base {
 		public:
 			class socket final {
@@ -55,6 +56,7 @@ namespace mark {
 			mark::vector<double> m_moveto;
 			mark::vector<double> m_lookat;
 			bool m_ai = false;
+			std::weak_ptr<mark::unit::landing_pad> m_pad;
 		};
 	}
 }

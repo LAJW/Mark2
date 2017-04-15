@@ -10,6 +10,8 @@
 #include "command.h"
 #include "resource_manager.h"
 #include "tick_context.h"
+#include "unit_landing_pad.h"
+#include "module_shield_generator.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -64,64 +66,72 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(mark::tick_context& context) {
+	auto pad = m_pad.lock();
 	for (auto& socket : m_sockets) {
 		socket.tick(context);
 	}
-	double dt = context.dt;
-	double speed = m_ai ? 64.0 : 320.0;
-	if (mark::length(m_moveto - m_pos) > speed * dt) {
-		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
-		m_path = path;
-		const auto dir = mark::normalize(m_moveto - m_pos);
-		if (path.size() > 3) {
-			const auto first = path[path.size() - 3];
-			m_pos += mark::normalize(first - m_pos) * speed * dt;
+	if (pad) {
+		m_pos = pad->pos();
+		m_rotation = 0.0;
+	} else {
+		double dt = context.dt;
+		double speed = m_ai ? 64.0 : 320.0;
+		if (mark::length(m_moveto - m_pos) > speed * dt) {
+			const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
+			m_path = path;
+			const auto dir = mark::normalize(m_moveto - m_pos);
+			if (path.size() > 3) {
+				const auto first = path[path.size() - 3];
+				m_pos += mark::normalize(first - m_pos) * speed * dt;
+			} else {
+				const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
+				if (m_world.map().traversable(m_pos + step, 50.0)) {
+					m_pos += step;
+				}
+			}
 		} else {
-			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
-			if (m_world.map().traversable(m_pos + step, 50.0)) {
-				m_pos += step;
+			m_pos = m_moveto;
+		}
+		if (m_ai) {
+			auto enemy = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
+				return unit.team() != this->team() && !unit.invincible();
+			});
+			if (enemy) {
+				m_lookat = enemy->pos();
+				m_moveto = enemy->pos();
 			}
 		}
-	} else {
-		m_pos = m_moveto;
-	}
-	if (m_ai) {
-		auto enemy = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
-			return unit.team() != this->team() && !unit.invincible();
-		});
-		if (enemy) {
-			m_lookat = enemy->pos();
-			m_moveto = enemy->pos();
+		if (m_lookat != m_pos) {
+			const auto direction = mark::normalize((m_lookat - m_pos));
+			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+			const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
+			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+				m_rotation = static_cast<float>(mark::atan(direction));
+			} else {
+				m_rotation += rot_step;
+			}
 		}
-	}
-	if (m_lookat != m_pos) {
-		const auto direction = mark::normalize((m_lookat - m_pos));
-		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-		const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
-		if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
-			m_rotation = mark::atan(direction);
-		} else {
-			m_rotation += rot_step;
-		}
-	}
 
 
 #ifdef _DEBUG
-	for (const auto& step : m_path) {
-		context.sprites[100].emplace_back(m_world.resource_manager().image("generator.png"), step);
-	}
+		for (const auto& step : m_path) {
+			context.sprites[100].emplace_back(m_world.resource_manager().image("generator.png"), step);
+		}
 #endif // !_DEBUG
 
+	}
 }
 
+
 auto mark::unit::modular::get_attached(const socket&, mark::vector<int>) ->
-	std::vector<std::reference_wrapper<mark::unit::modular::socket>> {
+std::vector<std::reference_wrapper<mark::unit::modular::socket>> {
 	std::vector<std::reference_wrapper<mark::unit::modular::socket>> out;
 	for (auto& socket : m_sockets) {
 		// TODO
 	}
 	return out;
 }
+
 
 void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mark::vector<int> pos) {
 	assert(module);
@@ -158,11 +168,36 @@ auto mark::unit::modular::get_core() -> mark::module::core& {
 
 void mark::unit::modular::command(const mark::command& command) {
 	if (command.type == mark::command::type::move) {
-		m_moveto = command.pos;
+		auto pad = m_pad.lock();
+		if (pad) {
+			const auto relative = (command.pos - m_pos) / 16.0;
+			const auto module_pos = mark::vector<int>(std::round(relative.x - 1), std::round(relative.y - 1));
+			try {
+				this->attach(std::make_unique<mark::module::shield_generator>(m_world.resource_manager()), module_pos);
+			} catch (const mark::exception& err) {
+				/* suppress */
+			}
+		} else {
+			m_moveto = command.pos;
+		}
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
+	} else if (command.type == mark::command::type::activate) {
+		auto pad = m_pad.lock();
+		if (pad) {
+			m_pad.reset();
+			pad->dock(nullptr);
+		} else {
+			auto landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(m_world.find_one(m_pos, 150.f, [](const mark::unit::base& unit) {
+				return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
+			}));
+			if (landing_pad) {
+				landing_pad->dock(this);
+				this->m_pad = std::weak_ptr<mark::unit::landing_pad>(landing_pad);
+			}
+		}
 	}
 }
 

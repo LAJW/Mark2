@@ -19,9 +19,9 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 	m_adsr.tick(context.dt);
 	auto pos = socket()->relative_pos();
 	if (m_cur_cooldown >= 0) {
-		m_cur_cooldown -= context.dt;
+		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else {
-		const float direction = -mark::sgn(socket()->pos().y + 1) * 90;
+		const auto direction = static_cast<float>(-mark::sgn(socket()->pos().y + 1) * 90);
 		m_cur_cooldown = 2.5f;
 		m_adsr.trigger();
 		const auto total_projectiles = 4;
