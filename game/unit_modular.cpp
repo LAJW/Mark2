@@ -43,7 +43,8 @@ inline auto mark::unit::modular::socket::size() const->mark::vector<unsigned> {
 }
 
 auto mark::unit::modular::socket::relative_pos() const->mark::vector<double> {
-	const auto pos = (mark::vector<float>(m_pos) + mark::vector<float>(this->size()) / 2.f) * static_cast<float>(mark::module::size);
+	const auto pos = (mark::vector<float>(m_pos) + mark::vector<float>(this->size()) / 2.f)
+		* static_cast<float>(mark::module::size);
 	return m_parent.pos() + mark::vector<double>(rotate(pos, m_parent.rotation()));
 }
 
@@ -69,7 +70,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	double speed = m_ai ? 64.0 : 320.0;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
-		const auto path = m_world.map().find_path(m_pos, m_moveto);
+		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
 		m_path = path;
 		const auto dir = mark::normalize(m_moveto - m_pos);
 		if (path.size() > 3) {
@@ -77,7 +78,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			m_pos += mark::normalize(first - m_pos) * speed * dt;
 		} else {
 			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
-			if (m_world.map().traversable(m_pos + step)) {
+			if (m_world.map().traversable(m_pos + step, 50.0)) {
 				m_pos += step;
 			}
 		}

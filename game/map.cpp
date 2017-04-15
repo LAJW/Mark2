@@ -132,17 +132,28 @@ mark::map::map(mark::resource::manager& resource_manager) {
 	m_terrain = make_map(resource_manager);
 }
 
-auto mark::map::traversable(mark::vector<double> pos) const -> bool {
-	const auto size = this->size();
-	return this->traversable(world_to_map(pos, size));
+auto mark::map::traversable(const mark::vector<double> pos, const double radius) const -> bool {
+	return this->traversable(world_to_map(pos, this->size()), static_cast<int>(std::ceil(radius / 32.0)));
 }
 
-auto mark::map::traversable(mark::vector<int> pos) const -> bool {
+auto mark::map::traversable(const mark::vector<int> i_pos, const int radius) const -> bool {
 	const auto size = this->size();
-	return pos.x >= 0 && pos.x < size.x
-		&& pos.y >= 0 && pos.y < size.y
-		&& m_terrain[pos.x][pos.y]
-		&& m_terrain[pos.x][pos.y]->traversable();
+	for (int x = -radius; x <= radius; x++) {
+		for (int y = -radius; y <= radius; y++) {
+			if (std::sqrt(x * x + y* y) <= radius) {
+				const auto pos = i_pos + mark::vector<int>(x, y);
+				if (!(
+					pos.x >= 0 && pos.x < size.x
+					&& pos.y >= 0 && pos.y < size.y
+					&& m_terrain[pos.x][pos.y]
+					&& m_terrain[pos.x][pos.y]->traversable()
+				)) {
+					return false;
+				}
+			}
+		}
+	}
+	return true;
 }
 
 auto mark::map::render(mark::vector<double> world_tl, mark::vector<double> world_br) const->std::vector<mark::sprite> {
@@ -176,15 +187,29 @@ struct Node {
 	Node* parent = nullptr;
 };
 
-auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double> world_end) const -> std::vector<mark::vector<double>> {
-	// first check if path is reachable directly
+auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double> world_end, double radius) const -> std::vector<mark::vector<double>> {
+	const auto map_radius = static_cast<int>(std::ceil(radius / 32.0));
+	// if end is not traversable, find nearest traversable point, and update world end
+	if (!this->traversable(world_end, radius)) {
+		for (int r = 0; r < 100; r++) {
+			for (int d = 0; d < 8; d++) {
+				const auto direction = mark::rotate(mark::vector<double>(r * 32.0, 0.0), static_cast<double>(d * 45));
+				if (traversable(world_end + direction, radius)) {
+					world_end = world_end + direction;
+					goto end;
+				}
+			}
+		}
+	end:;
+	}
+	// check if path is reachable directly
 	bool straight_exists = true;
 	const auto dir = mark::normalize(world_end - world_start);
 	const auto ort = mark::rotate(dir, 90.0);
 	const auto dist = mark::length(world_end - world_start);
 	for (double i = 0.0; i < dist; i += 24.0) {
 		const auto cur = dir * i + world_start;
-		if (!this->traversable(cur) || !this->traversable(cur + ort * 24.0) || !this->traversable(cur - ort * 24.0)) {
+		if (this->traversable(cur, radius)) {
 			straight_exists = false;
 		}
 	}
@@ -223,7 +248,7 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 				continue;
 			}
 			auto neighbour_pos = current->pos + mark::vector<int>{ i % 3 - 1, i / 3 - 1 };
-			const auto traversable = m_terrain[neighbour_pos.x][neighbour_pos.y] && m_terrain[neighbour_pos.x][neighbour_pos.y]->traversable();
+			const auto traversable = this->traversable(neighbour_pos, map_radius);
 			const auto isClosed = closed.end() != std::find_if(closed.begin(), closed.end(), [&neighbour_pos](std::unique_ptr<Node>& node) {
 				return node->pos == neighbour_pos;
 			});
