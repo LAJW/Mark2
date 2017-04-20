@@ -12,6 +12,7 @@
 #include "tick_context.h"
 #include "unit_landing_pad.h"
 #include "module_shield_generator.h"
+#include "module_cargo.h"
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
@@ -84,6 +85,22 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	if (pad) {
 		m_pos = pad->pos();
 		m_rotation = 0.0;
+		double top = 0;
+		auto image = m_world.resource_manager().image("grid-background.png");
+		for (auto& socket : m_sockets) {
+			auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
+			if (cargo) {
+				auto size_v = cargo->modules().size();
+				mark::vector<int> size(16, size_v / 16);
+				for (int x = 0; x < size.x; x++) {
+					for (int y = 0; y < size.y; y++) {
+						mark::vector<double> pos(m_pos.x + 320.0 + x * 16.0 - 8, m_pos.y - 320.0 + top + y * 16.0 - 8);
+						context.sprites[0].push_back(mark::sprite(image, pos));
+					}
+				}
+				top += size.y * 16.0 + 32.0;
+			}
+		}
 	} else {
 		double dt = context.dt;
 		double speed = m_ai ? 64.0 : 320.0;

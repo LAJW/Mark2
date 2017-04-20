@@ -50,8 +50,8 @@ mark::world::world(mark::resource::manager& resource_manager)
 	mark::command command;
 	command.type = mark::command::type::ai;
 	// m_units.back()->command(command);
-	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
-	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
+	// m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
+	// m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }
 
 auto mark::world::map() const -> const mark::map&{
