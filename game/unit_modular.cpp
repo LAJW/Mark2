@@ -225,8 +225,12 @@ void mark::unit::modular::command(const mark::command& command) {
 		if (pad) {
 			try {
 				const auto relative = (command.pos - m_pos) / 16.0;
-				const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
-				this->attach(std::make_unique<mark::module::shield_generator>(m_world.resource_manager()), module_pos);
+				if (std::abs(relative.x) <= 18.0 && std::abs(relative.y) <= 18.0) {
+					const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
+					this->attach(std::make_unique<mark::module::shield_generator>(m_world.resource_manager()), module_pos);
+				} else if (std::abs(relative.y) <= 18.0 && std::abs(relative.x) <= 18 + 16.0) {
+					// TODO: Pick up an item
+				}
 			} catch (const mark::exception&) {
 				// module exists in place, detach
 				const auto relative = (command.pos - m_pos) / 16.0;
