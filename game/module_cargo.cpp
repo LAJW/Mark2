@@ -5,7 +5,7 @@
 #include "exception.h"
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager):
-	mark::module::base({ 4, 2 }),
+	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
 	m_im_body(resource_manager.image("cargo.png")),
 	m_im_light(resource_manager.image("glare.png")),
 	m_lfo(0.5f, static_cast<float>(resource_manager.random_double(0, 6))),
@@ -26,7 +26,7 @@ auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module:
 	return m_modules;
 }
 
-auto mark::module::cargo::drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module) {
+void mark::module::cargo::drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module) {
 	try {
 		auto& place = m_modules.at(pos.y * 8 + pos.x);
 		if (place == nullptr) {

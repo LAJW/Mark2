@@ -96,6 +96,10 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 					for (int y = 0; y < size.y; y++) {
 						mark::vector<double> pos(m_pos.x + 320.0 + x * 16.0 - 8, m_pos.y - 320.0 + top + y * 16.0 - 8);
 						context.sprites[0].push_back(mark::sprite(image, pos));
+						const auto& module = cargo->modules()[x + y * 16];
+						if (module) {
+							context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos));
+						}
 					}
 				}
 				top += size.y * 16.0 + 32.0;

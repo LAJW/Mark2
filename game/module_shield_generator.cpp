@@ -7,7 +7,7 @@
 #include <iostream>
 
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
-	base({ 2, 2 }),
+	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
 	m_im_generator(resource_manager.image("shield-generator.png")),
 	m_im_shield(resource_manager.image("shield.png")),
 	m_im_glare(resource_manager.image("glare.png")),

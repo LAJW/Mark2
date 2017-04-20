@@ -6,7 +6,7 @@
 #include "particle.h"
 
 mark::module::cannon::cannon(mark::resource::manager& resource_manager) :
-	mark::module::base({ 4, 2 }),
+	mark::module::base({ 4, 2 }, resource_manager.image("cannon.png")),
 	m_model(resource_manager.image("cannon.png")),
 	m_im_ray(resource_manager.image("ray.png")) {
 }

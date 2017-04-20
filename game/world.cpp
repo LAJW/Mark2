@@ -19,7 +19,9 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
 	auto core = std::make_unique<mark::module::core>(resource_manager);
 	vessel->attach(std::move(core), { -1, -1 });
-	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, 1 });
+	auto cargo1 = std::make_unique<mark::module::cargo>(resource_manager);
+	cargo1->drop({ 0, 0 }, std::make_unique<mark::module::shield_generator>(resource_manager));
+	vessel->attach(std::move(cargo1), { -1, 1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
 	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
 	vessel->attach(std::make_unique<mark::module::turret>(resource_manager), { -3, -3 });

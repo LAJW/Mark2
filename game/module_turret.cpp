@@ -8,7 +8,7 @@
 #include "unit_modular.h"
 
 mark::module::turret::turret(mark::resource::manager& resource_manager):
-	base({ 2, 2 }),
+	base({ 2, 2 }, resource_manager.image("shield-base.png")),
 	m_im_base(resource_manager.image("turret-base.png")),
 	m_im_cannon(resource_manager.image("turret-cannon.png")),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f) {
