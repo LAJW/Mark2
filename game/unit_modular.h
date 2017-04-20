@@ -21,6 +21,7 @@ namespace mark {
 			public:
 				socket(modular& parent, std::unique_ptr<module::base>, mark::vector<int> pos);
 				socket(mark::unit::modular::socket&& other);
+				mark::unit::modular::socket& operator=(mark::unit::modular::socket&& socket);
 				~socket();
 				auto get_attached()->std::vector<std::reference_wrapper<module::base>>;
 				inline auto size() const -> mark::vector<unsigned>;
@@ -31,9 +32,10 @@ namespace mark {
 				auto dead() const -> bool;
 				inline auto world() -> mark::world& { return m_parent.world(); }
 				inline auto team() const -> int { return m_parent.team(); }
+				auto module() -> mark::module::base&;
 			private:
-				const mark::vector<int> m_pos;
-				std::unique_ptr<module::base> m_module;
+				mark::vector<int> m_pos;
+				std::unique_ptr<mark::module::base> m_module;
 				mark::unit::modular& m_parent;
 			};
 		public:
@@ -49,6 +51,7 @@ namespace mark {
 			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 			auto invincible() const -> bool override;
 		private:
+			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;

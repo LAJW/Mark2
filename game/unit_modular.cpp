@@ -23,6 +23,13 @@ mark::unit::modular::socket::socket(mark::unit::modular::socket&& other)
 	m_module->socket(this);
 }
 
+mark::unit::modular::socket& mark::unit::modular::socket::operator=(mark::unit::modular::socket&& other) {
+	m_module = std::move(other.m_module);
+	m_module->socket(this);
+	m_pos = other.m_pos;
+	return *this;
+}
+
 mark::unit::modular::socket::~socket() {
 
 }
@@ -56,6 +63,10 @@ auto mark::unit::modular::socket::rotation() const -> float {
 
 auto mark::unit::modular::socket::dead() const -> bool {
 	return m_module->dead();
+}
+
+auto mark::unit::modular::socket::module() -> mark::module::base& {
+	return *m_module;
 }
 
 // MODULAR
@@ -158,6 +169,27 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 	m_sockets.emplace_back(*this, std::move(module), pos);
 }
 
+auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
+	// check collisions with other modules
+	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
+		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		return pos.x < socket_right && pos.x >= socket.pos().x
+			&& pos.y < socket_bottom && pos.y >= socket.pos().y;
+	});
+	if (socket_it != m_sockets.end()) {
+		if (!dynamic_cast<mark::module::core*>(&socket_it->module())) {
+			*socket_it = std::move(m_sockets.back());
+			m_sockets.pop_back();
+			return nullptr;
+		} else {
+			return nullptr;
+		}
+	} else {
+		return nullptr;
+	}
+}
+
 auto mark::unit::modular::get_core() -> mark::module::core& {
 	if (m_core) {
 		return *m_core;
@@ -170,12 +202,15 @@ void mark::unit::modular::command(const mark::command& command) {
 	if (command.type == mark::command::type::move) {
 		auto pad = m_pad.lock();
 		if (pad) {
-			const auto relative = (command.pos - m_pos) / 16.0;
-			const auto module_pos = mark::vector<int>(std::round(relative.x - 1), std::round(relative.y - 1));
 			try {
+				const auto relative = (command.pos - m_pos) / 16.0;
+				const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
 				this->attach(std::make_unique<mark::module::shield_generator>(m_world.resource_manager()), module_pos);
-			} catch (const mark::exception& err) {
-				/* suppress */
+			} catch (const mark::exception&) {
+				// module exists in place, detach
+				const auto relative = (command.pos - m_pos) / 16.0;
+				const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
+				this->detach(module_pos);
 			}
 		} else {
 			m_moveto = command.pos;
