@@ -43,4 +43,40 @@ namespace mark {
 			return 0;
 		}
 	}
+
+	class area {
+	public:
+		class iterator {
+		public:
+			iterator(const mark::area& area, int i) : m_area(&area), m_i(i) {}
+			iterator& operator++() {
+				m_i++;
+				return *this;
+			}
+			bool operator!=(const iterator& other) {
+				return other.m_i != m_i;
+			}
+			auto operator*() const {
+				return mark::vector<int>(m_i % m_area->width(), m_i / m_area->width());
+			}
+		private:
+			const mark::area* m_area;
+			int m_i = 0;
+		};
+		using const_iterator = iterator;
+		area(int width, int height) : m_width(width), m_height(height) {}
+		area(mark::vector<int> size) : m_width(size.x), m_height(size.y) {}
+		int width() const {
+			return m_width;
+		}
+		const_iterator begin() const {
+			return iterator(*this, 0);
+		}
+		const_iterator end() const {
+			return iterator(*this, m_width * m_height);
+		}
+	private:
+		int m_width;
+		int m_height;
+	};
 }

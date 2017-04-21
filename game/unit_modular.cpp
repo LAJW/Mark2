@@ -97,15 +97,13 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			if (cargo) {
 				auto size_v = cargo->modules().size();
 				mark::vector<int> size(16, size_v / 16);
-				for (int x = 0; x < size.x; x++) {
-					for (int y = 0; y < size.y; y++) {
-						mark::vector<double> pos(m_pos.x + 320.0 + x * 16.0 - 8, m_pos.y - 320.0 + top + y * 16.0 - 8);
-						context.sprites[0].push_back(mark::sprite(image, pos));
-						const auto& module = cargo->modules()[x + y * 16];
-						if (module) {
-							const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
-							context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
-						}
+				for (const auto point : mark::area(size.x, size.y)) {
+					auto pos = mark::vector<double>(m_pos.x + 320.0 - 8, m_pos.y - 320.0 + top - 8) + mark::vector<double>(point * 16);
+					context.sprites[0].push_back(mark::sprite(image, pos));
+					const auto& module = cargo->modules()[point.x + point.y * 16];
+					if (module) {
+						const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
+						context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
 					}
 				}
 				top += size.y * 16.0 + 32.0;
