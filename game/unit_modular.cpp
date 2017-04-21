@@ -70,6 +70,11 @@ auto mark::unit::modular::socket::module() -> mark::module::base& {
 	return *m_module;
 }
 
+std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
+	m_module->socket(nullptr);
+	return std::move(m_module);
+}
+
 // MODULAR
 
 mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation)
@@ -104,6 +109,9 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 				}
 				top += size.y * 16.0 + 32.0;
 			}
+		}
+		if (m_grabbed) {
+			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_lookat));
 		}
 	} else {
 		double dt = context.dt;
@@ -166,7 +174,9 @@ std::vector<std::reference_wrapper<mark::unit::modular::socket>> {
 
 
 void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mark::vector<int> pos) {
-	assert(module);
+	if (!module) {
+		throw mark::exception("NULL_MODULE");
+	}
 	// check collisions with other modules
 	auto insert_right = pos.x + static_cast<int>(module->size().x);
 	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
@@ -190,6 +200,23 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 	m_sockets.emplace_back(*this, std::move(module), pos);
 }
 
+auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool {
+	if (!module) {
+		return false;
+	}
+	auto insert_right = pos.x + static_cast<int>(module->size().x);
+	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
+	for (auto& socket : m_sockets) {
+		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		if (pos.x < socket_right && insert_right > socket.pos().x
+			&& pos.y < socket_bottom && insert_bottom > socket.pos().y) {
+			return false;
+		}
+	}
+	return true;
+}
+
 auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
 	// check collisions with other modules
 	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
@@ -200,9 +227,12 @@ auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::m
 	});
 	if (socket_it != m_sockets.end()) {
 		if (!dynamic_cast<mark::module::core*>(&socket_it->module())) {
-			*socket_it = std::move(m_sockets.back());
+			auto out = socket_it->detach();
+			if (socket_it != std::prev(m_sockets.end())) {
+				*socket_it = std::move(m_sockets.back());
+			}
 			m_sockets.pop_back();
-			return nullptr;
+			return std::move(out);
 		} else {
 			return nullptr;
 		}
@@ -223,19 +253,17 @@ void mark::unit::modular::command(const mark::command& command) {
 	if (command.type == mark::command::type::move) {
 		auto pad = m_pad.lock();
 		if (pad) {
-			try {
-				const auto relative = (command.pos - m_pos) / 16.0;
-				if (std::abs(relative.x) <= 18.0 && std::abs(relative.y) <= 18.0) {
-					const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
-					this->attach(std::make_unique<mark::module::shield_generator>(m_world.resource_manager()), module_pos);
-				} else if (std::abs(relative.y) <= 18.0 && std::abs(relative.x) <= 18 + 16.0) {
-					// TODO: Pick up an item
+			const auto relative = (command.pos - m_pos) / 16.0;
+			const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
+			if (std::abs(relative.x) <= 18.0
+				&& std::abs(relative.y) <= 18.0) {
+				if (this->can_attach(m_grabbed, module_pos)) {
+					this->attach(std::move(m_grabbed), module_pos);
+				} else if (!m_grabbed) {
+					const auto relative = (command.pos - m_pos) / 16.0;
+					const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
+					m_grabbed = this->detach(module_pos);
 				}
-			} catch (const mark::exception&) {
-				// module exists in place, detach
-				const auto relative = (command.pos - m_pos) / 16.0;
-				const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
-				this->detach(module_pos);
 			}
 		} else {
 			m_moveto = command.pos;

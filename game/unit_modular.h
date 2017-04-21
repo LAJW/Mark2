@@ -33,6 +33,7 @@ namespace mark {
 				inline auto world() -> mark::world& { return m_parent.world(); }
 				inline auto team() const -> int { return m_parent.team(); }
 				auto module() -> mark::module::base&;
+				std::unique_ptr<mark::module::base> detach();
 			private:
 				mark::vector<int> m_pos;
 				std::unique_ptr<mark::module::base> m_module;
@@ -42,6 +43,7 @@ namespace mark {
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
+			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
 			auto get_attached(const socket&, mark::vector<int> pos)->std::vector<std::reference_wrapper<socket>>;
 			auto get_core()->mark::module::core&;
 			void tick(mark::tick_context& context) override;
@@ -60,6 +62,7 @@ namespace mark {
 			mark::vector<double> m_lookat;
 			bool m_ai = false;
 			std::weak_ptr<mark::unit::landing_pad> m_pad;
+			std::unique_ptr<mark::module::base> m_grabbed = nullptr; // grabbed module during drag&drop editing
 		};
 	}
 }
