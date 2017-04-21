@@ -103,7 +103,8 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 						context.sprites[0].push_back(mark::sprite(image, pos));
 						const auto& module = cargo->modules()[x + y * 16];
 						if (module) {
-							context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos));
+							const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
+							context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
 						}
 					}
 				}
@@ -111,7 +112,8 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			}
 		}
 		if (m_grabbed) {
-			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_lookat));
+			const auto size = static_cast<double>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_lookat, size));
 		}
 	} else {
 		double dt = context.dt;
@@ -254,12 +256,15 @@ void mark::unit::modular::command(const mark::command& command) {
 		auto pad = m_pad.lock();
 		if (pad) {
 			const auto relative = (command.pos - m_pos) / 16.0;
-			const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
+			const auto module_pos = mark::vector<int>(std::round(relative.x), std::round(relative.y));
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 				// ship drag&drop
-				if (this->can_attach(m_grabbed, module_pos)) {
-					this->attach(std::move(m_grabbed), module_pos);
-				} else if (!m_grabbed) {
+				if (m_grabbed) {
+					auto pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2;
+					if (this->can_attach(m_grabbed, pos)) {
+						this->attach(std::move(m_grabbed), pos);
+					}
+				} else {
 					const auto relative = (command.pos - m_pos) / 16.0;
 					const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
 					m_grabbed = this->detach(module_pos);
