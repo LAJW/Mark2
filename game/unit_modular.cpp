@@ -255,14 +255,35 @@ void mark::unit::modular::command(const mark::command& command) {
 		if (pad) {
 			const auto relative = (command.pos - m_pos) / 16.0;
 			const auto module_pos = mark::vector<int>(std::round(relative.x - 1.0), std::round(relative.y - 1.0));
-			if (std::abs(relative.x) <= 18.0
-				&& std::abs(relative.y) <= 18.0) {
+			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+				// ship drag&drop
 				if (this->can_attach(m_grabbed, module_pos)) {
 					this->attach(std::move(m_grabbed), module_pos);
 				} else if (!m_grabbed) {
 					const auto relative = (command.pos - m_pos) / 16.0;
 					const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
 					m_grabbed = this->detach(module_pos);
+				}
+			} else if (module_pos.x > 17 && module_pos.y < 17 + 16) {
+				// cargo drag&drop
+				double top = 0.0;
+				for (auto& socket : m_sockets) {
+					auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
+					if (cargo) {
+						auto size_v = cargo->modules().size();
+						mark::vector<int> size(16, size_v / 16);
+						const auto relative = (command.pos - m_pos + mark::vector<double>(-320, -top + 320.0)) / 16.0;
+						const auto module_pos = mark::vector<int>(std::round(relative.x + 1.0), std::round(relative.y + 1.0));
+						if (module_pos.y >= 0 && module_pos.y < size.y) {
+							if (m_grabbed && cargo->modules()[module_pos.x + module_pos.y * 16] == nullptr) {
+								cargo->modules()[module_pos.x + module_pos.y * 16] = std::move(m_grabbed);
+							} else {
+								m_grabbed = std::move(cargo->modules()[module_pos.x + module_pos.y * 16]);
+							}
+							break;
+						}
+						top += size.y * 16.0 + 32.0;
+					}
 				}
 			}
 		} else {
