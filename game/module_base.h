@@ -25,9 +25,10 @@ namespace mark {
 			inline auto size() const { return m_size; }
 			virtual void tick(mark::tick_context& context) = 0;
 			virtual auto dead() const -> bool = 0;
-			Property<mark::unit::modular::socket*> socket = nullptr;
-			inline auto thumbnail() const { return m_thumbnail; };
+			inline auto thumbnail() const { return m_thumbnail; }
 			virtual auto detachable() const -> bool { return true; }
+			virtual void target(mark::vector<double> pos) { /* no op */ }
+			Property<mark::unit::modular::socket*> socket = nullptr;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;

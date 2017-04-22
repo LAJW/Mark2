@@ -13,11 +13,13 @@ namespace mark {
 			turret(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
+			void target(mark::vector<double> pos) override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;
 			std::shared_ptr<const mark::resource::image> m_im_cannon;
 			mark::adsr m_adsr;
 			float m_cur_cooldown = 0;
+			mark::vector<double> m_target;
 		};
 	}
 }

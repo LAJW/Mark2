@@ -113,8 +113,11 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			return unit.team() != this->team() && !unit.invincible();
 		});
 		if (enemy) {
-			m_lookat = enemy->pos();
 			m_moveto = enemy->pos();
+			m_lookat = enemy->pos();
+			for (auto& socket : m_sockets) {
+				socket.module().target(enemy->pos());
+			}
 		}
 	}
 	if (m_lookat != m_pos) {
@@ -222,6 +225,9 @@ void mark::unit::modular::command(const mark::command& command) {
 		m_moveto = command.pos;
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
+		for (auto& socket : m_sockets) {
+			socket.module().target(command.pos);
+		}
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
 	} else if (command.type == mark::command::type::activate) {
