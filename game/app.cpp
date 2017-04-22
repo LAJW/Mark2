@@ -60,6 +60,7 @@ void mark::app::main() {
 			if (shooting) {
 				world->command(mark::command{ mark::command::type::shoot, target });
 			}
+			world->command(mark::command{ mark::command::type::guide, target });
 
 			m_window.clear();
 			auto sprites = world->tick(dt, mark::vector<double>(m_window.getSize()));
