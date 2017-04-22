@@ -194,7 +194,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::m
 			&& pos.y < socket_bottom && pos.y >= socket.pos().y;
 	});
 	if (socket_it != m_sockets.end()) {
-		if (!dynamic_cast<mark::module::core*>(&socket_it->module())) {
+		if (socket_it->module().detachable()) {
 			auto out = socket_it->detach();
 			if (socket_it != std::prev(m_sockets.end())) {
 				*socket_it = std::move(m_sockets.back());

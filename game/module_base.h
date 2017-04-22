@@ -27,6 +27,7 @@ namespace mark {
 			virtual auto dead() const -> bool = 0;
 			Property<mark::unit::modular::socket*> socket = nullptr;
 			inline auto thumbnail() const { return m_thumbnail; };
+			virtual auto detachable() const -> bool { return true; }
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;

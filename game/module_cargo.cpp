@@ -102,3 +102,12 @@ auto mark::module::cargo::interior_size() const -> mark::vector<int> {
 	auto size_v = m_modules.size();
 	return mark::vector<int>(16, size_v / 16);
 }
+
+auto mark::module::cargo::detachable() const -> bool {
+	for (const auto& module : m_modules) {
+		if (module) {
+			return false;
+		}
+	}
+	return true;
+}
