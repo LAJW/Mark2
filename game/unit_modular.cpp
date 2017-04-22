@@ -83,83 +83,51 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 }
 
 void mark::unit::modular::tick(mark::tick_context& context) {
-	auto pad = m_pad.lock();
 	for (auto& socket : m_sockets) {
 		socket.tick(context);
 	}
-	if (pad) {
-		m_pos = pad->pos();
-		m_rotation = 0.0;
-		double top = 0;
-		auto image = m_world.resource_manager().image("grid-background.png");
-		for (auto& socket : m_sockets) {
-			auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
-			if (cargo) {
-				auto size_v = cargo->modules().size();
-				mark::vector<int> size(16, size_v / 16);
-				for (const auto point : mark::area(size.x, size.y)) {
-					auto pos = mark::vector<double>(m_pos.x + 320.0 - 8, m_pos.y - 320.0 + top - 8) + mark::vector<double>(point * 16);
-					context.sprites[0].push_back(mark::sprite(image, pos));
-					const auto& module = cargo->modules()[point.x + point.y * 16];
-					if (module) {
-						const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
-						context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
-					}
-				}
-				top += size.y * 16.0 + 32.0;
-			}
-		}
-		if (m_grabbed) {
-			const auto size = static_cast<double>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_lookat, size));
-		}
-	} else {
-		double dt = context.dt;
-		double speed = m_ai ? 64.0 : 320.0;
-		if (mark::length(m_moveto - m_pos) > speed * dt) {
-			const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
-			m_path = path;
-			const auto dir = mark::normalize(m_moveto - m_pos);
-			if (path.size() > 3) {
-				const auto first = path[path.size() - 3];
-				m_pos += mark::normalize(first - m_pos) * speed * dt;
-			} else {
-				const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
-				if (m_world.map().traversable(m_pos + step, 50.0)) {
-					m_pos += step;
-				}
-			}
-		} else {
-			m_pos = m_moveto;
-		}
-		if (m_ai) {
-			auto enemy = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
-				return unit.team() != this->team() && !unit.invincible();
-			});
-			if (enemy) {
-				m_lookat = enemy->pos();
-				m_moveto = enemy->pos();
-			}
-		}
-		if (m_lookat != m_pos) {
-			const auto direction = mark::normalize((m_lookat - m_pos));
-			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-			const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
-			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
-				m_rotation = static_cast<float>(mark::atan(direction));
-			} else {
-				m_rotation += rot_step;
-			}
-		}
-
-
+	double dt = context.dt;
+	double speed = m_ai ? 64.0 : 320.0;
+	if (mark::length(m_moveto - m_pos) > speed * dt) {
+		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
 #ifdef _DEBUG
-		for (const auto& step : m_path) {
+		for (const auto& step : path) {
 			context.sprites[100].emplace_back(m_world.resource_manager().image("generator.png"), step);
 		}
 #endif // !_DEBUG
-
+		const auto dir = mark::normalize(m_moveto - m_pos);
+		if (path.size() > 3) {
+			const auto first = path[path.size() - 3];
+			m_pos += mark::normalize(first - m_pos) * speed * dt;
+		} else {
+			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
+			if (m_world.map().traversable(m_pos + step, 50.0)) {
+				m_pos += step;
+			}
+		}
+	} else {
+		m_pos = m_moveto;
 	}
+	if (m_ai) {
+		auto enemy = m_world.find_one(m_pos, 1000.f, [this](const mark::unit::base& unit) {
+			return unit.team() != this->team() && !unit.invincible();
+		});
+		if (enemy) {
+			m_lookat = enemy->pos();
+			m_moveto = enemy->pos();
+		}
+	}
+	if (m_lookat != m_pos) {
+		const auto direction = mark::normalize((m_lookat - m_pos));
+		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+		const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
+		if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+			m_rotation = static_cast<float>(mark::atan(direction));
+		} else {
+			m_rotation += rot_step;
+		}
+	}
+
 }
 
 
@@ -251,64 +219,17 @@ auto mark::unit::modular::get_core() -> mark::module::core& {
 
 void mark::unit::modular::command(const mark::command& command) {
 	if (command.type == mark::command::type::move) {
-		auto pad = m_pad.lock();
-		if (pad) {
-			const auto relative = (command.pos - m_pos) / 16.0;
-			const auto module_pos = mark::vector<int>(std::round(relative.x), std::round(relative.y));
-			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-				// ship drag&drop
-				if (m_grabbed) {
-					auto pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2;
-					if (this->can_attach(m_grabbed, pos)) {
-						this->attach(std::move(m_grabbed), pos);
-					}
-				} else {
-					const auto relative = (command.pos - m_pos) / 16.0;
-					const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
-					m_grabbed = this->detach(module_pos);
-				}
-			} else if (module_pos.x > 17 && module_pos.y < 17 + 16) {
-				// cargo drag&drop
-				double top = 0.0;
-				for (auto& socket : m_sockets) {
-					auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
-					if (cargo) {
-						auto size_v = cargo->modules().size();
-						mark::vector<int> size(16, size_v / 16);
-						const auto relative = (command.pos - m_pos + mark::vector<double>(-320, -top + 320.0)) / 16.0;
-						const auto module_pos = mark::vector<int>(std::round(relative.x + 1.0), std::round(relative.y + 1.0));
-						if (module_pos.y >= 0 && module_pos.y < size.y) {
-							if (m_grabbed && cargo->modules()[module_pos.x + module_pos.y * 16] == nullptr) {
-								cargo->modules()[module_pos.x + module_pos.y * 16] = std::move(m_grabbed);
-							} else {
-								m_grabbed = std::move(cargo->modules()[module_pos.x + module_pos.y * 16]);
-							}
-							break;
-						}
-						top += size.y * 16.0 + 32.0;
-					}
-				}
-			}
-		} else {
-			m_moveto = command.pos;
-		}
+		m_moveto = command.pos;
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
 	} else if (command.type == mark::command::type::activate) {
-		auto pad = m_pad.lock();
+		auto pad = m_world.find_one(m_pos, 150.0, [this](const mark::unit::base& unit) {
+			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
+		});
 		if (pad) {
-			m_pad.reset();
-			pad->dock(nullptr);
-		} else {
-			auto landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(m_world.find_one(m_pos, 150.f, [](const mark::unit::base& unit) {
-				return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
-			}));
-			if (landing_pad) {
-				landing_pad->dock(this);
-				this->m_pad = std::weak_ptr<mark::unit::landing_pad>(landing_pad);
-			}
+			pad->activate(this->shared_from_this());
 		}
 	}
 }
@@ -319,4 +240,19 @@ auto mark::unit::modular::dead() const -> bool {
 
 auto mark::unit::modular::invincible() const -> bool {
 	return false;
+}
+
+void mark::unit::modular::activate(const std::shared_ptr<mark::unit::base>& by) {
+	m_world.target(this->shared_from_this());
+}
+
+auto mark::unit::modular::containers() -> std::vector<std::reference_wrapper<mark::module::cargo>> {
+	std::vector<std::reference_wrapper<mark::module::cargo>> out;
+	for (auto& socket : m_sockets) {
+		auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
+		if (cargo) {
+			out.push_back(*cargo);
+		}
+	}
+	return out;
 }

@@ -35,6 +35,11 @@ namespace mark {
 		auto find_one(mark::vector<double> pos, double radius, const std::function<bool(const mark::unit::base&)>& pred)
 			->std::shared_ptr<mark::unit::base>;
 		void command(const mark::command& command);
+		// set target for commmands
+		void target(const std::shared_ptr<mark::unit::base>& target);
+		// get target for commands
+		auto target() -> std::shared_ptr<mark::unit::base>;
+		auto target() const->std::shared_ptr<const mark::unit::base>;
 	private:
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;

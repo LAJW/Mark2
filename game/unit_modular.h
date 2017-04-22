@@ -4,12 +4,12 @@
 #include <vector>
 #include "unit_base.h"
 #include "command.h"
-
 namespace mark {
 
 	namespace module {
 		class base;
 		class core;
+		class cargo;
 	};
 	class world;
 
@@ -52,17 +52,16 @@ namespace mark {
 			inline auto world() -> mark::world& { return m_world; }
 			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 			auto invincible() const -> bool override;
-		private:
+			void activate(const std::shared_ptr<mark::unit::base>& by) override;
+			auto containers()->std::vector<std::reference_wrapper<mark::module::cargo>>;
 			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
+		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
-			std::vector<mark::vector<double>> m_path;
 			mark::vector<double> m_moveto;
 			mark::vector<double> m_lookat;
 			bool m_ai = false;
-			std::weak_ptr<mark::unit::landing_pad> m_pad;
-			std::unique_ptr<mark::module::base> m_grabbed = nullptr; // grabbed module during drag&drop editing
 		};
 	}
 }

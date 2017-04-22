@@ -160,3 +160,15 @@ void mark::world::command(const mark::command& command) {
 		camera_target->command(command);
 	}
 }
+
+void mark::world::target(const std::shared_ptr<mark::unit::base>& target) {
+	m_camera_target = target;
+}
+
+auto mark::world::target() -> std::shared_ptr<mark::unit::base> {
+	return m_camera_target.lock();
+}
+
+auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
+	return m_camera_target.lock();
+}
