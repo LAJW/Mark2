@@ -28,18 +28,9 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		double top = 0.0;
 		for (auto& cargo_ref : ship->containers()) {
 			auto& cargo = cargo_ref.get();
-			auto size_v = cargo.modules().size();
-			mark::vector<int> size(16, size_v / 16);
-			for (const auto point : mark::area(size.x, size.y)) {
-				auto pos = mark::vector<double>(m_pos.x + 320.0 - 8, m_pos.y - 320.0 + top - 8) + mark::vector<double>(point * 16);
-				context.sprites[0].push_back(mark::sprite(image, pos));
-				const auto& module = cargo.modules()[point.x + point.y * 16].get();
-				if (module) {
-					const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
-					context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
-				}
-			}
-			top += size.y * 16.0 + 32.0;
+			auto pos = mark::vector<double>(m_pos.x + 320.0, m_pos.y - 320.0 + top);
+			cargo.render_contents(pos, context);
+			top += cargo.interior_size().y * 16.0 + 32.0;
 		}
 		if (m_grabbed) {
 			const auto size = static_cast<double>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;

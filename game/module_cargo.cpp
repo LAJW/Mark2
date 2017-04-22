@@ -3,6 +3,8 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "exception.h"
+#include "world.h"
+#include "resource_manager.h"
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
@@ -45,4 +47,23 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 	} catch (std::runtime_error&) {
 		return nullptr;
 	}
+}
+
+void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context & context) {
+	const auto image = socket()->world().resource_manager().image("grid-background.png");
+	auto size = this->interior_size();
+	for (const auto point : mark::area(size.x, size.y)) {
+		auto pos = pos_in + mark::vector<double>(point * 16) - mark::vector<double>(8.0, 8.0);
+		context.sprites[0].push_back(mark::sprite(image, pos));
+		const auto& module = m_modules[point.x + point.y * 16].get();
+		if (module) {
+			const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
+			context.sprites[0].push_back(mark::sprite(module->thumbnail(), pos, size));
+		}
+	}
+}
+
+mark::vector<unsigned> mark::module::cargo::interior_size() const {
+	auto size_v = m_modules.size();
+	return mark::vector<unsigned>(16, size_v / 16);
 }
