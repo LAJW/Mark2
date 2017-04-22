@@ -12,11 +12,13 @@ namespace mark {
 		class cannon : public mark::module::base{
 		public:
 			cannon(mark::resource::manager& manager);
-			virtual void tick(mark::tick_context& context) override;
+			void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
+			void shoot(mark::vector<double> pos) override;
 		private:
 			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_ray;
+			bool m_shoot = false;
 		};
 	}
 }

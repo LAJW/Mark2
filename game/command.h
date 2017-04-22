@@ -8,7 +8,8 @@ namespace mark {
 			move,
 			guide,
 			ai,
-			activate
+			activate,
+			shoot
 		} type;
 		mark::vector<double> pos;
 	};

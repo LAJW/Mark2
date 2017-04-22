@@ -237,6 +237,10 @@ void mark::unit::modular::command(const mark::command& command) {
 		if (pad) {
 			pad->activate(this->shared_from_this());
 		}
+	} else if (command.type == mark::command::type::shoot) {
+		for (auto& socket : m_sockets) {
+			socket.module().shoot(command.pos);
+		}
 	}
 }
 

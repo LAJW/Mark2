@@ -34,9 +34,12 @@ void mark::app::main() {
 			while (m_window.pollEvent(event)) {
 				if (event.type == sf::Event::Closed) {
 					m_window.close();
-				} else if (event.type == sf::Event::MouseButtonPressed) {
+				} else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == 0) {
 					const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
 					world->command(mark::command{ mark::command::type::move, target });
+				} else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == 1) {
+					const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
+					world->command(mark::command{ mark::command::type::shoot, target });
 				} else if (event.type == sf::Event::KeyPressed && event.key.code == 17) {
 					world = std::make_unique<mark::world>(m_resource_manager);
 				} else if (event.type == sf::Event::MouseMoved) {

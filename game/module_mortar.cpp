@@ -20,7 +20,7 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 	auto pos = socket()->relative_pos();
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else {
+	} else if (m_shoot) {
 		const auto direction = static_cast<float>(-mark::sgn(socket()->pos().y + 1) * 90);
 		m_cur_cooldown = 2.5f;
 		m_adsr.trigger();
@@ -32,10 +32,15 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 			context.units.emplace_back(std::move(projectile));
 		}
 	}
+	m_shoot = false;
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
 
 }
 
 auto mark::module::mortar::dead() const -> bool {
 	return false;
+}
+
+void mark::module::mortar::shoot(mark::vector<double> pos) {
+	m_shoot = true;
 }

@@ -21,13 +21,14 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	auto angle = mark::atan(m_target - pos);
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else {
+	} else if (m_shoot) {
 		m_cur_cooldown = 0.5f;
 		m_adsr.trigger();
 		auto projectile = std::make_shared<mark::unit::projectile>(socket()->world(), pos, angle);
 		projectile->team(socket()->team());
 		context.units.emplace_back(std::move(projectile));
 	}
+	m_shoot = false;
 	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.f, 0.0), angle), 32.f, angle));
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
 
@@ -39,4 +40,9 @@ auto mark::module::turret::dead() const -> bool {
 
 void mark::module::turret::target(mark::vector<double> pos) {
 	m_target = pos;
+}
+
+void mark::module::turret::shoot(mark::vector<double> pos) {
+	m_target = pos;
+	m_shoot = true;
 }

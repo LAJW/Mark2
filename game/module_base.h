@@ -28,6 +28,7 @@ namespace mark {
 			inline auto thumbnail() const { return m_thumbnail; }
 			virtual auto detachable() const -> bool { return true; }
 			virtual void target(mark::vector<double> pos) { /* no op */ }
+			virtual void shoot(mark::vector<double> pos) { /* no op */ }
 			Property<mark::unit::modular::socket*> socket = nullptr;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
