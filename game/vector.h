@@ -79,4 +79,10 @@ namespace mark {
 		int m_width;
 		int m_height;
 	};
+	inline auto round(mark::vector<double> in) {
+		return mark::vector<int>(std::round(in.x), std::round(in.y));
+	}
+	inline auto floor(mark::vector<double> in) {
+		return mark::vector<int>(std::floor(in.x), std::floor(in.y));
+	}
 }

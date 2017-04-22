@@ -79,33 +79,34 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 		auto ship = m_ship.lock();
 		if (ship) {
 			const auto relative = (command.pos - m_pos) / 16.0;
-			const auto module_pos = mark::vector<int>(std::round(relative.x), std::round(relative.y));
+			const auto module_pos = mark::vector<int>(std::round(relative.x), std::round(relative.y)); // centered on mouse
+			const auto pick_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 				// ship drag&drop
 				if (m_grabbed) {
-					auto pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2;
-					if (ship->can_attach(m_grabbed, pos)) {
-						ship->attach(std::move(m_grabbed), pos);
+					const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
+					if (ship->can_attach(m_grabbed, drop_pos)) {
+						ship->attach(std::move(m_grabbed), drop_pos);
 					}
 				} else {
-					const auto relative = (command.pos - m_pos) / 16.0;
-					const auto module_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
-					m_grabbed = ship->detach(module_pos);
+					m_grabbed = ship->detach(pick_pos);
 				}
-			} else if (module_pos.x > 17 && module_pos.y < 17 + 16) {
+			} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
 				// cargo drag&drop
 				double top = 0.0;
 				for (auto& cargo_ref : ship->containers()) {
 					auto& cargo = cargo_ref.get();
-					auto size_v = cargo.modules().size();
-					mark::vector<int> size(16, size_v / 16);
-					const auto relative = (command.pos - m_pos + mark::vector<double>(-320, -top + 320.0)) / 16.0;
-					const auto module_pos = mark::vector<int>(std::round(relative.x + 1.0), std::round(relative.y + 1.0));
-					if (module_pos.y >= 0 && module_pos.y < size.y) {
-						if (m_grabbed && cargo.modules()[module_pos.x + module_pos.y * 16] == nullptr) {
-							cargo.modules()[module_pos.x + module_pos.y * 16] = std::move(m_grabbed);
+					const auto size = cargo.interior_size();
+					const auto relative = command.pos - m_pos + mark::vector<double>(-320 + 8, -top + 320 + 8);
+					if (relative.y >= 0 && relative.y < size.y * 16) {
+						if (m_grabbed) {
+							const auto drop_pos = mark::round(relative / 16.0 - mark::vector<double>(m_grabbed->size()) / 2.0);
+							if (cargo.can_drop(drop_pos, m_grabbed)) {
+								cargo.drop(drop_pos, std::move(m_grabbed));
+							}
 						} else {
-							m_grabbed = std::move(cargo.modules()[module_pos.x + module_pos.y * 16]);
+							const auto pick_pos = mark::floor(relative / 16.0);
+							m_grabbed = cargo.pick(pick_pos);
 						}
 						break;
 					}
