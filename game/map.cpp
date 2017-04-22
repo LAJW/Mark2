@@ -210,11 +210,10 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 	// check if path is reachable directly
 	bool straight_exists = true;
 	const auto dir = mark::normalize(world_end - world_start);
-	const auto ort = mark::rotate(dir, 90.0);
 	const auto dist = mark::length(world_end - world_start);
 	for (double i = 0.0; i < dist; i += 24.0) {
 		const auto cur = dir * i + world_start;
-		if (this->traversable(cur, radius)) {
+		if (!this->traversable(cur, radius)) {
 			straight_exists = false;
 		}
 	}
