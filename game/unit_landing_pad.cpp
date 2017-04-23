@@ -116,3 +116,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 		}
 	}
 }
+
+auto mark::unit::landing_pad::collides(mark::vector<double> pos, float radius) const -> bool {
+	return false;
+}

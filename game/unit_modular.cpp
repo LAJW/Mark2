@@ -70,6 +70,10 @@ auto mark::unit::modular::socket::module() -> mark::module::base& {
 	return *m_module;
 }
 
+auto mark::unit::modular::socket::module() const->const mark::module::base & {
+	return *m_module;
+}
+
 std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
 	m_module->socket(nullptr);
 	return std::move(m_module);
@@ -210,6 +214,24 @@ auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::m
 	} else {
 		return nullptr;
 	}
+}
+
+namespace mark {
+
+}
+
+auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const -> bool {
+	for (const auto& socket : m_sockets) {
+		const auto size = mark::vector<double>(socket.size()) * 16.0;
+		const auto module_pos = socket.relative_pos();
+		const auto orto = m_rotation + 90.0;
+		const auto relative_to_module = pos - module_pos;
+		if (mark::distance(m_rotation, relative_to_module) < size.y / 2.0 + radius
+			&& mark::distance(orto, relative_to_module) < size.x / 2.0 + radius) {
+			return true;
+		}
+	}
+	return false;
 }
 
 auto mark::unit::modular::get_core() -> mark::module::core& {

@@ -13,6 +13,7 @@ namespace mark {
 			auto dead() const -> bool override;
 			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 			auto invincible() const -> bool override;
+			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;

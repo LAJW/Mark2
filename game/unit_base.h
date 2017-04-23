@@ -26,6 +26,7 @@ namespace mark {
 			virtual void damage(unsigned amount, mark::vector<double> pos) = 0;
 			virtual bool invincible() const = 0;
 			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
+			virtual auto collides(mark::vector<double> pos, float radius) const -> bool = 0;
 			Property<int> team = 0;
 		protected:
 			virtual ~base() = default;

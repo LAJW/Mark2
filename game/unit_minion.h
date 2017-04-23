@@ -15,6 +15,7 @@ namespace mark {
 			auto dead() const -> bool override;
 			void damage(unsigned amount, mark::vector<double> pos);
 			auto invincible() const -> bool override;
+			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 		private:
 			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_shield;

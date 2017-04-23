@@ -69,3 +69,7 @@ void mark::unit::minion::damage(unsigned amount, mark::vector<double> pos) {
 auto mark::unit::minion::invincible() const -> bool {
 	return false;
 }
+
+auto mark::unit::minion::collides(mark::vector<double> pos, float radius) const -> bool {
+	return mark::length(pos - m_pos) < static_cast<double>(radius + 116.f);
+}

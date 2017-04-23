@@ -33,6 +33,7 @@ namespace mark {
 				inline auto world() -> mark::world& { return m_parent.world(); }
 				inline auto team() const -> int { return m_parent.team(); }
 				auto module() -> mark::module::base&;
+				auto module() const -> const mark::module::base&;
 				std::unique_ptr<mark::module::base> detach();
 			private:
 				mark::vector<int> m_pos;
@@ -55,6 +56,7 @@ namespace mark {
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
 			auto containers()->std::vector<std::reference_wrapper<mark::module::cargo>>;
 			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
+			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

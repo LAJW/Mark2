@@ -85,4 +85,9 @@ namespace mark {
 	inline auto floor(mark::vector<double> in) {
 		return mark::vector<int>(std::floor(in.x), std::floor(in.y));
 	}
+	// distance between point and a line: tan(alpha) + 0
+	inline auto distance(float alpha, mark::vector<double> point) {
+		const auto a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
+		return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
+	}
 }

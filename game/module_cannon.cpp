@@ -19,8 +19,8 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	if (m_shoot) {
 		for (int i = 0; i < 200; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(16.0, 0.0), rotation) * static_cast<double>(i);
-			auto enemy = socket()->world().find_one(cur, 50.f, [this](const mark::unit::base& unit) {
-				return unit.team() != this->socket()->team() && !unit.invincible();
+			auto enemy = socket()->world().find_one(cur, 200.f, [this, &cur](const mark::unit::base& unit) {
+				return unit.team() != this->socket()->team() && !unit.invincible() && unit.collides(cur, 0);
 			});
 			if (!socket()->world().map().traversable(cur)
 				|| enemy) {

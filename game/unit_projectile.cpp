@@ -16,19 +16,21 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
 	m_pos += step;
-	auto enemy = m_world.find_one(m_pos, 50.f, [this](const mark::unit::base& unit) {
-		return unit.team() != this->team() && !unit.invincible();
+	auto enemy = m_world.find_one(m_pos, 300.f, [this](const mark::unit::base& unit) {
+		return unit.team() != this->team() && !unit.invincible() && unit.collides(this->m_pos, 5.f);
 	});
 	if (enemy || !m_world.map().traversable(m_pos)) {
 		if (enemy) {
 			enemy->damage(10, m_pos - step);
 		}
+		m_dead = true;
+	}
+	if (m_dead) {
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
 			float speed = static_cast<float>(m_world.resource_manager().random_double(5.0, 75.0));
 			context.particles.emplace_back(m_im_tail, m_pos, speed, direction, 0.30f, sf::Color(125, 125, 125, 75));
 		}
-		m_dead = true;
 	}
 
 
@@ -52,4 +54,8 @@ auto mark::unit::projectile::dead() const -> bool {
 
 auto mark::unit::projectile::invincible() const -> bool {
 	return true;
+}
+
+auto mark::unit::projectile::collides(mark::vector<double> pos, float radius) const -> bool {
+	return false;
 }
