@@ -9,7 +9,7 @@ namespace {
 	constexpr auto particles_per_tick = 4;
 	constexpr auto min_particle_velocity = 25.0;
 	constexpr auto max_particle_velocity = 50.0;
-	constexpr auto particle_cone = 90.0;
+	constexpr auto particle_cone = 90.f;
 	const auto beam_color = sf::Color::Red;
 }
 
@@ -39,7 +39,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				}
 				for (int i = 0; i < particles_per_tick; i++) {
 					const auto velocity = static_cast<float>(socket()->world().resource_manager().random_double(min_particle_velocity, max_particle_velocity));
-					const auto direction = static_cast<float>(socket()->world().resource_manager().random_double(0, particle_cone)) + 180.0 - particle_cone / 2.0 + rotation;
+					const auto direction = static_cast<float>(socket()->world().resource_manager().random_double(0, particle_cone)) + 180.f - particle_cone / 2.f + rotation;
 					context.particles.push_back(mark::particle(m_im_ray, cur, velocity, direction, 1.f, beam_color));
 				}
 				break;

@@ -46,16 +46,17 @@ void mark::module::cargo::drop(mark::vector<int> pos, std::unique_ptr<mark::modu
 }
 
 auto mark::module::cargo::can_drop(
-	mark::vector<int> pos,
+	mark::vector<int> i_pos,
 	const std::unique_ptr<mark::module::base>& module) const -> bool {
-	if (pos.x < 0 || pos.y < 0) {
+	if (i_pos.x < 0 || i_pos.y < 0) {
 		return false;
 	}
-	for (int i = 0; i < m_modules.size(); i++) {
-		const mark::vector<int> module_pos(i % 16, i / 16);
+	const auto pos = mark::vector<unsigned>(i_pos);
+	for (unsigned i = 0; i < m_modules.size(); i++) {
+		const mark::vector<unsigned> module_pos(i % 16, i / 16);
 		auto& slot = m_modules[i];
 		if (slot) {
-			const auto border = module_pos + mark::vector<int>(slot->size());
+			const auto border = module_pos + mark::vector<unsigned>(slot->size());
 			if (pos.x + module->size().x >= module_pos.x && pos.x < border.x
 				&& pos.y + module->size().y >= module_pos.y && pos.y < border.y) {
 				return false;
@@ -92,14 +93,14 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 		const auto& module = m_modules[point.x + point.y * 16].get();
 		if (module) {
 			const auto module_pos = slot_pos + mark::vector<double>(module->size()) * 16.0 / 2.0 - mark::vector<double>(8, 8);
-			const auto size = static_cast<double>(std::max(module->size().x, module->size().y)) * 16.f;
+			const auto size = static_cast<float>(std::max(module->size().x, module->size().y)) * 16.f;
 			context.sprites[1].push_back(mark::sprite(module->thumbnail(), module_pos, size));
 		}
 	}
 }
 
 auto mark::module::cargo::interior_size() const -> mark::vector<int> {
-	auto size_v = m_modules.size();
+	auto size_v = static_cast<int>(m_modules.size());
 	return mark::vector<int>(16, size_v / 16);
 }
 

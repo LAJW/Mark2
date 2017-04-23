@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <SFML/System/Vector2.hpp>
 #include <math.h>
+#include <cmath>
 
 namespace mark {
 	template<typename T>
@@ -80,10 +81,10 @@ namespace mark {
 		int m_height;
 	};
 	inline auto round(mark::vector<double> in) {
-		return mark::vector<int>(std::round(in.x), std::round(in.y));
+		return mark::vector<int>(static_cast<int>(std::round(in.x)), static_cast<int>(std::round(in.y)));
 	}
 	inline auto floor(mark::vector<double> in) {
-		return mark::vector<int>(std::floor(in.x), std::floor(in.y));
+		return mark::vector<int>(static_cast<int>(std::floor(in.x)), static_cast<int>(std::floor(in.y)));
 	}
 	// distance between point and a line: tan(alpha) + 0
 	inline auto distance(float alpha, mark::vector<double> point) {

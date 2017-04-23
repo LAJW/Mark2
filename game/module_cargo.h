@@ -4,7 +4,7 @@
 #include "lfo.h"
 
 namespace mark {
-	class tick_context;
+	struct tick_context;
 	namespace resource {
 		class manager;
 	}

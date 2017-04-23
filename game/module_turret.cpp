@@ -29,7 +29,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		context.units.emplace_back(std::move(projectile));
 	}
 	m_shoot = false;
-	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.f, 0.0), angle), 32.f, angle));
+	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle), 32.f, angle));
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
 
 }
