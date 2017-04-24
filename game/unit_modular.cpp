@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <cmath>
+#include <algorithm>
 #include "unit_modular.h"
 #include "module_base.h"
 #include "module_core.h"

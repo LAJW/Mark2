@@ -1,6 +1,15 @@
 #pragma once
-#include <string>
+#ifndef UNIT_TEST
 #include <SFML/Graphics/Texture.hpp>
+#else
+#include "vector.h"
+namespace sf {
+	class Texture {
+	public:
+		inline mark::vector<unsigned> getSize() const { return { 64, 64 }; }
+	};
+}
+#endif
 
 namespace mark {
 	namespace resource {

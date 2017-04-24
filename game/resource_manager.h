@@ -11,6 +11,8 @@ namespace sf {
 namespace mark {
 	namespace resource {
 		using image = sf::Texture;
+
+#ifndef UNIT_TEST
 		class manager {
 		public:
 			manager();
@@ -22,5 +24,13 @@ namespace mark {
 			std::random_device m_rd;
 			std::mt19937_64 m_gen;
 		};
+#else
+		class manager {
+		public:
+			auto image(const std::string& filename)->std::shared_ptr<const mark::resource::image>;
+			auto random_int(int min, int max) -> int;
+			auto random_double(double min, double max) -> double;
+		};
+#endif
 	};
 }

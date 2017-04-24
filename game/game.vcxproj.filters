@@ -17,6 +17,9 @@
     <Filter Include="Unit">
       <UniqueIdentifier>{6c8b5d36-eb51-4ba2-8d07-6438c119012c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="General">
+      <UniqueIdentifier>{743598ac-0ec5-47d7-adf2-19e43df39c2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="module_base.cpp">
@@ -73,13 +76,27 @@
     <ClCompile Include="unit_modular.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
-    <ClCompile Include="app.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
-    <ClCompile Include="model_animated.cpp" />
-    <ClCompile Include="particle.cpp" />
-    <ClCompile Include="sprite.cpp" />
-    <ClCompile Include="world.cpp" />
+    <ClCompile Include="app.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="model_animated.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="world.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -160,13 +177,29 @@
     <ClInclude Include="resource_manager.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="world.h" />
-    <ClInclude Include="app.h" />
-    <ClInclude Include="command.h" />
-    <ClInclude Include="map.h" />
-    <ClInclude Include="model_animated.h" />
-    <ClInclude Include="particle.h" />
-    <ClInclude Include="sprite.h" />
-    <ClInclude Include="tick_context.h" />
+    <ClInclude Include="app.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="command.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="model_animated.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="tick_context.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="world.h">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

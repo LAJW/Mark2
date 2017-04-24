@@ -4,7 +4,6 @@
 #include "resource_image.h"
 #include "sprite.h"
 #include "tick_context.h"
-#include <iostream>
 
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("shield-generator.png")),

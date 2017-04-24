@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "module_cargo.h"
 #include "resource_manager.h"
 #include "sprite.h"

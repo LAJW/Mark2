@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "world.h"
 #include "resource_manager.h"
 #include "unit_base.h"
@@ -7,7 +8,6 @@
 #include "module_shield_generator.h"
 #include "module_turret.h"
 #include "sprite.h"
-#include <random>
 #include "unit_minion.h"
 #include "command.h"
 #include "tick_context.h"

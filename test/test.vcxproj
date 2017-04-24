@@ -90,13 +90,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;UNIT_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Lib\SFML-2.4.2_shared\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -117,11 +119,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;UNIT_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\Lib\SFML-2.4.2_shared\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,8 +145,66 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\game\adsr.cpp" />
+    <ClCompile Include="..\game\cooldown.cpp" />
+    <ClCompile Include="..\game\lfo.cpp" />
+    <ClCompile Include="..\game\map.cpp" />
+    <ClCompile Include="..\game\model_animated.cpp" />
+    <ClCompile Include="..\game\module_base.cpp" />
+    <ClCompile Include="..\game\module_cannon.cpp" />
+    <ClCompile Include="..\game\module_cargo.cpp" />
+    <ClCompile Include="..\game\module_core.cpp" />
+    <ClCompile Include="..\game\module_mortar.cpp" />
+    <ClCompile Include="..\game\module_shield_generator.cpp" />
+    <ClCompile Include="..\game\module_turret.cpp" />
+    <ClCompile Include="..\game\particle.cpp" />
+    <ClCompile Include="..\game\resource_manager.cpp" />
+    <ClCompile Include="..\game\sprite.cpp" />
+    <ClCompile Include="..\game\terrain_floor.cpp" />
+    <ClCompile Include="..\game\terrain_wall.cpp" />
+    <ClCompile Include="..\game\unit_heat_seeker.cpp" />
+    <ClCompile Include="..\game\unit_landing_pad.cpp" />
+    <ClCompile Include="..\game\unit_minion.cpp" />
+    <ClCompile Include="..\game\unit_modular.cpp" />
+    <ClCompile Include="..\game\unit_projectile.cpp" />
+    <ClCompile Include="..\game\world.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="vector.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\game\adsr.h" />
+    <ClInclude Include="..\game\command.h" />
+    <ClInclude Include="..\game\cooldown.h" />
+    <ClInclude Include="..\game\exception.h" />
+    <ClInclude Include="..\game\iserializable.h" />
+    <ClInclude Include="..\game\json.h" />
+    <ClInclude Include="..\game\lfo.h" />
+    <ClInclude Include="..\game\map.h" />
+    <ClInclude Include="..\game\model_animated.h" />
+    <ClInclude Include="..\game\module_base.h" />
+    <ClInclude Include="..\game\module_cannon.h" />
+    <ClInclude Include="..\game\module_cargo.h" />
+    <ClInclude Include="..\game\module_core.h" />
+    <ClInclude Include="..\game\module_mortar.h" />
+    <ClInclude Include="..\game\module_shield_generator.h" />
+    <ClInclude Include="..\game\module_turret.h" />
+    <ClInclude Include="..\game\particle.h" />
+    <ClInclude Include="..\game\property.h" />
+    <ClInclude Include="..\game\resource_image.h" />
+    <ClInclude Include="..\game\resource_manager.h" />
+    <ClInclude Include="..\game\sprite.h" />
+    <ClInclude Include="..\game\terrain_base.h" />
+    <ClInclude Include="..\game\terrain_floor.h" />
+    <ClInclude Include="..\game\terrain_wall.h" />
+    <ClInclude Include="..\game\tick_context.h" />
+    <ClInclude Include="..\game\unit_base.h" />
+    <ClInclude Include="..\game\unit_heat_seeker.h" />
+    <ClInclude Include="..\game\unit_landing_pad.h" />
+    <ClInclude Include="..\game\unit_minion.h" />
+    <ClInclude Include="..\game\unit_modular.h" />
+    <ClInclude Include="..\game\unit_projectile.h" />
+    <ClInclude Include="..\game\vector.h" />
+    <ClInclude Include="..\game\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

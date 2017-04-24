@@ -148,12 +148,12 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="map.cpp" />
     <ClCompile Include="model_animated.cpp" />
     <ClCompile Include="module_cannon.cpp" />
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="lfo.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
     <ClCompile Include="module_base.cpp" />
     <ClCompile Include="module_cargo.cpp" />
     <ClCompile Include="module_core.cpp" />
@@ -175,8 +175,8 @@
   <ItemGroup>
     <ClInclude Include="adsr.h" />
     <ClInclude Include="app.h" />
-    <ClInclude Include="cooldown.h" />
     <ClInclude Include="command.h" />
+    <ClInclude Include="cooldown.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
@@ -187,6 +187,7 @@
     <ClInclude Include="module_shield_generator.h" />
     <ClInclude Include="module_turret.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="sprite.h" />
     <ClInclude Include="tick_context.h" />
     <ClInclude Include="unit_heat_seeker.h" />
     <ClInclude Include="unit_landing_pad.h" />
@@ -198,7 +199,6 @@
     <ClInclude Include="module_base.h" />
     <ClInclude Include="module_core.h" />
     <ClInclude Include="resource_manager.h" />
-    <ClInclude Include="sprite.h" />
     <ClInclude Include="terrain_base.h" />
     <ClInclude Include="terrain_floor.h" />
     <ClInclude Include="unit_base.h" />

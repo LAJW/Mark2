@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "unit_landing_pad.h"
 #include "world.h"
 #include "sprite.h"

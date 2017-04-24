@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "module_cannon.h"
 #include "resource_manager.h"
 #include "sprite.h"
