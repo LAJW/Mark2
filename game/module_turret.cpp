@@ -18,7 +18,7 @@ mark::module::turret::turret(mark::resource::manager& resource_manager):
 void mark::module::turret::tick(mark::tick_context& context) {
 	m_adsr.tick(context.dt);
 	auto pos = socket()->relative_pos();
-	auto angle = mark::atan(m_target - pos);
+	auto angle = static_cast<float>(mark::atan(m_target - pos));
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (m_shoot) {

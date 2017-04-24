@@ -224,7 +224,7 @@ auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const
 	for (const auto& socket : m_sockets) {
 		const auto size = mark::vector<double>(socket.size()) * 16.0;
 		const auto module_pos = socket.relative_pos();
-		const auto orto = m_rotation + 90.0;
+		const auto orto = m_rotation + 90.f;
 		const auto relative_to_module = pos - module_pos;
 		if (mark::distance(m_rotation, relative_to_module) < size.y / 2.0 + radius
 			&& mark::distance(orto, relative_to_module) < size.x / 2.0 + radius) {

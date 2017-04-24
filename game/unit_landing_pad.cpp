@@ -33,7 +33,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 			top += cargo.interior_size().y * 16.0 + 32.0;
 		}
 		if (m_grabbed) {
-			const auto size = static_cast<double>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
 			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_mousepos, size));
 		}
 	}
@@ -79,8 +79,8 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 		auto ship = m_ship.lock();
 		if (ship) {
 			const auto relative = (command.pos - m_pos) / 16.0;
-			const auto module_pos = mark::vector<int>(std::round(relative.x), std::round(relative.y)); // centered on mouse
-			const auto pick_pos = mark::vector<int>(std::floor(relative.x), std::floor(relative.y));
+			const auto module_pos = mark::round(relative);
+			const auto pick_pos = mark::floor(relative);
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 				// ship drag&drop
 				if (m_grabbed) {
