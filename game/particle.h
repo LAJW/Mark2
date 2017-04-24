@@ -1,12 +1,18 @@
 #pragma once
-#include "resource_image.h"
-#include "vector.h"
-#include "resource_image.h"
 #include <map>
 #include <memory>
 #include <vector>
+#include <SFML/Graphics/Color.hpp>
+#include "vector.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
+	namespace resource {
+		using image = sf::Texture;
+	}
 	class sprite;
 	class particle {
 	public:

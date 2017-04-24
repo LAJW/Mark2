@@ -1,12 +1,16 @@
 #pragma once
 #include <memory>
 #include "terrain_base.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
 	class world;
 	namespace resource {
 		class manager;
+		using image = sf::Texture;
 	}
 
 	namespace terrain {

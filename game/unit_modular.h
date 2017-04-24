@@ -1,9 +1,8 @@
 #pragma once
-#include <SFML/System/Vector2.hpp>
 #include <memory>
 #include <vector>
 #include "unit_base.h"
-#include "command.h"
+
 namespace mark {
 
 	namespace module {

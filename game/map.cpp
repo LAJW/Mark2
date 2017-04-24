@@ -1,14 +1,12 @@
+#include <random>
+#include <algorithm>
 #include "map.h"
 #include "resource_manager.h"
 #include "terrain_base.h"
 #include "vector.h"
 #include "sprite.h"
-
-// make_map
-#include <random>
 #include "terrain_floor.h"
 #include "terrain_wall.h"
-
 
 static auto world_to_map(
 	const mark::vector<double>& pos,

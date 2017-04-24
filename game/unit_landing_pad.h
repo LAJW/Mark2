@@ -1,9 +1,14 @@
 #pragma once
-#pragma once
 #include "unit_base.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
+	namespace resource {
+		using image = sf::Texture;
+	}
 	class world;
 	namespace module {
 		class base;

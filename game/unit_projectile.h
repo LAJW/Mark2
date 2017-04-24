@@ -1,9 +1,15 @@
 #pragma once
 #include "unit_base.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
 	class world;
+	namespace resource {
+		using image = sf::Texture;
+	}
 	namespace unit {
 		class projectile final : public mark::unit::base {
 		public:

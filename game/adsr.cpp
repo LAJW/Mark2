@@ -1,4 +1,5 @@
 #include "adsr.h"
+#include <assert.h>
 
 mark::adsr::adsr(float attack, float decay, float sustain, float release):
 	m_attack(attack),

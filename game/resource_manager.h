@@ -2,11 +2,15 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include "resource_image.h"
 #include <random>
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
 	namespace resource {
+		using image = sf::Texture;
 		class manager {
 		public:
 			manager();

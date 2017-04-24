@@ -4,13 +4,16 @@
 #include "unit_modular.h"
 #include "property.h"
 #include "vector.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
-	class sprite;
-	namespace unit {
-		class modular;
+	namespace resource {
+		using image = sf::Texture;
 	}
+	class sprite;
 
 	namespace module {
 		static constexpr float size = 16.f;

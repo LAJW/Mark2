@@ -1,14 +1,18 @@
 #pragma once
 #include <memory>
-#include <string>
 #include "vector.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+	class Color;
+}
 
 namespace mark {
+	class sprite;
 	namespace resource {
 		class manager;
+		using image = sf::Texture;
 	}
-	class sprite;
 	namespace model {
 		class animated {
 		public:

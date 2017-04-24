@@ -2,7 +2,6 @@
 #include "adsr.h"
 #include "cooldown.h"
 #include "unit_base.h"
-#include "resource_image.h"
 #include "model_animated.h"
 
 namespace mark {

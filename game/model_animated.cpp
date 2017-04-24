@@ -1,6 +1,7 @@
 #include "model_animated.h"
 #include "sprite.h"
 #include "resource_manager.h"
+#include <SFML/Graphics/Texture.hpp>
 
 mark::model::animated::animated(const std::shared_ptr<const mark::resource::image>& image):
 	m_image(image) {

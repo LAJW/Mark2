@@ -1,5 +1,4 @@
 #include "terrain_wall.h"
-#include "world.h"
 #include "sprite.h"
 #include "resource_manager.h"
 
