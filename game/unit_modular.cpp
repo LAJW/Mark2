@@ -132,8 +132,9 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	if (m_lookat != m_pos) {
 		const auto direction = mark::normalize((m_lookat - m_pos));
 		const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-		const auto rot_step = static_cast<float>(turn_direction  * 32.f * dt);
-		if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+		const auto turn_speed = m_ai ? 32.f : 360.f;
+		const auto rot_step = static_cast<float>(turn_direction  * turn_speed * dt);
+		if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < turn_speed * dt) {
 			m_rotation = static_cast<float>(mark::atan(direction));
 		} else {
 			m_rotation += rot_step;

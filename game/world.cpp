@@ -45,6 +45,14 @@ mark::world::world(mark::resource::manager& resource_manager):
 		}
 	}
 	end:;
+	for (int x = 0; x < 1000; x++) {
+		for (int y = 0; y < 1000; y++) {
+			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
+			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
+				m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+			}
+		}
+	}
 	auto vessel = create_ship(resource_manager, *this);
 	vessel->team(1);
 	m_camera_target = vessel;
@@ -53,8 +61,6 @@ mark::world::world(mark::resource::manager& resource_manager):
 	mark::command command;
 	command.type = mark::command::type::ai;
 	m_units.back()->command(command);
-	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(20, 0)));
-	m_units.push_back(std::make_shared<mark::unit::minion>(*this, mark::vector<double>(-20, 0)));
 }
 
 auto mark::world::map() const -> const mark::map&{
