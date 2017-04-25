@@ -36,16 +36,13 @@ void mark::unit::heat_seeker::tick(mark::tick_context& context) {
 		if (enemy) {
 			enemy->damage(10, m_pos - step);
 		}
-		m_dead = true;
-	}
-	if (m_dead) {
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
 			float speed = static_cast<float>(m_world.resource_manager().random_double(5.0, 75.0));
 			context.particles.emplace_back(m_im_tail, m_pos, speed, direction, 0.30f, sf::Color(125, 125, 125, 75));
 		}
+		m_dead = true;
 	}
-
 
 	for (int i = 0; i < 4; i++) {
 		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
