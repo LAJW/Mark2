@@ -34,6 +34,7 @@ namespace mark {
 			virtual void shoot(mark::vector<double> pos) { /* no op */ }
 			Property<mark::unit::modular::socket*> socket = nullptr;
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
+			virtual void damage(unsigned amount, mark::vector<double> pos) { /* no op */ };
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;

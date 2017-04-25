@@ -97,6 +97,9 @@
     <ClCompile Include="module_turret.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="model_shield.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -199,6 +202,9 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="world.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="model_shield.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #pragma once
 #include "lfo.h"
 #include "module_base.h"
-#include "resource_image.h"
+#include "model_shield.h"
 
 namespace mark {
 
@@ -17,12 +17,10 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
 			auto collides(mark::vector<double> pos, float radius) const -> bool;
+			void damage(unsigned amount, mark::vector<double> pos) override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
-			std::shared_ptr<const mark::resource::image> m_im_shield;
-			std::shared_ptr<const mark::resource::image> m_im_glare;
-			mark::lfo m_light_lfo;
-			mark::lfo m_shield_lfo;
+			mark::model::shield m_model_shield;
 		};
 	}
 }

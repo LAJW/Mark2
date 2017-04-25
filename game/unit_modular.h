@@ -51,7 +51,7 @@ namespace mark {
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;
 			inline auto world() -> mark::world& { return m_world; }
-			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
+			void damage(unsigned amount, mark::vector<double> pos) override;
 			auto invincible() const -> bool override;
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
 			auto containers()->std::vector<std::reference_wrapper<mark::module::cargo>>;

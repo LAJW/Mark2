@@ -266,6 +266,12 @@ auto mark::unit::modular::dead() const -> bool {
 	return m_core && m_core->dead();
 }
 
+void mark::unit::modular::damage(unsigned amount, mark::vector<double> pos) {
+	for (auto& socket : m_sockets) {
+		socket.module().damage(amount, pos);
+	}
+}
+
 auto mark::unit::modular::invincible() const -> bool {
 	return false;
 }
