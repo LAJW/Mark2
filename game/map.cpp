@@ -20,58 +20,11 @@ static auto map_to_world(const mark::vector<int>& pos, const mark::vector<int>& 
 	return mark::vector<double>(pos - map_size / 2) * mark::terrain::grid_size;
 }
 
-static auto make_map(mark::resource::manager& resource_manager) {
-	std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::uniform_int_distribution<> dist_1_100(1, 10);
-	std::uniform_int_distribution<> dist_0_3(0, 3);
-
-	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
-	auto point = mark::vector<int>(500, 500);
-	for (int i = 0; i < 100; i++) {
-		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
-		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
-		const auto length = dist_1_100(gen);
-
-		for (int j = -5; j < length + 5; j++) {
-			const auto step = point + direction * j;
-			for (int k = -3; k <= 3; k++) {
-				const auto cur = step + orto * k;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::floor>(resource_manager);
-				}
-			}
-			{
-				const auto cur = step + orto * 4;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(resource_manager);
-				}
-			}
-			{
-				const auto cur = step + orto * -4;
-				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-					floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(resource_manager);
-				}
-			}
-		}
-		for (int k = -4; k <= 4; k++) {
-			const auto cur = point - direction * 6 + orto * k;
-			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(resource_manager);
-			}
-		}
-		for (int k = -4; k <= 4; k++) {
-			const auto cur = point + direction * (length + 5) + orto * k;
-			if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000 && !floor[cur.x][cur.y]) {
-				floor[cur.x][cur.y] = std::make_shared<mark::terrain::wall>(resource_manager);
-			}
-		}
-		point += direction * length;
-	}
-	// fix corners
-
-	for (size_t x = 1; x < 999; x++) {
-		for (size_t y = 1; y < 999; y++) {
+static auto fix_corners(
+	mark::resource::manager& resource_manager,
+	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor) {
+	for (size_t x = 1, size_x = floor.size(); x < size_x - 1; x++) {
+		for (size_t y = 1, size_y = floor[0].size(); y < size_y - 1; y++) {
 			auto cur = dynamic_cast<mark::terrain::floor*>(floor[x][y].get());
 			auto tl = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y - 1].get());
 			auto t = dynamic_cast<mark::terrain::wall*>(floor[x][y - 1].get());
@@ -126,13 +79,51 @@ static auto make_map(mark::resource::manager& resource_manager) {
 			}
 		}
 	}
-
 	return floor;
 }
 
+static auto create_walls(mark::resource::manager& resource_manager, std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor) {
+	for (size_t x = 1, size_x = floor.size(); x < size_x - 1; x++) {
+		for (size_t y = 1, size_y = floor[0].size(); y < size_y - 1; y++) {
+			if (floor[x][y]) {
+				for (size_t i = 0; i < 9; i++) {
+					mark::vector<size_t> cur(x + i % 3 - 1, y + i / 3 - 1);
+					auto& neighbour = floor[cur.x][cur.y];
+					if (!neighbour) {
+						neighbour = std::make_shared<mark::terrain::wall>(resource_manager);
+					}
+				}
+			}
+		}
+	}
+	return floor;
+}
 
-mark::map::map(mark::resource::manager& resource_manager) {
-	m_terrain = make_map(resource_manager);
+static auto make_map(mark::resource::manager& resource_manager) {
+	std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::uniform_int_distribution<> dist_1_100(1, 10);
+	std::uniform_int_distribution<> dist_0_3(0, 3);
+
+	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
+	auto point = mark::vector<int>(500, 500);
+	for (int i = 0; i < 100; i++) {
+		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
+		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
+		const auto length = dist_1_100(gen);
+
+		for (int j = -5; j < length + 5; j++) {
+			const auto step = point + direction * j;
+			for (int k = -3; k <= 3; k++) {
+				const auto cur = step + orto * k;
+				if (cur.x > 0 && cur.x < 1000 && cur.y > 0 && cur.y < 1000) {
+					floor[cur.x][cur.y] = std::make_shared<mark::terrain::floor>(resource_manager);
+				}
+			}
+		}
+		point += direction * length;
+	}
+	return fix_corners(resource_manager, std::move(floor));
 }
 
 auto mark::map::traversable(const mark::vector<double> pos, const double radius) const -> bool {
@@ -271,3 +262,21 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 	}
 	return std::vector<mark::vector<double>>();
 }
+
+mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
+	return mark::map(make_map(resource_manager));
+}
+
+mark::map mark::map::make_square(mark::resource::manager& resource_manager) {
+	mark::map::terrain_t terrain(20, std::vector<std::shared_ptr<mark::terrain::base>>(20, nullptr));
+	for (size_t x = 1; x < 20 - 1; x++) {
+		for (size_t y = 1; y < 20 - 1; y++) {
+			auto& cell = terrain[x][y];
+			cell = std::make_shared<mark::terrain::floor>(resource_manager);
+		}
+	}
+	return fix_corners(resource_manager, create_walls(resource_manager, std::move(terrain)));
+}
+
+mark::map::map(mark::map::terrain_t terrain)
+	:m_terrain(terrain) { }

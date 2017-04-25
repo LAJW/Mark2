@@ -19,9 +19,6 @@
     <Filter Include="Game\Module">
       <UniqueIdentifier>{e92abed5-640d-4ca8-80fe-186b998e4c61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Resource Files">
-      <UniqueIdentifier>{d1e14ba2-1e9b-409b-be82-6aff42b18c8f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Terrain">
       <UniqueIdentifier>{94f72567-eee7-4c39-8ba2-251ebb3f220d}</UniqueIdentifier>
     </Filter>
