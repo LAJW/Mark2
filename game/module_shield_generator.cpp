@@ -4,6 +4,7 @@
 #include "resource_image.h"
 #include "sprite.h"
 #include "tick_context.h"
+#include <iostream>
 
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
@@ -25,5 +26,8 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	context.sprites[1].push_back(mark::sprite(m_im_shield, pos, 128.f, 0.0f, 0, sf::Color(255, 255, 255, shield_intensity)));
 	context.sprites[2].push_back(mark::sprite(m_im_glare, pos, 64.f, 0.0f, 0, sf::Color(0, 255, 255, light_intensity)));
 	context.sprites[2].push_back(mark::sprite(m_im_glare, pos, 16.f, 0.0f, 0, sf::Color(255, 255, 255, light_intensity)));
+}
 
+auto mark::module::shield_generator::collides(mark::vector<double> pos, float radius) const -> bool {
+	return mark::length(this->socket()->relative_pos() - pos) < radius + 64.f;
 }

@@ -40,9 +40,6 @@
     <ClCompile Include="module_shield_generator.cpp">
       <Filter>Module</Filter>
     </ClCompile>
-    <ClCompile Include="module_turret.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
     <ClCompile Include="adsr.cpp">
       <Filter>Util</Filter>
     </ClCompile>
@@ -96,6 +93,9 @@
     </ClCompile>
     <ClCompile Include="world.cpp">
       <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="module_turret.cpp">
+      <Filter>Module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

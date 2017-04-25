@@ -14,8 +14,9 @@ namespace mark {
 		class shield_generator : public base {
 		public:
 			shield_generator(mark::resource::manager& resource_manager);
-			virtual void tick(mark::tick_context& context) override;
+			void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
+			auto collides(mark::vector<double> pos, float radius) const -> bool;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
 			std::shared_ptr<const mark::resource::image> m_im_shield;

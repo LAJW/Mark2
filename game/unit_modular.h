@@ -34,6 +34,7 @@ namespace mark {
 				auto module() -> mark::module::base&;
 				auto module() const -> const mark::module::base&;
 				std::unique_ptr<mark::module::base> detach();
+				auto collides(mark::vector<double> pos, float radius) const -> bool;
 			private:
 				mark::vector<int> m_pos;
 				std::unique_ptr<mark::module::base> m_module;
