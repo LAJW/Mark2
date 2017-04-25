@@ -24,8 +24,6 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			enemy->damage(10, m_pos - step);
 		}
 		m_dead = true;
-	}
-	if (m_dead) {
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
 			float speed = static_cast<float>(m_world.resource_manager().random_double(5.0, 75.0));

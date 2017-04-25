@@ -27,9 +27,9 @@ void mark::unit::heat_seeker::tick(mark::tick_context& context) {
 			m_rotation += rot_step;
 		}
 	}
-	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
+	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 500.0 * dt;
 	m_pos += step;
-	auto enemy = m_world.find_one(m_pos, 50.f, [this](const mark::unit::base& unit) {
+	auto enemy = m_world.find_one(m_pos, 320.f, [this](const mark::unit::base& unit) {
 		return unit.team() != this->team() && !unit.invincible() && unit.collides(this->m_pos, 5.f);
 	});
 	if (enemy || !m_world.map().traversable(m_pos)) {
