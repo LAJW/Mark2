@@ -85,7 +85,7 @@ static auto fix_corners(
 static auto create_walls(mark::resource::manager& resource_manager, std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor) {
 	for (size_t x = 1, size_x = floor.size(); x < size_x - 1; x++) {
 		for (size_t y = 1, size_y = floor[0].size(); y < size_y - 1; y++) {
-			if (floor[x][y]) {
+			if (std::dynamic_pointer_cast<mark::terrain::floor>(floor[x][y])) {
 				for (size_t i = 0; i < 9; i++) {
 					mark::vector<size_t> cur(x + i % 3 - 1, y + i / 3 - 1);
 					auto& neighbour = floor[cur.x][cur.y];
@@ -123,7 +123,7 @@ static auto make_map(mark::resource::manager& resource_manager) {
 		}
 		point += direction * length;
 	}
-	return fix_corners(resource_manager, std::move(floor));
+	return fix_corners(resource_manager, create_walls(resource_manager, std::move(floor)));
 }
 
 auto mark::map::traversable(const mark::vector<double> pos, const double radius) const -> bool {
