@@ -22,7 +22,8 @@ namespace mark {
 			float velocity,
 			float direction,
 			float lifespan,
-			const sf::Color& color = sf::Color::White);
+			const sf::Color& color = sf::Color::White,
+			float size = 8.f);
 		void tick(double dt, std::map<int, std::vector<mark::sprite>>& m_pos);
 		inline bool dead() const { return m_cur_lifespan <= 0; }
 	private:
@@ -32,6 +33,7 @@ namespace mark {
 		float m_cur_lifespan;
 		float m_velocity;
 		float m_direction;
+		float m_size;
 		sf::Color m_color;
 	};
 }

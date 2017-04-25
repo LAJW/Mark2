@@ -3,6 +3,7 @@
 #include "cooldown.h"
 #include "unit_base.h"
 #include "model_animated.h"
+#include "model_shield.h"
 
 namespace mark {
 	class world;
@@ -17,12 +18,12 @@ namespace mark {
 			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 		private:
 			mark::model::animated m_model;
-			std::shared_ptr<const mark::resource::image> m_im_shield;
+			mark::model::shield m_model_shield;
 			mark::vector<float> m_direction = { 1, 0 };
 			int m_health = 100;
-			mark::adsr m_bareer_reaction;
-			float m_bareer_direction = 0;
+			bool m_dead = false;
 			mark::cooldown m_gun_cooldown;
+			std::shared_ptr<const mark::resource::image> m_image_explosion;
 		};
 	}
 }

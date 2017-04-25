@@ -8,16 +8,16 @@
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
 	mark::unit::base(world, pos),
-	m_bareer_reaction(0.f, 255.f, 0.1f, 1.f),
 	m_model(world.resource_manager().image("mark1.png")),
-	m_im_shield(world.resource_manager().image("shield-reaction.png")),
-	m_gun_cooldown(0.5f) { }
+	m_gun_cooldown(0.5f),
+	m_model_shield(world.resource_manager(), 116.f),
+	m_image_explosion(world.resource_manager().image("explosion.png")) { }
 
 void mark::unit::minion::tick(mark::tick_context& context) {
 	double dt = context.dt;
-	m_bareer_reaction.tick(dt);
 	m_gun_cooldown.tick(dt);
 	m_model.tick(dt);
+	m_model_shield.tick(context, m_pos);
 
 	auto neighbors = m_world.find(m_pos, 50.0);
 	const auto distance = m_world.camera() - m_pos;
@@ -53,21 +53,28 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 
 	const auto rotation = mark::atan(m_direction);
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
-	context.sprites[2].push_back(mark::sprite(m_im_shield, m_pos, 116.f, m_bareer_direction, 0, sf::Color(155, 255, 255, static_cast<uint8_t>(m_bareer_reaction.get() + 1.f))));
+	if (m_health < 0) {
+		for (int i = 0; i < 80; i++) {
+			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
+			float speed = static_cast<float>(m_world.resource_manager().random_double(50.0, 350.0));
+			float size = static_cast<float>(m_world.resource_manager().random_double(32.0, 64.0));
+			context.particles.emplace_back(m_image_explosion, m_pos, speed, direction, 0.5f, sf::Color::White, size);
+		}
+		m_dead = true;
+	}
 }
 
 auto mark::unit::minion::dead() const -> bool {
-	return m_health <= 0;
+	return m_dead;
 }
 
 void mark::unit::minion::damage(unsigned amount, mark::vector<double> pos) {
-	m_bareer_reaction.trigger();
+	m_model_shield.trigger(pos);
 	this->m_health -= amount;
-	m_bareer_direction = static_cast<float>(mark::atan(pos - m_pos));
 }
 
 auto mark::unit::minion::invincible() const -> bool {
-	return false;
+	return m_health < 0;
 }
 
 auto mark::unit::minion::collides(mark::vector<double> pos, float radius) const -> bool {
