@@ -55,6 +55,7 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 
 	const auto rotation = mark::atan(m_direction);
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
+	context.render_bar(m_world.resource_manager().image("bar.png"), m_pos + mark::vector<double>(0, -72), mark::tick_context::bar_type::health, static_cast<float>(m_health) / 100.f);
 	if (m_health < 0) {
 		for (int i = 0; i < 80; i++) {
 			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));

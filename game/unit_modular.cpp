@@ -38,11 +38,7 @@ mark::unit::modular::socket::~socket() {
 
 auto mark::unit::modular::socket::get_attached() ->
 std::vector<std::reference_wrapper<mark::module::base>> {
-	std::vector<std::reference_wrapper<mark::module::base>> out;
-	for (auto socket : m_parent.get_attached(*this, m_pos)) {
-		out.push_back(*socket.get().m_module);
-	}
-	return out;
+	return m_parent.get_attached(*m_module);
 }
 
 void mark::unit::modular::socket::tick(mark::tick_context& context) {
@@ -144,11 +140,38 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 }
 
 
-auto mark::unit::modular::get_attached(const socket&, mark::vector<int>) ->
-std::vector<std::reference_wrapper<mark::unit::modular::socket>> {
-	std::vector<std::reference_wrapper<mark::unit::modular::socket>> out;
+auto mark::unit::modular::get_attached(mark::module::base& module) ->
+std::vector<std::reference_wrapper<mark::module::base>> {
+	const auto pos = module.socket()->pos();
+	const auto size = mark::vector<int>(module.socket()->size());
+	std::vector<mark::vector<int>> border;
+	// right
+	for (int i = 0; i < size.y; i++) {
+		border.push_back(mark::vector<int>(pos.x + size.x + 1, pos.y + i));
+	}
+	// bottom
+	for (int i = 0; i < size.x; i++) {
+		border.push_back(mark::vector<int>(pos.x + i, pos.y + size.y + 1));
+	}
+	// left
+	for (int i = 0; i < size.y; i++) {
+		border.push_back(mark::vector<int>(pos.x - 1, pos.y + i));
+	}
+	// top
+	for (int i = 0; i < size.x; i++) {
+		border.push_back(mark::vector<int>(pos.x + i, pos.y - 1));
+	}
+	std::vector<std::reference_wrapper<mark::module::base>> out;
 	for (auto& socket : m_sockets) {
-		// TODO
+		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		for (auto& pos : border) {
+			if (pos.x < socket_right && pos.x >= socket.pos().x
+				&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
+				out.push_back(socket.module());
+				break;
+			}
+		}
 	}
 	return out;
 }

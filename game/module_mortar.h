@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "adsr.h"
 #include "module_base.h"
 #include "resource_image.h"

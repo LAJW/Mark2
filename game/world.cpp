@@ -14,6 +14,8 @@
 #include "module_cannon.h"
 #include "module_mortar.h"
 #include "unit_landing_pad.h"
+#include "module_energy_generator.h"
+#include "module_battery.h"
 
 auto create_ship(mark::resource::manager& resource_manager, mark::world& world) {
 	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
@@ -30,6 +32,10 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, -5 });
 	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, -5 });
 	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, 3 });
+	vessel->attach(std::make_unique<mark::module::energy_generator>(resource_manager), { -3, -1 });
+	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -1 });
+	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -3 });
+	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, 1 });
 	return vessel;
 }
 
@@ -49,7 +55,7 @@ mark::world::world(mark::resource::manager& resource_manager):
 		for (int y = 0; y < 1000; y++) {
 			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-			//	m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
 			}
 		}
 	}

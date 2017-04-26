@@ -45,7 +45,7 @@ namespace mark {
 			void command(const mark::command& command) override;
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
 			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
-			auto get_attached(const socket&, mark::vector<int> pos)->std::vector<std::reference_wrapper<socket>>;
+			auto get_attached(mark::module::base&)->std::vector<std::reference_wrapper<mark::module::base>>;
 			auto get_core()->mark::module::core&;
 			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }

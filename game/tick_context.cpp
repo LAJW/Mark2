@@ -74,3 +74,42 @@ void mark::print(std::shared_ptr<const mark::resource::image> font, std::vector<
 		}
 	}
 }
+
+void mark::tick_context::render_bar(const std::shared_ptr<const mark::resource::image>& bar, mark::vector<double> pos, bar_type type, float percentage) {
+	const auto percent = 100.f * percentage;
+	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));
+	for (int i = 0; i < 10; i++) {
+		const auto offset_x = 7.f * static_cast<float>(i - 5);
+		uint8_t opacity = 255;
+		uint8_t frame = 0;
+		// render gray background
+		if (i >= edge) {
+			this->sprites[50].emplace_back(bar, pos + mark::vector<double>(offset_x, 0), 8.f, 0, 6, sf::Color::White);
+		}
+		// calculate edge opacity
+		if (i == edge) {
+			opacity = static_cast<uint8_t>(std::fmod(percent, 10) / 10.f * 255.f);
+		}
+		if (i <= edge) {
+			// choose color
+			if (type == mark::tick_context::bar_type::shield) {
+				frame = 5;
+			} else if (type == mark::tick_context::bar_type::energy) {
+				frame = 4;
+			} else if (type == mark::tick_context::bar_type::health) {
+				if (percent > 75.f) {
+					frame = 3;
+				} else if (percent > 50.f) {
+					frame = 2;
+				} else if (percent > 25.f) {
+					frame = 1;
+				} else {
+					frame = 0;
+				}
+			}
+			// draw
+			const auto color = sf::Color(255, 255, 255, opacity);
+			this->sprites[50].emplace_back(bar, pos + mark::vector<double>(offset_x, 0), 8.f, 0, frame, color);
+		}
+	}
+}

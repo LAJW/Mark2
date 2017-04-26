@@ -103,6 +103,12 @@
     <ClCompile Include="tick_context.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="module_energy_generator.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_battery.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -209,6 +215,12 @@
     </ClInclude>
     <ClInclude Include="model_shield.h">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="module_energy_generator.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_battery.h">
+      <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

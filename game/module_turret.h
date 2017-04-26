@@ -1,11 +1,15 @@
 #pragma once
 #include "adsr.h"
 #include "module_base.h"
-#include "resource_image.h"
+
+namespace sf {
+	class Texture;
+}
 
 namespace mark {
 	namespace resource {
 		class manager;
+		using image = sf::Texture;
 	}
 	namespace module {
 		class turret : public mark::module::base {
