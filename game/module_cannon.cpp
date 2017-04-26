@@ -55,3 +55,8 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 void mark::module::cannon::shoot(mark::vector<double> pos) {
 	m_shoot = true;
 }
+
+std::string mark::module::cannon::describe() const {
+	return "Laser Cannon\n"
+		"DPS: 60\n";
+}

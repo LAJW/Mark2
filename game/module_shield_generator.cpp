@@ -26,3 +26,7 @@ auto mark::module::shield_generator::collides(mark::vector<double> pos, float ra
 void mark::module::shield_generator::damage(unsigned amount, mark::vector<double> pos) {
 	m_model_shield.trigger(pos);
 }
+
+auto mark::module::shield_generator::describe() const -> std::string {
+	return "Shield Generator Module";
+}

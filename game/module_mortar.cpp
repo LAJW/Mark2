@@ -44,3 +44,7 @@ auto mark::module::mortar::dead() const -> bool {
 void mark::module::mortar::shoot(mark::vector<double> pos) {
 	m_shoot = true;
 }
+
+auto mark::module::mortar::describe() const -> std::string {
+	return "Mortar Module";
+}

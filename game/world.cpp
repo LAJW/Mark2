@@ -35,10 +35,10 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 
 mark::world::world(mark::resource::manager& resource_manager):
 	m_resource_manager(resource_manager),
-	m_map(mark::map::make_cavern(resource_manager)) {
+	m_map(mark::map::make_square(resource_manager)) {
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 320.0)) {
+			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
 				m_units.push_back(std::make_shared<mark::unit::landing_pad>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end;
 			}
@@ -49,7 +49,7 @@ mark::world::world(mark::resource::manager& resource_manager):
 		for (int y = 0; y < 1000; y++) {
 			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+			//	m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
 			}
 		}
 	}
@@ -57,10 +57,10 @@ mark::world::world(mark::resource::manager& resource_manager):
 	vessel->team(1);
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
-	m_units.push_back(create_ship(resource_manager, *this));
+	// m_units.push_back(create_ship(resource_manager, *this));
 	mark::command command;
 	command.type = mark::command::type::ai;
-	m_units.back()->command(command);
+	// m_units.back()->command(command);
 }
 
 auto mark::world::map() const -> const mark::map&{

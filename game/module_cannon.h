@@ -15,6 +15,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
 			void shoot(mark::vector<double> pos) override;
+			virtual std::string describe() const;
 		private:
 			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_ray;

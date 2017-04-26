@@ -198,6 +198,22 @@ auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module
 	return true;
 }
 
+auto mark::unit::modular::module(mark::vector<int> pos) const -> const mark::module::base* {
+	for (const auto& socket : m_sockets) {
+		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		if (pos.x < socket_right && pos.x >= socket.pos().x
+			&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
+			return &socket.module();
+		}
+	}
+	return nullptr;
+}
+
+auto mark::unit::modular::module(mark::vector<int> pos) -> mark::module::base* {
+	return const_cast<mark::module::base*>(static_cast<const mark::unit::modular*>(this)->module(pos));
+}
+
 auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
 	// check collisions with other modules
 	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
@@ -229,6 +245,19 @@ auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const
 		}
 	}
 	return false;
+}
+
+auto mark::unit::modular::module(mark::vector<double> pos, float radius) const -> const mark::module::base* {
+	for (const auto& socket : m_sockets) {
+		if (socket.collides(pos, radius)) {
+			return &socket.module();
+		}
+	}
+	return nullptr;
+}
+
+auto mark::unit::modular::module(mark::vector<double> pos, float radius) -> mark::module::base* {
+	return const_cast<mark::module::base*>(static_cast<const mark::unit::modular*>(this)->module(pos, radius));
 }
 
 auto mark::unit::modular::get_core() -> mark::module::core& {

@@ -15,6 +15,7 @@ namespace mark {
 			auto dead() const -> bool override;
 			void target(mark::vector<double> pos) override;
 			void shoot(mark::vector<double> pos) override;
+			auto describe() const->std::string;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;
 			std::shared_ptr<const mark::resource::image> m_im_cannon;

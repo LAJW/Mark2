@@ -6,6 +6,7 @@
 #include "exception.h"
 #include "world.h"
 #include "resource_manager.h"
+#include <sstream>
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
@@ -112,4 +113,11 @@ auto mark::module::cargo::detachable() const -> bool {
 		}
 	}
 	return true;
+}
+
+std::string mark::module::cargo::describe() const {
+	std::ostringstream os;
+	os << "Cargo Module" << std::endl;
+	os << "Capacity: " << m_modules.size() << std::endl;
+	return os.str();
 }

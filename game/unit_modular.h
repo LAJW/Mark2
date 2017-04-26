@@ -57,6 +57,10 @@ namespace mark {
 			auto containers()->std::vector<std::reference_wrapper<mark::module::cargo>>;
 			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 			auto collides(mark::vector<double> pos, float radius) const -> bool override;
+			auto module(mark::vector<double> pos, float radius) const -> const mark::module::base*;
+			auto module(mark::vector<double> pos, float radius) -> mark::module::base*;
+			auto module(mark::vector<int> pos) const -> const mark::module::base*;
+			auto module(mark::vector<int> pos)->mark::module::base*;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

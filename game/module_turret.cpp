@@ -46,3 +46,7 @@ void mark::module::turret::shoot(mark::vector<double> pos) {
 	m_target = pos;
 	m_shoot = true;
 }
+
+auto mark::module::turret::describe() const -> std::string {
+	return "Turret Module";
+}

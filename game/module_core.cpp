@@ -19,3 +19,7 @@ void mark::module::core::tick(mark::tick_context& context) {
 auto mark::module::core::dead() const -> bool {
 	return m_health <= 0;
 }
+
+auto mark::module::core::describe() const ->std::string {
+	return "Core Module";
+}

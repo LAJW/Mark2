@@ -21,6 +21,7 @@ namespace mark {
 			void render_contents(mark::vector<double> pos, mark::tick_context& context);
 			auto interior_size() const -> mark::vector<int>; // size of the contents of the cargo hold in modular units
 			auto detachable() const -> bool override;
+			virtual std::string describe() const;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;
 			std::shared_ptr<const mark::resource::image> m_im_light;

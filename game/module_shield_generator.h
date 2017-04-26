@@ -18,6 +18,7 @@ namespace mark {
 			inline auto dead() const -> bool override { return false; }
 			auto collides(mark::vector<double> pos, float radius) const -> bool;
 			void damage(unsigned amount, mark::vector<double> pos) override;
+			auto describe() const->std::string;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
 			mark::model::shield m_model_shield;
