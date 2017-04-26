@@ -100,6 +100,9 @@
     <ClCompile Include="model_shield.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="tick_context.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
