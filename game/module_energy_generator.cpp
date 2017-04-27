@@ -40,3 +40,7 @@ auto mark::module::energy_generator::harvest_energy() -> float {
 	m_cur_energy -= 1.0;
 	return 1.0;
 }
+
+auto mark::module::energy_generator::energy_ratio() const -> float {
+	return m_cur_energy / m_max_energy;
+}

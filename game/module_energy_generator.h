@@ -18,6 +18,7 @@ namespace mark {
 			void shoot(mark::vector<double> pos) override;
 			auto describe() const->std::string override;
 			auto harvest_energy() -> float override;
+			auto energy_ratio() const -> float override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image_base;
 			std::shared_ptr<const mark::resource::image> m_image_bar;

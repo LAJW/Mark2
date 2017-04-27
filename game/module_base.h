@@ -32,11 +32,12 @@ namespace mark {
 			virtual auto detachable() const -> bool { return true; }
 			virtual void target(mark::vector<double> pos) { /* no op */ }
 			virtual void shoot(mark::vector<double> pos) { /* no op */ }
-			Property<mark::unit::modular::socket*> socket = nullptr;
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
 			virtual void damage(unsigned amount, mark::vector<double> pos) { /* no op */ };
-			virtual std::string describe() const = 0;
-			virtual float harvest_energy() { return 0.f; }
+			virtual auto describe() const -> std::string = 0;
+			virtual auto harvest_energy() -> float { return 0.f; }
+			virtual auto energy_ratio() const -> float { return 0.f; }
+			Property<mark::unit::modular::socket*> socket = nullptr;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;

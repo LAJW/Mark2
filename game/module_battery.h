@@ -18,8 +18,9 @@ namespace mark {
 			virtual void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 			void shoot(mark::vector<double> pos) override;
-			auto describe() const->std::string override;
-			auto harvest_energy()->float override;
+			auto describe() const -> std::string override;
+			auto harvest_energy() -> float override;
+			auto energy_ratio() const -> float override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image_base;
 			std::shared_ptr<const mark::resource::image> m_image_bar;
