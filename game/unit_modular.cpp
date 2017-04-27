@@ -40,31 +40,12 @@ std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
 // MODULAR
 
 namespace {
-	mark::module::base* find_one(std::vector<mark::unit::modular::socket>& sockets, mark::vector<int> pos, mark::vector<unsigned> size = { 0, 0 }) {
-		auto insert_right = pos.x + static_cast<int>(size.x);
-		auto insert_bottom = pos.y + static_cast<int>(size.y);
-		for (auto& socket : sockets) {
-			auto socket_right = socket.pos.x + static_cast<int>(socket.module->size().x);
-			auto socket_bottom = socket.pos.y + static_cast<int>(socket.module->size().y);
-			if (pos.x < socket_right && insert_right > socket.pos.x
-				&& pos.y < socket_bottom && insert_bottom > socket.pos.y) {
-				return socket.module.get();
-			}
-		}
-		return nullptr;
-	}
-	const mark::module::base* find_one(const std::vector<mark::unit::modular::socket>& sockets, mark::vector<int> pos, mark::vector<unsigned> size = { 0, 0 }) {
-		auto insert_right = pos.x + static_cast<int>(size.x);
-		auto insert_bottom = pos.y + static_cast<int>(size.y);
-		for (auto& socket : sockets) {
-			auto socket_right = socket.pos.x + static_cast<int>(socket.module->size().x);
-			auto socket_bottom = socket.pos.y + static_cast<int>(socket.module->size().y);
-			if (pos.x < socket_right && insert_right > socket.pos.x
-				&& pos.y < socket_bottom && insert_bottom > socket.pos.y) {
-				return socket.module.get();
-			}
-		}
-		return nullptr;
+	// two rectangles overlap
+	bool overlap(mark::vector<int> pos1, mark::vector<unsigned> size1, mark::vector<int> pos2, mark::vector<unsigned> size2 = { 0, 0 }) {
+		const auto br1 = pos1 + mark::vector<int>(size1);
+		const auto br2 = pos2 + mark::vector<int>(size2);
+		return pos1.x < br2.x && pos1.y < br2.y
+			&& pos2.x < br1.x && pos2.y < br1.y;
 	}
 }
 
@@ -148,13 +129,9 @@ std::vector<std::reference_wrapper<mark::module::base>> {
 	}
 	std::vector<std::reference_wrapper<mark::module::base>> out;
 	for (auto& socket : m_sockets) {
-		auto& module = *socket.module;
-		auto socket_right = socket.pos.x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos.y + static_cast<int>(module.size().y);
 		for (auto& pos : border) {
-			if (pos.x < socket_right && pos.x >= socket.pos.x
-				&& pos.y < socket_bottom && pos.y >= socket.pos.y) {
-				out.push_back(module);
+			if (::overlap(socket.pos, socket.module->size(), pos)) {
+				out.push_back(*socket.module);
 				break;
 			}
 		}
@@ -184,11 +161,24 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 }
 
 auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool {
-	return module && !::find_one(m_sockets, pos, module->size());
+	if (!module) {
+		return false;
+	}
+	for (auto& socket : m_sockets) {
+		if (::overlap(socket.pos, socket.module->size(), pos)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos) const -> const mark::module::base*{
-	return ::find_one(m_sockets, pos);
+	for (auto& socket : m_sockets) {
+		if (::overlap(socket.pos, socket.module->size(), pos)) {
+			return socket.module.get();
+		}
+	}
+	return nullptr;
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base*{
@@ -198,23 +188,15 @@ auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base*{
 auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
 	// check collisions with other modules
 	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
-		auto& module = *socket.module;
-		auto socket_right = socket.pos.x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos.y + static_cast<int>(module.size().y);
-		return pos.x < socket_right && pos.x >= socket.pos.x
-			&& pos.y < socket_bottom && pos.y >= socket.pos.y;
+		return overlap(socket.pos, socket.module->size(), pos);
 	});
-	if (socket_it != m_sockets.end()) {
-		if (socket_it->module->detachable()) {
-			auto out = socket_it->detach();
-			if (socket_it != std::prev(m_sockets.end())) {
-				*socket_it = std::move(m_sockets.back());
-			}
-			m_sockets.pop_back();
-			return std::move(out);
-		} else {
-			return nullptr;
+	if (socket_it != m_sockets.end() && socket_it->module->detachable()) {
+		auto out = socket_it->detach();
+		if (socket_it != std::prev(m_sockets.end())) {
+			*socket_it = std::move(m_sockets.back());
 		}
+		m_sockets.pop_back();
+		return std::move(out);
 	} else {
 		return nullptr;
 	}
