@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <functional>
 #include "unit_base.h"
 
 namespace mark {
@@ -16,22 +17,17 @@ namespace mark {
 		class landing_pad;
 		class modular final : public base {
 		public:
-			class socket final {
-				friend mark::module::base;
-			public:
+			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
+			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
+			struct socket final {
 				socket(modular& parent, std::unique_ptr<module::base>, mark::vector<int> pos);
 				socket(mark::unit::modular::socket&& other);
 				mark::unit::modular::socket& operator=(mark::unit::modular::socket&& socket);
-				inline auto pos() const { return m_pos; }
-				void tick(mark::tick_context& context);
-				auto module() -> mark::module::base&;
-				auto module() const -> const mark::module::base&;
 				std::unique_ptr<mark::module::base> detach();
-				auto collides(mark::vector<double> pos, float radius) const -> bool;
-			private:
-				mark::vector<int> m_pos;
-				std::unique_ptr<mark::module::base> m_module;
-				mark::unit::modular& m_parent;
+
+				mark::vector<int> pos;
+				std::unique_ptr<mark::module::base> module;
+				mark::unit::modular& parent;
 			};
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);

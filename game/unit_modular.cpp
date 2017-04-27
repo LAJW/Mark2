@@ -15,55 +15,67 @@
 #include "module_shield_generator.h"
 #include "module_cargo.h"
 
-mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
-	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
-	m_module->m_socket = this;
+mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos):
+	parent(parent), module(std::move(module)), pos(pos) {
+	this->module->m_socket = this;
 }
 
-mark::unit::modular::socket::socket(mark::unit::modular::socket&& other)
-	: m_parent(other.m_parent), m_module(std::move(other.m_module)), m_pos(other.m_pos) {
-	m_module->m_socket = this;
+mark::unit::modular::socket::socket(mark::unit::modular::socket&& other):
+	parent(other.parent), module(std::move(other.module)), pos(other.pos) {
+	module->m_socket = this;
 }
 
 mark::unit::modular::socket& mark::unit::modular::socket::operator=(mark::unit::modular::socket&& other) {
-	m_module = std::move(other.m_module);
-	m_module->m_socket = this;
-	m_pos = other.m_pos;
+	module = std::move(other.module);
+	module->m_socket = this;
+	pos = other.pos;
 	return *this;
 }
 
-void mark::unit::modular::socket::tick(mark::tick_context& context) {
-	m_module->tick(context);
-}
-
-auto mark::unit::modular::socket::module() -> mark::module::base& {
-	return *m_module;
-}
-
-auto mark::unit::modular::socket::module() const->const mark::module::base & {
-	return *m_module;
-}
-
 std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
-	m_module->m_socket = nullptr;
-	return std::move(m_module);
-}
-
-auto mark::unit::modular::socket::collides(mark::vector<double> pos, float radius) const -> bool {
-	return m_module->collides(pos, radius);
+	module->m_socket = nullptr;
+	return std::move(module);
 }
 
 // MODULAR
 
-mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation)
-	:mark::unit::base(world, pos), m_rotation(rotation) {
-
+namespace {
+	mark::module::base* find_one(std::vector<mark::unit::modular::socket>& sockets, mark::vector<int> pos, mark::vector<unsigned> size = { 0, 0 }) {
+		auto insert_right = pos.x + static_cast<int>(size.x);
+		auto insert_bottom = pos.y + static_cast<int>(size.y);
+		for (auto& socket : sockets) {
+			auto socket_right = socket.pos.x + static_cast<int>(socket.module->size().x);
+			auto socket_bottom = socket.pos.y + static_cast<int>(socket.module->size().y);
+			if (pos.x < socket_right && insert_right > socket.pos.x
+				&& pos.y < socket_bottom && insert_bottom > socket.pos.y) {
+				return socket.module.get();
+			}
+		}
+		return nullptr;
+	}
+	const mark::module::base* find_one(const std::vector<mark::unit::modular::socket>& sockets, mark::vector<int> pos, mark::vector<unsigned> size = { 0, 0 }) {
+		auto insert_right = pos.x + static_cast<int>(size.x);
+		auto insert_bottom = pos.y + static_cast<int>(size.y);
+		for (auto& socket : sockets) {
+			auto socket_right = socket.pos.x + static_cast<int>(socket.module->size().x);
+			auto socket_bottom = socket.pos.y + static_cast<int>(socket.module->size().y);
+			if (pos.x < socket_right && insert_right > socket.pos.x
+				&& pos.y < socket_bottom && insert_bottom > socket.pos.y) {
+				return socket.module.get();
+			}
+		}
+		return nullptr;
+	}
 }
+
+mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation):
+	mark::unit::base(world, pos), m_rotation(rotation) {}
 
 void mark::unit::modular::tick(mark::tick_context& context) {
 	for (auto& socket : m_sockets) {
-		socket.tick(context);
+		socket.module->tick(context);
 	}
+
 	double dt = context.dt;
 	double speed = m_ai ? 64.0 : 320.0;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
@@ -94,7 +106,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			m_moveto = enemy->pos();
 			m_lookat = enemy->pos();
 			for (auto& socket : m_sockets) {
-				socket.module().target(enemy->pos());
+				socket.module->target(enemy->pos());
 			}
 		}
 	}
@@ -136,13 +148,13 @@ std::vector<std::reference_wrapper<mark::module::base>> {
 	}
 	std::vector<std::reference_wrapper<mark::module::base>> out;
 	for (auto& socket : m_sockets) {
-		auto& module = socket.module();
-		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
+		auto& module = *socket.module;
+		auto socket_right = socket.pos.x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos.y + static_cast<int>(module.size().y);
 		for (auto& pos : border) {
-			if (pos.x < socket_right && pos.x >= socket.pos().x
-				&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
-				out.push_back(socket.module());
+			if (pos.x < socket_right && pos.x >= socket.pos.x
+				&& pos.y < socket_bottom && pos.y >= socket.pos.y) {
+				out.push_back(module);
 				break;
 			}
 		}
@@ -156,16 +168,8 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 		throw mark::exception("NULL_MODULE");
 	}
 	// check collisions with other modules
-	auto insert_right = pos.x + static_cast<int>(module->size().x);
-	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
-	for (auto& socket : m_sockets) {
-		auto& module = socket.module();
-		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
-		if (pos.x < socket_right && insert_right > socket.pos().x
-			&& pos.y < socket_bottom && insert_bottom > socket.pos().y) {
-			throw mark::user_error("MODULE_OVERLAP");
-		}
+	if (!can_attach(module, pos)) {
+		throw mark::user_error("MODULE_OVERLAP");
 	}
 	// establish core, check if core already present
 	auto core = dynamic_cast<mark::module::core*>(module.get());
@@ -180,51 +184,28 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 }
 
 auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool {
-	if (!module) {
-		return false;
-	}
-	auto insert_right = pos.x + static_cast<int>(module->size().x);
-	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
-	for (auto& socket : m_sockets) {
-		auto& module = socket.module();
-		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
-		if (pos.x < socket_right && insert_right > socket.pos().x
-			&& pos.y < socket_bottom && insert_bottom > socket.pos().y) {
-			return false;
-		}
-	}
-	return true;
+	return module && !::find_one(m_sockets, pos, module->size());
 }
 
-auto mark::unit::modular::module(mark::vector<int> pos) const -> const mark::module::base* {
-	for (const auto& socket : m_sockets) {
-		auto& module = socket.module();
-		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
-		if (pos.x < socket_right && pos.x >= socket.pos().x
-			&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
-			return &socket.module();
-		}
-	}
-	return nullptr;
+auto mark::unit::modular::module(mark::vector<int> pos) const -> const mark::module::base*{
+	return ::find_one(m_sockets, pos);
 }
 
-auto mark::unit::modular::module(mark::vector<int> pos) -> mark::module::base* {
+auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base*{
 	return const_cast<mark::module::base*>(static_cast<const mark::unit::modular*>(this)->module(pos));
 }
 
 auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
 	// check collisions with other modules
 	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
-		auto& module = socket.module();
-		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
-		return pos.x < socket_right && pos.x >= socket.pos().x
-			&& pos.y < socket_bottom && pos.y >= socket.pos().y;
+		auto& module = *socket.module;
+		auto socket_right = socket.pos.x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos.y + static_cast<int>(module.size().y);
+		return pos.x < socket_right && pos.x >= socket.pos.x
+			&& pos.y < socket_bottom && pos.y >= socket.pos.y;
 	});
 	if (socket_it != m_sockets.end()) {
-		if (socket_it->module().detachable()) {
+		if (socket_it->module->detachable()) {
 			auto out = socket_it->detach();
 			if (socket_it != std::prev(m_sockets.end())) {
 				*socket_it = std::move(m_sockets.back());
@@ -241,7 +222,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::m
 
 auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const -> bool {
 	for (const auto& socket : m_sockets) {
-		if (socket.collides(pos, radius)) {
+		if (socket.module->collides(pos, radius)) {
 			return true;
 		}
 	}
@@ -250,8 +231,8 @@ auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const
 
 auto mark::unit::modular::module(mark::vector<double> pos, float radius) const -> const mark::module::base* {
 	for (const auto& socket : m_sockets) {
-		if (socket.collides(pos, radius)) {
-			return &socket.module();
+		if (socket.module->collides(pos, radius)) {
+			return socket.module.get();
 		}
 	}
 	return nullptr;
@@ -275,7 +256,7 @@ void mark::unit::modular::command(const mark::command& command) {
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
 		for (auto& socket : m_sockets) {
-			socket.module().target(command.pos);
+			socket.module->target(command.pos);
 		}
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
@@ -288,7 +269,7 @@ void mark::unit::modular::command(const mark::command& command) {
 		}
 	} else if (command.type == mark::command::type::shoot) {
 		for (auto& socket : m_sockets) {
-			socket.module().shoot(command.pos);
+			socket.module->shoot(command.pos);
 		}
 	}
 }
@@ -299,7 +280,7 @@ auto mark::unit::modular::dead() const -> bool {
 
 void mark::unit::modular::damage(unsigned amount, mark::vector<double> pos) {
 	for (auto& socket : m_sockets) {
-		socket.module().damage(amount, pos);
+		socket.module->damage(amount, pos);
 	}
 }
 
@@ -314,7 +295,7 @@ void mark::unit::modular::activate(const std::shared_ptr<mark::unit::base>& by) 
 auto mark::unit::modular::containers() -> std::vector<std::reference_wrapper<mark::module::cargo>> {
 	std::vector<std::reference_wrapper<mark::module::cargo>> out;
 	for (auto& socket : m_sockets) {
-		auto cargo = dynamic_cast<mark::module::cargo*>(&socket.module());
+		auto cargo = dynamic_cast<mark::module::cargo*>(socket.module.get());
 		if (cargo) {
 			out.push_back(*cargo);
 		}

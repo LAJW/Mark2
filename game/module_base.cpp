@@ -25,12 +25,12 @@ auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark
 
 auto mark::module::base::grid_pos() -> const mark::vector<int>
 {
-	return m_socket->m_pos;
+	return m_socket->pos;
 }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {
 	if (m_socket) {
-		return m_socket->m_parent;
+		return m_socket->parent;
 	} else {
 		throw mark::exception("NO_PARENT");
 	}
@@ -41,7 +41,7 @@ auto mark::module::base::parent() -> mark::unit::modular&{
 }
 
 auto mark::module::base::pos() const -> mark::vector<double> {
-	const auto pos = (mark::vector<float>(m_socket->m_pos) + mark::vector<float>(this->size()) / 2.f)
+	const auto pos = (mark::vector<float>(m_socket->pos) + mark::vector<float>(this->size()) / 2.f)
 		* static_cast<float>(mark::module::size);
 	return parent().pos() + mark::vector<double>(rotate(pos, parent().rotation()));
 }
