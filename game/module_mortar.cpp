@@ -17,23 +17,23 @@ mark::module::mortar::mortar(mark::resource::manager& resource_manager) :
 
 void mark::module::mortar::tick(mark::tick_context& context) {
 	m_adsr.tick(context.dt);
-	auto pos = socket()->relative_pos();
+	auto pos = this->pos();
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (m_shoot) {
-		const auto direction = static_cast<float>(-mark::sgn(socket()->pos().y + 1) * 90);
+		const auto direction = static_cast<float>(-mark::sgn(grid_pos().y + 1) * 90);
 		m_cur_cooldown = 2.5f;
 		m_adsr.trigger();
 		const auto total_projectiles = 4;
 		for (int i = 0; i < total_projectiles; i++) {
 			float cur = static_cast<float>(i) / static_cast<float>(total_projectiles) * 30.f - 15.f - direction;
-			auto projectile = std::make_shared<mark::unit::heat_seeker>(socket()->world(), pos, socket()->rotation() + cur);
-			projectile->team(socket()->team());
+			auto projectile = std::make_shared<mark::unit::heat_seeker>(parent().world(), pos, parent().rotation() + cur);
+			projectile->team(parent().team());
 			context.units.emplace_back(std::move(projectile));
 		}
 	}
 	m_shoot = false;
-	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
+	context.sprites[0].push_back(mark::sprite(m_im_base, pos, 32.f, parent().rotation()));
 
 }
 

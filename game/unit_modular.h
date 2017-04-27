@@ -17,20 +17,13 @@ namespace mark {
 		class modular final : public base {
 		public:
 			class socket final {
+				friend mark::module::base;
 			public:
 				socket(modular& parent, std::unique_ptr<module::base>, mark::vector<int> pos);
 				socket(mark::unit::modular::socket&& other);
 				mark::unit::modular::socket& operator=(mark::unit::modular::socket&& socket);
-				~socket();
-				auto get_attached()->std::vector<std::reference_wrapper<module::base>>;
-				inline auto size() const -> mark::vector<unsigned>;
 				inline auto pos() const { return m_pos; }
-				auto relative_pos() const->mark::vector<double>;
 				void tick(mark::tick_context& context);
-				auto rotation() const -> float;
-				auto dead() const -> bool;
-				inline auto world() -> mark::world& { return m_parent.world(); }
-				inline auto team() const -> int { return m_parent.team(); }
 				auto module() -> mark::module::base&;
 				auto module() const -> const mark::module::base&;
 				std::unique_ptr<mark::module::base> detach();

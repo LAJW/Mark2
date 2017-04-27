@@ -22,25 +22,25 @@ mark::module::cannon::cannon(mark::resource::manager& resource_manager) :
 
 void mark::module::cannon::tick(mark::tick_context& context) {
 	m_model.tick(context.dt);
-	auto pos = socket()->relative_pos();
-	const auto rotation = socket()->rotation();
+	auto pos = this->pos();
+	const auto rotation = parent().rotation();
 	const auto model_size = std::max(this->size().x, this->size().y) * mark::module::size;
 	context.sprites[1].push_back(m_model.render(pos, model_size, rotation, sf::Color::White));
 	if (m_shoot) {
 		for (int i = 0; i < 200; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(mark::module::size, 0.0), rotation) * static_cast<double>(i);
-			auto enemy = socket()->world().find_one(cur, 320.f, [this, &cur](const mark::unit::base& unit) {
-				return unit.team() != this->socket()->team()
+			auto enemy = parent().world().find_one(cur, 320.f, [this, &cur](const mark::unit::base& unit) {
+				return unit.team() != parent().team()
 					&& !unit.invincible()
 					&& unit.collides(cur, 0);
 			});
-			if (!socket()->world().map().traversable(cur) || enemy) {
+			if (!parent().world().map().traversable(cur) || enemy) {
 				if (enemy) {
 					enemy->damage(1, cur);
 				}
 				for (int i = 0; i < particles_per_tick; i++) {
-					const auto velocity = static_cast<float>(socket()->world().resource_manager().random_double(min_particle_velocity, max_particle_velocity));
-					const auto direction = static_cast<float>(socket()->world().resource_manager().random_double(0, particle_cone)) + 180.f - particle_cone / 2.f + rotation;
+					const auto velocity = static_cast<float>(parent().world().resource_manager().random_double(min_particle_velocity, max_particle_velocity));
+					const auto direction = static_cast<float>(parent().world().resource_manager().random_double(0, particle_cone)) + 180.f - particle_cone / 2.f + rotation;
 					context.particles.push_back(mark::particle(m_im_ray, cur, velocity, direction, 1.f, beam_color));
 				}
 				break;

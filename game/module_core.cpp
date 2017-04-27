@@ -12,8 +12,8 @@ mark::module::core::core(mark::resource::manager& resource_manager):
 }
 
 void mark::module::core::tick(mark::tick_context& context) {
-	auto pos = socket()->relative_pos();
-	context.sprites[0].push_back(mark::sprite(m_image, pos.x, pos.y, 32.f, socket()->rotation()));
+	auto pos = this->pos();
+	context.sprites[0].push_back(mark::sprite(m_image, pos, 32.f, parent().rotation()));
 }
 
 auto mark::module::core::dead() const -> bool {

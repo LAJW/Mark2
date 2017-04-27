@@ -12,8 +12,8 @@ mark::module::energy_generator::energy_generator(mark::resource::manager& manage
 
 void mark::module::energy_generator::tick(mark::tick_context& context) {
 	m_cur_energy = std::min(m_cur_energy + m_energy_regen * static_cast<float>(context.dt), m_max_energy);
-	const auto pos = socket()->relative_pos();
-	context.sprites[0].push_back(mark::sprite(m_image_base, pos, mark::module::size * 2.f, socket()->rotation()));
+	const auto pos = this->pos();
+	context.sprites[0].push_back(mark::sprite(m_image_base, pos, mark::module::size * 2.f, parent().rotation()));
 	// render the bar
 	const auto energy = 100;
 	for (int i = 0; i < 10; i++) {

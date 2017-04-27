@@ -18,10 +18,10 @@ mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 
 void mark::module::cargo::tick(mark::tick_context& context) {
 	m_lfo.tick(context.dt);
-	auto pos = socket()->relative_pos();
-	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), socket()->rotation());
+	auto pos = this->pos();
+	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
 	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
-	context.sprites[0].push_back(mark::sprite(m_im_body, pos, 64.f, socket()->rotation()));
+	context.sprites[0].push_back(mark::sprite(m_im_body, pos, 64.f, parent().rotation()));
 	context.sprites[1].push_back(mark::sprite(m_im_light, pos + light_offset, 32.f, 0, 0, sf::Color(255, 200, 150, light_strength)));
 	context.sprites[2].push_back(mark::sprite(m_im_light, pos + light_offset, 16.f, 0, 0, sf::Color(255, 255, 255, light_strength)));
 }
@@ -87,7 +87,7 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 }
 
 void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context & context) {
-	const auto image = socket()->world().resource_manager().image("grid-background.png");
+	const auto image = parent().world().resource_manager().image("grid-background.png");
 	auto size = this->interior_size();
 	for (const auto point : mark::area(size)) {
 		const auto slot_pos = pos_in + mark::vector<double>(point * 16);

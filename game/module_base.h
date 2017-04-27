@@ -2,7 +2,6 @@
 #include <vector>
 #include "iserializable.h"
 #include "unit_modular.h"
-#include "property.h"
 #include "vector.h"
 
 namespace sf {
@@ -16,81 +15,68 @@ namespace mark {
 	class sprite;
 
 	namespace module {
+		// grid size - width/height of an 1x1 module
 		static constexpr float size = 16.f;
 
 		// Maximum module width and height
 		const unsigned max_dimension = 4;
 
 		class base : public iserializable {
+			friend mark::unit::modular::socket;
 		public:
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
 			virtual ~base() = default;
-			inline auto size() const { return m_size; }
+
 			virtual void tick(mark::tick_context& context) = 0;
+
+			// Module's position in the world
+			auto pos() const -> mark::vector<double>;
+
+			// Module's image in the inventory
+			auto thumbnail() const -> std::shared_ptr<const mark::resource::image>;
+
+			// Size in grid units
+			auto size() const -> mark::vector<unsigned>;
+
+			// Describes whether the module is dead or not
 			virtual auto dead() const -> bool = 0;
-			inline auto thumbnail() const { return m_thumbnail; }
+
+			// Can module be detached from the vessel
 			virtual auto detachable() const -> bool { return true; }
+
+			// Target/look at specific position in the world
 			virtual void target(mark::vector<double> pos) { /* no op */ }
+
+			// Start shooting at
 			virtual void shoot(mark::vector<double> pos) { /* no op */ }
+
+			// Does the module collide with
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
+
+			// Deal damage to the module
 			virtual void damage(unsigned amount, mark::vector<double> pos) { /* no op */ };
+
+			// UI text describing module's properties
 			virtual auto describe() const -> std::string = 0;
+
+			// Obtain energy from the module
 			virtual auto harvest_energy() -> float { return 0.f; }
+
+			// Current / Maximum energy stored in the module
 			virtual auto energy_ratio() const -> float { return 0.f; }
-			Property<mark::unit::modular::socket*> socket = nullptr;
+
+			// Neighbour modules
+			auto neighbours()->std::vector<std::reference_wrapper<mark::module::base>>;
+
+			// Position on the grid
+			auto grid_pos()-> const mark::vector<int>;
+		protected:
+			auto parent() const -> const mark::unit::modular&;
+			auto parent() -> mark::unit::modular&;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;
-		};
-
-		class armor : public base {
-		public:
-		private:
-		};
-
-		class gun : public base {
-		public:
-		private:
-		};
-
-		class laser_gun : public gun {
-		public:
-		private:
-		};
-
-		class rocket_gun : public gun {
-		public:
-		private:
-		};
-
-		class emp_gun : public gun {
-		public:
-		private:
-		};
-
-		class antimatter_gun : public gun {
-		public:
-		private:
-		};
-
-		class flamethrower_gun : public gun {
-		public:
-		private:
-		};
-
-		class radiator : public base {
-		public:
-		private:
-		};
-
-		class ammo : public base {
-		public:
-		private:
-		};
-
-		class drive : public base {
-		public:
-		private:
+			mark::unit::modular::socket* m_socket = nullptr;
 		};
 	}
 }

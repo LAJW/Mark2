@@ -17,50 +17,23 @@
 
 mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos)
 	:m_parent(parent), m_module(std::move(module)), m_pos(pos) {
-	m_module->socket(this);
+	m_module->m_socket = this;
 }
 
 mark::unit::modular::socket::socket(mark::unit::modular::socket&& other)
 	: m_parent(other.m_parent), m_module(std::move(other.m_module)), m_pos(other.m_pos) {
-	m_module->socket(this);
+	m_module->m_socket = this;
 }
 
 mark::unit::modular::socket& mark::unit::modular::socket::operator=(mark::unit::modular::socket&& other) {
 	m_module = std::move(other.m_module);
-	m_module->socket(this);
+	m_module->m_socket = this;
 	m_pos = other.m_pos;
 	return *this;
 }
 
-mark::unit::modular::socket::~socket() {
-
-}
-
-auto mark::unit::modular::socket::get_attached() ->
-std::vector<std::reference_wrapper<mark::module::base>> {
-	return m_parent.get_attached(*m_module);
-}
-
 void mark::unit::modular::socket::tick(mark::tick_context& context) {
 	m_module->tick(context);
-}
-
-inline auto mark::unit::modular::socket::size() const->mark::vector<unsigned> {
-	return m_module->size();
-}
-
-auto mark::unit::modular::socket::relative_pos() const->mark::vector<double> {
-	const auto pos = (mark::vector<float>(m_pos) + mark::vector<float>(this->size()) / 2.f)
-		* static_cast<float>(mark::module::size);
-	return m_parent.pos() + mark::vector<double>(rotate(pos, m_parent.rotation()));
-}
-
-auto mark::unit::modular::socket::rotation() const -> float {
-	return m_parent.rotation();
-}
-
-auto mark::unit::modular::socket::dead() const -> bool {
-	return m_module->dead();
 }
 
 auto mark::unit::modular::socket::module() -> mark::module::base& {
@@ -72,7 +45,7 @@ auto mark::unit::modular::socket::module() const->const mark::module::base & {
 }
 
 std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
-	m_module->socket(nullptr);
+	m_module->m_socket = nullptr;
 	return std::move(m_module);
 }
 
@@ -142,8 +115,8 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 
 auto mark::unit::modular::get_attached(mark::module::base& module) ->
 std::vector<std::reference_wrapper<mark::module::base>> {
-	const auto pos = module.socket()->pos();
-	const auto size = mark::vector<int>(module.socket()->size());
+	const auto pos = module.grid_pos();
+	const auto size = mark::vector<int>(module.size());
 	std::vector<mark::vector<int>> border;
 	// right
 	for (int i = 0; i < size.y; i++) {
@@ -163,8 +136,9 @@ std::vector<std::reference_wrapper<mark::module::base>> {
 	}
 	std::vector<std::reference_wrapper<mark::module::base>> out;
 	for (auto& socket : m_sockets) {
-		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		auto& module = socket.module();
+		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
 		for (auto& pos : border) {
 			if (pos.x < socket_right && pos.x >= socket.pos().x
 				&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
@@ -185,8 +159,9 @@ void mark::unit::modular::attach(std::unique_ptr<mark::module::base> module, mar
 	auto insert_right = pos.x + static_cast<int>(module->size().x);
 	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
 	for (auto& socket : m_sockets) {
-		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		auto& module = socket.module();
+		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
 		if (pos.x < socket_right && insert_right > socket.pos().x
 			&& pos.y < socket_bottom && insert_bottom > socket.pos().y) {
 			throw mark::user_error("MODULE_OVERLAP");
@@ -211,8 +186,9 @@ auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module
 	auto insert_right = pos.x + static_cast<int>(module->size().x);
 	auto insert_bottom = pos.y + static_cast<int>(module->size().y);
 	for (auto& socket : m_sockets) {
-		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		auto& module = socket.module();
+		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
 		if (pos.x < socket_right && insert_right > socket.pos().x
 			&& pos.y < socket_bottom && insert_bottom > socket.pos().y) {
 			return false;
@@ -223,8 +199,9 @@ auto mark::unit::modular::can_attach(const std::unique_ptr<module::base>& module
 
 auto mark::unit::modular::module(mark::vector<int> pos) const -> const mark::module::base* {
 	for (const auto& socket : m_sockets) {
-		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		auto& module = socket.module();
+		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
 		if (pos.x < socket_right && pos.x >= socket.pos().x
 			&& pos.y < socket_bottom && pos.y >= socket.pos().y) {
 			return &socket.module();
@@ -240,8 +217,9 @@ auto mark::unit::modular::module(mark::vector<int> pos) -> mark::module::base* {
 auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base> {
 	// check collisions with other modules
 	auto socket_it = std::find_if(m_sockets.begin(), m_sockets.end(), [&pos](const mark::unit::modular::socket& socket) {
-		auto socket_right = socket.pos().x + static_cast<int>(socket.size().x);
-		auto socket_bottom = socket.pos().y + static_cast<int>(socket.size().y);
+		auto& module = socket.module();
+		auto socket_right = socket.pos().x + static_cast<int>(module.size().x);
+		auto socket_bottom = socket.pos().y + static_cast<int>(module.size().y);
 		return pos.x < socket_right && pos.x >= socket.pos().x
 			&& pos.y < socket_bottom && pos.y >= socket.pos().y;
 	});

@@ -14,13 +14,13 @@ mark::module::shield_generator::shield_generator(mark::resource::manager& resour
 }
 
 void mark::module::shield_generator::tick(mark::tick_context& context) {
-	const auto pos = socket()->relative_pos();
+	const auto pos = this->pos();
 	m_model_shield.tick(context, pos);
-	context.sprites[0].push_back(mark::sprite(m_im_generator, pos, mark::module::size * 2.f, socket()->rotation()));
+	context.sprites[0].push_back(mark::sprite(m_im_generator, pos, mark::module::size * 2.f, parent().rotation()));
 }
 
 auto mark::module::shield_generator::collides(mark::vector<double> pos, float radius) const -> bool {
-	return mark::length(this->socket()->relative_pos() - pos) < radius + 64.f;
+	return mark::length(this->pos() - pos) < radius + 64.f;
 }
 
 void mark::module::shield_generator::damage(unsigned amount, mark::vector<double> pos) {

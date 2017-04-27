@@ -17,20 +17,20 @@ mark::module::turret::turret(mark::resource::manager& resource_manager):
 
 void mark::module::turret::tick(mark::tick_context& context) {
 	m_adsr.tick(context.dt);
-	auto pos = socket()->relative_pos();
+	auto pos = this->pos();
 	auto angle = static_cast<float>(mark::atan(m_target - pos));
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (m_shoot) {
 		m_cur_cooldown = 0.5f;
 		m_adsr.trigger();
-		auto projectile = std::make_shared<mark::unit::projectile>(socket()->world(), pos, angle);
-		projectile->team(socket()->team());
+		auto projectile = std::make_shared<mark::unit::projectile>(parent().world(), pos, angle);
+		projectile->team(parent().team());
 		context.units.emplace_back(std::move(projectile));
 	}
 	m_shoot = false;
 	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle), 32.f, angle));
-	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, socket()->rotation()));
+	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, parent().rotation()));
 
 }
 

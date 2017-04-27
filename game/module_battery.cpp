@@ -10,10 +10,10 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 }
 
 void mark::module::battery::tick(mark::tick_context& context) {
-	const auto pos = socket()->relative_pos();
-	context.sprites[0].push_back(mark::sprite(m_image_base, pos, mark::module::size * 2.f, socket()->rotation()));
+	const auto pos = this->pos();
+	context.sprites[0].push_back(mark::sprite(m_image_base, pos, mark::module::size * 2.f, parent().rotation()));
 	context.render_bar(m_image_bar, pos + mark::vector<double>(0, -mark::module::size), mark::tick_context::bar_type::energy, m_cur_energy / m_max_energy);
-	for (auto& module : socket()->get_attached()) {
+	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
 			&& module.get().energy_ratio() > this->energy_ratio()) {
 			m_cur_energy += module.get().harvest_energy();
