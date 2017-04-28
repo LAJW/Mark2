@@ -40,8 +40,14 @@ std::unique_ptr<mark::module::base> mark::unit::modular::socket::detach() {
 // MODULAR
 
 namespace {
+	// point in a box
+	bool overlap(mark::vector<int> pos1, mark::vector<unsigned> size1, mark::vector<int> pos2) {
+		const auto br1 = pos1 + mark::vector<int>(size1);
+		return pos1.x <= pos2.x && pos1.y <= pos2.y
+			&& pos2.x < br1.x && pos2.y < br1.y;
+	}
 	// two rectangles overlap
-	bool overlap(mark::vector<int> pos1, mark::vector<unsigned> size1, mark::vector<int> pos2, mark::vector<unsigned> size2 = { 0, 0 }) {
+	bool overlap(mark::vector<int> pos1, mark::vector<unsigned> size1, mark::vector<int> pos2, mark::vector<unsigned> size2) {
 		const auto br1 = pos1 + mark::vector<int>(size1);
 		const auto br2 = pos2 + mark::vector<int>(size2);
 		return pos1.x < br2.x && pos1.y < br2.y
