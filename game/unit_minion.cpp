@@ -57,12 +57,7 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
 	context.render_bar(m_world.resource_manager().image("bar.png"), m_pos + mark::vector<double>(0, -72), mark::tick_context::bar_type::health, static_cast<float>(m_health) / 100.f);
 	if (m_health < 0) {
-		for (int i = 0; i < 80; i++) {
-			float direction = m_world.resource_manager().random(-180.f, 180.f);
-			float speed = m_world.resource_manager().random(50.f, 350.f);
-			float size = m_world.resource_manager().random(32.f, 64.f);
-			context.particles.emplace_back(m_image_explosion, m_pos, speed, direction, 0.5f, sf::Color::White, size);
-		}
+		context.spray(m_image_explosion, pos(), std::make_pair(50.f, 350.f), 0.5f, 32.f, 80);
 		m_dead = true;
 	}
 }
