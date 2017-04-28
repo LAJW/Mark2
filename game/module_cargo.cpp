@@ -68,6 +68,29 @@ auto mark::module::cargo::can_drop(
 	return true;
 }
 
+auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*{
+	return const_cast<mark::module::base*>(static_cast<const mark::module::cargo*>(this)->module(pos));
+}
+
+auto mark::module::cargo::module(mark::vector<int> i_pos) const -> const mark::module::base* {
+	if (i_pos.x < 0 || i_pos.y < 0) {
+		return false;
+	}
+	const auto pos = mark::vector<unsigned>(i_pos);
+	for (unsigned i = 0; i < m_modules.size(); i++) {
+		const mark::vector<unsigned> module_pos(i % 16, i / 16);
+		auto& slot = m_modules[i];
+		if (slot) {
+			const auto border = module_pos + mark::vector<unsigned>(slot->size());
+			if (pos.x + pos.x >= module_pos.x && pos.x < border.x
+				&& pos.y + pos.y >= module_pos.y && pos.y < border.y) {
+				return slot.get();
+			}
+		}
+	}
+	return nullptr;
+}
+
 auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base> {
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;

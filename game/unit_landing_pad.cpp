@@ -42,16 +42,17 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		const auto relative = (m_mousepos - m_pos) / 16.0;
 		const auto module_pos = mark::round(relative);
 		const auto pick_pos = mark::floor(relative);
-		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-			// ship
-			if (!m_grabbed) {
+		if (!m_grabbed) {
+			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+				// ship
+
 				const auto module = ship->module(pick_pos);
 				if (module) {
 					const auto description = module->describe();
 					const auto module_pos = module->pos();
 					const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 					const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
-					context.sprites[100].push_back(mark::sprite(m_world.resource_manager().image("wall.png"), tooltip_pos + mark::vector<double>(150, 150), 300.0));
+					context.sprites[100].emplace_back(m_world.resource_manager().image("wall.png"), tooltip_pos + mark::vector<double>(150, 150), 300.0);
 					mark::print(
 						m_world.resource_manager().image("font.png"),
 						context.sprites[100],
@@ -62,28 +63,35 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 						description
 					);
 				}
-			}
-		} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
-			// cargo
-			/* double top = 0.0;
-			for (auto& cargo_ref : ship->containers()) {
-				auto& cargo = cargo_ref.get();
-				const auto size = cargo.interior_size();
-				const auto relative = m_mousepos - m_pos + mark::vector<double>(-320 + 8, -top + 320 + 8);
-				if (relative.y >= 0 && relative.y < size.y * 16) {
-					if (m_grabbed) {
-						const auto drop_pos = mark::round(relative / 16.0 - mark::vector<double>(m_grabbed->size()) / 2.0);
-						if (cargo.can_drop(drop_pos, m_grabbed)) {
-							cargo.drop(drop_pos, std::move(m_grabbed));
-						}
-					} else {
+			} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
+				double top = 0.0;
+				for (auto& cargo_ref : ship->containers()) {
+					auto& cargo = cargo_ref.get();
+					const auto size = cargo.interior_size();
+					const auto relative = m_mousepos - m_pos + mark::vector<double>(-320 + 8, -top + 320 + 8);
+					if (relative.y >= 0 && relative.y < size.y * 16) {
 						const auto pick_pos = mark::floor(relative / 16.0);
-						m_grabbed = cargo.pick(pick_pos);
+						const auto module = cargo.module(pick_pos);
+						if (module) {
+							const auto description = module->describe();
+							const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
+							const auto tooltip_pos = m_mousepos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+							context.sprites[100].emplace_back(m_world.resource_manager().image("wall.png"), tooltip_pos + mark::vector<double>(150, 150), 300.0);
+							mark::print(
+								m_world.resource_manager().image("font.png"),
+								context.sprites[100],
+								tooltip_pos + mark::vector<double>(7.f, 7.f),
+								{ 300 - 14.f, 300 - 14.f },
+								14.f,
+								sf::Color::White,
+								description
+							);
+						}
+						break;
 					}
-					break;
+					top += size.y * 16.0 + 32.0;
 				}
-				top += size.y * 16.0 + 32.0;
-			} */
+			}
 		}
 	}
 }

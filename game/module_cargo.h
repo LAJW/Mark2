@@ -17,6 +17,8 @@ namespace mark {
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;
 			void drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module);
 			auto can_drop(mark::vector<int> pos, const std::unique_ptr<mark::module::base>& module) const -> bool;
+			auto module(mark::vector<int> pos) -> mark::module::base*;
+			auto module(mark::vector<int> pos) const->const mark::module::base*;
 			auto pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base>;
 			void render_contents(mark::vector<double> pos, mark::tick_context& context);
 			auto interior_size() const -> mark::vector<int>; // size of the contents of the cargo hold in modular units

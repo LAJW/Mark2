@@ -22,6 +22,7 @@ namespace mark {
 			shield
 		};
 		void render_bar(const std::shared_ptr<const mark::resource::image>& bar, mark::vector<double> pos, bar_type type, float percentage);
+		// generate random number
 		template<typename T>
 		T random(T min, T max) {
 			return m_resource_manager.random<T>(min, max);
