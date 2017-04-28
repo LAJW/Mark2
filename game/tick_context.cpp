@@ -75,6 +75,10 @@ void mark::print(std::shared_ptr<const mark::resource::image> font, std::vector<
 	}
 }
 
+mark::tick_context::tick_context(mark::resource::manager& rm):
+	m_resource_manager(rm) {
+}
+
 void mark::tick_context::render_bar(const std::shared_ptr<const mark::resource::image>& bar, mark::vector<double> pos, bar_type type, float percentage) {
 	const auto percent = 100.f * percentage;
 	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));

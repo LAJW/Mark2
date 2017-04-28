@@ -81,7 +81,7 @@ auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<
 	if (dt > 0.1) {
 		dt = 0.1;
 	}
-	mark::tick_context context;
+	mark::tick_context context(m_resource_manager);
 	std::vector<mark::sprite> sprites = m_map.render(
 		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
 		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64)

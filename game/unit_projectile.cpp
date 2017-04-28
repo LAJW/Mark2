@@ -24,24 +24,9 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			enemy->damage(10, m_pos - step);
 		}
 		m_dead = true;
-		for (int i = 0; i < 80; i++) {
-			float direction = m_world.resource_manager().random(-180.f, 180.f);
-			float speed = m_world.resource_manager().random(5.f, 75.f);
-			context.particles.emplace_back(m_im_tail, m_pos, speed, direction, 0.30f, sf::Color(125, 125, 125, 75));
-		}
+		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 	}
-
-
-	for (int i = 0; i < 4; i++) {
-		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
-		float direction = static_cast<float>(m_world.resource_manager().random(-15.f, 15.f)) + 180.f + m_rotation;
-		context.particles.emplace_back(m_im_tail, pos, 100.f, direction, 0.30f, sf::Color(175, 175, 175, 75));
-	}
-	for (int i = 0; i < 4; i++) {
-		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
-		float direction = static_cast<float>(m_world.resource_manager().random(-15.f, 15.f)) + 180.f + m_rotation;
-		context.particles.emplace_back(m_im_tail, pos, 50.f, direction, 0.15f);
-	}
+	context.spray(m_im_tail, m_pos, 100.f, 0.3f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f, { 175, 175, 175, 75 });
 	context.sprites[0].push_back(mark::sprite(m_im_tail, m_pos - step, 32.f, 0, 0, sf::Color(255, 200, 150, 255)));
 	context.sprites[1].push_back(mark::sprite(m_image, m_pos, 10.f, m_rotation));
 }

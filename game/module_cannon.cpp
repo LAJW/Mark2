@@ -38,11 +38,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				if (enemy) {
 					enemy->damage(1, cur);
 				}
-				for (int i = 0; i < particles_per_tick; i++) {
-					const auto velocity = static_cast<float>(parent().world().resource_manager().random(min_particle_velocity, max_particle_velocity));
-					const auto direction = parent().world().resource_manager().random(0.f, particle_cone) + 180.f - particle_cone / 2.f + rotation;
-					context.particles.push_back(mark::particle(m_im_ray, cur, velocity, direction, 1.f, beam_color));
-				}
+				context.spray(m_im_ray, cur, std::make_pair(min_particle_velocity, max_particle_velocity), 1.f, 8.f, 4, 0.0, rotation + 180.f, 180.f, sf::Color::Red);
 				break;
 			} else {
 				context.sprites[0].push_back(mark::sprite(m_im_ray, cur, mark::module::size, rotation, 0, beam_color));
