@@ -58,9 +58,9 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 	context.render_bar(m_world.resource_manager().image("bar.png"), m_pos + mark::vector<double>(0, -72), mark::tick_context::bar_type::health, static_cast<float>(m_health) / 100.f);
 	if (m_health < 0) {
 		for (int i = 0; i < 80; i++) {
-			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
-			float speed = static_cast<float>(m_world.resource_manager().random_double(50.0, 350.0));
-			float size = static_cast<float>(m_world.resource_manager().random_double(32.0, 64.0));
+			float direction = m_world.resource_manager().random(-180.f, 180.f);
+			float speed = m_world.resource_manager().random(50.f, 350.f);
+			float size = m_world.resource_manager().random(32.f, 64.f);
 			context.particles.emplace_back(m_image_explosion, m_pos, speed, direction, 0.5f, sf::Color::White, size);
 		}
 		m_dead = true;

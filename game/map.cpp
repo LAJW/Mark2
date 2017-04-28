@@ -34,8 +34,8 @@ static auto fix_corners(
 			auto bl = dynamic_cast<mark::terrain::wall*>(floor[x - 1][y + 1].get());
 			auto b = dynamic_cast<mark::terrain::wall*>(floor[x][y + 1].get());
 			auto br = dynamic_cast<mark::terrain::wall*>(floor[x + 1][y + 1].get());
-			auto rand = resource_manager.random_int(0, 2) * 13;
-			auto rand2 = resource_manager.random_double(0, 1);
+			auto rand = resource_manager.random(0, 2) * 13;
+			auto rand2 = resource_manager.random(0.0, 1.0);
 			if (cur) {
 				if (t) {
 					if (l) {

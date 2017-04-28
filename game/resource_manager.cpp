@@ -42,3 +42,21 @@ auto mark::resource::manager::random_double(double min, double max) -> double {
 }
 
 #endif
+
+template<>
+auto mark::resource::manager::random<int>(int min, int max) -> int {
+	return this->random_int(min, max);
+}
+
+template<>
+auto mark::resource::manager::random<unsigned>(unsigned min, unsigned max) -> unsigned {
+	return static_cast<unsigned>(this->random_int(min, max));
+}
+template<>
+auto mark::resource::manager::random<double>(double min, double max) -> double {
+	return this->random_double(min, max);
+}
+template<>
+auto mark::resource::manager::random<float>(float min, float max) -> float {
+	return static_cast<float>(this->random_double(min, max));
+}

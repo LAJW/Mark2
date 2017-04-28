@@ -39,8 +39,8 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 					enemy->damage(1, cur);
 				}
 				for (int i = 0; i < particles_per_tick; i++) {
-					const auto velocity = static_cast<float>(parent().world().resource_manager().random_double(min_particle_velocity, max_particle_velocity));
-					const auto direction = static_cast<float>(parent().world().resource_manager().random_double(0, particle_cone)) + 180.f - particle_cone / 2.f + rotation;
+					const auto velocity = static_cast<float>(parent().world().resource_manager().random(min_particle_velocity, max_particle_velocity));
+					const auto direction = parent().world().resource_manager().random(0.f, particle_cone) + 180.f - particle_cone / 2.f + rotation;
 					context.particles.push_back(mark::particle(m_im_ray, cur, velocity, direction, 1.f, beam_color));
 				}
 				break;

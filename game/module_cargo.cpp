@@ -12,7 +12,7 @@ mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
 	m_im_body(resource_manager.image("cargo.png")),
 	m_im_light(resource_manager.image("glare.png")),
-	m_lfo(0.5f, static_cast<float>(resource_manager.random_double(0, 6))),
+	m_lfo(0.5f, resource_manager.random(0.f, 6.f)),
 	m_modules(64) {
 }
 

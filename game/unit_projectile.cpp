@@ -25,8 +25,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		}
 		m_dead = true;
 		for (int i = 0; i < 80; i++) {
-			float direction = static_cast<float>(m_world.resource_manager().random_double(-180.0, 180.0));
-			float speed = static_cast<float>(m_world.resource_manager().random_double(5.0, 75.0));
+			float direction = m_world.resource_manager().random(-180.f, 180.f);
+			float speed = m_world.resource_manager().random(5.f, 75.f);
 			context.particles.emplace_back(m_im_tail, m_pos, speed, direction, 0.30f, sf::Color(125, 125, 125, 75));
 		}
 	}
@@ -34,12 +34,12 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 
 	for (int i = 0; i < 4; i++) {
 		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
-		float direction = static_cast<float>(m_world.resource_manager().random_double(-15.0, 15.0)) + 180.f + m_rotation;
+		float direction = static_cast<float>(m_world.resource_manager().random(-15.f, 15.f)) + 180.f + m_rotation;
 		context.particles.emplace_back(m_im_tail, pos, 100.f, direction, 0.30f, sf::Color(175, 175, 175, 75));
 	}
 	for (int i = 0; i < 4; i++) {
 		const auto pos = m_pos - step * static_cast<double>(i) / 4.0;
-		float direction = static_cast<float>(m_world.resource_manager().random_double(-15.0, 15.0)) + 180.f + m_rotation;
+		float direction = static_cast<float>(m_world.resource_manager().random(-15.f, 15.f)) + 180.f + m_rotation;
 		context.particles.emplace_back(m_im_tail, pos, 50.f, direction, 0.15f);
 	}
 	context.sprites[0].push_back(mark::sprite(m_im_tail, m_pos - step, 32.f, 0, 0, sf::Color(255, 200, 150, 255)));
