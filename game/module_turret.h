@@ -16,7 +16,6 @@ namespace mark {
 		public:
 			turret(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
-			auto dead() const -> bool override;
 			void target(mark::vector<double> pos) override;
 			void shoot(mark::vector<double> pos) override;
 			auto describe() const->std::string;

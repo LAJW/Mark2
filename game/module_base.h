@@ -80,6 +80,8 @@ namespace mark {
 		protected:
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;
+			float m_cur_health = 100.f;
+			float m_max_health = 100.f;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;

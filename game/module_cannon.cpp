@@ -26,6 +26,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	const auto rotation = parent().rotation();
 	const auto model_size = std::max(this->size().x, this->size().y) * mark::module::size;
 	context.sprites[1].push_back(m_model.render(pos, model_size, rotation, sf::Color::White));
+	context.render_bar(parent().world().resource_manager().image("bar.png"), pos + mark::vector<double>(0, -mark::module::size * 2.0), mark::tick_context::bar_type::health, m_cur_health / m_max_health);
 	if (m_shoot) {
 		std::unordered_set<mark::idamageable*> damaged;
 		for (int i = 0; i < 200; i++) {

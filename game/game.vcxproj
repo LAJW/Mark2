@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="model_animated.cpp" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClInclude Include="adsr.h" />
     <ClInclude Include="app.h" />
+    <ClInclude Include="unit_bucket.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />
     <ClInclude Include="exception.h" />

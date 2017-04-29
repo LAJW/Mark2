@@ -59,14 +59,16 @@ mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float
 	mark::unit::base(world, pos), m_rotation(rotation) {}
 
 void mark::unit::modular::tick(mark::tick_context& context) {
-	auto end_it = std::remove_if(m_sockets.begin(), m_sockets.end(), [&context](mark::unit::modular::socket& socket) {
-		const auto dead = socket.module->dead();
-		if (dead) {
-			socket.module->on_death(context);
-		}
-		return dead;
-	});
-	m_sockets.erase(end_it, m_sockets.end());
+	{
+		auto end_it = std::remove_if(m_sockets.begin(), m_sockets.end(), [&context](mark::unit::modular::socket& socket) {
+			const auto dead = socket.module->dead();
+			if (dead) {
+				socket.module->on_death(context);
+			}
+			return dead;
+		});
+		m_sockets.erase(end_it, m_sockets.end());
+	}
 	for (auto& socket : m_sockets) {
 		socket.module->tick(context);
 	}

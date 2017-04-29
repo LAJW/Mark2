@@ -13,7 +13,6 @@ namespace mark {
 		public:
 			cannon(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
-			inline auto dead() const -> bool override { return false; }
 			void shoot(mark::vector<double> pos) override;
 			virtual std::string describe() const;
 		private:

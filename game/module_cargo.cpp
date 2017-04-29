@@ -6,6 +6,7 @@
 #include "exception.h"
 #include "world.h"
 #include "resource_manager.h"
+#include "unit_bucket.h"
 #include <sstream>
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager):
@@ -24,6 +25,7 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 	context.sprites[0].push_back(mark::sprite(m_im_body, pos, 64.f, parent().rotation()));
 	context.sprites[1].push_back(mark::sprite(m_im_light, pos + light_offset, 32.f, 0, 0, sf::Color(255, 200, 150, light_strength)));
 	context.sprites[2].push_back(mark::sprite(m_im_light, pos + light_offset, 16.f, 0, 0, sf::Color(255, 255, 255, light_strength)));
+	context.render_bar(parent().world().resource_manager().image("bar.png"), pos + mark::vector<double>(0, -mark::module::size * 2.0), mark::tick_context::bar_type::health, m_cur_health / m_max_health);
 }
 
 auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module::base>>& {
@@ -143,4 +145,13 @@ std::string mark::module::cargo::describe() const {
 	os << "Cargo Module" << std::endl;
 	os << "Capacity: " << m_modules.size() << std::endl;
 	return os.str();
+}
+
+void mark::module::cargo::on_death(mark::tick_context & context) {
+	mark::module::base::on_death(context);
+	for (auto& module : m_modules) {
+		if (module) {
+			context.units.push_back(std::make_shared<mark::unit::bucket>(parent().world(), pos(), std::move(module)));
+		}
+	}
 }

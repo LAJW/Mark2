@@ -6,6 +6,7 @@
 #include "tick_context.h"
 #include "unit_projectile.h"
 #include "unit_modular.h"
+#include "world.h"
 
 mark::module::turret::turret(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("turret-base.png")),
@@ -35,11 +36,12 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	m_shoot = false;
 	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle), 32.f, angle));
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, parent().rotation()));
+	context.render_bar(
+		parent().world().resource_manager().image("bar.png"),
+		pos + mark::vector<double>(0, -mark::module::size * 2),
+		mark::tick_context::bar_type::health,
+		m_cur_health / m_max_health);
 
-}
-
-auto mark::module::turret::dead() const -> bool {
-	return false;
 }
 
 void mark::module::turret::target(mark::vector<double> pos) {

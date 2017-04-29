@@ -32,10 +32,6 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 		m_cur_health / m_max_health);
 }
 
-auto mark::module::shield_generator::dead() const -> bool {
-	return m_cur_health <= 0.f;
-}
-
 auto mark::module::shield_generator::collides(mark::vector<double> pos, float radius) const -> bool {
 	return mark::length(this->pos() - pos) < radius + 64.f;
 }
@@ -58,14 +54,4 @@ auto mark::module::shield_generator::describe() const -> std::string {
  	os << "Health: " << static_cast<int>(std::ceil(m_cur_health)) << " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
 	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield)) << " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
 	return os.str();
-}
-
-void mark::module::shield_generator::on_death(mark::tick_context & context) {
-	context.spray(
-		parent().world().resource_manager().image("explosion.png"),
-		pos(),
-		std::make_pair(75, 150),
-		0.3f,
-		24.f,
-		20);
 }

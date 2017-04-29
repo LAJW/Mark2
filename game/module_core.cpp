@@ -16,10 +16,6 @@ void mark::module::core::tick(mark::tick_context& context) {
 	context.sprites[0].push_back(mark::sprite(m_image, pos, 32.f, parent().rotation()));
 }
 
-auto mark::module::core::dead() const -> bool {
-	return m_health <= 0;
-}
-
 auto mark::module::core::describe() const ->std::string {
 	return "Core Module";
 }

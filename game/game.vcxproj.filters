@@ -106,6 +106,9 @@
     <ClCompile Include="module_battery.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="unit_bucket.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -218,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="idamageable.h">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_bucket.h">
+      <Filter>Unit</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

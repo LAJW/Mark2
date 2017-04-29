@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "module_base.h"
 #include "exception.h"
+#include "tick_context.h"
+#include "world.h"
 
 mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail):
 	m_size(size),
@@ -29,18 +31,26 @@ auto mark::module::base::grid_pos() -> const mark::vector<int>
 }
 
 bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
-	if (attr.team != parent().team() && this->collides(attr.pos, 0.f)) {
+	if (attr.team != parent().team() && collides(attr.pos, 0.f) && m_cur_health > 0) {
+		attr.damaged->insert(this);
+		m_cur_health -= attr.physical;
 		return true;
 	}
 	return false;
 }
 
 auto mark::module::base::dead() const -> bool {
-	return false;
+	return m_cur_health <= 0.f;
 }
 
 void mark::module::base::on_death(mark::tick_context& context) {
-	// noop
+	context.spray(
+		parent().world().resource_manager().image("explosion.png"),
+		pos(),
+		std::make_pair(75, 150),
+		0.3f,
+		24.f,
+		20);
 }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {

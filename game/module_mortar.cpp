@@ -6,6 +6,7 @@
 #include "tick_context.h"
 #include "unit_projectile.h"
 #include "unit_modular.h"
+#include "world.h"
 
 mark::module::mortar::mortar(mark::resource::manager& resource_manager) :
 	base({ 2, 2 }, resource_manager.image("turret-base.png")),
@@ -39,11 +40,12 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 	}
 	m_shoot = false;
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos, 32.f, parent().rotation()));
+	context.render_bar(
+		parent().world().resource_manager().image("bar.png"),
+		pos + mark::vector<double>(0, -mark::module::size * 2),
+		mark::tick_context::bar_type::health,
+		m_cur_health / m_max_health);
 
-}
-
-auto mark::module::mortar::dead() const -> bool {
-	return false;
 }
 
 void mark::module::mortar::shoot(mark::vector<double> pos) {

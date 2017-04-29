@@ -13,7 +13,6 @@ namespace mark {
 		public:
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
-			inline auto dead() const -> bool override { return false; }
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;
 			void drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module);
 			auto can_drop(mark::vector<int> pos, const std::unique_ptr<mark::module::base>& module) const -> bool;
@@ -23,7 +22,8 @@ namespace mark {
 			void render_contents(mark::vector<double> pos, mark::tick_context& context);
 			auto interior_size() const -> mark::vector<int>; // size of the contents of the cargo hold in modular units
 			auto detachable() const -> bool override;
-			virtual std::string describe() const;
+			auto describe() const -> std::string;
+			void on_death(mark::tick_context& context);
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;
 			std::shared_ptr<const mark::resource::image> m_im_light;
