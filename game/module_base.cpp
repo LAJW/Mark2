@@ -35,6 +35,14 @@ bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
 	return false;
 }
 
+auto mark::module::base::dead() const -> bool {
+	return false;
+}
+
+void mark::module::base::on_death(mark::tick_context& context) {
+	// noop
+}
+
 auto mark::module::base::parent() const -> const mark::unit::modular& {
 	if (m_socket) {
 		return m_socket->parent;

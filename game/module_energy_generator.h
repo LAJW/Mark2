@@ -25,6 +25,7 @@ namespace mark {
 			float m_cur_energy = 0.f;
 			const float m_max_energy = 100.f;
 			const float m_energy_regen = 30.f;
+			const float m_max_health = 100.f;
 		};
 	}
 }

@@ -42,7 +42,7 @@ namespace mark {
 			auto size() const -> mark::vector<unsigned>;
 
 			// Describes whether the module is dead or not
-			virtual auto dead() const -> bool = 0;
+			virtual auto dead() const -> bool;
 
 			// Can module be detached from the vessel
 			virtual auto detachable() const -> bool { return true; }
@@ -73,6 +73,10 @@ namespace mark {
 
 			// Default damage handling
 			auto damage(const mark::idamageable::attributes& attr) -> bool override;
+
+			// called on module's death
+			virtual void on_death(mark::tick_context& context);
+
 		protected:
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;
