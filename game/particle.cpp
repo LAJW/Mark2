@@ -1,25 +1,33 @@
+#include <assert.h>
 #include "resource_image.h"
 #include "particle.h"
 #include "sprite.h"
 
-mark::particle::particle(
-	std::shared_ptr<const mark::resource::image>& image,
-	mark::vector<double> pos,
-	float velocity,
-	float direction,
-	float lifespan,
-	const sf::Color& color,
-	float size):
-	m_image(image),
-	m_pos(pos),
-	m_velocity(velocity),
-	m_direction(direction),
-	m_lifespan(lifespan),
-	m_cur_lifespan(lifespan),
-	m_color(color),
-	m_size(size) {
-
+namespace {
+	static auto validate(mark::particle::attributes& attr) {
+		assert(attr.image.get());
+		assert(attr.pos.x != NAN);
+		assert(attr.pos.y != NAN);
+		assert(attr.velocity != NAN);
+		assert(attr.direction != NAN);
+		assert(attr.lifespan != NAN);
+		assert(attr.size != NAN);
+		return attr;
+	}
 }
+
+mark::particle::particle(mark::particle::attributes& attributes):
+	mark::particle::particle(::validate(attributes), true) { }
+
+mark::particle::particle(mark::particle::attributes& attr, bool) :
+	m_image(std::move(attr.image)),
+	m_pos(attr.pos),
+	m_lifespan(attr.lifespan),
+	m_cur_lifespan(attr.lifespan),
+	m_velocity(attr.velocity),
+	m_direction(attr.direction),
+	m_size(attr.size),
+	m_color(attr.color) { }
 
 void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& sprites) {
 	const auto direction = mark::rotate(mark::vector<float>(1.f, 0.f), m_direction);

@@ -57,7 +57,16 @@ namespace mark {
 				const auto tmp_diameter = this->random(diameter);
 				const auto tmp_pos = pos + mark::rotate(mark::vector<double>(1, 0), direction) * (step * static_cast<double>(i) / static_cast<double>(count));
 				const auto rotation = direction + this->random(0.f, cone) - cone / 2.f;
-				this->particles.emplace_back(image, tmp_pos, tmp_velocity, rotation, lifespan, color, tmp_diameter);
+				particle::attributes attr;
+				attr.image = image;
+				attr.color = color;
+				attr.pos = tmp_pos;
+				attr.velocity = tmp_velocity;
+				attr.direction = rotation;
+				attr.lifespan = lifespan;
+				attr.color = color;
+				attr.size = diameter;
+				this->particles.emplace_back(attr);
 			}
 		}
 	private:
