@@ -22,6 +22,10 @@ namespace mark {
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
 			mark::model::shield m_model_shield;
+			float m_cur_shield = 500.f;
+			float m_max_shield = 1000.f;
+			float m_cur_health = 100.f;
+			float m_max_health = 100.f;
 		};
 	}
 }

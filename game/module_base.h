@@ -72,7 +72,7 @@ namespace mark {
 			auto grid_pos()-> const mark::vector<int>;
 
 			// Default damage handling
-			virtual bool damage(const mark::idamageable::attributes& attr) override;
+			auto damage(const mark::idamageable::attributes& attr) -> bool override;
 		protected:
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;

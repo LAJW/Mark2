@@ -4,7 +4,8 @@
 #include "resource_image.h"
 #include "sprite.h"
 #include "tick_context.h"
-#include <iostream>
+#include "world.h"
+#include <sstream>
 
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
@@ -15,8 +16,20 @@ mark::module::shield_generator::shield_generator(mark::resource::manager& resour
 
 void mark::module::shield_generator::tick(mark::tick_context& context) {
 	const auto pos = this->pos();
-	m_model_shield.tick(context, pos);
+	if (m_cur_shield > 0) {
+		m_model_shield.tick(context, pos);
+	}
 	context.sprites[0].push_back(mark::sprite(m_im_generator, pos, mark::module::size * 2.f, parent().rotation()));
+	context.render_bar(
+		parent().world().resource_manager().image("bar.png"),
+		pos + mark::vector<double>(0, -mark::module::size * 2),
+		mark::tick_context::bar_type::shield,
+		m_cur_shield / m_max_shield);
+	context.render_bar(
+		parent().world().resource_manager().image("bar.png"),
+		pos + mark::vector<double>(0, -mark::module::size * 2 - 8.f),
+		mark::tick_context::bar_type::health,
+		m_cur_health / m_max_health);
 }
 
 auto mark::module::shield_generator::collides(mark::vector<double> pos, float radius) const -> bool {
@@ -24,13 +37,21 @@ auto mark::module::shield_generator::collides(mark::vector<double> pos, float ra
 }
 
 bool mark::module::shield_generator::damage(const mark::idamageable::attributes& attr) {
-	if (attr.team != parent().team() && this->collides(attr.pos, 0.f)) {
+	if (m_cur_shield > 0.f && attr.team != parent().team() && this->collides(attr.pos, 0.f)) {
 		m_model_shield.trigger(attr.pos);
+		m_cur_shield -= attr.physical;
+		return true;
+	} else if (m_cur_shield <= 0.f && attr.team != parent().team() && mark::module::base::collides(attr.pos, 0.f)) {
+		m_cur_health -= attr.physical;
 		return true;
 	}
 	return false;
 }
 
 auto mark::module::shield_generator::describe() const -> std::string {
-	return "Shield Generator Module";
+	std::ostringstream os;
+	os << "Shield Generator Module" << std::endl;
+ 	os << "Health: " << static_cast<int>(std::ceil(m_cur_health)) << " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
+	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield)) << " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
+	return os.str();
 }
