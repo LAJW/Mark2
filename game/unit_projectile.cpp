@@ -4,17 +4,50 @@
 #include "resource_manager.h"
 #include "terrain_base.h"
 #include "tick_context.h"
+#include <assert.h>
 
-mark::unit::projectile::projectile(mark::world& world, mark::vector<double> pos, float rotation):
-	mark::unit::base(world, pos),
-	m_rotation(rotation),
-	m_image(world.resource_manager().image("shell.png")),
-	m_im_tail(world.resource_manager().image("glare.png")) {
+namespace {
+	static auto validate(const mark::unit::projectile::attributes& essence) {
+		assert(essence.world != nullptr);
+		assert(essence.rotation != NAN);
+		assert(essence.velocity != NAN);
+		assert(essence.seek_radius >= 0.f);
+		return essence;
+	}
+}
+
+mark::unit::projectile::projectile(const mark::unit::projectile::attributes& essence) :
+	mark::unit::projectile::projectile(::validate(essence), true) { }
+
+mark::unit::projectile::projectile(const mark::unit::projectile::attributes& essence, bool):
+	mark::unit::base(*essence.world, essence.pos),
+	m_image(essence.world->resource_manager().image("shell.png")),
+	m_im_tail(essence.world->resource_manager().image("glare.png")),
+	m_velocity(essence.velocity),
+	m_rotation(essence.rotation),
+	m_seek_radius(essence.seek_radius) {
+	this->team(essence.team);
 }
 
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
+	if (m_seek_radius >= 0.f) {
+		auto target = m_world.find_one(m_pos, m_seek_radius, [this](const mark::unit::base& unit) {
+			return unit.team() != this->team() && !unit.invincible();
+		});
+		if (target) {
+			const auto direction = mark::normalize((target->pos() - m_pos));
+			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+			const auto rot_step = static_cast<float>(turn_direction  * 500.f * dt);
+			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < 32.f * dt) {
+				m_rotation = static_cast<float>(mark::atan(direction));
+			} else {
+				m_rotation += rot_step;
+			}
+		}
+	}
+
 	m_pos += step;
 	auto enemy = m_world.find_one(m_pos, 300.f, [this](const mark::unit::base& unit) {
 		return unit.team() != this->team() && !unit.invincible() && unit.collides(this->m_pos, 5.f);

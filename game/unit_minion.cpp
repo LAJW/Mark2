@@ -46,9 +46,14 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 			m_pos += direction * 100.0 * dt;
 		}
 		if (m_gun_cooldown.trigger()) {
-			auto projectile = std::make_shared<mark::unit::projectile>(m_world, m_pos, mark::atan(m_direction));
-			projectile->team(this->team());
-			context.units.emplace_back(std::move(projectile));
+			mark::unit::projectile::attributes attr;
+			attr.world = &m_world;
+			attr.pos = m_pos;
+			attr.rotation = mark::atan(m_direction);
+			attr.velocity = 500.f;
+			attr.seek_radius = 1000.f;
+			attr.team = this->team();
+			context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
 		}
 	}
 

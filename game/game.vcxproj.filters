@@ -61,9 +61,6 @@
     <ClCompile Include="unit_projectile.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
-    <ClCompile Include="unit_heat_seeker.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
     <ClCompile Include="unit_landing_pad.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
@@ -136,9 +133,6 @@
       <Filter>Unit</Filter>
     </ClInclude>
     <ClInclude Include="unit_base.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_heat_seeker.h">
       <Filter>Unit</Filter>
     </ClInclude>
     <ClInclude Include="unit_landing_pad.h">

@@ -168,7 +168,6 @@
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="terrain_floor.cpp" />
     <ClCompile Include="tick_context.cpp" />
-    <ClCompile Include="unit_heat_seeker.cpp" />
     <ClCompile Include="unit_landing_pad.cpp" />
     <ClCompile Include="unit_minion.cpp" />
     <ClCompile Include="unit_modular.cpp" />
@@ -196,7 +195,6 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="tick_context.h" />
-    <ClInclude Include="unit_heat_seeker.h" />
     <ClInclude Include="unit_landing_pad.h" />
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="property.h" />
