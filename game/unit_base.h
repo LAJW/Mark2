@@ -4,6 +4,7 @@
 #include "iserializable.h"
 #include "property.h"
 #include "vector.h"
+#include "idamageable.h"
 
 namespace mark {
 
@@ -14,7 +15,8 @@ namespace mark {
 
 	namespace unit {
 		class base:
-			public iserializable,
+			public mark::iserializable,
+			public mark::idamageable,
 			public std::enable_shared_from_this<mark::unit::base> {
 		public:
 			base(mark::world& world, mark::vector<double> pos)
@@ -23,7 +25,6 @@ namespace mark {
 			virtual void command(const mark::command&) { };
 			auto inline pos() const { return m_pos; }
 			virtual auto dead() const -> bool = 0;
-			virtual void damage(unsigned amount, mark::vector<double> pos) = 0;
 			virtual bool invincible() const = 0;
 			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool = 0;

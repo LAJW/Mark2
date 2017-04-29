@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "iserializable.h"
+#include "idamageable.h"
 #include "property.h"
 #include "vector.h"
 #include "map.h"
@@ -22,7 +23,7 @@ namespace mark {
 		class base;
 	}
 
-	class world {
+	class world : public idamageable {
 	public:
 		world(mark::resource::manager& resource_manager);
 		auto resource_manager() -> mark::resource::manager&;
@@ -40,6 +41,7 @@ namespace mark {
 		// get target for commands
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
+		bool damage(const mark::idamageable::attributes&) override;
 	private:
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;

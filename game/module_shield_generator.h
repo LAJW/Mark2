@@ -17,7 +17,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			inline auto dead() const -> bool override { return false; }
 			auto collides(mark::vector<double> pos, float radius) const -> bool;
-			void damage(unsigned amount, mark::vector<double> pos) override;
+			bool damage(const mark::idamageable::attributes&) override;
 			auto describe() const->std::string;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;

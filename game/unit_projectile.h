@@ -29,7 +29,6 @@ namespace mark {
 			projectile(const attributes& essence);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
-			void damage(unsigned amount, mark::vector<double> pos) override { /* TODO */ }
 			auto invincible() const -> bool override;
 			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 		private:

@@ -51,12 +51,10 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 			attr.pos = m_pos;
 			attr.rotation = mark::atan(m_direction);
 			attr.velocity = 500.f;
-			attr.seek_radius = 1000.f;
 			attr.team = this->team();
 			context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
 		}
 	}
-
 
 	const auto rotation = mark::atan(m_direction);
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
@@ -71,9 +69,14 @@ auto mark::unit::minion::dead() const -> bool {
 	return m_dead;
 }
 
-void mark::unit::minion::damage(unsigned amount, mark::vector<double> pos) {
-	m_model_shield.trigger(pos);
-	this->m_health -= amount;
+auto mark::unit::minion::damage(const mark::idamageable::attributes& attr) -> bool {
+	if (mark::length(attr.pos - m_pos) < 72.f && m_health >= 0 && attr.team != this->team()) {
+		m_model_shield.trigger(attr.pos);
+		this->m_health -= attr.physical;
+		attr.damaged->insert(this);
+		return true;
+	}
+	return false;
 }
 
 auto mark::unit::minion::invincible() const -> bool {

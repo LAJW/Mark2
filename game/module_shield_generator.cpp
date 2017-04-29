@@ -23,8 +23,12 @@ auto mark::module::shield_generator::collides(mark::vector<double> pos, float ra
 	return mark::length(this->pos() - pos) < radius + 64.f;
 }
 
-void mark::module::shield_generator::damage(unsigned amount, mark::vector<double> pos) {
-	m_model_shield.trigger(pos);
+bool mark::module::shield_generator::damage(const mark::idamageable::attributes& attr) {
+	if (attr.team != parent().team() && this->collides(attr.pos, 0.f)) {
+		m_model_shield.trigger(attr.pos);
+		return true;
+	}
+	return false;
 }
 
 auto mark::module::shield_generator::describe() const -> std::string {

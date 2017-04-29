@@ -185,3 +185,14 @@ auto mark::world::target() -> std::shared_ptr<mark::unit::base> {
 auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
 	return m_camera_target.lock();
 }
+
+bool mark::world::damage(const mark::idamageable::attributes &attr) {
+	for (auto& unit : this->find(attr.pos, 150.f)) {\
+		const auto damaged = unit->damage(attr);
+		if (damaged) {
+			// TODO: AOE Code
+			return true;
+		}
+	}
+	return false;
+}

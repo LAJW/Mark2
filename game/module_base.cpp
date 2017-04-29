@@ -1,6 +1,6 @@
+#include <assert.h>
 #include "module_base.h"
 #include "exception.h"
-#include <assert.h>
 
 mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail):
 	m_size(size),
@@ -26,6 +26,13 @@ auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark
 auto mark::module::base::grid_pos() -> const mark::vector<int>
 {
 	return m_socket->pos;
+}
+
+bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
+	if (attr.team != parent().team() && this->collides(attr.pos, 0.f)) {
+		return true;
+	}
+	return false;
 }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {

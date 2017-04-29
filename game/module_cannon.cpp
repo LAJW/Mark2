@@ -27,21 +27,19 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	const auto model_size = std::max(this->size().x, this->size().y) * mark::module::size;
 	context.sprites[1].push_back(m_model.render(pos, model_size, rotation, sf::Color::White));
 	if (m_shoot) {
+		std::unordered_set<mark::idamageable*> damaged;
 		for (int i = 0; i < 200; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(mark::module::size, 0.0), rotation) * static_cast<double>(i);
-			auto enemy = parent().world().find_one(cur, 320.f, [this, &cur](const mark::unit::base& unit) {
-				return unit.team() != parent().team()
-					&& !unit.invincible()
-					&& unit.collides(cur, 0);
-			});
-			if (!parent().world().map().traversable(cur) || enemy) {
-				if (enemy) {
-					enemy->damage(1, cur);
-				}
+			mark::idamageable::attributes attr;
+			attr.pos = cur;
+			attr.damaged = &damaged;
+			attr.physical = 1.f * static_cast<float>(context.dt);
+			attr.team = parent().team();
+			if (parent().world().damage(attr) || !parent().world().map().traversable(cur)) {
 				context.spray(m_im_ray, cur, std::make_pair(min_particle_velocity, max_particle_velocity), 1.f, 8.f, 4, 0.0, rotation + 180.f, 180.f, sf::Color::Red);
 				break;
 			} else {
-				context.sprites[0].push_back(mark::sprite(m_im_ray, cur, mark::module::size, rotation, 0, beam_color));
+				context.sprites[0].emplace_back(m_im_ray, cur, mark::module::size, rotation, 0, beam_color);
 			}
 		}
 		m_shoot = false;

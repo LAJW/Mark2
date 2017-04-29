@@ -20,7 +20,6 @@ namespace mark {
 			landing_pad(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override { return false; };
-			void damage(unsigned amount, mark::vector<double> pos) override { }
 			auto invincible() const -> bool override { return true; };
 			void dock(mark::unit::modular* ship);
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;

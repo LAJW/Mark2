@@ -216,5 +216,8 @@
     <ClInclude Include="module_battery.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="idamageable.h">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

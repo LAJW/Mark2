@@ -266,10 +266,15 @@ auto mark::unit::modular::dead() const -> bool {
 	return m_core && m_core->dead();
 }
 
-void mark::unit::modular::damage(unsigned amount, mark::vector<double> pos) {
+bool mark::unit::modular::damage(const mark::idamageable::attributes& attr) {
 	for (auto& socket : m_sockets) {
-		socket.module->damage(amount, pos);
+		if (socket.module->damage(attr)) {
+			attr.damaged->insert(this);
+			// TOOD: AOE Code goes here
+			return true;
+		}
 	}
+	return false;
 }
 
 auto mark::unit::modular::invincible() const -> bool {

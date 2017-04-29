@@ -49,15 +49,16 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	}
 
 	m_pos += step;
-	auto enemy = m_world.find_one(m_pos, 300.f, [this](const mark::unit::base& unit) {
-		return unit.team() != this->team() && !unit.invincible() && unit.collides(this->m_pos, 5.f);
-	});
-	if (enemy || !m_world.map().traversable(m_pos)) {
-		if (enemy) {
-			enemy->damage(10, m_pos - step);
-		}
-		m_dead = true;
+	
+	std::unordered_set<mark::idamageable*> damaged;
+	mark::idamageable::attributes attr;
+	attr.damaged = &damaged;
+	attr.pos = m_pos;
+	attr.team = this->team();
+	attr.physical = 10.f;
+	if (m_world.damage(attr) || !m_world.map().traversable(m_pos)) {
 		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
+		m_dead = true;
 	}
 	context.spray(m_im_tail, m_pos, 100.f, 0.3f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f, { 175, 175, 175, 75 });
 	context.spray(m_im_tail, m_pos, 75.f, 0.15f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f);

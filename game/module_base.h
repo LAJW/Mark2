@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "idamageable.h"
 #include "iserializable.h"
 #include "unit_modular.h"
 #include "vector.h"
@@ -21,7 +22,9 @@ namespace mark {
 		// Maximum module width and height
 		const unsigned max_dimension = 4;
 
-		class base : public iserializable {
+		class base:
+			public idamageable,
+			public iserializable {
 			friend mark::unit::modular::socket;
 		public:
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
@@ -53,9 +56,6 @@ namespace mark {
 			// Does the module collide with
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
 
-			// Deal damage to the module
-			virtual void damage(unsigned amount, mark::vector<double> pos) { /* no op */ };
-
 			// UI text describing module's properties
 			virtual auto describe() const -> std::string = 0;
 
@@ -70,6 +70,9 @@ namespace mark {
 
 			// Position on the grid
 			auto grid_pos()-> const mark::vector<int>;
+
+			// Default damage handling
+			virtual bool damage(const mark::idamageable::attributes& attr) override;
 		protected:
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;

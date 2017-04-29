@@ -181,6 +181,7 @@
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />
     <ClInclude Include="exception.h" />
+    <ClInclude Include="idamageable.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="model_animated.h" />
