@@ -4,6 +4,8 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "module_base.h"
+#include "world.h"
+#include "map.h"
 
 mark::unit::bucket::bucket(mark::world& world, mark::vector<double> pos, std::unique_ptr<mark::module::base> module):
 	mark::unit::base(world, pos),
@@ -12,8 +14,28 @@ mark::unit::bucket::bucket(mark::world& world, mark::vector<double> pos, std::un
 }
 
 void mark::unit::bucket::tick(mark::tick_context& context) {
-	double dt = context.dt;
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * mark::module::size;
+	const auto nearby_buckets = m_world.find(m_pos, size, [this](const mark::unit::base& unit) {
+		return &unit != this && dynamic_cast<const mark::unit::bucket*>(&unit);
+	});
+	mark::vector<double> direction;
+	if (!nearby_buckets.empty()) {
+		for (const auto& bucket : nearby_buckets) {
+			direction += bucket->pos();
+		}
+		if (direction == m_pos) {
+			direction.x = context.random(-1.0, 1.0);
+			direction.y = context.random(-1.0, 1.0);
+		} else {
+			direction = direction - m_pos;
+			direction /= static_cast<double>(nearby_buckets.size());
+			direction = mark::normalize(direction) * -1.0;
+		}
+		const auto new_pos = m_pos + direction * (mark::module::size * 2.0 * context.dt);
+		if (m_world.map().traversable(m_pos, size)) {
+			m_pos = new_pos;
+		}
+	}
 	context.sprites[1].push_back(mark::sprite(m_module->thumbnail(), m_pos, size));
 }
 
