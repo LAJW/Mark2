@@ -101,8 +101,12 @@ auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<
 	}
 	// Add/Remove units
 	{
-		auto last = std::remove_if(m_units.begin(), m_units.end(), [](const std::shared_ptr<mark::unit::base>& base) {
-			return base->dead();
+		auto last = std::remove_if(m_units.begin(), m_units.end(), [&context](std::shared_ptr<mark::unit::base>& unit) {
+			const auto dead = unit->dead();
+			if (dead) {
+				unit->on_death(context);
+			}
+			return dead;
 		});
 		m_units.erase(last, m_units.end());
 		m_units.insert(

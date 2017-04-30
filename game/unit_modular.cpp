@@ -14,13 +14,14 @@
 #include "unit_landing_pad.h"
 #include "module_shield_generator.h"
 #include "module_cargo.h"
+#include "unit_bucket.h"
 
-mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos):
+mark::unit::modular::socket::socket(mark::unit::modular& parent, std::unique_ptr<module::base> module, mark::vector<int> pos) :
 	parent(parent), module(std::move(module)), pos(pos) {
 	this->module->m_socket = this;
 }
 
-mark::unit::modular::socket::socket(mark::unit::modular::socket&& other):
+mark::unit::modular::socket::socket(mark::unit::modular::socket&& other) :
 	parent(other.parent), module(std::move(other.module)), pos(other.pos) {
 	module->m_socket = this;
 }
@@ -55,10 +56,13 @@ namespace {
 	}
 }
 
-mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation):
+mark::unit::modular::modular(mark::world& world, mark::vector<double> pos, float rotation) :
 	mark::unit::base(world, pos), m_rotation(rotation) {}
 
 void mark::unit::modular::tick(mark::tick_context& context) {
+	if (this->dead()) {
+		return;
+	}
 	{
 		auto end_it = std::remove_if(m_sockets.begin(), m_sockets.end(), [&context](mark::unit::modular::socket& socket) {
 			const auto dead = socket.module->dead();
@@ -274,6 +278,12 @@ void mark::unit::modular::command(const mark::command& command) {
 
 auto mark::unit::modular::dead() const -> bool {
 	return m_core && m_core->dead();
+}
+
+void mark::unit::modular::on_death(mark::tick_context& context) {
+	for (auto& socket : m_sockets) {
+		context.units.emplace_back(std::make_shared<mark::unit::bucket>(m_world, m_pos, socket.detach()));
+	}
 }
 
 bool mark::unit::modular::damage(const mark::idamageable::attributes& attr) {

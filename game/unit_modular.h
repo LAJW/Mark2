@@ -39,6 +39,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;
+			void on_death(mark::tick_context& context) override;
 			inline auto world() -> mark::world& { return m_world; }
 			auto invincible() const -> bool override;
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;

@@ -25,6 +25,7 @@ namespace mark {
 			virtual void command(const mark::command&) { };
 			auto inline pos() const { return m_pos; }
 			virtual auto dead() const -> bool = 0;
+			virtual void on_death(mark::tick_context& context) { /* no-op */ };
 			virtual bool invincible() const = 0;
 			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool = 0;
