@@ -109,6 +109,9 @@
     <ClCompile Include="unit_bucket.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
+    <ClCompile Include="vector.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">

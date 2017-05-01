@@ -3,6 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <math.h>
 #include <cmath>
+#include <utility>
 
 namespace mark {
 	template<typename T>
@@ -91,4 +92,12 @@ namespace mark {
 		const auto a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
 		return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
 	}
+
+	// Given 2 points, return [ a,b ] from y = ax + b
+	auto get_line(mark::vector<double> start, mark::vector<double> end) noexcept->mark::vector<double>;
+	// given 2 lines, find intersection point, or [ NAN, NAN ] if no intersection happens
+	auto intersect(mark::vector<double> line1, mark::vector<double> line2) noexcept->mark::vector<double>;
+	// given 2 segments, find intersecting point
+	using segment_t = std::pair<mark::vector<double>, mark::vector<double>>;
+	auto intersect(mark::segment_t, mark::segment_t) noexcept -> mark::vector<double>;
 }

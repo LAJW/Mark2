@@ -7,7 +7,6 @@
 #include "sprite.h"
 #include "vector.h"
 #include <iostream>
-#include "yaml-cpp\yaml.h"
 #include "command.h"
 
 mark::app::app(const int argc, const char* argv[])

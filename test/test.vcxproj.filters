@@ -16,28 +16,49 @@
     <Filter Include="Game">
       <UniqueIdentifier>{2bf05145-c45f-48f9-904a-fc30b85ac3a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\General">
+      <UniqueIdentifier>{2bb66ad3-44f5-47b4-8eaf-cd2b924c6d31}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Game\Module">
-      <UniqueIdentifier>{e92abed5-640d-4ca8-80fe-186b998e4c61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Terrain">
-      <UniqueIdentifier>{94f72567-eee7-4c39-8ba2-251ebb3f220d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Unit">
-      <UniqueIdentifier>{8dec7792-ec58-4e65-bf2f-6b2fcde1a1e5}</UniqueIdentifier>
+      <UniqueIdentifier>{c8f1693c-646b-4fac-b4bc-c162f142b810}</UniqueIdentifier>
     </Filter>
     <Filter Include="Game\Util">
-      <UniqueIdentifier>{6efb920a-dd72-41ac-9ece-303028d66504}</UniqueIdentifier>
+      <UniqueIdentifier>{a17b4c55-12c0-4174-a8ed-1af183218b24}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\General">
-      <UniqueIdentifier>{247b9887-382c-4604-aedc-5bcc3e1443eb}</UniqueIdentifier>
+    <Filter Include="Game\Unit">
+      <UniqueIdentifier>{cc48b8c4-6f60-430c-90d7-2bc2d01561ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Terrain">
+      <UniqueIdentifier>{26f27164-b943-4383-8843-1d3c8d8bd936}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="vector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\map.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\model_animated.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\model_shield.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\particle.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\sprite.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\tick_context.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\world.cpp">
+      <Filter>Game\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\module_battery.cpp">
+      <Filter>Game\Module</Filter>
     </ClCompile>
     <ClCompile Include="..\game\module_cannon.cpp">
       <Filter>Game\Module</Filter>
@@ -51,6 +72,9 @@
     <ClCompile Include="..\game\module_core.cpp">
       <Filter>Game\Module</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\module_energy_generator.cpp">
+      <Filter>Game\Module</Filter>
+    </ClCompile>
     <ClCompile Include="..\game\module_mortar.cpp">
       <Filter>Game\Module</Filter>
     </ClCompile>
@@ -60,13 +84,19 @@
     <ClCompile Include="..\game\module_turret.cpp">
       <Filter>Game\Module</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\terrain_floor.cpp">
-      <Filter>Game\Terrain</Filter>
+    <ClCompile Include="..\game\adsr.cpp">
+      <Filter>Game\Util</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\terrain_wall.cpp">
-      <Filter>Game\Terrain</Filter>
+    <ClCompile Include="..\game\cooldown.cpp">
+      <Filter>Game\Util</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\unit_heat_seeker.cpp">
+    <ClCompile Include="..\game\lfo.cpp">
+      <Filter>Game\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\resource_manager.cpp">
+      <Filter>Game\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\unit_bucket.cpp">
       <Filter>Game\Unit</Filter>
     </ClCompile>
     <ClCompile Include="..\game\unit_landing_pad.cpp">
@@ -81,39 +111,57 @@
     <ClCompile Include="..\game\unit_projectile.cpp">
       <Filter>Game\Unit</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\adsr.cpp">
+    <ClCompile Include="..\game\terrain_floor.cpp">
+      <Filter>Game\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\terrain_wall.cpp">
+      <Filter>Game\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\vector.cpp">
       <Filter>Game\Util</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\cooldown.cpp">
-      <Filter>Game\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\lfo.cpp">
-      <Filter>Game\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\resource_manager.cpp">
-      <Filter>Game\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\map.cpp">
-      <Filter>Game\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\model_animated.cpp">
-      <Filter>Game\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\particle.cpp">
-      <Filter>Game\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\sprite.cpp">
-      <Filter>Game\General</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\world.cpp">
-      <Filter>Game\General</Filter>
+    <ClCompile Include="vector_test.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\game\command.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\idamageable.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\map.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\model_animated.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\model_shield.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\particle.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\sprite.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\tick_context.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\world.h">
+      <Filter>Game\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\module_battery.h">
+      <Filter>Game\Module</Filter>
+    </ClInclude>
     <ClInclude Include="..\game\module_cannon.h">
       <Filter>Game\Module</Filter>
     </ClInclude>
     <ClInclude Include="..\game\module_cargo.h">
+      <Filter>Game\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\module_energy_generator.h">
       <Filter>Game\Module</Filter>
     </ClInclude>
     <ClInclude Include="..\game\module_mortar.h">
@@ -130,33 +178,6 @@
     </ClInclude>
     <ClInclude Include="..\game\module_core.h">
       <Filter>Game\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\terrain_base.h">
-      <Filter>Game\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\terrain_floor.h">
-      <Filter>Game\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\terrain_wall.h">
-      <Filter>Game\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_heat_seeker.h">
-      <Filter>Game\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_landing_pad.h">
-      <Filter>Game\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_projectile.h">
-      <Filter>Game\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_base.h">
-      <Filter>Game\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_minion.h">
-      <Filter>Game\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\unit_modular.h">
-      <Filter>Game\Unit</Filter>
     </ClInclude>
     <ClInclude Include="..\game\adsr.h">
       <Filter>Game\Util</Filter>
@@ -188,26 +209,32 @@
     <ClInclude Include="..\game\vector.h">
       <Filter>Game\Util</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\command.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_bucket.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\map.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_landing_pad.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\model_animated.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_projectile.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\particle.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_base.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\sprite.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_minion.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\tick_context.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\unit_modular.h">
+      <Filter>Game\Unit</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\world.h">
-      <Filter>Game\General</Filter>
+    <ClInclude Include="..\game\terrain_base.h">
+      <Filter>Game\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\terrain_floor.h">
+      <Filter>Game\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\terrain_wall.h">
+      <Filter>Game\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
