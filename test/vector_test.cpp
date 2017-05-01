@@ -80,8 +80,29 @@ TEST_CASE("Crossing lines") {
 
 // intersec(section, section)
 
-TEST_CASE("Crossing sections") {
-	const auto result = mark::intersect({ { -1, -1 }, { 1, 1 } }, { { -1, 1 }, { 1, -1 } });
+TEST_CASE("Crossing sections, 45 degrees") {
+	const auto result = mark::intersect(
+		{ { -1, -1 }, { 1, 1 } },
+		{ { -1, 1 }, { 1, -1 } }
+	);
 	REQUIRE(result.x == Approx(0));
 	REQUIRE(result.y == Approx(0));
+}
+
+TEST_CASE("Crossing sections at 90 degrees") {
+	const auto result = mark::intersect(
+		{ { 1, 1 }, { 1, -1 } },
+		{ { -1, 0 }, { 1, 0 } }
+	);
+	REQUIRE(result.x == Approx(1));
+	REQUIRE(result.y == Approx(0));
+}
+
+TEST_CASE("Divergent sections should return [ NAN, NAN ]") {
+	const auto result = mark::intersect(
+		{ { -1, 1 }, { -1, -1 } },
+		{ { 1, 1 }, { 0, 0 } }
+	);
+	REQUIRE(std::isnan(result.x));
+	REQUIRE(std::isnan(result.y));
 }

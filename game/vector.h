@@ -81,18 +81,18 @@ namespace mark {
 		int m_width;
 		int m_height;
 	};
-	inline auto round(mark::vector<double> in) {
-		return mark::vector<int>(static_cast<int>(std::round(in.x)), static_cast<int>(std::round(in.y)));
+	template<typename T>
+	inline auto vmap(const mark::vector<T> vector, T(*proc)(T)) {
+		return mark::vector<T>(proc(vector.x), proc(vector.y));
 	}
-	inline auto floor(mark::vector<double> in) {
-		return mark::vector<int>(static_cast<int>(std::floor(in.x)), static_cast<int>(std::floor(in.y)));
+	inline auto round(const mark::vector<double> in) noexcept {
+		return mark::vector<int>(vmap(in, std::round));
+	}
+	inline auto floor(const mark::vector<double> in) noexcept {
+		return mark::vector<int>(vmap(in, std::floor));
 	}
 	// distance between point and a line: tan(alpha) + 0
-	inline auto distance(float alpha, mark::vector<double> point) {
-		const auto a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
-		return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
-	}
-
+	auto distance(float alpha, mark::vector<double> point) noexcept -> double;
 	// Given 2 points, return [ a,b ] from y = ax + b
 	auto get_line(mark::vector<double> start, mark::vector<double> end) noexcept->mark::vector<double>;
 	// given 2 lines, find intersection point, or [ NAN, NAN ] if no intersection happens

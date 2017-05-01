@@ -1,6 +1,11 @@
 #include <algorithm>
 #include "vector.h"
 
+auto mark::distance(const float alpha, const mark::vector<double> point) noexcept -> double {
+	const auto a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
+	return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
+}
+
 auto mark::get_line(const mark::vector<double> start, const mark::vector<double> end) noexcept -> mark::vector<double> {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
