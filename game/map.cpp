@@ -267,8 +267,13 @@ auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
 	const auto size = this->size();
 	const auto length = mark::length(segment.second - segment.first);
 	const auto direction = mark::normalize(segment.second - segment.first);
-	for (double i = 0; i < length; i+= mark::terrain::grid_size) {
+	// previous block - to skip over already checked blocks
+	auto prev = mark::vector<double>(NAN, NAN);
+	for (double i = 0; i < length; i+= mark::terrain::grid_size / 2.0) {
 		const auto cur = segment.first + i * direction;
+		if (cur == prev) {
+			continue;
+		}
 		const auto pos = world_to_map(cur, this->size());
 		if (pos.x >= 0 && pos.x < size.x
 			&& pos.y >= 0 && pos.y < size.y
@@ -281,6 +286,7 @@ auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
 				return intersection;
 			}
 		}
+		prev = cur;
 	}
 	return { NAN, NAN };
 }
