@@ -263,6 +263,28 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 	return std::vector<mark::vector<double>>();
 }
 
+auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
+	const auto size = this->size();
+	const auto length = mark::length(segment.second - segment.first);
+	const auto direction = mark::normalize(segment.second - segment.first);
+	for (double i = 0; i < length; i+= mark::terrain::grid_size) {
+		const auto cur = segment.first + i * direction;
+		const auto pos = world_to_map(cur, this->size());
+		if (pos.x >= 0 && pos.x < size.x
+			&& pos.y >= 0 && pos.y < size.y
+			&& m_terrain[pos.x][pos.y]) {
+			const auto intersection = m_terrain[pos.x][pos.y]->collide(
+				map_to_world(pos, this->size()),
+				segment
+			);
+			if (!std::isnan(intersection.x)) {
+				return intersection;
+			}
+		}
+	}
+	return { NAN, NAN };
+}
+
 mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
 	return mark::map(make_map(resource_manager));
 }

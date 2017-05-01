@@ -20,6 +20,7 @@ namespace mark {
 			auto traversable() const -> bool override { return true; };
 			auto render(mark::vector<int> map_pos) const->std::vector<mark::sprite> override;
 			void variant(int variant);
+			auto collide(mark::vector<double> world_pos, mark::segment_t line) const -> mark::vector<double> override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			mark::resource::manager& m_resource_manager;

@@ -56,10 +56,19 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	attr.pos = m_pos;
 	attr.team = this->team();
 	attr.physical = 10.f;
-	if (m_world.damage(attr) || !m_world.map().traversable(m_pos)) {
-		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
+	if (m_world.damage(attr)) {
 		m_dead = true;
+	} else {
+		const auto intersection = m_world.map().collide({ m_pos - step, m_pos });
+		if (!std::isnan(intersection.x)) {
+			m_pos = intersection;
+			m_dead = true;
+		}
 	}
+	if (m_dead) {
+		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
+	}
+	context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 	context.spray(m_im_tail, m_pos, 100.f, 0.3f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f, { 175, 175, 175, 75 });
 	context.spray(m_im_tail, m_pos, 75.f, 0.15f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f);
 	context.sprites[0].push_back(mark::sprite(m_im_tail, m_pos - step, 32.f, 0, 0, sf::Color(255, 200, 150, 255)));

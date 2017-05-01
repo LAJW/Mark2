@@ -16,3 +16,7 @@ auto mark::terrain::floor::render(mark::vector<int> map_pos) const -> std::vecto
 void mark::terrain::floor::variant(int variant) {
 	m_variant = variant;
 }
+
+auto mark::terrain::floor::collide(mark::vector<double> world_pos, mark::segment_t line) const -> mark::vector<double> {
+	return { NAN, NAN };
+}

@@ -24,6 +24,8 @@ namespace mark {
 			mark::vector<double> start,
 			mark::vector<double> end,
 			double radius = 0.0) const->std::vector<mark::vector<double>>;
+		// collide world with a line segment return NAN/NAN if there was no collision
+		auto collide(mark::segment_t) const -> mark::vector<double>;
 	private:
 		using terrain_t = std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>;
 		map(mark::map::terrain_t data);
