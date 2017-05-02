@@ -12,6 +12,6 @@ TEST_CASE("should return nullptr or possibly crash") {
 		{ 0, 0 },
 		{ 1000, 0 }
 	});
-	REQUIRE(result.x == Approx(8.5 * 32.0));
+	REQUIRE(result.x == Approx(8 * 32.0));
 	REQUIRE(result.y == Approx(0));
 }
