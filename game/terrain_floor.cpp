@@ -4,14 +4,21 @@
 #include "resource_manager.h"
 #include "sprite.h"
 
-mark::terrain::floor::floor(mark::resource::manager& resource_manager, int variant):
+mark::terrain::floor::floor(
+	mark::resource::manager& resource_manager,
+	int variant):
 	m_image(resource_manager.image("ice.png")),
 	m_variant(variant),
-	m_resource_manager(resource_manager) {
-}
+	m_resource_manager(resource_manager) { }
 
-auto mark::terrain::floor::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {
-	return { mark::sprite(m_image, mark::vector<double>(map_pos) * mark::terrain::grid_size, static_cast<float>(mark::terrain::grid_size), 0.f, m_variant) };
+auto mark::terrain::floor::render(mark::vector<int> map_pos) const ->
+	std::vector<mark::sprite> {
+	return { mark::sprite(
+		m_image,
+		mark::vector<double>(map_pos) * mark::terrain::grid_size,
+		static_cast<float>(mark::terrain::grid_size),
+		0.f,
+		m_variant) };
 }
 
 void mark::terrain::floor::variant(int variant) {
@@ -27,10 +34,16 @@ auto mark::terrain::floor::collide(
 	if (tile_type == 4) {
 		return { NAN, NAN };
 	} else if (tile_type == 1 || tile_type == 7) {
-		const auto segment = segment_t{ { pos.x - a, pos.y }, { pos.x + a, pos.y} };
+		const auto segment = segment_t(
+			{ pos.x - a, pos.y },
+			{ pos.x + a, pos.y }
+		);
 		return mark::intersect(segment, other);
 	} else if (tile_type == 3 || tile_type == 5) {
-		const auto segment = segment_t{ { pos.x, pos.y - a }, { pos.x, pos.y + a} };
+		const auto segment = segment_t(
+			{ pos.x, pos.y - a },
+			{ pos.x, pos.y + a}
+		);
 		return mark::intersect(segment, other);
 	} else {
 		std::array<segment_t, 2> segments;
