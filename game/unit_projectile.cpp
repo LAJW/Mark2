@@ -26,7 +26,7 @@ mark::unit::projectile::projectile(const mark::unit::projectile::attributes& ess
 	m_velocity(essence.velocity),
 	m_rotation(essence.rotation),
 	m_seek_radius(essence.seek_radius) {
-	this->team(essence.team);
+	this->team(static_cast<int>(essence.team));
 }
 
 void mark::unit::projectile::tick(mark::tick_context& context) {

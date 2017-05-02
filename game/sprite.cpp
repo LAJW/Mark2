@@ -1,6 +1,15 @@
 #include "sprite.h"
 #include "resource_image.h"
 
+mark::sprite::sprite(mark::sprite::arguments & args):
+	m_image(std::move(args.image)),
+	m_x(args.pos.x),
+	m_y(args.pos.y),
+	m_size(args.size),
+	m_rotation(args.rotation),
+	m_frame(args.frame),
+	m_color(args.color) { }
+
 mark::sprite::sprite(
 	std::shared_ptr<const mark::resource::image> image,
 	double x,

@@ -68,7 +68,7 @@ auto mark::terrain::floor::collide(
 				mark::segment_t({ pos.x, pos.y }, { pos.x, pos.y - a })
 			};
 		}
-		auto min_length = INFINITY;
+		auto min_length = static_cast<double>(INFINITY);
 		auto min = mark::vector<double>(NAN, NAN);
 		for (const auto& segment : segments) {
 			const auto intersection = mark::intersect(segment, other);

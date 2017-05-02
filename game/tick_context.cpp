@@ -27,7 +27,15 @@ namespace {
 }
 
 
-void mark::print(std::shared_ptr<const mark::resource::image> font, std::vector<mark::sprite>& out, mark::vector<double> pos, mark::vector<double> box, float size, sf::Color color, std::string text) {
+void mark::print(
+	std::shared_ptr<const mark::resource::image> font,
+	std::vector<mark::sprite>& out,
+	mark::vector<double> pos,
+	mark::vector<double> box,
+	float size,
+	sf::Color color,
+	std::string text) {
+
 	auto offset = mark::vector<double>(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {
 		const auto ch = text[i];
@@ -49,7 +57,13 @@ void mark::print(std::shared_ptr<const mark::resource::image> font, std::vector<
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			out.push_back(mark::sprite(font, pos + offset + mark::vector<double>(0, offset_y(ch)), size, 0.f, frame, color));
+			out.emplace_back(
+				font,
+				pos + offset + mark::vector<double>(0, offset_y(ch)),
+				size,
+				0.f,
+				frame,
+				color);
 		}
 		if (ch != '\n') {
 			// find next non-alnum, if goes over the screen - indent
@@ -79,7 +93,12 @@ mark::tick_context::tick_context(mark::resource::manager& rm):
 	m_resource_manager(rm) {
 }
 
-void mark::tick_context::render_bar(const std::shared_ptr<const mark::resource::image>& bar, mark::vector<double> pos, bar_type type, float percentage) {
+void mark::tick_context::render_bar(
+	const std::shared_ptr<const mark::resource::image>& bar,
+	mark::vector<double> pos,
+	bar_type type,
+	float percentage) {
+
 	const auto percent = 100.f * percentage;
 	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));
 	for (int i = 0; i < 10; i++) {
@@ -88,7 +107,12 @@ void mark::tick_context::render_bar(const std::shared_ptr<const mark::resource::
 		uint8_t frame = 0;
 		// render gray background
 		if (i >= edge) {
-			this->sprites[50].emplace_back(bar, pos + mark::vector<double>(offset_x, 0), 8.f, 0, 6, sf::Color::White);
+			mark::sprite::arguments args;
+			args.image = bar;
+			args.pos = pos + mark::vector<double>(offset_x, 0);
+			args.size = 8.f;
+			args.frame = 6;
+			this->sprites[50].emplace_back(args);
 		}
 		// calculate edge opacity
 		if (i == edge) {
@@ -111,9 +135,13 @@ void mark::tick_context::render_bar(const std::shared_ptr<const mark::resource::
 					frame = 0;
 				}
 			}
-			// draw
-			const auto color = sf::Color(255, 255, 255, opacity);
-			this->sprites[50].emplace_back(bar, pos + mark::vector<double>(offset_x, 0), 8.f, 0, frame, color);
+			mark::sprite::arguments args;
+			args.image = bar;
+			args.pos = pos + mark::vector<double>(offset_x, 0);
+			args.size = 8.f;
+			args.frame = frame;
+			args.color = sf::Color(255, 255, 255, opacity);
+			this->sprites[50].emplace_back(args);
 		}
 	}
 }

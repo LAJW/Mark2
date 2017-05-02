@@ -47,7 +47,7 @@ void mark::module::base::on_death(mark::tick_context& context) {
 	context.spray(
 		parent().world().resource_manager().image("explosion.png"),
 		pos(),
-		std::make_pair(75, 150),
+		std::make_pair(75.f, 150.f),
 		0.3f,
 		24.f,
 		20);

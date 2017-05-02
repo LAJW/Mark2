@@ -21,7 +21,7 @@ auto mark::terrain::wall::collide(
 		mark::segment_t{ { pos.x + a, pos.y + a }, { pos.x + a, pos.y - a } }, // right
 		mark::segment_t{ { pos.x + a, pos.y - a }, { pos.x - a, pos.y - a } }  // side
 	};
-	auto min_length = INFINITY;
+	auto min_length = static_cast<double>(INFINITY);
 	auto min = mark::vector<double>(NAN, NAN);
 	for (const auto& segment : segments) {
 		const auto intersection = mark::intersect(segment, other);
