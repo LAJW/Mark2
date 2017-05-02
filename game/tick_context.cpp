@@ -57,13 +57,13 @@ void mark::print(
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			out.emplace_back(
-				font,
-				pos + offset + mark::vector<double>(0, offset_y(ch)),
-				size,
-				0.f,
-				frame,
-				color);
+			mark::sprite::arguments args;
+			args.image = font;
+			args.pos = pos + offset + mark::vector<double>(0, offset_y(ch));
+			args.size = size;
+			args.frame = frame;
+			args.color = color;
+			out.emplace_back(args);
 		}
 		if (ch != '\n') {
 			// find next non-alnum, if goes over the screen - indent
