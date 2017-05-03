@@ -93,11 +93,18 @@ namespace mark {
 	}
 	// distance between point and a line: tan(alpha) + 0
 	auto distance(float alpha, mark::vector<double> point) noexcept -> double;
+
 	// Given 2 points, return [ a,b ] from y = ax + b
+	// Vertical line - [ x, NAN ]
 	auto get_line(mark::vector<double> start, mark::vector<double> end) noexcept->mark::vector<double>;
+
 	// given 2 lines, find intersection point, or [ NAN, NAN ] if no intersection happens
 	auto intersect(mark::vector<double> line1, mark::vector<double> line2) noexcept->mark::vector<double>;
+
 	// given 2 segments, find intersecting point
 	using segment_t = std::pair<mark::vector<double>, mark::vector<double>>;
 	auto intersect(mark::segment_t, mark::segment_t) noexcept -> mark::vector<double>;
+
+	// given segment and a circle, get nearerst intersection, NAN on divergent
+	auto intersect(mark::segment_t, mark::vector<double> center, float radius) noexcept -> mark::vector<double>;
 }

@@ -106,3 +106,35 @@ TEST_CASE("Divergent sections should return [ NAN, NAN ]") {
 	REQUIRE(std::isnan(result.x));
 	REQUIRE(std::isnan(result.y));
 }
+
+// Intersection(section, circle)
+
+TEST_CASE("horizontal line and a circle at [ 0, 0 ]") {
+	const auto result = mark::intersect(
+		{ { -5, 0 }, { 5, 0 } },
+		{ 0, 0 },
+		1
+	);
+	REQUIRE(result.x == Approx(-1));
+	REQUIRE(result.y == Approx(0));
+}
+
+TEST_CASE("horizontal segment and a circle at [ 5, 3 ]") {
+	const auto result = mark::intersect(
+		{ { 5, 3 }, { 7, 3 } },
+		{ 5, 3 },
+		1
+	);
+	REQUIRE(result.x == Approx(6));
+	REQUIRE(result.y == Approx(3));
+}
+
+TEST_CASE("vertical line and a circle at [ 0, 0 ]") {
+	const auto result = mark::intersect(
+		{ { 0, -5 }, { 0, 5 } },
+		{ 0, 0 },
+		1
+	);
+	REQUIRE(result.x == Approx(0));
+	REQUIRE(result.y == Approx(-1));
+}
