@@ -41,7 +41,7 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 
 mark::world::world(mark::resource::manager& resource_manager):
 	m_resource_manager(resource_manager),
-	m_map(mark::map::make_cavern(resource_manager)) {
+	m_map(mark::map::make_square(resource_manager)) {
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
@@ -199,4 +199,24 @@ bool mark::world::damage(const mark::idamageable::attributes &attr) {
 		}
 	}
 	return false;
+}
+
+auto mark::world::collide(const mark::segment_t& ray) ->
+	std::pair<mark::idamageable *, mark::vector<double>> {
+	auto min = mark::vector<double>(NAN, NAN);
+	double min_length = INFINITY;
+	mark::idamageable* damageable = nullptr;
+	for (auto& unit : m_units) {
+		auto result = unit->collide(ray);
+		if (result.first) {
+			const auto length = mark::length(ray.first - result.second);
+			if (length < min_length) {
+				min_length = length;
+				min = result.second;
+				damageable = result.first;
+			}
+		}
+	}
+	return { damageable, min };
+
 }

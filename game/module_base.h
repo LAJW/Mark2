@@ -56,6 +56,10 @@ namespace mark {
 			// Does the module collide with
 			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
 
+			// Find collision point, return pointer to damaged module
+			virtual auto collide(const mark::segment_t&) ->
+				std::pair<mark::idamageable*, mark::vector<double>>;
+
 			// UI text describing module's properties
 			virtual auto describe() const -> std::string = 0;
 

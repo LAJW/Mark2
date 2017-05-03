@@ -183,3 +183,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 auto mark::unit::landing_pad::collides(mark::vector<double> pos, float radius) const -> bool {
 	return false;
 }
+
+auto mark::unit::landing_pad::collide(const mark::segment_t &) -> std::pair<mark::idamageable *, mark::vector<double>> {
+	return { nullptr, { NAN, NAN } };
+}

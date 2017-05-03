@@ -47,18 +47,21 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			}
 		}
 	}
-
 	m_pos += step;
-	
-	std::unordered_set<mark::idamageable*> damaged;
-	mark::idamageable::attributes attr;
-	attr.damaged = &damaged;
-	attr.pos = m_pos;
-	attr.team = this->team();
-	attr.physical = 10.f;
-	if (m_world.damage(attr)) {
-		m_dead = true;
-	} else {
+	const auto collision = m_world.collide({ m_pos - step, m_pos });
+	if (collision.first != nullptr) {
+		std::unordered_set<mark::idamageable*> damaged;
+		mark::idamageable::attributes attr;
+		attr.damaged = &damaged;
+		attr.pos = collision.second;
+		attr.team = this->team();
+		attr.physical = 10.f;
+		if (collision.first->damage(attr)) {
+			m_pos = collision.second;
+			m_dead = true;
+		}
+	}
+	if (!m_dead) {
 		const auto intersection = m_world.map().collide({ m_pos - step, m_pos });
 		if (!std::isnan(intersection.x)) {
 			m_pos = intersection;
@@ -86,4 +89,9 @@ auto mark::unit::projectile::invincible() const -> bool {
 
 auto mark::unit::projectile::collides(mark::vector<double> pos, float radius) const -> bool {
 	return false;
+}
+
+auto mark::unit::projectile::collide(const mark::segment_t&) ->
+	std::pair<mark::idamageable *, mark::vector<double>> {
+	return { nullptr, { NAN, NAN } };
 }

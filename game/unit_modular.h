@@ -51,6 +51,8 @@ namespace mark {
 			auto module(mark::vector<int> pos) const -> const mark::module::base*;
 			auto module(mark::vector<int> pos)->mark::module::base*;
 			auto damage(const mark::idamageable::attributes&) -> bool override;
+			virtual auto collide(const mark::segment_t&) ->
+				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

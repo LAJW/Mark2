@@ -297,6 +297,27 @@ bool mark::unit::modular::damage(const mark::idamageable::attributes& attr) {
 	return false;
 }
 
+auto mark::unit::modular::collide(const mark::segment_t& ray) ->
+	std::pair<mark::idamageable *, mark::vector<double>> {
+	auto min = mark::vector<double>(NAN, NAN);
+	double min_length = INFINITY;
+	mark::idamageable* damageable = nullptr;
+	for (auto& socket : m_sockets) {
+		auto& module = socket.module;
+		auto result = module->collide(ray);
+		if (result.first) {
+			const auto length = mark::length(ray.first - result.second);
+			if (length < min_length) {
+				min_length = length;
+				min = result.second;
+				damageable = result.first;
+			}
+
+		}
+	}
+	return { damageable, min };
+}
+
 auto mark::unit::modular::invincible() const -> bool {
 	return false;
 }

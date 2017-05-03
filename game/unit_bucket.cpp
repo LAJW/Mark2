@@ -10,7 +10,7 @@
 mark::unit::bucket::bucket(mark::world& world, mark::vector<double> pos, std::unique_ptr<mark::module::base> module):
 	mark::unit::base(world, pos),
 	m_module(std::move(module)) {
-	assert(module.get());
+	assert(m_module.get());
 }
 
 void mark::unit::bucket::tick(mark::tick_context& context) {
@@ -53,4 +53,9 @@ auto mark::unit::bucket::invincible() const -> bool {
 
 auto mark::unit::bucket::collides(mark::vector<double> pos, float radius) const -> bool {
 	return false;
+}
+
+auto mark::unit::bucket::collide(const mark::segment_t &) ->
+	std::pair<mark::idamageable *, mark::vector<double>> {
+	return { nullptr, { NAN, NAN } };
 }

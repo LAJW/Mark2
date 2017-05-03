@@ -25,6 +25,8 @@ namespace mark {
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
 			void command(const mark::command& command) override;
 			auto collides(mark::vector<double> pos, float radius) const -> bool override;
+			virtual auto collide(const mark::segment_t&) ->
+				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::weak_ptr<mark::unit::modular> m_ship;

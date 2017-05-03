@@ -86,3 +86,15 @@ auto mark::unit::minion::invincible() const -> bool {
 auto mark::unit::minion::collides(mark::vector<double> pos, float radius) const -> bool {
 	return mark::length(pos - m_pos) < static_cast<double>(radius + 116.f);
 }
+
+auto mark::unit::minion::collide(const mark::segment_t& ray) ->
+	std::pair<mark::idamageable *, mark::vector<double>> {
+
+	const auto ship_radius = 72.f;
+	const auto intersection = mark::intersect(ray, m_pos, ship_radius);
+	if (!std::isnan(intersection.x)) {
+		return { this, intersection };
+	} else {
+		return { nullptr, { NAN, NAN } };
+	}
+}

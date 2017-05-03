@@ -42,6 +42,8 @@ namespace mark {
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
 		bool damage(const mark::idamageable::attributes&) override;
+		auto collide(const mark::segment_t&) ->
+			std::pair<mark::idamageable*, mark::vector<double>>;
 	private:
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;

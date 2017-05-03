@@ -1,3 +1,4 @@
+#include <array>
 #include <assert.h>
 #include "module_base.h"
 #include "exception.h"
@@ -21,6 +22,44 @@ auto mark::module::base::collides(mark::vector<double> pos, float radius) const 
 		&& mark::distance(orto, relative_to_module) < size.x / 2.0 + radius;
 }
 
+auto mark::module::base::collide(const mark::segment_t& ray) ->
+	std::pair<mark::idamageable*, mark::vector<double>> {
+	const auto size = this->size();
+	// half width
+	const auto hw = static_cast<double>(size.x) / 2.0 * mark::module::size;
+	// half height
+	const auto hh = static_cast<double>(size.y) / 2.0 * mark::module::size;
+	const auto pos = this->pos();
+	const auto rotation = parent().rotation();
+	const std::array<segment_t, 4> segments {
+		mark::segment_t{ { -hw, -hh }, { -hw, hh } },  // left
+		mark::segment_t{ { -hw, hh },  { hw, hh } },   // bottom
+		mark::segment_t{ { hw, hh },   { hw, -hh } },  // right
+		mark::segment_t{ { hw, -hh },  { -hw, -hh } }  // side
+	};
+	auto min = mark::vector<double>(NAN, NAN);
+	double min_length = 40000.0;
+	for (const auto& raw : segments) {
+		const auto segment = std::make_pair(
+			mark::rotate(raw.first, rotation) + pos,
+			mark::rotate(raw.second, rotation) + pos
+		);
+		const auto intersection = intersect(segment, ray);
+		if (!std::isnan(intersection.x)) {
+			const auto length = mark::length(intersection - pos);
+			if (length < min_length) {
+				min_length = length;
+				min = intersection;
+			}
+		}
+	}
+	if (!std::isnan(min.x)) {
+		return { this, min };
+	} else {
+		return { nullptr, min };
+	}
+}
+
 auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark::module::base>> {
 	return parent().get_attached(*this);
 }
@@ -31,7 +70,7 @@ auto mark::module::base::grid_pos() -> const mark::vector<int>
 }
 
 bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
-	if (attr.team != parent().team() && collides(attr.pos, 0.f) && m_cur_health > 0) {
+	if (attr.team != parent().team() && m_cur_health > 0) {
 		attr.damaged->insert(this);
 		m_cur_health -= attr.physical;
 		return true;

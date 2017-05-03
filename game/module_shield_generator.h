@@ -18,6 +18,8 @@ namespace mark {
 			auto collides(mark::vector<double> pos, float radius) const -> bool;
 			bool damage(const mark::idamageable::attributes&) override;
 			auto describe() const->std::string;
+			virtual auto collide(const mark::segment_t&) ->
+				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
 			mark::model::shield m_model_shield;
