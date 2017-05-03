@@ -138,3 +138,13 @@ TEST_CASE("vertical line and a circle at [ 0, 0 ]") {
 	REQUIRE(result.x == Approx(0));
 	REQUIRE(result.y == Approx(-1));
 }
+
+TEST_CASE("45 deg line and a circle at [ 2, 2 ]") {
+	const auto result = mark::intersect(
+		{ { 0, 0 }, { 1, 1 } },
+		{ 2, 2 },
+		2
+	);
+	REQUIRE(result.x == Approx(2.0 - std::sqrt(2)));
+	REQUIRE(result.y == Approx(2.0 - std::sqrt(2)));
+}
