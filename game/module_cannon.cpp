@@ -35,33 +35,50 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 			const auto cur_len = mark::module::size * static_cast<double>(i);
 			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), rotation);
 			const auto cur = pos + cur_dir * cur_len;
-			mark::idamageable::attributes attr;
-			attr.pos = cur;
-			attr.damaged = &damaged;
-			attr.physical = 1.f * static_cast<float>(context.dt);
-			attr.team = parent().team();
-			if (world.damage(attr) || !world.map().traversable(cur)) {
-				context.spray(
-					m_im_ray,
-					cur,
-					std::make_pair(25.f, 50.f),
-					1.f,
-					8.f,
-					4,
-					0.0,
-					rotation + 180.f,
-					180.f,
-					sf::Color::Red);
-				break;
-			} else {
-				context.sprites[0].emplace_back(
-					m_im_ray,
-					cur,
-					mark::module::size,
-					rotation,
-					0,
-					sf::Color::Red);
+			const auto collision = world.collide({ cur - cur_dir * 64.0, cur });
+			if (!std::isnan(collision.second.x)) {
+				mark::idamageable::attributes attr;
+				attr.pos = collision.second;
+				attr.damaged = &damaged;
+				attr.physical = 1.f * static_cast<float>(context.dt);
+				attr.team = parent().team();
+				if (collision.first) {
+					if (collision.first->damage(attr)) {
+						context.spray(
+							m_im_ray,
+							collision.second,
+							std::make_pair(25.f, 50.f),
+							1.f,
+							8.f,
+							4,
+							0.0,
+							rotation + 180.f,
+							180.f,
+							sf::Color::Red);
+						break;
+					}
+				} else {
+					context.spray(
+						m_im_ray,
+						collision.second,
+						std::make_pair(25.f, 50.f),
+						1.f,
+						8.f,
+						4,
+						0.0,
+						rotation + 180.f,
+						180.f,
+						sf::Color::Red);
+					break;
+				}
 			}
+			context.sprites[0].emplace_back(
+				m_im_ray,
+				cur,
+				mark::module::size,
+				rotation,
+				0,
+				sf::Color::Red);
 		}
 		m_shoot = false;
 	}
