@@ -222,28 +222,6 @@ auto mark::unit::modular::detach(mark::vector<int> pos)->std::unique_ptr<mark::m
 	}
 }
 
-auto mark::unit::modular::collides(mark::vector<double> pos, float radius) const -> bool {
-	for (const auto& socket : m_sockets) {
-		if (socket.module->collides(pos, radius)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-auto mark::unit::modular::module(mark::vector<double> pos, float radius) const -> const mark::module::base* {
-	for (const auto& socket : m_sockets) {
-		if (socket.module->collides(pos, radius)) {
-			return socket.module.get();
-		}
-	}
-	return nullptr;
-}
-
-auto mark::unit::modular::module(mark::vector<double> pos, float radius) -> mark::module::base* {
-	return const_cast<mark::module::base*>(static_cast<const mark::unit::modular*>(this)->module(pos, radius));
-}
-
 auto mark::unit::modular::get_core() -> mark::module::core& {
 	if (m_core) {
 		return *m_core;

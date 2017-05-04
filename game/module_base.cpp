@@ -12,16 +12,6 @@ mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<cons
 	assert(size.y <= mark::module::max_dimension);
 }
 
-auto mark::module::base::collides(mark::vector<double> pos, float radius) const -> bool {
-	const auto module_pos = this->pos();
-	const auto size = mark::vector<double>(m_size) * static_cast<double>(mark::module::size);
-	const auto rotation = parent().rotation();
-	const auto orto = rotation + 90.f;
-	const auto relative_to_module = pos - module_pos;
-	return mark::distance(rotation, relative_to_module) < size.y / 2.0 + radius
-		&& mark::distance(orto, relative_to_module) < size.x / 2.0 + radius;
-}
-
 auto mark::module::base::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable*, mark::vector<double>> {
 	const auto size = this->size();

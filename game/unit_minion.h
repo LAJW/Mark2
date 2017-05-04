@@ -15,7 +15,6 @@ namespace mark {
 			auto dead() const -> bool override;
 			auto damage(const mark::idamageable::attributes&) -> bool override;
 			auto invincible() const -> bool override;
-			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:

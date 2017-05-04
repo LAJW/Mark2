@@ -32,10 +32,6 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 		m_cur_health / m_max_health);
 }
 
-auto mark::module::shield_generator::collides(mark::vector<double> pos, float radius) const -> bool {
-	return mark::length(this->pos() - pos) < radius + 64.f;
-}
-
 bool mark::module::shield_generator::damage(const mark::idamageable::attributes& attr) {
 	if (m_cur_shield > 0.f && attr.team != parent().team()) {
 		m_model_shield.trigger(attr.pos);

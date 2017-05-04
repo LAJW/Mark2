@@ -83,10 +83,6 @@ auto mark::unit::minion::invincible() const -> bool {
 	return m_health < 0;
 }
 
-auto mark::unit::minion::collides(mark::vector<double> pos, float radius) const -> bool {
-	return mark::length(pos - m_pos) < static_cast<double>(radius + 116.f);
-}
-
 auto mark::unit::minion::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 

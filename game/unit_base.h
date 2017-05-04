@@ -28,7 +28,6 @@ namespace mark {
 			virtual void on_death(mark::tick_context& context) { /* no-op */ };
 			virtual bool invincible() const = 0;
 			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
-			virtual auto collides(mark::vector<double> pos, float radius) const -> bool = 0;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> = 0;
 			Property<int> team = 0;

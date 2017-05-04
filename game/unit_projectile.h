@@ -30,7 +30,6 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 			auto invincible() const -> bool override;
-			auto collides(mark::vector<double> pos, float radius) const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:

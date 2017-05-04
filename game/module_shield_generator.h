@@ -15,7 +15,6 @@ namespace mark {
 		public:
 			shield_generator(mark::resource::manager& resource_manager);
 			void tick(mark::tick_context& context) override;
-			auto collides(mark::vector<double> pos, float radius) const -> bool;
 			bool damage(const mark::idamageable::attributes&) override;
 			auto describe() const->std::string;
 			virtual auto collide(const mark::segment_t&) ->

@@ -53,9 +53,6 @@ namespace mark {
 			// Start shooting at
 			virtual void shoot(mark::vector<double> pos) { /* no op */ }
 
-			// Does the module collide with
-			virtual auto collides(mark::vector<double> pos, float radius) const -> bool;
-
 			// Find collision point, return pointer to damaged module
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>>;

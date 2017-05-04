@@ -111,10 +111,6 @@ auto mark::unit::projectile::invincible() const -> bool {
 	return true;
 }
 
-auto mark::unit::projectile::collides(mark::vector<double> pos, float radius) const -> bool {
-	return false;
-}
-
 auto mark::unit::projectile::collide(const mark::segment_t&) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 	return { nullptr, { NAN, NAN } };

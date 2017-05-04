@@ -51,10 +51,6 @@ auto mark::unit::bucket::invincible() const -> bool {
 	return true;
 }
 
-auto mark::unit::bucket::collides(mark::vector<double> pos, float radius) const -> bool {
-	return false;
-}
-
 auto mark::unit::bucket::collide(const mark::segment_t &) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 	return { nullptr, { NAN, NAN } };
