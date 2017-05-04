@@ -42,6 +42,10 @@ namespace mark {
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
 		bool damage(const mark::idamageable::attributes&) override;
+		// Collide with units and terrain
+		// Returns damageable and collision position
+		// If damageable is null - terrain was hit
+		// If nothing was hit - position is [ NAN, NAN ]
 		auto collide(const mark::segment_t&) ->
 			std::pair<mark::idamageable*, mark::vector<double>>;
 	private:

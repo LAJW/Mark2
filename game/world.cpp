@@ -203,8 +203,10 @@ bool mark::world::damage(const mark::idamageable::attributes &attr) {
 
 auto mark::world::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
-	auto min = mark::vector<double>(NAN, NAN);
-	double min_length = INFINITY;
+	auto min = m_map.collide(ray);
+	double min_length = !std::isnan(min.x)
+		? mark::length(ray.first - min)
+		: INFINITY;
 	mark::idamageable* damageable = nullptr;
 	for (auto& unit : m_units) {
 		auto result = unit->collide(ray);

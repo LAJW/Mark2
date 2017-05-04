@@ -53,28 +53,23 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	}
 	m_pos += step;
 	const auto collision = m_world.collide({
-		m_pos - step,
-		m_pos + mark::normalize(step) * 2.0
+		m_pos - step * 1.5,
+		m_pos + step * 0.5
 	});
-	if (collision.first != nullptr) {
-		std::unordered_set<mark::idamageable*> damaged;
-		mark::idamageable::attributes args;
-		args.damaged = &damaged;
-		args.pos = collision.second;
-		args.team = this->team();
-		args.physical = 10.f;
-		if (collision.first->damage(args)) {
+	if (!std::isnan(collision.second.x)) {
+		if (collision.first) {
+			std::unordered_set<mark::idamageable*> damaged;
+			mark::idamageable::attributes args;
+			args.damaged = &damaged;
+			args.pos = collision.second;
+			args.team = this->team();
+			args.physical = 10.f;
+			if (collision.first->damage(args)) {
+				m_pos = collision.second;
+				m_dead = true;
+			}
+		} else {
 			m_pos = collision.second;
-			m_dead = true;
-		}
-	}
-	if (!m_dead) {
-		const auto intersection = m_world.map().collide({
-			m_pos - step,
-			m_pos + mark::normalize(step) * 2.0
-		});
-		if (!std::isnan(intersection.x)) {
-			m_pos = intersection;
 			m_dead = true;
 		}
 	}
