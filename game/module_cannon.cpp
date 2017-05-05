@@ -31,11 +31,12 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		m_cur_health / m_max_health);
 	if (m_shoot) {
 		std::unordered_set<mark::idamageable*> damaged;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 1; i < 200; i++) {
 			const auto cur_len = mark::module::size * static_cast<double>(i);
 			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), rotation);
-			const auto cur = pos + cur_dir * cur_len;
-			const auto collision = world.collide({ cur - cur_dir * 64.0, cur });
+			const auto prev = pos + cur_dir * (cur_len - mark::module::size);
+			const auto cur = pos + cur_dir * (cur_len + 2.0);
+			const auto collision = world.collide({ prev, cur });
 			if (!std::isnan(collision.second.x)) {
 				mark::idamageable::attributes attr;
 				attr.pos = collision.second;
