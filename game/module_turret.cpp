@@ -30,6 +30,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		attr.pos = pos;
 		attr.rotation = angle;
 		attr.velocity = 500.f;
+		attr.aoe_radius = 300.f;
 		attr.team = parent().team();
 		context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
 	}

@@ -9,9 +9,10 @@
 namespace {
 	static auto validate(const mark::unit::projectile::attributes& args) {
 		assert(args.world != nullptr);
-		assert(args.rotation != NAN);
-		assert(args.velocity != NAN);
+		assert(!std::isnan(args.rotation));
+		assert(!std::isnan(args.velocity));
 		assert(args.seek_radius >= 0.f);
+		assert(args.aoe_radius >= 0.f);
 		return args;
 	}
 }
@@ -25,7 +26,8 @@ mark::unit::projectile::projectile(const mark::unit::projectile::attributes& arg
 	m_im_tail(args.world->resource_manager().image("glare.png")),
 	m_velocity(args.velocity),
 	m_rotation(args.rotation),
-	m_seek_radius(args.seek_radius) {
+	m_seek_radius(args.seek_radius),
+	m_aoe_radius(args.aoe_radius) {
 	this->team(static_cast<int>(args.team));
 }
 
@@ -56,9 +58,9 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		m_pos - step * 1.5,
 		m_pos + step * 0.5
 	});
+	std::unordered_set<mark::idamageable*> damaged;
 	if (!std::isnan(collision.second.x)) {
 		if (collision.first) {
-			std::unordered_set<mark::idamageable*> damaged;
 			mark::idamageable::attributes args;
 			args.damaged = &damaged;
 			args.pos = collision.second;
@@ -74,6 +76,17 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		}
 	}
 	if (m_dead) {
+		if (m_aoe_radius >= 0.f) {
+			auto damageables = m_world.collide(m_pos, m_aoe_radius);
+			mark::idamageable::attributes args;
+			args.damaged = &damaged;
+			args.pos = collision.second;
+			args.team = this->team();
+			args.physical = 10.f;
+			for (auto damageable : damageables) {
+				damageable.get().damage(args);
+			}
+		}
 		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 	} else {
 		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });

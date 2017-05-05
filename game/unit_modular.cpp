@@ -338,6 +338,46 @@ auto mark::unit::modular::collide(const mark::segment_t& ray) ->
 	return { damageable, min };
 }
 
+auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
+	std::vector<std::reference_wrapper<mark::idamageable>> {
+	std::unordered_set<mark::idamageable*> out;
+	// get shields
+	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
+	for (auto& socket : m_sockets) {
+		const auto shield_ptr = dynamic_cast<mark::module::shield_generator*>(socket.module.get());
+		if (shield_ptr) {
+			shields.push_back(*shield_ptr);
+		}
+	}
+	for (auto& socket : m_sockets) {
+		auto& module = socket.module;
+		const auto module_size = std::max(module->size().x, module->size().y);
+		const auto module_pos = module->pos();
+		if (mark::length(center - module_pos) < module_size + radius) {
+			for (auto shield : shields) {
+				const auto shield_pos = shield.get().pos();
+				const auto shield_size = 64.f;
+				if (mark::length(module_pos - shield_pos) < shield_size) {
+					out.insert(&shield.get());
+					goto outer_continue;
+				}
+			}
+			out.insert(module.get());
+		}
+		outer_continue:;
+	}
+	std::vector<std::reference_wrapper<mark::idamageable>> tmp;
+	std::transform(
+		out.begin(),
+		out.end(),
+		std::back_inserter(tmp),
+		[](mark::idamageable* module) {
+		return std::ref(*module);
+	}
+	);
+	return tmp;
+}
+
 auto mark::unit::modular::invincible() const -> bool {
 	return false;
 }

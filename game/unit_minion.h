@@ -17,6 +17,8 @@ namespace mark {
 			auto invincible() const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
+			auto collide(mark::vector<double> center, float radius) ->
+				std::vector<std::reference_wrapper<mark::idamageable>> override;
 		private:
 			mark::model::animated m_model;
 			mark::model::shield m_model_shield;

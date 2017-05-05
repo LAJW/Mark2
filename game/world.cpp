@@ -211,3 +211,18 @@ auto mark::world::collide(const mark::segment_t& ray) ->
 	return { damageable, min };
 
 }
+
+auto mark::world::collide(mark::vector<double> center, float radius) ->
+	std::vector<std::reference_wrapper<mark::idamageable>> {
+
+	std::vector<std::reference_wrapper<mark::idamageable>> out;
+	for (auto& unit : m_units) {
+		auto tmp = unit->collide(center, radius);
+		std::copy(
+			tmp.begin(),
+			tmp.end(),
+			std::back_inserter(out)
+		);
+	}
+	return out;
+}

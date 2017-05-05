@@ -30,6 +30,8 @@ namespace mark {
 			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> = 0;
+			virtual auto collide(mark::vector<double> center, float radius) ->
+				std::vector<std::reference_wrapper<mark::idamageable>>;
 			Property<int> team = 0;
 		protected:
 			virtual ~base() = default;

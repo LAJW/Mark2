@@ -166,6 +166,7 @@
     <ClCompile Include="..\game\terrain_floor.cpp" />
     <ClCompile Include="..\game\terrain_wall.cpp" />
     <ClCompile Include="..\game\tick_context.cpp" />
+    <ClCompile Include="..\game\unit_base.cpp" />
     <ClCompile Include="..\game\unit_bucket.cpp" />
     <ClCompile Include="..\game\unit_landing_pad.cpp" />
     <ClCompile Include="..\game\unit_minion.cpp" />

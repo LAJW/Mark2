@@ -94,3 +94,14 @@ auto mark::unit::minion::collide(const mark::segment_t& ray) ->
 		return { nullptr, { NAN, NAN } };
 	}
 }
+
+auto mark::unit::minion::collide(mark::vector<double> center, float radius) ->
+	std::vector<std::reference_wrapper<mark::idamageable>> {
+	std::vector<std::reference_wrapper<mark::idamageable>> out;
+	const auto ship_radius = 58.f;
+	if (mark::length(m_pos - center) <= ship_radius + radius) {
+		return { *this };
+	} else {
+		return { };
+	}
+}

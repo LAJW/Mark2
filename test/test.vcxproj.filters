@@ -123,6 +123,9 @@
     <ClCompile Include="vector_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\unit_base.cpp">
+      <Filter>Game\Unit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\command.h">

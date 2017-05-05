@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />

@@ -20,6 +20,7 @@ namespace mark {
 				float rotation = NAN;
 				float velocity = NAN;
 				float seek_radius = 0.f;
+				float aoe_radius = 0.f;
 				// Can missile go through multiple targets
 				// 0 - infinite targets
 				// 1, 2, 3 - 1, 2, 3 targets.
@@ -39,6 +40,7 @@ namespace mark {
 			float m_rotation;
 			float m_velocity;
 			float m_seek_radius;
+			float m_aoe_radius;
 			size_t piercing;
 			bool m_dead = false;
 		};

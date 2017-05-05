@@ -112,6 +112,9 @@
     <ClCompile Include="vector.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="unit_base.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">

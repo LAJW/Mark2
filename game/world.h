@@ -47,6 +47,8 @@ namespace mark {
 		// If nothing was hit - position is [ NAN, NAN ]
 		auto collide(const mark::segment_t&) ->
 			std::pair<mark::idamageable*, mark::vector<double>>;
+		auto collide(mark::vector<double> center, float radius) ->
+			std::vector<std::reference_wrapper<mark::idamageable>>;
 	private:
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
