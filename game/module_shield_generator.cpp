@@ -70,3 +70,7 @@ auto mark::module::shield_generator::collide(const mark::segment_t& ray) ->
 		return mark::module::base::collide(ray);
 	}
 }
+
+auto mark::module::shield_generator::shield() const noexcept -> float {
+	return m_cur_shield;
+}

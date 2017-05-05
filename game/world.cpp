@@ -63,10 +63,10 @@ mark::world::world(mark::resource::manager& resource_manager):
 	vessel->team(1);
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
-	// m_units.push_back(create_ship(resource_manager, *this));
+	m_units.push_back(create_ship(resource_manager, *this));
 	mark::command command;
 	command.type = mark::command::type::ai;
-	// m_units.back()->command(command);
+	m_units.back()->command(command);
 }
 
 auto mark::world::map() const -> const mark::map&{

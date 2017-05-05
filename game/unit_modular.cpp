@@ -335,6 +335,21 @@ auto mark::unit::modular::collide(const mark::segment_t& ray) ->
 
 		}
 	}
+	// check if module is under the shield
+	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
+	for (auto& socket : m_sockets) {
+		const auto shield = dynamic_cast<mark::module::shield_generator*>(socket.module.get());
+		if (shield && shield->shield() >= 0.f) {
+			shields.push_back(*shield);
+		}
+	}
+	for (auto shield : shields) {
+		const auto shield_pos = shield.get().pos();
+		const auto shield_size = 64.f;
+		if (mark::length(min - shield_pos) < shield_size - 1.f) {
+			return { nullptr, { NAN, NAN } };
+		}
+	}
 	return { damageable, min };
 }
 
@@ -344,9 +359,9 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 	// get shields
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
 	for (auto& socket : m_sockets) {
-		const auto shield_ptr = dynamic_cast<mark::module::shield_generator*>(socket.module.get());
-		if (shield_ptr) {
-			shields.push_back(*shield_ptr);
+		const auto shield = dynamic_cast<mark::module::shield_generator*>(socket.module.get());
+		if (shield && shield->shield() >= 0.f) {
+			shields.push_back(*shield);
 		}
 	}
 	for (auto& socket : m_sockets) {
@@ -372,8 +387,8 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 		out.end(),
 		std::back_inserter(tmp),
 		[](mark::idamageable* module) {
-		return std::ref(*module);
-	}
+			return std::ref(*module);
+		}
 	);
 	return tmp;
 }
