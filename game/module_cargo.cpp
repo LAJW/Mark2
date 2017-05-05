@@ -158,8 +158,8 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 
 bool mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
 	for (unsigned i = 0; i < m_modules.size(); i++) {
-		mark::vector<int> drop_pos(i % 16, 1 / 8);
-		if (this->can_drop({}, module)) {
+		mark::vector<int> drop_pos(i % 16, i / 16);
+		if (this->can_drop(drop_pos, module)) {
 			this->drop(drop_pos, std::move(module));
 			return true;
 		}
