@@ -41,7 +41,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				mark::idamageable::attributes attr;
 				attr.pos = collision.second;
 				attr.damaged = &damaged;
-				attr.physical = 1.f * static_cast<float>(context.dt);
+				attr.physical = 100.f * static_cast<float>(context.dt);
 				attr.team = parent().team();
 				if (collision.first) {
 					if (collision.first->damage(attr)) {
