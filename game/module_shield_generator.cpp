@@ -54,7 +54,7 @@ auto mark::module::shield_generator::describe() const -> std::string {
 
 auto mark::module::shield_generator::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable*, mark::vector<double>> {
-	if (m_cur_shield >= 0.f) {
+	if (m_cur_shield > 0.f) {
 		const auto shield_size = 64.f;
 		const auto intersection = mark::intersect(ray, pos(), shield_size);
 		if (!std::isnan(intersection.x)) {
