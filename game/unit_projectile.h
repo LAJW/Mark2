@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_set>
 #include "unit_base.h"
 
 namespace sf {
@@ -37,11 +38,12 @@ namespace mark {
 			projectile(const attributes& essence, bool);
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;
+			std::unordered_set<mark::idamageable*> m_damaged;
 			float m_rotation;
 			float m_velocity;
 			float m_seek_radius;
 			float m_aoe_radius;
-			size_t piercing;
+			size_t m_piercing;
 			bool m_dead = false;
 		};
 	}

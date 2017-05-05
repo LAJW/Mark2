@@ -27,7 +27,8 @@ mark::unit::projectile::projectile(const mark::unit::projectile::attributes& arg
 	m_velocity(args.velocity),
 	m_rotation(args.rotation),
 	m_seek_radius(args.seek_radius),
-	m_aoe_radius(args.aoe_radius) {
+	m_aoe_radius(args.aoe_radius),
+	m_piercing(args.piercing) {
 	this->team(static_cast<int>(args.team));
 }
 
@@ -58,36 +59,41 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		m_pos - step * 1.5,
 		m_pos + step * 0.5
 	});
-	std::unordered_set<mark::idamageable*> damaged;
+	auto damaged = false;
 	if (!std::isnan(collision.second.x)) {
 		if (collision.first) {
 			mark::idamageable::attributes args;
-			args.damaged = &damaged;
+			args.damaged = &m_damaged;
 			args.pos = collision.second;
 			args.team = this->team();
 			args.physical = 10.f;
 			if (collision.first->damage(args)) {
-				m_pos = collision.second;
-				m_dead = true;
+				// hit an enemy unit
+				if (m_piercing == 1) {
+					m_pos = collision.second;
+					m_dead = true;
+				}
 			}
+			damaged = true;
 		} else {
+			// hit a wall
 			m_pos = collision.second;
 			m_dead = true;
+			damaged = true;
 		}
 	}
 	if (m_dead) {
 		if (m_aoe_radius >= 0.f) {
 			auto damageables = m_world.collide(m_pos, m_aoe_radius);
 			mark::idamageable::attributes args;
-			args.damaged = &damaged;
-			args.pos = collision.second;
+			args.damaged = &m_damaged;
+			args.pos = m_pos;
 			args.team = this->team();
 			args.physical = 10.f;
 			for (auto damageable : damageables) {
 				damageable.get().damage(args);
 			}
 		}
-		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 	} else {
 		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 		context.spray(m_im_tail, m_pos, 100.f, 0.3f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f, { 175, 175, 175, 75 });
@@ -108,6 +114,9 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			args.rotation = m_rotation;
 			context.sprites[1].emplace_back(args);
 		}
+	}
+	if (damaged) {
+		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
 	}
 }
 

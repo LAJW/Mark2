@@ -70,7 +70,8 @@ auto mark::unit::minion::dead() const -> bool {
 }
 
 auto mark::unit::minion::damage(const mark::idamageable::attributes& attr) -> bool {
-	if (m_health >= 0 && attr.team != this->team()) {
+	if (m_health >= 0 && attr.team != this->team()
+		&& attr.damaged->find(this) == attr.damaged->end()) {
 		m_model_shield.trigger(attr.pos);
 		this->m_health -= attr.physical;
 		attr.damaged->insert(this);

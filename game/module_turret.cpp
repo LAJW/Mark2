@@ -32,6 +32,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		attr.velocity = 500.f;
 		attr.aoe_radius = 300.f;
 		attr.team = parent().team();
+		attr.piercing = 0;
 		context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
 	}
 	m_shoot = false;
