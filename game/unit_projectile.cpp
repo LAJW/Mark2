@@ -5,6 +5,7 @@
 #include "terrain_base.h"
 #include "tick_context.h"
 #include <assert.h>
+#include "unit_modular.h"
 
 namespace {
 	static auto validate(const mark::unit::projectile::attributes& args) {
@@ -28,14 +29,31 @@ mark::unit::projectile::projectile(const mark::unit::projectile::attributes& arg
 	m_rotation(args.rotation),
 	m_seek_radius(args.seek_radius),
 	m_aoe_radius(args.aoe_radius),
-	m_piercing(args.piercing) {
+	m_piercing(args.piercing),
+	m_guide(args.guide) {
 	this->team(static_cast<int>(args.team));
 }
 
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
-	if (m_seek_radius >= 0.f) {
+	const auto guide = m_guide.lock();
+	const auto turn_speed = 500.f;
+	if (guide) {
+		const auto lookat = guide->lookat();
+		if (mark::length(lookat - m_pos) < m_velocity * dt * 2.0) {
+			m_guide.reset();
+		} else {
+			const auto direction = lookat - m_pos;
+			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
+			const auto rot_step = static_cast<float>(turn_direction  * turn_speed * dt);
+			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < turn_speed * dt) {
+				m_rotation = static_cast<float>(mark::atan(direction));
+			} else {
+				m_rotation += rot_step;
+			}
+		}
+	} else if (m_seek_radius >= 0.f) {
 		auto target = m_world.find_one(
 			m_pos,
 			m_seek_radius,
@@ -43,7 +61,6 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			return unit.team() != this->team() && !unit.invincible();
 		});
 		if (target) {
-			const auto turn_speed = 500.f;
 			const auto direction = target->pos() - m_pos;
 			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
 			const auto rot_step = static_cast<float>(turn_direction  * turn_speed * dt);

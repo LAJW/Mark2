@@ -27,6 +27,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		m_adsr.trigger();
 		mark::unit::projectile::attributes attr;
 		attr.world = &parent().world();
+		attr.guide = std::dynamic_pointer_cast<mark::unit::modular>(parent().shared_from_this());
 		attr.pos = pos;
 		attr.rotation = angle;
 		attr.velocity = 500.f;

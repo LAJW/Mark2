@@ -52,6 +52,7 @@ namespace mark {
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			auto collide(mark::vector<double> center, float radius) ->
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
+			auto lookat() const noexcept -> mark::vector<double>;
 		private:
 			std::vector<socket> m_sockets;
 			mark::module::core* m_core = nullptr;

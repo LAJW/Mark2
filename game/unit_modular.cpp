@@ -393,6 +393,10 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 	return tmp;
 }
 
+auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
+	return m_lookat;
+}
+
 auto mark::unit::modular::invincible() const -> bool {
 	return false;
 }

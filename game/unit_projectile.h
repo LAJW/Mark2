@@ -12,11 +12,14 @@ namespace mark {
 		using image = sf::Texture;
 	}
 	namespace unit {
+		class modular;
 		class projectile final : public mark::unit::base {
 		public:
 			// projectile constructor attributes
 			struct attributes {
 				mark::world* world = nullptr;
+				// for mouse-guided missiles
+				std::weak_ptr<const mark::unit::modular> guide;
 				mark::vector<double> pos;
 				float rotation = NAN;
 				float velocity = NAN;
@@ -39,6 +42,7 @@ namespace mark {
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;
 			std::unordered_set<mark::idamageable*> m_damaged;
+			std::weak_ptr<const mark::unit::modular> m_guide;
 			float m_rotation;
 			float m_velocity;
 			float m_seek_radius;
