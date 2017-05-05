@@ -103,7 +103,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			mark::sprite::arguments args;
 			args.image = m_world.resource_manager().image("generator.png");
 			args.pos = step;
-			context.sprites[100].emplace_back(args)
+			context.sprites[100].emplace_back(args);
 		}
 #endif // !_DEBUG
 		const auto dir = mark::normalize(m_moveto - m_pos);
