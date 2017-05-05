@@ -300,7 +300,7 @@ void mark::unit::modular::command(const mark::command& command) {
 			m_pos,
 			150.0,
 			[this](const mark::unit::base& unit) {
-			return !dynamic_cast<const mark::unit::landing_pad*>(&unit);
+			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
 		});
 		if (pad) {
 			pad->activate(this->shared_from_this());
@@ -318,10 +318,12 @@ auto mark::unit::modular::dead() const -> bool {
 
 void mark::unit::modular::on_death(mark::tick_context& context) {
 	for (auto& socket : m_sockets) {
-		context.units.emplace_back(std::make_shared<mark::unit::bucket>(
-			m_world,
-			m_pos,
-			socket.detach()));
+		if (!socket.module->dead()) {
+			context.units.emplace_back(std::make_shared<mark::unit::bucket>(
+				m_world,
+				m_pos,
+				socket.detach()));
+		}
 	}
 }
 
