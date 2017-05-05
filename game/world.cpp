@@ -190,17 +190,6 @@ auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
 	return m_camera_target.lock();
 }
 
-bool mark::world::damage(const mark::idamageable::attributes &attr) {
-	for (auto& unit : this->find(attr.pos, 150.f)) {\
-		const auto damaged = unit->damage(attr);
-		if (damaged) {
-			// TODO: AOE Code
-			return true;
-		}
-	}
-	return false;
-}
-
 auto mark::world::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 	auto min = m_map.collide(ray);

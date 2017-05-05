@@ -23,7 +23,7 @@ namespace mark {
 		class base;
 	}
 
-	class world : public idamageable {
+	class world {
 	public:
 		world(mark::resource::manager& resource_manager);
 		auto resource_manager() -> mark::resource::manager&;
@@ -41,7 +41,6 @@ namespace mark {
 		// get target for commands
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
-		bool damage(const mark::idamageable::attributes&) override;
 		// Collide with units and terrain
 		// Returns damageable and collision position
 		// If damageable is null - terrain was hit
