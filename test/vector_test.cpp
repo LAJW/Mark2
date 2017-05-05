@@ -148,3 +148,13 @@ TEST_CASE("45 deg line and a circle at [ 2, 2 ]") {
 	REQUIRE(result.x == Approx(2.0 - std::sqrt(2)));
 	REQUIRE(result.y == Approx(2.0 - std::sqrt(2)));
 }
+
+TEST_CASE("no collision (range check)") {
+	const auto result = mark::intersect(
+		{ { 8, 8 }, { 4.5, 4.5 } },
+		{ 2, 2 },
+		2
+	);
+	REQUIRE(std::isnan(result.x));
+	REQUIRE(std::isnan(result.y));
+}

@@ -70,7 +70,7 @@ auto mark::unit::minion::dead() const -> bool {
 }
 
 auto mark::unit::minion::damage(const mark::idamageable::attributes& attr) -> bool {
-	if (mark::length(attr.pos - m_pos) < 72.f && m_health >= 0 && attr.team != this->team()) {
+	if (m_health >= 0 && attr.team != this->team()) {
 		m_model_shield.trigger(attr.pos);
 		this->m_health -= attr.physical;
 		attr.damaged->insert(this);
@@ -86,7 +86,7 @@ auto mark::unit::minion::invincible() const -> bool {
 auto mark::unit::minion::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 
-	const auto ship_radius = 72.f;
+	const auto ship_radius = 58.f;
 	const auto intersection = mark::intersect(ray, m_pos, ship_radius);
 	if (!std::isnan(intersection.x)) {
 		return { this, intersection };

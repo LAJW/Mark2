@@ -98,7 +98,7 @@ auto mark::intersect(
 			bool p2_in_range = p2.x >= lx && p2.x <= ux
 				&& p2.y >= ly && p2.y <= uy;
 			bool p1_closer = length1 < length2;
-			if (p1_in_range && p2_in_range && p1_closer || !p2_in_range) {
+			if (p1_in_range && (p2_in_range && p1_closer || !p2_in_range)) {
 				return p1;
 			} else if (p2_in_range) {
 				return p2;
