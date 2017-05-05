@@ -1,5 +1,6 @@
-#include "tick_context.h"
 #include <string>
+#include <algorithm>
+#include "tick_context.h"
 
 namespace {
 	static float width(char ch) {
@@ -99,7 +100,7 @@ void mark::tick_context::render_bar(
 	bar_type type,
 	float percentage) {
 
-	const auto percent = 100.f * percentage;
+	const auto percent = 100.f * std::max(0.f, percentage);
 	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));
 	for (int i = 0; i < 10; i++) {
 		const auto offset_x = 7.f * static_cast<float>(i - 5);
