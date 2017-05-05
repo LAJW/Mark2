@@ -94,6 +94,25 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		socket.module->tick(context);
 	}
 
+	// pickup dropped modules
+	auto buckets = m_world.find(m_pos, 150.f, [](const mark::unit::base& unit) {
+		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr;
+	});
+	auto containers = this->containers();
+	for (auto& bucket : buckets) {
+		auto module = std::dynamic_pointer_cast<mark::unit::bucket>(bucket)->release();
+		for (auto& container : containers) {
+			if (container.get().push(module)) {
+				break;
+			}
+		}
+		if (module) {
+			context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(module)));
+			break;
+		}
+	}
+
+	// movement / AI etc.
 	double dt = context.dt;
 	double speed = m_ai ? 64.0 : 320.0;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
@@ -145,7 +164,6 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 			m_rotation += rot_step;
 		}
 	}
-
 }
 
 

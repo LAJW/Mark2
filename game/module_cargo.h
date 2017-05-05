@@ -24,6 +24,10 @@ namespace mark {
 			auto detachable() const -> bool override;
 			auto describe() const -> std::string;
 			void on_death(mark::tick_context& context);
+			// try to push element to the container
+			// return true on success
+			// return false if module could not be pushed
+			bool push(std::unique_ptr<mark::module::base>& module);
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;
 			std::shared_ptr<const mark::resource::image> m_im_light;

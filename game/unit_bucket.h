@@ -20,6 +20,7 @@ namespace mark {
 			auto invincible() const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
+			auto release() -> std::unique_ptr<mark::module::base>;
 		private:
 			std::unique_ptr<mark::module::base> m_module;
 		};

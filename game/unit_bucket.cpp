@@ -14,6 +14,9 @@ mark::unit::bucket::bucket(mark::world& world, mark::vector<double> pos, std::un
 }
 
 void mark::unit::bucket::tick(mark::tick_context& context) {
+	if (this->dead()) { // dead bucket
+		return;
+	}
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * mark::module::size;
 	const auto nearby_buckets = m_world.find(m_pos, size, [this](const mark::unit::base& unit) {
 		return &unit != this && dynamic_cast<const mark::unit::bucket*>(&unit);
@@ -40,7 +43,7 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 }
 
 auto mark::unit::bucket::dead() const -> bool {
-	return false;
+	return m_module == nullptr;
 }
 
 auto mark::unit::bucket::damage(const mark::idamageable::attributes& attr) -> bool {
@@ -54,4 +57,8 @@ auto mark::unit::bucket::invincible() const -> bool {
 auto mark::unit::bucket::collide(const mark::segment_t &) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 	return { nullptr, { NAN, NAN } };
+}
+
+auto mark::unit::bucket::release() -> std::unique_ptr<mark::module::base> {
+	return std::move(m_module);
 }
