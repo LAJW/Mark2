@@ -19,6 +19,7 @@ namespace mark {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
+			static constexpr unsigned max_size = 20;
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
@@ -44,6 +45,8 @@ namespace mark {
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
 			auto lookat() const noexcept -> mark::vector<double>;
 		private:
+			void remove_dead(mark::tick_context&);
+			void pick_up(mark::tick_context&);
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;

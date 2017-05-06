@@ -45,47 +45,18 @@ mark::unit::modular::modular(
 	mark::world& world,
 	mark::vector<double> pos,
 	float rotation):
-	mark::unit::base(world, pos), m_rotation(rotation) {}
+	mark::unit::base(world, pos),
+	m_rotation(rotation) {}
 
 void mark::unit::modular::tick(mark::tick_context& context) {
 	if (this->dead()) {
 		return;
 	}
-	// remove dead modules
-	{
-		auto end_it = std::remove_if(
-			m_modules.begin(),
-			m_modules.end(),
-			[&context](std::unique_ptr<mark::module::base>& module) {
-			const auto dead = module->dead();
-			if (dead) {
-				module->on_death(context);
-			}
-			return dead;
-		});
-		m_modules.erase(end_it, m_modules.end());
-	}
+	this->remove_dead(context);
 	for (auto& module : m_modules) {
 		module->tick(context);
 	}
-
-	// pickup dropped modules
-	auto buckets = m_world.find(m_pos, 150.f, [](const mark::unit::base& unit) {
-		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr;
-	});
-	auto containers = this->containers();
-	for (auto& bucket : buckets) {
-		auto module = std::dynamic_pointer_cast<mark::unit::bucket>(bucket)->release();
-		for (auto& container : containers) {
-			if (container.get().push(module)) {
-				break;
-			}
-		}
-		if (module) {
-			context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(module)));
-			break;
-		}
-	}
+	this->pick_up(context);
 
 	// movement / AI etc.
 	double dt = context.dt;
@@ -390,6 +361,39 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 
 auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
 	return m_lookat;
+}
+
+void mark::unit::modular::remove_dead(mark::tick_context& context) {
+	auto end_it = std::remove_if(
+		m_modules.begin(),
+		m_modules.end(),
+		[&context](std::unique_ptr<mark::module::base>& module) {
+		const auto dead = module->dead();
+		if (dead) {
+			module->on_death(context);
+		}
+		return dead;
+	});
+	m_modules.erase(end_it, m_modules.end());
+}
+
+void mark::unit::modular::pick_up(mark::tick_context& context) {
+	auto buckets = m_world.find(m_pos, 150.f, [](const mark::unit::base& unit) {
+		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr;
+	});
+	auto containers = this->containers();
+	for (auto& bucket : buckets) {
+		auto module = std::dynamic_pointer_cast<mark::unit::bucket>(bucket)->release();
+		for (auto& container : containers) {
+			if (container.get().push(module)) {
+				break;
+			}
+		}
+		if (module) {
+			context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, bucket->pos(), std::move(module)));
+			break;
+		}
+	}
 }
 
 auto mark::unit::modular::invincible() const -> bool {
