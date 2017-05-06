@@ -19,16 +19,6 @@ namespace mark {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
-			struct socket final {
-				socket(modular& parent, std::unique_ptr<module::base>, mark::vector<int> pos);
-				socket(mark::unit::modular::socket&& other);
-				mark::unit::modular::socket& operator=(mark::unit::modular::socket&& socket);
-				std::unique_ptr<mark::module::base> detach();
-
-				mark::vector<int> pos;
-				std::unique_ptr<mark::module::base> module;
-				mark::unit::modular& parent;
-			};
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
@@ -54,7 +44,7 @@ namespace mark {
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
 			auto lookat() const noexcept -> mark::vector<double>;
 		private:
-			std::vector<socket> m_sockets;
+			std::vector<std::unique_ptr<mark::module::base>> m_modules;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
 			mark::vector<double> m_moveto;

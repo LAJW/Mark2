@@ -54,9 +54,8 @@ auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark
 	return parent().get_attached(*this);
 }
 
-auto mark::module::base::grid_pos() -> const mark::vector<int>
-{
-	return m_socket->pos;
+auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
+	return mark::vector<int>(m_grid_pos);
 }
 
 bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
@@ -84,8 +83,8 @@ void mark::module::base::on_death(mark::tick_context& context) {
 }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {
-	if (m_socket) {
-		return m_socket->parent;
+	if (m_parent) {
+		return *m_parent;
 	} else {
 		throw mark::exception("NO_PARENT");
 	}
@@ -96,7 +95,7 @@ auto mark::module::base::parent() -> mark::unit::modular&{
 }
 
 auto mark::module::base::pos() const -> mark::vector<double> {
-	const auto pos = (mark::vector<float>(m_socket->pos) + mark::vector<float>(this->size()) / 2.f)
+	const auto pos = (mark::vector<float>(grid_pos()) + mark::vector<float>(this->size()) / 2.f)
 		* static_cast<float>(mark::module::size);
 	return parent().pos() + mark::vector<double>(rotate(pos, parent().rotation()));
 }

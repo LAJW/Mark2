@@ -25,8 +25,8 @@ namespace mark {
 		class base:
 			public idamageable,
 			public iserializable {
-			friend mark::unit::modular::socket;
 		public:
+			friend mark::unit::modular;
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
 			virtual ~base() = default;
 
@@ -70,7 +70,7 @@ namespace mark {
 			auto neighbours()->std::vector<std::reference_wrapper<mark::module::base>>;
 
 			// Position on the grid
-			auto grid_pos()-> const mark::vector<int>;
+			auto grid_pos() const noexcept -> mark::vector<int>;
 
 			// Default damage handling
 			auto damage(const mark::idamageable::attributes& attr) -> bool override;
@@ -86,7 +86,8 @@ namespace mark {
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;
-			mark::unit::modular::socket* m_socket = nullptr;
+			mark::unit::modular* m_parent = nullptr;
+			mark::vector<int8_t> m_grid_pos;
 		};
 	}
 }
