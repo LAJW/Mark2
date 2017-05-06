@@ -19,7 +19,7 @@ namespace mark {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
-			static constexpr unsigned max_size = 20;
+			static constexpr unsigned max_size = 40;
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;

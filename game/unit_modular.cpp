@@ -279,14 +279,14 @@ bool mark::unit::modular::damage(const mark::idamageable::attributes& attr) {
 	for (auto& module : m_modules) {
 		if (module->damage(attr)) {
 			attr.damaged->insert(this);
-			return true;
+return true;
 		}
 	}
 	return false;
 }
 
 auto mark::unit::modular::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable *, mark::vector<double>> {
+std::pair<mark::idamageable *, mark::vector<double>> {
 	auto min = mark::vector<double>(NAN, NAN);
 	double min_length = INFINITY;
 	mark::idamageable* damageable = nullptr;
@@ -321,7 +321,7 @@ auto mark::unit::modular::collide(const mark::segment_t& ray) ->
 }
 
 auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
-	std::vector<std::reference_wrapper<mark::idamageable>> {
+std::vector<std::reference_wrapper<mark::idamageable>> {
 	std::unordered_set<mark::idamageable*> out;
 	// get shields
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
@@ -345,7 +345,7 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 			}
 			out.insert(module.get());
 		}
-		outer_continue:;
+	outer_continue:;
 	}
 	std::vector<std::reference_wrapper<mark::idamageable>> tmp;
 	std::transform(
@@ -353,8 +353,8 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
 		out.end(),
 		std::back_inserter(tmp),
 		[](mark::idamageable* module) {
-			return std::ref(*module);
-		}
+		return std::ref(*module);
+	}
 	);
 	return tmp;
 }
@@ -363,23 +363,111 @@ auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
 	return m_lookat;
 }
 
+namespace {
+	struct Node {
+		mark::vector<int8_t> pos;
+		int f = 0; // distance from starting + distance from ending (h)
+		Node* parent = nullptr;
+	};
+
+	auto path_exists(const std::vector<bool>& map, mark::vector<int8_t> start) -> bool {
+		const auto size = static_cast<int8_t>(std::sqrt(map.size()));
+		const auto end_x = size / static_cast<int8_t>(2);
+		const auto end = mark::vector<int8_t>(end_x, end_x);
+		std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
+		std::vector<std::unique_ptr<Node>> closed;
+
+		while (!open.empty()) {
+			auto min_it = open.begin();
+			for (auto it = open.begin(), end = open.end(); it != end; it++) {
+				if (min_it->f > it->f) {
+					min_it = it;
+				}
+			}
+			closed.push_back(std::make_unique<Node>(*min_it));
+			auto& current = closed.back();
+			open.erase(min_it);
+
+			if (current->pos == end) {
+				return true;
+			}
+
+			for (int i = 0; i < 9; i++) {
+				if (i == 4) {
+					continue;
+				}
+				auto neighbour_pos = current->pos + mark::vector<int8_t>{ i % 3 - 1, static_cast<int8_t>(i / 3 - 1) };
+				const auto traversable = neighbour_pos.x > 0
+					&& neighbour_pos.y > 0 && neighbour_pos.x < size
+					&& neighbour_pos.y < size
+					&& map[neighbour_pos.y * size + neighbour_pos.x];
+				const auto isClosed = closed.end() != std::find_if(closed.begin(), closed.end(), [&neighbour_pos](std::unique_ptr<Node>& node) {
+					return node->pos == neighbour_pos;
+				});
+				if (!traversable || isClosed) {
+					continue;
+				}
+				auto neighbour_it = std::find_if(open.begin(), open.end(), [&neighbour_pos](const Node& node) {
+					return neighbour_pos == node.pos;
+				});
+				const auto f = current->f + (i % 2 ? 10 : 14);
+				if (neighbour_it == open.end()) {
+					open.push_back({ neighbour_pos, f, current.get() });
+				} else if (neighbour_it->f > f) {
+					neighbour_it->f = f;
+					neighbour_it->parent = current.get();
+				}
+			}
+		}
+		return false;
+	}
+}
+
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
-	auto end_it = std::remove_if(
+	auto end_it = std::partition(
 		m_modules.begin(),
 		m_modules.end(),
-		[&context](std::unique_ptr<mark::module::base>& module) {
-		const auto dead = module->dead();
-		if (dead) {
-			module->on_death(context);
-		}
-		return dead;
+		[](const std::unique_ptr<mark::module::base>& module) {
+			return !module->dead();
 	});
-	m_modules.erase(end_it, m_modules.end());
+	if (end_it != m_modules.end()) {
+		std::for_each(
+			end_it,
+			m_modules.end(),
+			[&context](std::unique_ptr<mark::module::base>& module) {
+			module->on_death(context);
+		});
+		m_modules.erase(end_it, m_modules.end());
+		std::vector<bool> map(mark::unit::modular::max_size * mark::unit::modular::max_size, false);
+		const auto hs = mark::vector<int8_t>(mark::unit::modular::max_size / 2, mark::unit::modular::max_size / 2);
+		for (const auto& module : m_modules) {
+			for (int8_t x = 0; x < module->size().x; x++) {
+				for (int8_t y = 0; y < module->size().y; y++) {
+					const auto px = hs.x + module->grid_pos().x + x;
+					const auto py = hs.y + module->grid_pos().y + y;
+					map[py * mark::unit::modular::max_size + px] = true;
+				}
+			}
+		}
+		{
+			auto end_it = std::partition(
+				m_modules.begin(),
+				m_modules.end(),
+				[&map, hs](const std::unique_ptr<mark::module::base>& module) {
+					return ::path_exists(map, hs + mark::vector<int8_t>(module->grid_pos()));
+				}
+			);
+			for (auto it = end_it; it != m_modules.end(); it++) {
+				context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(*it)));
+			}
+			m_modules.erase(end_it, m_modules.end());
+		}
+	}
 }
 
 void mark::unit::modular::pick_up(mark::tick_context& context) {
 	auto buckets = m_world.find(m_pos, 150.f, [](const mark::unit::base& unit) {
-		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr;
+		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr && !unit.dead();
 	});
 	auto containers = this->containers();
 	for (auto& bucket : buckets) {
