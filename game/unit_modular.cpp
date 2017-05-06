@@ -392,10 +392,7 @@ namespace {
 				return true;
 			}
 
-			for (int i = 0; i < 9; i++) {
-				if (i == 4) {
-					continue;
-				}
+			for (int i = 1; i < 8; i += 2) {
 				auto neighbour_pos = current->pos + mark::vector<int8_t>{ i % 3 - 1, static_cast<int8_t>(i / 3 - 1) };
 				const auto traversable = neighbour_pos.x > 0
 					&& neighbour_pos.y > 0 && neighbour_pos.x < size
@@ -410,7 +407,7 @@ namespace {
 				auto neighbour_it = std::find_if(open.begin(), open.end(), [&neighbour_pos](const Node& node) {
 					return neighbour_pos == node.pos;
 				});
-				const auto f = current->f + (i % 2 ? 10 : 14);
+				const auto f = current->f + 10;
 				if (neighbour_it == open.end()) {
 					open.push_back({ neighbour_pos, f, current.get() });
 				} else if (neighbour_it->f > f) {
