@@ -25,7 +25,12 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 	context.sprites[0].push_back(mark::sprite(m_im_body, pos, 64.f, parent().rotation()));
 	context.sprites[1].push_back(mark::sprite(m_im_light, pos + light_offset, 32.f, 0, 0, sf::Color(255, 200, 150, light_strength)));
 	context.sprites[2].push_back(mark::sprite(m_im_light, pos + light_offset, 16.f, 0, 0, sf::Color(255, 255, 255, light_strength)));
-	context.render_bar(parent().world().resource_manager().image("bar.png"), pos + mark::vector<double>(0, -mark::module::size * 2.0), mark::tick_context::bar_type::health, m_cur_health / m_max_health);
+	mark::tick_context::bar_info bar;
+	bar.image = parent().world().resource_manager().image("bar.png");
+	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0);
+	bar.type = mark::tick_context::bar_type::health;
+	bar.percentage = m_cur_health / m_max_health;
+	context.render(bar);
 }
 
 auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module::base>>& {

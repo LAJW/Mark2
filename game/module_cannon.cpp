@@ -24,11 +24,12 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		rotation,
 		sf::Color::White));
 	auto& world = parent().world();
-	context.render_bar(
-		world.resource_manager().image("bar.png"),
-		pos + mark::vector<double>(0, -mark::module::size * 2.0),
-		mark::tick_context::bar_type::health,
-		m_cur_health / m_max_health);
+	mark::tick_context::bar_info bar;
+	bar.image = world.resource_manager().image("bar.png"),
+	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0),
+	bar.type = mark::tick_context::bar_type::health,
+	bar.percentage = m_cur_health / m_max_health;
+	context.render(bar);
 	if (m_shoot) {
 		std::unordered_set<mark::idamageable*> damaged;
 		for (int i = 1; i < 200; i++) {

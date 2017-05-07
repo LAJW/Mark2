@@ -21,7 +21,13 @@ namespace mark {
 			energy,
 			shield
 		};
-		void render_bar(const std::shared_ptr<const mark::resource::image>& bar, mark::vector<double> pos, bar_type type, float percentage);
+		struct bar_info {
+			std::shared_ptr<const mark::resource::image> image;
+			bar_type type;
+			mark::vector<double> pos;
+			float percentage;
+		};
+		void render(const bar_info& info);
 		// generate random number
 		template<typename T>
 		T random(T min, T max) {
@@ -69,6 +75,26 @@ namespace mark {
 				this->particles.emplace_back(attr);
 			}
 		}
+		struct spray_info {
+			std::shared_ptr<const mark::resource::image> image;
+			mark::vector<double> pos;
+			float min_velocity = NAN;
+			float max_velocity = NAN;
+			float min_lifespan = NAN;
+			float max_lifespan = NAN;
+			float min_diameter = NAN;
+			float max_diameter = NAN;
+			size_t count = 1;
+			double step = 0.f;
+			float direction = 0.f;
+			float cone = 360.f;
+			sf::Color color = sf::Color::White;
+
+			void velocity(float min, float max = NAN);
+			void lifespan(float min, float max = NAN);
+			void diameter(float min, float max = NAN);
+		};
+		void spray(const spray_info&);
 	private:
 		mark::resource::manager& m_resource_manager;
 

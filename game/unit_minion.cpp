@@ -58,7 +58,12 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 
 	const auto rotation = mark::atan(m_direction);
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
-	context.render_bar(m_world.resource_manager().image("bar.png"), m_pos + mark::vector<double>(0, -72), mark::tick_context::bar_type::health, static_cast<float>(m_health) / 100.f);
+	mark::tick_context::bar_info bar;
+	bar.image = m_world.resource_manager().image("bar.png");
+	bar.pos = m_pos + mark::vector<double>(0, -72);
+	bar.type = mark::tick_context::bar_type::health;
+	bar.percentage = static_cast<float>(m_health) / 100.f;
+	context.render(bar);
 	if (m_health < 0) {
 		context.spray(m_image_explosion, pos(), std::make_pair(50.f, 350.f), 0.5f, 32.f, 80);
 		m_dead = true;

@@ -20,16 +20,20 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 		m_model_shield.tick(context, pos);
 	}
 	context.sprites[0].push_back(mark::sprite(m_im_generator, pos, mark::module::size * 2.f, parent().rotation()));
-	context.render_bar(
-		parent().world().resource_manager().image("bar.png"),
-		pos + mark::vector<double>(0, -mark::module::size * 2),
-		mark::tick_context::bar_type::shield,
-		m_cur_shield / m_max_shield);
-	context.render_bar(
-		parent().world().resource_manager().image("bar.png"),
-		pos + mark::vector<double>(0, -mark::module::size * 2 - 8.f),
-		mark::tick_context::bar_type::health,
-		m_cur_health / m_max_health);
+
+	mark::tick_context::bar_info shield_bar;
+	shield_bar.image = parent().world().resource_manager().image("bar.png");
+	shield_bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2);
+	shield_bar.type = mark::tick_context::bar_type::shield;
+	shield_bar.percentage = m_cur_shield / m_max_shield;
+	context.render(shield_bar);
+
+	mark::tick_context::bar_info health_bar;
+	health_bar.image = parent().world().resource_manager().image("bar.png");
+	health_bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2 - 8.f);
+	health_bar.type = mark::tick_context::bar_type::health,
+	health_bar.percentage = m_cur_health / m_max_health;
+	context.render(health_bar);
 }
 
 bool mark::module::shield_generator::damage(const mark::idamageable::attributes& attr) {

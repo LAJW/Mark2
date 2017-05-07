@@ -40,11 +40,13 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 	}
 	m_shoot = false;
 	context.sprites[0].push_back(mark::sprite(m_im_base, pos, 32.f, parent().rotation()));
-	context.render_bar(
-		parent().world().resource_manager().image("bar.png"),
-		pos + mark::vector<double>(0, -mark::module::size * 2),
-		mark::tick_context::bar_type::health,
-		m_cur_health / m_max_health);
+
+	mark::tick_context::bar_info bar;
+	bar.image = parent().world().resource_manager().image("bar.png");
+	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2);
+	bar.type = mark::tick_context::bar_type::health;
+	bar.percentage = m_cur_health / m_max_health;
+	context.render(bar);
 
 }
 

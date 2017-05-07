@@ -94,12 +94,11 @@ mark::tick_context::tick_context(mark::resource::manager& rm):
 	m_resource_manager(rm) {
 }
 
-void mark::tick_context::render_bar(
-	const std::shared_ptr<const mark::resource::image>& bar,
-	mark::vector<double> pos,
-	bar_type type,
-	float percentage) {
-
+void mark::tick_context::render(const bar_info & info) {
+	auto& image = info.image;
+	auto type = info.type;
+	auto pos = info.pos;
+	auto percentage = info.percentage;
 	const auto percent = 100.f * std::max(0.f, percentage);
 	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));
 	for (int i = 0; i < 10; i++) {
@@ -109,7 +108,7 @@ void mark::tick_context::render_bar(
 		// render gray background
 		if (i >= edge) {
 			mark::sprite::arguments args;
-			args.image = bar;
+			args.image = image;
 			args.pos = pos + mark::vector<double>(offset_x, 0);
 			args.size = 8.f;
 			args.frame = 6;
@@ -137,7 +136,7 @@ void mark::tick_context::render_bar(
 				}
 			}
 			mark::sprite::arguments args;
-			args.image = bar;
+			args.image = image;
 			args.pos = pos + mark::vector<double>(offset_x, 0);
 			args.size = 8.f;
 			args.frame = frame;
@@ -145,4 +144,47 @@ void mark::tick_context::render_bar(
 			this->sprites[50].emplace_back(args);
 		}
 	}
+
+}
+
+void mark::tick_context::spray(const mark::tick_context::spray_info& info) {
+	for (size_t i = 0; i < info.count; i++) {
+		const auto tmp_velocity = std::isnan(info.max_velocity)
+			? this->random(info.min_velocity, info.max_velocity)
+			: info.min_velocity;
+		const auto tmp_lifespan = std::isnan(info.max_lifespan)
+			? this->random(info.min_lifespan, info.max_lifespan)
+			: info.min_lifespan;
+		const auto tmp_diameter = std::isnan(info.max_diameter)
+			? this->random(info.min_diameter, info.max_diameter)
+			: info.min_diameter;
+		const auto tmp_pos = info.pos + mark::rotate(
+			mark::vector<double>(1, 0), info.direction) * (info.step * static_cast<double>(i) / static_cast<double>(info.count));
+		const auto rotation = info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
+		particle::attributes attr;
+		attr.image = info.image;
+		attr.color = info.color;
+		attr.pos = tmp_pos;
+		attr.velocity = tmp_velocity;
+		attr.direction = rotation;
+		attr.lifespan = tmp_lifespan;
+		attr.color = info.color;
+		attr.size = tmp_diameter;
+		this->particles.emplace_back(attr);
+	}
+}
+
+void mark::tick_context::spray_info::velocity(float min, float max) {
+	min_velocity = min;
+	max_velocity = max;
+}
+
+void mark::tick_context::spray_info::lifespan(float min, float max) {
+	min_lifespan = min;
+	max_lifespan = max;
+}
+
+void mark::tick_context::spray_info::diameter(float min, float max) {
+	min_diameter = min;
+	max_diameter = max;
 }
