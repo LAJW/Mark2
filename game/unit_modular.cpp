@@ -271,8 +271,9 @@ auto mark::unit::modular::can_attach(
 	if (!module) {
 		return false;
 	}
+	const auto size = module->size();
 	for (auto& module : m_modules) {
-		if (::overlap(mark::vector<int>(module->grid_pos()), module->size(), pos)) {
+		if (::overlap(mark::vector<int>(module->grid_pos()), module->size(), pos, size)) {
 			return false;
 		}
 	}
