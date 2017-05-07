@@ -8,7 +8,7 @@
 #include "unit_modular.h"
 
 namespace {
-	static auto validate(const mark::unit::projectile::attributes& args) {
+	static auto validate(const mark::unit::projectile::info& args) {
 		assert(args.world != nullptr);
 		assert(!std::isnan(args.rotation));
 		assert(!std::isnan(args.velocity));
@@ -18,10 +18,10 @@ namespace {
 	}
 }
 
-mark::unit::projectile::projectile(const mark::unit::projectile::attributes& args) :
+mark::unit::projectile::projectile(const mark::unit::projectile::info& args) :
 	mark::unit::projectile::projectile(::validate(args), true) { }
 
-mark::unit::projectile::projectile(const mark::unit::projectile::attributes& args, bool):
+mark::unit::projectile::projectile(const mark::unit::projectile::info& args, bool):
 	mark::unit::base(*args.world, args.pos),
 	m_image(args.world->resource_manager().image("shell.png")),
 	m_im_tail(args.world->resource_manager().image("glare.png")),

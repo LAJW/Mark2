@@ -25,7 +25,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	} else if (m_shoot) {
 		m_cur_cooldown = 0.5f;
 		m_adsr.trigger();
-		mark::unit::projectile::attributes attr;
+		mark::unit::projectile::info attr;
 		attr.world = &parent().world();
 		attr.guide = std::dynamic_pointer_cast<mark::unit::modular>(parent().shared_from_this());
 		attr.pos = pos;

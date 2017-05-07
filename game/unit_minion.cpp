@@ -46,7 +46,7 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 			m_pos += direction * 100.0 * dt;
 		}
 		if (m_gun_cooldown.trigger()) {
-			mark::unit::projectile::attributes attr;
+			mark::unit::projectile::info attr;
 			attr.world = &m_world;
 			attr.pos = m_pos;
 			attr.rotation = mark::atan(m_direction);

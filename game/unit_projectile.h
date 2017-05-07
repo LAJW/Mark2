@@ -16,7 +16,7 @@ namespace mark {
 		class projectile final : public mark::unit::base {
 		public:
 			// projectile constructor attributes
-			struct attributes {
+			struct info {
 				mark::world* world = nullptr;
 				// for mouse-guided missiles
 				std::weak_ptr<const mark::unit::modular> guide;
@@ -31,14 +31,14 @@ namespace mark {
 				size_t piercing = 1;
 				size_t team = 0;
 			};
-			projectile(const attributes& essence);
+			projectile(const projectile::info&);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 			auto invincible() const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:
-			projectile(const attributes& essence, bool);
+			projectile(const projectile::info&, bool);
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;
 			std::unordered_set<mark::idamageable*> m_damaged;

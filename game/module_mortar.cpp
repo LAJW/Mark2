@@ -28,7 +28,7 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 		const auto total_projectiles = 4;
 		for (int i = 0; i < total_projectiles; i++) {
 			float cur = static_cast<float>(i) / static_cast<float>(total_projectiles) * 30.f - 15.f - direction;
-			mark::unit::projectile::attributes attr;
+			mark::unit::projectile::info attr;
 			attr.world = &parent().world();
 			attr.pos = pos;
 			attr.rotation = parent().rotation() + cur;
