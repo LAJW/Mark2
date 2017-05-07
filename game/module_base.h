@@ -73,7 +73,7 @@ namespace mark {
 			auto grid_pos() const noexcept -> mark::vector<int>;
 
 			// Default damage handling
-			auto damage(const mark::idamageable::attributes& attr) -> bool override;
+			auto damage(const mark::idamageable::info& attr) -> bool override;
 
 			// called on module's death
 			virtual void on_death(mark::tick_context& context);

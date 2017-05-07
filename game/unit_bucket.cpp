@@ -50,7 +50,7 @@ auto mark::unit::bucket::dead() const -> bool {
 	return m_module == nullptr;
 }
 
-auto mark::unit::bucket::damage(const mark::idamageable::attributes& attr) -> bool {
+auto mark::unit::bucket::damage(const mark::idamageable::info& attr) -> bool {
 	return false;
 }
 

@@ -38,7 +38,7 @@ namespace mark {
 			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 			auto module(mark::vector<int> pos) const -> const mark::module::base*;
 			auto module(mark::vector<int> pos)->mark::module::base*;
-			auto damage(const mark::idamageable::attributes&) -> bool override;
+			auto damage(const mark::idamageable::info&) -> bool override;
 			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			auto collide(mark::vector<double> center, float radius) ->

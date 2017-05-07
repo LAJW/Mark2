@@ -4,7 +4,7 @@
 #include "sprite.h"
 
 namespace {
-	static auto validate(mark::particle::attributes& attr) {
+	static auto validate(mark::particle::info& attr) {
 		assert(attr.image.get());
 		assert(attr.pos.x != NAN);
 		assert(attr.pos.y != NAN);
@@ -16,10 +16,10 @@ namespace {
 	}
 }
 
-mark::particle::particle(mark::particle::attributes& attributes):
-	mark::particle::particle(::validate(attributes), true) { }
+mark::particle::particle(mark::particle::info& info):
+	mark::particle::particle(::validate(info), true) { }
 
-mark::particle::particle(mark::particle::attributes& attr, bool) :
+mark::particle::particle(mark::particle::info& attr, bool) :
 	m_image(std::move(attr.image)),
 	m_pos(attr.pos),
 	m_lifespan(attr.lifespan),

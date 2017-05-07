@@ -58,7 +58,7 @@ auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
 	return mark::vector<int>(m_grid_pos);
 }
 
-bool mark::module::base::damage(const mark::idamageable::attributes & attr) {
+bool mark::module::base::damage(const mark::idamageable::info & attr) {
 	if (attr.team != parent().team() && m_cur_health > 0
 		&& attr.damaged->find(this) == attr.damaged->end()) {
 		attr.damaged->insert(this);

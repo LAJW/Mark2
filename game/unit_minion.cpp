@@ -81,7 +81,7 @@ auto mark::unit::minion::dead() const -> bool {
 	return m_dead;
 }
 
-auto mark::unit::minion::damage(const mark::idamageable::attributes& attr) -> bool {
+auto mark::unit::minion::damage(const mark::idamageable::info& attr) -> bool {
 	if (m_health >= 0 && attr.team != this->team()
 		&& attr.damaged->find(this) == attr.damaged->end()) {
 		m_model_shield.trigger(attr.pos);

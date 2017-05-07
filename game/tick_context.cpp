@@ -161,7 +161,7 @@ void mark::tick_context::render(const mark::tick_context::spray_info& info) {
 		const auto tmp_pos = info.pos + mark::rotate(
 			mark::vector<double>(1, 0), info.direction) * (info.step * static_cast<double>(i) / static_cast<double>(info.count));
 		const auto rotation = info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
-		particle::attributes attr;
+		particle::info attr;
 		attr.image = info.image;
 		attr.color = info.color;
 		attr.pos = tmp_pos;

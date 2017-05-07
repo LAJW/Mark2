@@ -392,7 +392,7 @@ void mark::unit::modular::on_death(mark::tick_context& context) {
 	}
 }
 
-bool mark::unit::modular::damage(const mark::idamageable::attributes& attr) {
+bool mark::unit::modular::damage(const mark::idamageable::info& attr) {
 	for (auto& module : m_modules) {
 		if (module->damage(attr)) {
 			attr.damaged->insert(this);

@@ -41,7 +41,7 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	context.render(health_bar);
 }
 
-bool mark::module::shield_generator::damage(const mark::idamageable::attributes& attr) {
+bool mark::module::shield_generator::damage(const mark::idamageable::info& attr) {
 	if (attr.damaged->find(this) == attr.damaged->end()) {
 		if (m_cur_shield > 0.f && attr.team != parent().team()) {
 			attr.damaged->insert(this);

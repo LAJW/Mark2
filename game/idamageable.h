@@ -5,7 +5,7 @@
 namespace mark {
 	class idamageable {
 	public:
-		struct attributes {
+		struct info {
 			// pointer to a set used to store damaged objects
 			// do not dereference pointers stored here, they're only there to ignore damaged objects
 			// cannot be null upon invoking damage()
@@ -20,6 +20,6 @@ namespace mark {
 		// try to damage object, return damaged object on success
 		// if no object has been damaged, return empty vector
 		// returns true if something has been damaged
-		virtual bool damage(const idamageable::attributes& attr) { return false; };
+		virtual bool damage(const idamageable::info& attr) { return false; };
 	};
 }

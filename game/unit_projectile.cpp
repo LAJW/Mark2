@@ -79,7 +79,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	auto damaged = false;
 	if (!std::isnan(collision.second.x)) {
 		if (collision.first) {
-			mark::idamageable::attributes args;
+			mark::idamageable::info args;
 			args.damaged = &m_damaged;
 			args.pos = collision.second;
 			args.team = this->team();
@@ -102,7 +102,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	if (m_dead) {
 		if (m_aoe_radius >= 0.f) {
 			auto damageables = m_world.collide(m_pos, m_aoe_radius);
-			mark::idamageable::attributes args;
+			mark::idamageable::info args;
 			args.damaged = &m_damaged;
 			args.pos = m_pos;
 			args.team = this->team();

@@ -39,7 +39,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 			const auto cur = pos + cur_dir * (cur_len + 2.0);
 			const auto collision = world.collide({ prev, cur });
 			if (!std::isnan(collision.second.x)) {
-				mark::idamageable::attributes attr;
+				mark::idamageable::info attr;
 				attr.pos = collision.second;
 				attr.damaged = &damaged;
 				attr.physical = 100.f * static_cast<float>(context.dt);

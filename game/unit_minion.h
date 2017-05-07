@@ -13,7 +13,7 @@ namespace mark {
 			minion(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
-			auto damage(const mark::idamageable::attributes&) -> bool override;
+			auto damage(const mark::idamageable::info&) -> bool override;
 			auto invincible() const -> bool override;
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
