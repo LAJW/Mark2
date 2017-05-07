@@ -88,7 +88,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		auto enemy = m_world.find_one(
 			m_pos,
 			1000.f,
-			[this](const mark::unit::base& unit) {
+			[this](const auto& unit) {
 			return unit.team() != this->team() && !unit.invincible();
 		});
 		if (enemy) {
@@ -227,7 +227,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos) ->
 	auto module_it = std::find_if(
 		m_modules.begin(),
 		m_modules.end(),
-		[&pos](const std::unique_ptr<mark::module::base>& module) {
+		[&pos](const auto& module) {
 		return overlap(module->grid_pos(), module->size(), pos);
 	});
 	if (module_it != m_modules.end() && (*module_it)->detachable()) {
@@ -264,7 +264,7 @@ void mark::unit::modular::command(const mark::command& command) {
 		auto pad = m_world.find_one(
 			m_pos,
 			150.0,
-			[this](const mark::unit::base& unit) {
+			[this](const auto& unit) {
 			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
 		});
 		if (pad) {
@@ -369,9 +369,7 @@ std::vector<std::reference_wrapper<mark::idamageable>> {
 		out.begin(),
 		out.end(),
 		std::back_inserter(tmp),
-		[](mark::idamageable* module) {
-		return std::ref(*module);
-	}
+		[](auto module) { return std::ref(*module); }
 	);
 	return tmp;
 }
@@ -410,18 +408,24 @@ namespace {
 			}
 
 			for (int i = 1; i < 8; i += 2) {
-				auto neighbour_pos = current->pos + mark::vector<int8_t>{ i % 3 - 1, static_cast<int8_t>(i / 3 - 1) };
+				auto neighbour_pos = current->pos + mark::vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
 				const auto traversable = neighbour_pos.x > 0
 					&& neighbour_pos.y > 0 && neighbour_pos.x < size
 					&& neighbour_pos.y < size
 					&& map[neighbour_pos.y * size + neighbour_pos.x];
-				const auto isClosed = closed.end() != std::find_if(closed.begin(), closed.end(), [&neighbour_pos](std::unique_ptr<Node>& node) {
+				const auto isClosed = closed.end() != std::find_if(
+					closed.begin(),
+					closed.end(),
+					[&neighbour_pos](const auto& node) {
 					return node->pos == neighbour_pos;
 				});
 				if (!traversable || isClosed) {
 					continue;
 				}
-				auto neighbour_it = std::find_if(open.begin(), open.end(), [&neighbour_pos](const Node& node) {
+				auto neighbour_it = std::find_if(
+					open.begin(),
+					open.end(),
+					[&neighbour_pos](const auto& node) {
 					return neighbour_pos == node.pos;
 				});
 				const auto f = current->f + 10;
@@ -448,18 +452,19 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 		std::for_each(
 			end_it,
 			m_modules.end(),
-			[&context](std::unique_ptr<mark::module::base>& module) {
+			[&context](auto& module) {
 			module->on_death(context);
 		});
 		m_modules.erase(end_it, m_modules.end());
-		std::vector<bool> map(mark::unit::modular::max_size * mark::unit::modular::max_size, false);
-		const auto hs = mark::vector<int8_t>(mark::unit::modular::max_size / 2, mark::unit::modular::max_size / 2);
+		const auto max_size = mark::unit::modular::max_size;
+		std::vector<bool> map(max_size * max_size, false);
+		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
 		for (const auto& module : m_modules) {
 			for (int8_t x = 0; x < module->size().x; x++) {
 				for (int8_t y = 0; y < module->size().y; y++) {
 					const auto px = hs.x + module->grid_pos().x + x;
 					const auto py = hs.y + module->grid_pos().y + y;
-					map[py * mark::unit::modular::max_size + px] = true;
+					map[py * max_size + px] = true;
 				}
 			}
 		}
@@ -467,20 +472,24 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			auto end_it = std::partition(
 				m_modules.begin(),
 				m_modules.end(),
-				[&map, hs](const std::unique_ptr<mark::module::base>& module) {
+				[&map, hs](const auto& module) {
 					return ::path_exists(map, hs + mark::vector<int8_t>(module->grid_pos()));
 				}
 			);
-			for (auto it = end_it; it != m_modules.end(); it++) {
-				context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(*it)));
-			}
+			std::transform(
+				std::make_move_iterator(end_it),
+				std::make_move_iterator(m_modules.end()),
+				std::back_inserter(context.units),
+				[this](auto module) {
+				return std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(module));
+			});
 			m_modules.erase(end_it, m_modules.end());
 		}
 	}
 }
 
 void mark::unit::modular::pick_up(mark::tick_context& context) {
-	auto buckets = m_world.find(m_pos, 150.f, [](const mark::unit::base& unit) {
+	auto buckets = m_world.find(m_pos, 150.f, [](const auto& unit) {
 		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr && !unit.dead();
 	});
 	auto containers = this->containers();
