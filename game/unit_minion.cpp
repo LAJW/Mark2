@@ -65,7 +65,14 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
 	if (m_health < 0) {
-		context.spray(m_image_explosion, pos(), std::make_pair(50.f, 350.f), 0.5f, 32.f, 80);
+		mark::tick_context::spray_info spray;
+		spray.image = m_image_explosion;
+		spray.pos = pos();
+		spray.velocity(50.f, 350.f);
+		spray.lifespan(0.5f);
+		spray.diameter(32.f);
+		spray.count = 80;
+		context.render(spray);
 		m_dead = true;
 	}
 }

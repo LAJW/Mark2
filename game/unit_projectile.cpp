@@ -112,9 +112,35 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			}
 		}
 	} else {
-		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
-		context.spray(m_im_tail, m_pos, 100.f, 0.3f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f, { 175, 175, 175, 75 });
-		context.spray(m_im_tail, m_pos, 75.f, 0.15f, 8.f, 4, mark::length(step), m_rotation + 180.f, 30.f);
+		// tail: grey dust
+		{
+			mark::tick_context::spray_info spray;
+			spray.image = m_im_tail;
+			spray.pos = pos();
+			spray.velocity(100.f);
+			spray.lifespan(0.3f);
+			spray.diameter(8.f);
+			spray.count = 4;
+			spray.step = mark::length(step);
+			spray.direction = m_rotation + 180.f;
+			spray.cone = 30.f;
+			spray.color = { 175, 175, 175, 75 };
+			context.render(spray);
+		}
+		// tail: white overlay
+		{
+			mark::tick_context::spray_info spray;
+			spray.image = m_im_tail;
+			spray.pos = pos();
+			spray.velocity(75.f);
+			spray.lifespan(0.15f);
+			spray.diameter(8.f);
+			spray.count = 4;
+			spray.step = mark::length(step);
+			spray.direction = m_rotation + 180.f;
+			spray.cone = 30.f;
+			context.render(spray);
+		}
 		{
 			mark::sprite::arguments args;
 			args.image = m_im_tail;
@@ -133,7 +159,16 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		}
 	}
 	if (damaged) {
-		context.spray(m_im_tail, m_pos, std::make_pair(5.f, 75.f), 0.3f, 8.f, 80, 0.0, 0.f, 360.f, { 125, 125, 125, 75 });
+		mark::tick_context::spray_info spray;
+		spray.image = m_im_tail;
+		spray.pos = pos();
+		spray.velocity(5.f, 75.f);
+		spray.lifespan(0.3f);
+		spray.diameter(8.f);
+		spray.count = 80;
+		spray.cone = 360.f;
+		spray.color = { 125, 125, 125, 75 };
+		context.render(spray);
 	}
 }
 

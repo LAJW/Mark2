@@ -43,38 +43,6 @@ namespace mark {
 		T random(T one) {
 			return one;
 		}
-		// spray particles
-		template<typename velocity_t, typename diameter_t, typename lifespan_t>
-		void spray(
-			std::shared_ptr<const mark::resource::image>& image,
-			mark::vector<double> pos,
-			velocity_t velocity,
-			lifespan_t lifespan,
-			diameter_t diameter,
-			size_t count,
-			double step = 0.f,
-			float direction = 0.f,
-			float cone = 360.f,
-			sf::Color color = sf::Color::White
-		) {
-			for (size_t i = 0; i < count; i++) {
-				const auto tmp_velocity = this->random(velocity);
-				const auto tmp_lifespan = this->random(lifespan);
-				const auto tmp_diameter = this->random(diameter);
-				const auto tmp_pos = pos + mark::rotate(mark::vector<double>(1, 0), direction) * (step * static_cast<double>(i) / static_cast<double>(count));
-				const auto rotation = direction + this->random(0.f, cone) - cone / 2.f;
-				particle::attributes attr;
-				attr.image = image;
-				attr.color = color;
-				attr.pos = tmp_pos;
-				attr.velocity = tmp_velocity;
-				attr.direction = rotation;
-				attr.lifespan = lifespan;
-				attr.color = color;
-				attr.size = diameter;
-				this->particles.emplace_back(attr);
-			}
-		}
 		struct spray_info {
 			std::shared_ptr<const mark::resource::image> image;
 			mark::vector<double> pos;
@@ -94,7 +62,7 @@ namespace mark {
 			void lifespan(float min, float max = NAN);
 			void diameter(float min, float max = NAN);
 		};
-		void spray(const spray_info&);
+		void render(const spray_info&);
 	private:
 		mark::resource::manager& m_resource_manager;
 

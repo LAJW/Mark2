@@ -73,13 +73,14 @@ auto mark::module::base::dead() const -> bool {
 }
 
 void mark::module::base::on_death(mark::tick_context& context) {
-	context.spray(
-		parent().world().resource_manager().image("explosion.png"),
-		pos(),
-		std::make_pair(75.f, 150.f),
-		0.3f,
-		24.f,
-		20);
+	mark::tick_context::spray_info spray;
+	spray.image = parent().world().resource_manager().image("explosion.png");
+	spray.pos = pos();
+	spray.velocity(75.f, 150.f);
+	spray.lifespan(0.3f);
+	spray.diameter(24.f);
+	spray.count = 20;
+	context.render(spray);
 }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {

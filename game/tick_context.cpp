@@ -147,15 +147,15 @@ void mark::tick_context::render(const bar_info & info) {
 
 }
 
-void mark::tick_context::spray(const mark::tick_context::spray_info& info) {
+void mark::tick_context::render(const mark::tick_context::spray_info& info) {
 	for (size_t i = 0; i < info.count; i++) {
-		const auto tmp_velocity = std::isnan(info.max_velocity)
+		const auto tmp_velocity = !std::isnan(info.max_velocity)
 			? this->random(info.min_velocity, info.max_velocity)
 			: info.min_velocity;
-		const auto tmp_lifespan = std::isnan(info.max_lifespan)
+		const auto tmp_lifespan = !std::isnan(info.max_lifespan)
 			? this->random(info.min_lifespan, info.max_lifespan)
 			: info.min_lifespan;
-		const auto tmp_diameter = std::isnan(info.max_diameter)
+		const auto tmp_diameter = !std::isnan(info.max_diameter)
 			? this->random(info.min_diameter, info.max_diameter)
 			: info.min_diameter;
 		const auto tmp_pos = info.pos + mark::rotate(

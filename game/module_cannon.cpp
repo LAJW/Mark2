@@ -46,31 +46,31 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				attr.team = parent().team();
 				if (collision.first) {
 					if (collision.first->damage(attr)) {
-						context.spray(
-							m_im_ray,
-							collision.second,
-							std::make_pair(25.f, 50.f),
-							1.f,
-							8.f,
-							4,
-							0.0,
-							rotation + 180.f,
-							180.f,
-							sf::Color::Red);
+						mark::tick_context::spray_info spray;
+						spray.image = m_im_ray;
+						spray.pos = collision.second;
+						spray.velocity(25.f, 50.f);
+						spray.lifespan(1.f);
+						spray.diameter(8.f);
+						spray.count = 4;
+						spray.direction = rotation + 180.f;
+						spray.cone = 180.f;
+						spray.color = sf::Color::Red;
+						context.render(spray);
 						break;
 					}
 				} else {
-					context.spray(
-						m_im_ray,
-						collision.second,
-						std::make_pair(25.f, 50.f),
-						1.f,
-						8.f,
-						4,
-						0.0,
-						rotation + 180.f,
-						180.f,
-						sf::Color::Red);
+					mark::tick_context::spray_info spray;
+					spray.image = m_im_ray;
+					spray.pos = collision.second;
+					spray.velocity(25.f, 50.f);
+					spray.lifespan(1.f);
+					spray.diameter(8.f);
+					spray.count = 4;
+					spray.direction = rotation + 180.f;
+					spray.cone = 180.f;
+					spray.color = sf::Color::Red;
+					context.render(spray);
 					break;
 				}
 			}
