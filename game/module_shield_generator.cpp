@@ -19,7 +19,12 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	if (m_cur_shield > 0) {
 		m_model_shield.tick(context, pos);
 	}
-	context.sprites[0].push_back(mark::sprite(m_im_generator, pos, mark::module::size * 2.f, parent().rotation()));
+	mark::sprite::arguments info;
+	info.image = m_im_generator;
+	info.pos = pos;
+	info.size = mark::module::size * 2.f;
+	info.rotation = parent().rotation();
+	context.sprites[0].emplace_back(info);
 
 	mark::tick_context::bar_info shield_bar;
 	shield_bar.image = parent().world().resource_manager().image("bar.png");

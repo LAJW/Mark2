@@ -37,8 +37,22 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
 	}
 	m_shoot = false;
-	context.sprites[1].push_back(mark::sprite(m_im_cannon, pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle), 32.f, angle));
-	context.sprites[0].push_back(mark::sprite(m_im_base, pos.x, pos.y, 32.f, parent().rotation()));
+	{
+		mark::sprite::arguments info;
+		info.image = m_im_cannon;
+		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle);
+		info.size = 32.f;
+		info.rotation = angle;
+		context.sprites[1].emplace_back(info);
+	}
+	{
+		mark::sprite::arguments info;
+		info.image = m_im_base;
+		info.pos = pos;
+		info.size = 32.f;
+		info.rotation = parent().rotation();
+		context.sprites[0].emplace_back(info);
+	}
 
 	mark::tick_context::bar_info bar;
 	bar.image = parent().world().resource_manager().image("bar.png");

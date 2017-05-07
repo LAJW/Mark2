@@ -17,6 +17,11 @@ void mark::model::animated::tick(double dt) {
 mark::sprite mark::model::animated::render(mark::vector<double> pos, float size, float rotation, const sf::Color & color) {
 	const auto image_size = m_image->getSize();
 	const auto frame_count = image_size.x / image_size.y;
-	const auto frame = static_cast<unsigned>(std::floor(m_state)) * frame_count;
-	return mark::sprite(m_image, pos, size, rotation, frame, color);
+	mark::sprite::arguments info;
+	info.image = m_image;
+	info.frame = static_cast<unsigned>(std::floor(m_state)) * frame_count;
+	info.pos = pos;
+	info.size = size;
+	info.rotation = rotation;
+	return mark::sprite(info);
 }

@@ -39,7 +39,11 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 			m_pos = new_pos;
 		}
 	}
-	context.sprites[1].push_back(mark::sprite(m_module->thumbnail(), m_pos, size));
+	mark::sprite::arguments info;
+	info.image = m_module->thumbnail();
+	info.pos = m_pos;
+	info.size = size;
+	context.sprites[1].emplace_back(info);
 }
 
 auto mark::unit::bucket::dead() const -> bool {

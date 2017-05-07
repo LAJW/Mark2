@@ -41,6 +41,13 @@ void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& s
 	} else {
 		color = sf::Color::White;
 	}
-	sprites[0].push_back(mark::sprite(m_image, m_pos, m_size, m_direction, frame, color));
+	mark::sprite::arguments info;
+	info.image = m_image;
+	info.pos = m_pos;
+	info.size = m_size;
+	info.rotation = m_direction;
+	info.frame = frame;
+	info.color = color;
+	sprites[0].emplace_back(info);
 	m_cur_lifespan -= static_cast<float>(dt);
 }

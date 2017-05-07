@@ -16,14 +16,22 @@ mark::unit::landing_pad::landing_pad(mark::world& world, mark::vector<double> po
 }
 
 void mark::unit::landing_pad::tick(mark::tick_context& context) {
-	context.sprites[0].push_back(mark::sprite(m_image, m_pos, 320.f, 0.f));
+	mark::sprite::arguments info;
+	info.image = m_image;
+	info.pos = m_pos;
+	info.size = 320.f;
+	info.rotation = 0.f;
+	context.sprites[0].emplace_back(info);
 	const auto image = m_world.resource_manager().image("grid-background.png");
 	auto ship = m_ship.lock();
 	if (ship) {
 		for (int x = -10; x < 10; x++) {
 			for (int y = -10; y < 10; y++) {
-				const auto pos = m_pos + mark::vector<double>(x, y) * 32.0;
-				context.sprites[0].push_back(mark::sprite(image, pos, 32.f));
+				mark::sprite::arguments info;
+				info.image = image;
+				info.pos = m_pos + mark::vector<double>(x, y) * 32.0;
+				info.size = 32.f;
+				context.sprites[0].emplace_back(info);
 			}
 		}
 		double top = 0.0;
@@ -35,7 +43,11 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		}
 		if (m_grabbed) {
 			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-			context.sprites[0].push_back(mark::sprite(m_grabbed->thumbnail(), m_mousepos, size));
+			mark::sprite::arguments info;
+			info.image = m_grabbed->thumbnail();
+			info.pos = m_mousepos;
+			info.size = size;
+			context.sprites[0].emplace_back(info);
 		}
 
 		// display tooltips
@@ -52,10 +64,13 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 					const auto module_pos = module->pos();
 					const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 					const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
-					context.sprites[100].emplace_back(
-						m_world.resource_manager().image("wall.png"),
-						tooltip_pos + mark::vector<double>(150, 150),
-						300.f);
+
+					mark::sprite::arguments info;
+					info.image = m_world.resource_manager().image("wall.png");
+					info.pos = tooltip_pos + mark::vector<double>(150, 150),
+					info.size = 300.f;
+					context.sprites[100].emplace_back(info);
+
 					mark::print(
 						m_world.resource_manager().image("font.png"),
 						context.sprites[100],
@@ -79,10 +94,13 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 							const auto description = module->describe();
 							const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 							const auto tooltip_pos = m_mousepos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
-							context.sprites[100].emplace_back(
-								m_world.resource_manager().image("wall.png"),
-								tooltip_pos + mark::vector<double>(150, 150),
-								300.f);
+
+							mark::sprite::arguments info;
+							info.image = m_world.resource_manager().image("wall.png");
+							info.pos = tooltip_pos + mark::vector<double>(150, 150),
+							info.size = 300.f;
+							context.sprites[100].emplace_back(info);
+
 							mark::print(
 								m_world.resource_manager().image("font.png"),
 								context.sprites[100],

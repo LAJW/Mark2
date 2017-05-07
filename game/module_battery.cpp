@@ -11,7 +11,14 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 
 void mark::module::battery::tick(mark::tick_context& context) {
 	const auto pos = this->pos();
-	context.sprites[0].push_back(mark::sprite(m_image_base, pos, mark::module::size * 2.f, parent().rotation()));
+
+	mark::sprite::arguments info;
+	info.image = m_image_base;
+	info.pos = pos;
+	info.size = mark::module::size * 2.f;
+	info.rotation = parent().rotation();
+	context.sprites[0].emplace_back(info);
+
 	mark::tick_context::bar_info bar;
 	bar.image = m_image_bar,
 	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0);

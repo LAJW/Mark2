@@ -12,8 +12,12 @@ mark::module::core::core(mark::resource::manager& resource_manager):
 }
 
 void mark::module::core::tick(mark::tick_context& context) {
-	auto pos = this->pos();
-	context.sprites[0].push_back(mark::sprite(m_image, pos, 32.f, parent().rotation()));
+	mark::sprite::arguments info;
+	info.image = m_image;
+	info.pos = this->pos();
+	info.size = 32.f;
+	info.rotation = parent().rotation();
+	context.sprites[0].emplace_back(info);
 }
 
 auto mark::module::core::detachable() const -> bool {

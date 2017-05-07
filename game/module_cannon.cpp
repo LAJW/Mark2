@@ -74,13 +74,13 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 					break;
 				}
 			}
-			context.sprites[0].emplace_back(
-				m_im_ray,
-				cur,
-				mark::module::size,
-				rotation,
-				0,
-				sf::Color::Red);
+			mark::sprite::arguments info;
+			info.image = m_im_ray;
+			info.pos = cur;
+			info.size = mark::module::size;
+			info.rotation = rotation;
+			info.color = sf::Color::Red;
+			context.sprites[0].emplace_back(info);
 		}
 		m_shoot = false;
 	}

@@ -13,12 +13,12 @@ mark::terrain::floor::floor(
 
 auto mark::terrain::floor::render(mark::vector<int> map_pos) const ->
 	std::vector<mark::sprite> {
-	return { mark::sprite(
-		m_image,
-		mark::vector<double>(map_pos) * mark::terrain::grid_size,
-		static_cast<float>(mark::terrain::grid_size),
-		0.f,
-		m_variant) };
+	mark::sprite::arguments info;
+	info.image = m_image;
+	info.pos = mark::vector<double>(map_pos) * mark::terrain::grid_size;
+	info.size = static_cast<float>(mark::terrain::grid_size);
+	info.frame = m_variant;
+	return { info };
 }
 
 void mark::terrain::floor::variant(int variant) {

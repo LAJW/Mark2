@@ -22,9 +22,32 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 	auto pos = this->pos();
 	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
 	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
-	context.sprites[0].push_back(mark::sprite(m_im_body, pos, 64.f, parent().rotation()));
-	context.sprites[1].push_back(mark::sprite(m_im_light, pos + light_offset, 32.f, 0, 0, sf::Color(255, 200, 150, light_strength)));
-	context.sprites[2].push_back(mark::sprite(m_im_light, pos + light_offset, 16.f, 0, 0, sf::Color(255, 255, 255, light_strength)));
+	{
+		mark::sprite::arguments info;
+		info.image = m_im_body;
+		info.pos = pos;
+		info.size = 64.f;
+		info.rotation = parent().rotation();
+		context.sprites[0].emplace_back(info);
+	}
+	{
+		mark::sprite::arguments info;
+		info.image = m_im_light;
+		info.pos = pos + light_offset;
+		info.size = 32.f;
+		info.rotation = parent().rotation();
+		info.color = { 255, 200, 150, light_strength };
+		context.sprites[1].emplace_back(info);
+	}
+	{
+		mark::sprite::arguments info;
+		info.image = m_im_light;
+		info.pos = pos + light_offset;
+		info.size = 16.f;
+		info.rotation = parent().rotation();
+		info.color = { 255, 200, 150, light_strength };
+		context.sprites[2].emplace_back(info);
+	}
 	mark::tick_context::bar_info bar;
 	bar.image = parent().world().resource_manager().image("bar.png");
 	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0);
@@ -121,12 +144,19 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 	auto size = this->interior_size();
 	for (const auto point : mark::area(size)) {
 		const auto slot_pos = pos_in + mark::vector<double>(point * 16);
-		context.sprites[0].push_back(mark::sprite(image, slot_pos));
+		mark::sprite::arguments info;
+		info.image = image;
+		info.pos = slot_pos;
+		context.sprites[0].emplace_back(info);
 		const auto& module = m_modules[point.x + point.y * 16].get();
 		if (module) {
 			const auto module_pos = slot_pos + mark::vector<double>(module->size()) * 16.0 / 2.0 - mark::vector<double>(8, 8);
 			const auto size = static_cast<float>(std::max(module->size().x, module->size().y)) * 16.f;
-			context.sprites[1].push_back(mark::sprite(module->thumbnail(), module_pos, size));
+			mark::sprite::arguments info;
+			info.image = module->thumbnail();
+			info.pos = module_pos;
+			info.size = size;
+			context.sprites[1].emplace_back(info);
 		}
 	}
 }

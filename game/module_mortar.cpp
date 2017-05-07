@@ -39,7 +39,12 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 		}
 	}
 	m_shoot = false;
-	context.sprites[0].push_back(mark::sprite(m_im_base, pos, 32.f, parent().rotation()));
+	mark::sprite::arguments info;
+	info.image = m_im_base;
+	info.pos = pos;
+	info.size = 32.f;
+	info.rotation = parent().rotation();
+	context.sprites[0].emplace_back(info);
 
 	mark::tick_context::bar_info bar;
 	bar.image = parent().world().resource_manager().image("bar.png");
