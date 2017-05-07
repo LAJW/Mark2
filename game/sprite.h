@@ -13,7 +13,7 @@ namespace mark {
 	}
 	class sprite {
 	public:
-		struct arguments {
+		struct info {
 			std::shared_ptr<const mark::resource::image> image;
 			mark::vector<double> pos;
 			float size = 16.f;
@@ -21,7 +21,7 @@ namespace mark {
 			size_t frame = 0;
 			sf::Color color = sf::Color::White;
 		};
-		sprite(mark::sprite::arguments& args);
+		sprite(mark::sprite::info& args);
 		auto image() const -> const mark::resource::image&;
 		auto x() const -> double;
 		auto y() const -> double;

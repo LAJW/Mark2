@@ -143,7 +143,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
 #ifdef _DEBUG
 		for (const auto& step : path) {
-			mark::sprite::arguments args;
+			mark::sprite::info args;
 			args.image = m_world.resource_manager().image("generator.png");
 			args.pos = step;
 			context.sprites[100].emplace_back(args);

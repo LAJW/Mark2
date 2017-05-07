@@ -12,7 +12,7 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 void mark::module::battery::tick(mark::tick_context& context) {
 	const auto pos = this->pos();
 
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_image_base;
 	info.pos = pos;
 	info.size = mark::module::size * 2.f;

@@ -8,7 +8,7 @@ mark::terrain::wall::wall(mark::resource::manager& resource_manager)
 }
 
 auto mark::terrain::wall::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_image;
 	info.pos = mark::vector<double>(map_pos) * mark::terrain::grid_size;
 	info.size = static_cast<float>(mark::terrain::grid_size);

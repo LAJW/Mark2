@@ -142,7 +142,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			context.render(spray);
 		}
 		{
-			mark::sprite::arguments args;
+			mark::sprite::info args;
 			args.image = m_im_tail;
 			args.pos = m_pos - step;
 			args.size = 32.f;
@@ -150,7 +150,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			context.sprites[0].emplace_back(args);
 		}
 		{
-			mark::sprite::arguments args;
+			mark::sprite::info args;
 			args.image = m_image;
 			args.pos = m_pos;
 			args.size = 10.f;

@@ -39,7 +39,7 @@ void mark::module::mortar::tick(mark::tick_context& context) {
 		}
 	}
 	m_shoot = false;
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_im_base;
 	info.pos = pos;
 	info.size = 32.f;

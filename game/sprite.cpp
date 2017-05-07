@@ -1,7 +1,7 @@
 #include "sprite.h"
 #include "resource_image.h"
 
-mark::sprite::sprite(mark::sprite::arguments & args):
+mark::sprite::sprite(mark::sprite::info & args):
 	m_image(std::move(args.image)),
 	m_x(args.pos.x),
 	m_y(args.pos.y),

@@ -38,7 +38,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	}
 	m_shoot = false;
 	{
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = m_im_cannon;
 		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), angle);
 		info.size = 32.f;
@@ -46,7 +46,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		context.sprites[1].emplace_back(info);
 	}
 	{
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = m_im_base;
 		info.pos = pos;
 		info.size = 32.f;

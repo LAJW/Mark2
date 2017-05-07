@@ -23,7 +23,7 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
 	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
 	{
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = m_im_body;
 		info.pos = pos;
 		info.size = 64.f;
@@ -31,7 +31,7 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 		context.sprites[0].emplace_back(info);
 	}
 	{
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 32.f;
@@ -40,7 +40,7 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 		context.sprites[1].emplace_back(info);
 	}
 	{
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 16.f;
@@ -144,7 +144,7 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 	auto size = this->interior_size();
 	for (const auto point : mark::area(size)) {
 		const auto slot_pos = pos_in + mark::vector<double>(point * 16);
-		mark::sprite::arguments info;
+		mark::sprite::info info;
 		info.image = image;
 		info.pos = slot_pos;
 		context.sprites[0].emplace_back(info);
@@ -152,7 +152,7 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 		if (module) {
 			const auto module_pos = slot_pos + mark::vector<double>(module->size()) * 16.0 / 2.0 - mark::vector<double>(8, 8);
 			const auto size = static_cast<float>(std::max(module->size().x, module->size().y)) * 16.f;
-			mark::sprite::arguments info;
+			mark::sprite::info info;
 			info.image = module->thumbnail();
 			info.pos = module_pos;
 			info.size = size;

@@ -14,7 +14,7 @@ mark::module::energy_generator::energy_generator(mark::resource::manager& manage
 void mark::module::energy_generator::tick(mark::tick_context& context) {
 	m_cur_energy = std::min(m_cur_energy + m_energy_regen * static_cast<float>(context.dt), m_max_energy);
 	const auto pos = this->pos();
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_image_base;
 	info.pos = pos;
 	info.size = mark::module::size * 2.f;

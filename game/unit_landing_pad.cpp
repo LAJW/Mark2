@@ -16,7 +16,7 @@ mark::unit::landing_pad::landing_pad(mark::world& world, mark::vector<double> po
 }
 
 void mark::unit::landing_pad::tick(mark::tick_context& context) {
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_image;
 	info.pos = m_pos;
 	info.size = 320.f;
@@ -27,7 +27,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 	if (ship) {
 		for (int x = -10; x < 10; x++) {
 			for (int y = -10; y < 10; y++) {
-				mark::sprite::arguments info;
+				mark::sprite::info info;
 				info.image = image;
 				info.pos = m_pos + mark::vector<double>(x, y) * 32.0;
 				info.size = 32.f;
@@ -43,7 +43,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		}
 		if (m_grabbed) {
 			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-			mark::sprite::arguments info;
+			mark::sprite::info info;
 			info.image = m_grabbed->thumbnail();
 			info.pos = m_mousepos;
 			info.size = size;
@@ -65,7 +65,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 					const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 					const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
-					mark::sprite::arguments info;
+					mark::sprite::info info;
 					info.image = m_world.resource_manager().image("wall.png");
 					info.pos = tooltip_pos + mark::vector<double>(150, 150),
 					info.size = 300.f;
@@ -95,7 +95,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 							const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 							const auto tooltip_pos = m_mousepos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
-							mark::sprite::arguments info;
+							mark::sprite::info info;
 							info.image = m_world.resource_manager().image("wall.png");
 							info.pos = tooltip_pos + mark::vector<double>(150, 150),
 							info.size = 300.f;

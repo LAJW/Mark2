@@ -39,7 +39,7 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 			m_pos = new_pos;
 		}
 	}
-	mark::sprite::arguments info;
+	mark::sprite::info info;
 	info.image = m_module->thumbnail();
 	info.pos = m_pos;
 	info.size = size;
