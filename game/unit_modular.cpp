@@ -39,7 +39,85 @@ namespace {
 		return pos1.x < br2.x && pos1.y < br2.y
 			&& pos2.x < br1.x && pos2.y < br1.y;
 	}
+	// map of booleans 1 - occupied by a module, 0 - available
+	static auto availability_map(const std::vector<std::unique_ptr<mark::module::base>>& modules) {
+		const auto max_size = mark::unit::modular::max_size;
+		std::vector<bool> map(max_size * max_size, false);
+		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
+		for (const auto& module : modules) {
+			for (int8_t x = 0; x < module->size().x; x++) {
+				for (int8_t y = 0; y < module->size().y; y++) {
+					const auto px = hs.x + module->grid_pos().x + x;
+					const auto py = hs.y + module->grid_pos().y + y;
+					map[py * max_size + px] = true;
+				}
+			}
+		}
+		return map;
+	}
+
+	struct Node {
+		mark::vector<int8_t> pos;
+		int f = 0; // distance from starting + distance from ending (h)
+		Node* parent = nullptr;
+	};
+
+	auto path_exists(const std::vector<bool>& map, mark::vector<int8_t> start) -> bool {
+		const auto size = static_cast<int8_t>(std::sqrt(map.size()));
+		const auto end_x = size / static_cast<int8_t>(2);
+		const auto end = mark::vector<int8_t>(end_x, end_x);
+		std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
+		std::vector<std::unique_ptr<Node>> closed;
+
+		while (!open.empty()) {
+			auto min_it = open.begin();
+			for (auto it = open.begin(), end = open.end(); it != end; it++) {
+				if (min_it->f > it->f) {
+					min_it = it;
+				}
+			}
+			closed.push_back(std::make_unique<Node>(*min_it));
+			auto& current = closed.back();
+			open.erase(min_it);
+
+			if (current->pos == end) {
+				return true;
+			}
+
+			for (int i = 1; i < 8; i += 2) {
+				auto neighbour_pos = current->pos + mark::vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
+				const auto traversable = neighbour_pos.x > 0
+					&& neighbour_pos.y > 0 && neighbour_pos.x < size
+					&& neighbour_pos.y < size
+					&& map[neighbour_pos.y * size + neighbour_pos.x];
+				const auto isClosed = closed.end() != std::find_if(
+					closed.begin(),
+					closed.end(),
+					[&neighbour_pos](const auto& node) {
+					return node->pos == neighbour_pos;
+				});
+				if (!traversable || isClosed) {
+					continue;
+				}
+				auto neighbour_it = std::find_if(
+					open.begin(),
+					open.end(),
+					[&neighbour_pos](const auto& node) {
+					return neighbour_pos == node.pos;
+				});
+				const auto f = current->f + 10;
+				if (neighbour_it == open.end()) {
+					open.push_back({ neighbour_pos, f, current.get() });
+				} else if (neighbour_it->f > f) {
+					neighbour_it->f = f;
+					neighbour_it->parent = current.get();
+				}
+			}
+		}
+		return false;
+	}
 }
+
 
 mark::unit::modular::modular(
 	mark::world& world,
@@ -223,7 +301,6 @@ auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base* {
 auto mark::unit::modular::detach(mark::vector<int> pos) ->
 	std::unique_ptr<mark::module::base> {
 
-	// check collisions with other modules
 	auto module_it = std::find_if(
 		m_modules.begin(),
 		m_modules.end(),
@@ -231,6 +308,28 @@ auto mark::unit::modular::detach(mark::vector<int> pos) ->
 		return overlap(module->grid_pos(), module->size(), pos);
 	});
 	if (module_it != m_modules.end() && (*module_it)->detachable()) {
+		const auto& module = *module_it;
+		// check if module is essential
+
+		auto map = availability_map(m_modules);
+		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
+		for (int8_t x = 0; x < module->size().x; x++) {
+			for (int8_t y = 0; y < module->size().y; y++) {
+				const auto px = hs.x + module->grid_pos().x + x;
+				const auto py = hs.y + module->grid_pos().y + y;
+				map[py * max_size + px] = false;
+			}
+		}
+		const auto neighbours = (*module_it)->neighbours();
+		for (const auto& neighbour : neighbours) {
+			const auto grid_pos = hs + mark::vector<int8_t>(neighbour.get().grid_pos());
+			if (map[grid_pos.y * mark::unit::modular::max_size + grid_pos.x]
+				&& !path_exists(map, grid_pos)) {
+				return nullptr;
+			}
+		}
+
+		// detach
 		auto out = std::move(*module_it);
 		if (module_it != std::prev(m_modules.end())) {
 			*module_it = std::move(m_modules.back());
@@ -378,69 +477,6 @@ auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
 	return m_lookat;
 }
 
-namespace {
-	struct Node {
-		mark::vector<int8_t> pos;
-		int f = 0; // distance from starting + distance from ending (h)
-		Node* parent = nullptr;
-	};
-
-	auto path_exists(const std::vector<bool>& map, mark::vector<int8_t> start) -> bool {
-		const auto size = static_cast<int8_t>(std::sqrt(map.size()));
-		const auto end_x = size / static_cast<int8_t>(2);
-		const auto end = mark::vector<int8_t>(end_x, end_x);
-		std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
-		std::vector<std::unique_ptr<Node>> closed;
-
-		while (!open.empty()) {
-			auto min_it = open.begin();
-			for (auto it = open.begin(), end = open.end(); it != end; it++) {
-				if (min_it->f > it->f) {
-					min_it = it;
-				}
-			}
-			closed.push_back(std::make_unique<Node>(*min_it));
-			auto& current = closed.back();
-			open.erase(min_it);
-
-			if (current->pos == end) {
-				return true;
-			}
-
-			for (int i = 1; i < 8; i += 2) {
-				auto neighbour_pos = current->pos + mark::vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
-				const auto traversable = neighbour_pos.x > 0
-					&& neighbour_pos.y > 0 && neighbour_pos.x < size
-					&& neighbour_pos.y < size
-					&& map[neighbour_pos.y * size + neighbour_pos.x];
-				const auto isClosed = closed.end() != std::find_if(
-					closed.begin(),
-					closed.end(),
-					[&neighbour_pos](const auto& node) {
-					return node->pos == neighbour_pos;
-				});
-				if (!traversable || isClosed) {
-					continue;
-				}
-				auto neighbour_it = std::find_if(
-					open.begin(),
-					open.end(),
-					[&neighbour_pos](const auto& node) {
-					return neighbour_pos == node.pos;
-				});
-				const auto f = current->f + 10;
-				if (neighbour_it == open.end()) {
-					open.push_back({ neighbour_pos, f, current.get() });
-				} else if (neighbour_it->f > f) {
-					neighbour_it->f = f;
-					neighbour_it->parent = current.get();
-				}
-			}
-		}
-		return false;
-	}
-}
-
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	auto end_it = std::partition(
 		m_modules.begin(),
@@ -456,23 +492,14 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			module->on_death(context);
 		});
 		m_modules.erase(end_it, m_modules.end());
-		const auto max_size = mark::unit::modular::max_size;
-		std::vector<bool> map(max_size * max_size, false);
-		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
-		for (const auto& module : m_modules) {
-			for (int8_t x = 0; x < module->size().x; x++) {
-				for (int8_t y = 0; y < module->size().y; y++) {
-					const auto px = hs.x + module->grid_pos().x + x;
-					const auto py = hs.y + module->grid_pos().y + y;
-					map[py * max_size + px] = true;
-				}
-			}
-		}
 		{
+			auto map = availability_map(m_modules);
 			auto end_it = std::partition(
 				m_modules.begin(),
 				m_modules.end(),
-				[&map, hs](const auto& module) {
+				[&map](const auto& module) {
+					const auto max_size = mark::unit::modular::max_size;
+					const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
 					return ::path_exists(map, hs + mark::vector<int8_t>(module->grid_pos()));
 				}
 			);
