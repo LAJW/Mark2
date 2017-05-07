@@ -112,40 +112,58 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	}
 }
 
+namespace {
+	template <typename object_t, typename modules_t>
+	static auto attached(
+		modules_t& modules,
+		mark::vector<int8_t> pos,
+		mark::vector<uint8_t> size) {
+
+		std::vector<mark::vector<int>> border;
+		// right
+		for (int i = 0; i < size.y; i++) {
+			border.emplace_back(pos.x + size.x + 1, pos.y + i);
+		}
+		// bottom
+		for (int i = 0; i < size.x; i++) {
+			border.emplace_back(pos.x + i, pos.y + size.y + 1);
+		}
+		// left
+		for (int i = 0; i < size.y; i++) {
+			border.emplace_back(pos.x - 1, pos.y + i);
+		}
+		// top
+		for (int i = 0; i < size.x; i++) {
+			border.emplace_back(pos.x + i, pos.y - 1);
+		}
+		std::vector<std::reference_wrapper<object_t>> out;
+		for (auto& module : modules) {
+			for (auto& pos : border) {
+				if (::overlap(module->grid_pos(), module->size(), pos)) {
+					out.push_back(*module);
+					break;
+				}
+			}
+		}
+		return out;
+	}
+}
 
 auto mark::unit::modular::get_attached(mark::module::base& module) ->
 std::vector<std::reference_wrapper<mark::module::base>> {
-	const auto pos = module.grid_pos();
-	const auto size = mark::vector<int>(module.size());
-	std::vector<mark::vector<int>> border;
-	// right
-	for (int i = 0; i < size.y; i++) {
-		border.emplace_back(pos.x + size.x + 1, pos.y + i);
-	}
-	// bottom
-	for (int i = 0; i < size.x; i++) {
-		border.emplace_back(pos.x + i, pos.y + size.y + 1);
-	}
-	// left
-	for (int i = 0; i < size.y; i++) {
-		border.emplace_back(pos.x - 1, pos.y + i);
-	}
-	// top
-	for (int i = 0; i < size.x; i++) {
-		border.emplace_back(pos.x + i, pos.y - 1);
-	}
-	std::vector<std::reference_wrapper<mark::module::base>> out;
-	for (auto& module : m_modules) {
-		for (auto& pos : border) {
-			if (::overlap(module->grid_pos(), module->size(), pos)) {
-				out.push_back(*module);
-				break;
-			}
-		}
-	}
-	return out;
+	return ::attached<mark::module::base>(
+		m_modules,
+		mark::vector<int8_t>(module.grid_pos()),
+		mark::vector<uint8_t>(module.size()));
 }
 
+auto mark::unit::modular::attached(
+	mark::vector<int8_t> pos,
+	mark::vector<uint8_t> size) const ->
+	std::vector<std::reference_wrapper<const mark::module::base>> {
+	
+	return ::attached<const mark::module::base>(m_modules, pos, size);
+}
 
 void mark::unit::modular::attach(
 	std::unique_ptr<mark::module::base> module,
@@ -153,10 +171,6 @@ void mark::unit::modular::attach(
 
 	if (!module) {
 		throw mark::exception("NULL_MODULE");
-	}
-	// check collisions with other modules
-	if (!can_attach(module, pos)) {
-		throw mark::user_error("MODULE_OVERLAP");
 	}
 	// establish core, check if core already present
 	auto core = dynamic_cast<mark::module::core*>(module.get());
@@ -183,6 +197,9 @@ auto mark::unit::modular::can_attach(
 		if (::overlap(mark::vector<int>(module->grid_pos()), module->size(), pos)) {
 			return false;
 		}
+	}
+	if (this->attached(mark::vector<int8_t>(pos), mark::vector<uint8_t>(module->size())).empty()) {
+		return false;
 	}
 	return true;
 }

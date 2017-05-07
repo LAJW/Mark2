@@ -45,6 +45,10 @@ namespace mark {
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
 			auto lookat() const noexcept -> mark::vector<double>;
 		private:
+			auto attached(
+				mark::vector<int8_t> pos,
+				mark::vector<uint8_t> size) const ->
+				std::vector<std::reference_wrapper<const mark::module::base>>;
 			void remove_dead(mark::tick_context&);
 			void pick_up(mark::tick_context&);
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
