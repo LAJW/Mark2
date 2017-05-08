@@ -12,10 +12,40 @@
 #include "command.h"
 #include "tick_context.h"
 #include "module_cannon.h"
-#include "module_mortar.h"
 #include "unit_landing_pad.h"
 #include "module_energy_generator.h"
 #include "module_battery.h"
+
+auto make_turret(mark::resource::manager& resource_manager) {
+	mark::module::turret::info info;
+	info.resource_manager = &resource_manager;
+	info.seek_radius = 0.f;
+	info.velocity = 1000.f;
+	info.projectile_angular_velocity = 30.f;
+	info.guided = true;
+	info.rate_of_fire = 10.f;
+	info.angular_velocity = 360.f;
+	info.cone_curve = mark::curve::linear;
+	info.cone = 10.f;
+	info.projectile_count = 1;
+	info.heat_per_shot = 2.f;
+	return std::make_unique<mark::module::turret>(info);
+}
+
+auto make_mortar(mark::resource::manager& resource_manager) {
+	mark::module::turret::info info;
+	info.resource_manager = &resource_manager;
+	info.seek_radius = 500.f;
+	info.projectile_count = 3;
+	info.velocity = 500.f;
+	info.projectile_angular_velocity = 30.f;
+	info.guided = false;
+	info.rate_of_fire = .3f;
+	info.angular_velocity = 0.f;
+	info.cone = 30.f;
+	info.heat_per_shot = 30.f;
+	return std::make_unique<mark::module::turret>(info);
+}
 
 auto create_ship(mark::resource::manager& resource_manager, mark::world& world) {
 	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
@@ -26,12 +56,12 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	vessel->attach(std::move(cargo1), { -1, 1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
 	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
-	vessel->attach(std::make_unique<mark::module::turret>(resource_manager), { -3, -3 });
-	vessel->attach(std::make_unique<mark::module::turret>(resource_manager), { -3, 1 });
+	vessel->attach(make_turret(resource_manager), { -3, -3 });
+	vessel->attach(make_turret(resource_manager), { -3, 1 });
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, 3 });
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, -5 });
-	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, -5 });
-	vessel->attach(std::make_unique<mark::module::mortar>(resource_manager), { -3, 3 });
+	vessel->attach(make_mortar(resource_manager), { -3, -5 });
+	vessel->attach(make_mortar(resource_manager), { -3, 3 });
 	vessel->attach(std::make_unique<mark::module::energy_generator>(resource_manager), { -3, -1 });
 	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -1 });
 	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -3 });
@@ -41,7 +71,7 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 
 mark::world::world(mark::resource::manager& resource_manager):
 	m_resource_manager(resource_manager),
-	m_map(mark::map::make_square(resource_manager)) {
+	m_map(mark::map::make_cavern(resource_manager)) {
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {

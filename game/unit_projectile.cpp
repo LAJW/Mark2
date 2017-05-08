@@ -36,7 +36,7 @@ mark::unit::projectile::projectile(const mark::unit::projectile::info& args, boo
 
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
-	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * 1000.0 * dt;
+	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
 	const auto guide = m_guide.lock();
 	const auto turn_speed = 500.f;
 	if (guide) {

@@ -34,9 +34,6 @@
     <ClCompile Include="module_core.cpp">
       <Filter>Module</Filter>
     </ClCompile>
-    <ClCompile Include="module_mortar.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
     <ClCompile Include="module_shield_generator.cpp">
       <Filter>Module</Filter>
     </ClCompile>
@@ -127,9 +124,6 @@
       <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="module_core.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_mortar.h">
       <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="module_shield_generator.h">

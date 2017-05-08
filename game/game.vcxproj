@@ -162,7 +162,6 @@
     <ClCompile Include="module_cargo.cpp" />
     <ClCompile Include="module_core.cpp" />
     <ClCompile Include="module_energy_generator.cpp" />
-    <ClCompile Include="module_mortar.cpp" />
     <ClCompile Include="module_shield_generator.cpp" />
     <ClCompile Include="module_turret.cpp" />
     <ClCompile Include="particle.cpp" />
@@ -194,7 +193,6 @@
     <ClInclude Include="module_cannon.h" />
     <ClInclude Include="module_cargo.h" />
     <ClInclude Include="module_energy_generator.h" />
-    <ClInclude Include="module_mortar.h" />
     <ClInclude Include="module_shield_generator.h" />
     <ClInclude Include="module_turret.h" />
     <ClInclude Include="particle.h" />
