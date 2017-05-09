@@ -12,6 +12,7 @@ mark::module::core::core(mark::resource::manager& resource_manager):
 }
 
 void mark::module::core::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	mark::sprite::info info;
 	info.image = m_image;
 	info.pos = this->pos();

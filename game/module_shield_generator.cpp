@@ -15,6 +15,7 @@ mark::module::shield_generator::shield_generator(mark::resource::manager& resour
 }
 
 void mark::module::shield_generator::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	const auto pos = this->pos();
 	if (m_cur_shield > 0) {
 		m_model_shield.tick(context, pos);
@@ -32,13 +33,6 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	shield_bar.type = mark::tick_context::bar_type::shield;
 	shield_bar.percentage = m_cur_shield / m_max_shield;
 	context.render(shield_bar);
-
-	mark::tick_context::bar_info health_bar;
-	health_bar.image = parent().world().resource_manager().image("bar.png");
-	health_bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2 - 8.f);
-	health_bar.type = mark::tick_context::bar_type::health,
-	health_bar.percentage = m_cur_health / m_max_health;
-	context.render(health_bar);
 }
 
 bool mark::module::shield_generator::damage(const mark::idamageable::info& attr) {

@@ -13,6 +13,7 @@ mark::module::cannon::cannon(mark::resource::manager& resource_manager):
 }
 
 void mark::module::cannon::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	m_model.tick(context.dt);
 	auto pos = this->pos();
 	const auto rotation = parent().rotation();
@@ -25,11 +26,6 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		sf::Color::White));
 	auto& world = parent().world();
 	mark::tick_context::bar_info bar;
-	bar.image = world.resource_manager().image("bar.png"),
-	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0),
-	bar.type = mark::tick_context::bar_type::health,
-	bar.percentage = m_cur_health / m_max_health;
-	context.render(bar);
 	if (m_shoot) {
 		std::unordered_set<mark::idamageable*> damaged;
 		for (int i = 1; i < 200; i++) {

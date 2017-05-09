@@ -10,6 +10,7 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 }
 
 void mark::module::battery::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	const auto pos = this->pos();
 
 	mark::sprite::info info;

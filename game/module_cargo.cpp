@@ -18,6 +18,7 @@ mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 }
 
 void mark::module::cargo::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	m_lfo.tick(context.dt);
 	auto pos = this->pos();
 	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
@@ -48,12 +49,6 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 		info.color = { 255, 200, 150, light_strength };
 		context.sprites[2].emplace_back(info);
 	}
-	mark::tick_context::bar_info bar;
-	bar.image = parent().world().resource_manager().image("bar.png");
-	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0);
-	bar.type = mark::tick_context::bar_type::health;
-	bar.percentage = m_cur_health / m_max_health;
-	context.render(bar);
 }
 
 auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module::base>>& {

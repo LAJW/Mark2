@@ -12,6 +12,37 @@ mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<cons
 	assert(size.y <= mark::module::max_dimension);
 }
 
+void mark::module::base::tick(mark::tick_context & context) {
+	const auto health_percentage = m_cur_health / m_max_health;
+	if (health_percentage > 0.5f) {
+		// no-op
+	} else if (health_percentage > 0.25f) {
+		mark::tick_context::spray_info info;
+		info.image = parent().world().resource_manager().image("glare.png");
+		info.lifespan(.3, 1.f);
+		info.direction = -45.f;
+		info.cone = 90.f;
+		info.color = { 200, 200, 200, 25 };
+		info.velocity(64.f, 128.f);
+		info.pos = pos();
+		info.diameter(16.f, 32.f);
+		info.count = 4;
+		context.render(info);
+	} else {
+		mark::tick_context::spray_info info;
+		info.image = parent().world().resource_manager().image("glare.png");
+		info.lifespan(.3, 1.f);
+		info.direction = -45.f;
+		info.cone = 90.f;
+		info.color = { 0, 0, 0, 75 };
+		info.velocity(64.f, 128.f);
+		info.diameter(16.f, 32.f);
+		info.pos = pos();
+		info.count = 4;
+		context.render(info);
+	}
+}
+
 auto mark::module::base::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable*, mark::vector<double>> {
 	const auto size = this->size();

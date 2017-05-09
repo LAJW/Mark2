@@ -40,6 +40,7 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_piercing(info.piercing) { }
 
 void mark::module::turret::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	m_adsr.tick(context.dt);
 	auto pos = this->pos();
 	if (m_angular_velocity == 0.f) {
@@ -52,7 +53,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		// TODO Respect angular velocity here
 		m_rotation = static_cast<float>(mark::atan(m_target - pos));
 	}
-	m_cur_heat -= 10.f * context.dt;
+	m_cur_heat = std::max(0.0, m_cur_heat - 10.f * context.dt);
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (m_shoot) {
@@ -81,12 +82,14 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
 	m_shoot = false;
+	const auto heat_color = static_cast<uint8_t>(std::round((1.f - m_cur_heat / 100.f) * 255.f));
 	{
 		mark::sprite::info info;
 		info.image = m_im_cannon;
 		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
 		info.size = 32.f;
 		info.rotation = m_rotation;
+		info.color = { 255, heat_color, heat_color, 255 };
 		context.sprites[1].emplace_back(info);
 	}
 	{
@@ -95,26 +98,9 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		info.pos = pos;
 		info.size = 32.f;
 		info.rotation = parent().rotation();
+		info.color = { 255, heat_color, heat_color, 255 };
 		context.sprites[0].emplace_back(info);
 	}
-
-	{
-		mark::tick_context::bar_info bar;
-		bar.image = parent().world().resource_manager().image("bar.png");
-		bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2);
-		bar.type = mark::tick_context::bar_type::health;
-		bar.percentage = m_cur_health / m_max_health;
-		context.render(bar);
-	}
-	{
-		mark::tick_context::bar_info bar;
-		bar.image = parent().world().resource_manager().image("bar.png");
-		bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2 - 8.f);
-		bar.type = mark::tick_context::bar_type::energy;
-		bar.percentage = m_cur_heat / 100.f;
-		context.render(bar);
-	}
-
 }
 
 void mark::module::turret::target(mark::vector<double> pos) {

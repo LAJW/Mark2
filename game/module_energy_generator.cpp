@@ -12,6 +12,7 @@ mark::module::energy_generator::energy_generator(mark::resource::manager& manage
 }
 
 void mark::module::energy_generator::tick(mark::tick_context& context) {
+	this->mark::module::base::tick(context);
 	m_cur_energy = std::min(m_cur_energy + m_energy_regen * static_cast<float>(context.dt), m_max_energy);
 	const auto pos = this->pos();
 	mark::sprite::info info;
@@ -27,13 +28,6 @@ void mark::module::energy_generator::tick(mark::tick_context& context) {
 	energy_bar.type = mark::tick_context::bar_type::energy;
 	energy_bar.percentage = m_cur_energy / m_max_energy;
 	context.render(energy_bar);
-
-	mark::tick_context::bar_info health_bar;
-	health_bar.image = parent().world().resource_manager().image("bar.png");
-	health_bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2 + 8.f);
-	health_bar.type = mark::tick_context::bar_type::health;
-	health_bar.percentage = m_cur_health / m_max_health;
-	context.render(health_bar);
 }
 
 void mark::module::energy_generator::shoot(mark::vector<double> pos) {

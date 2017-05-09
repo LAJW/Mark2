@@ -30,7 +30,7 @@ namespace mark {
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
 			virtual ~base() = default;
 
-			virtual void tick(mark::tick_context& context) = 0;
+			virtual void tick(mark::tick_context& context);
 
 			// Module's position in the world
 			auto pos() const -> mark::vector<double>;
