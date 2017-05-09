@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 #include "module_turret.h"
 #include "resource_manager.h"
 #include "resource_image.h"
@@ -113,5 +114,23 @@ void mark::module::turret::shoot(mark::vector<double> pos) {
 }
 
 auto mark::module::turret::describe() const -> std::string {
-	return "Turret Module";
+	std::ostringstream os;
+	os << "Turret" << std::endl;
+	os << "Health: " << std::round(m_cur_health) << " of " << std::round(m_max_health) << std::endl;
+	os << "Physical damage: " << m_physical << std::endl;
+	os << "Energy damage: " << m_energy << std::endl;
+	os << "Heat damage: " << m_energy << std::endl;
+	os << "Missiles per shot: " << static_cast<unsigned>(m_projectile_count) << std::endl;
+	os << "Cone of fire: " << m_cone << std::endl;
+	os << "Critical chance: " << std::round(m_critical_chance * 1000) / 10 << std::endl;
+	os << "Critical multiplier: " << std::round(m_critical_multiplier * 1000) / 10 << std::endl;
+	os << "Heat per shot: " << m_heat_per_shot << std::endl;
+	if (m_cone_curve == mark::curve::linear) {
+		os << "Low accuracy when hot" << std::endl;
+	} else if (m_cone_curve == mark::curve::invert) {
+		os << "High accuracy when hot" << std::endl;
+	} else if (m_cone_curve == mark::curve::sin) {
+		os << "Average heat for best accuracy" << std::endl;
+	}
+	return os.str();
 }
