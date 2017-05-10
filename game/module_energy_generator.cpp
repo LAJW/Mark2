@@ -5,9 +5,9 @@
 #include "world.h"
 
 mark::module::energy_generator::energy_generator(mark::resource::manager& manager) :
-	m_image_base(manager.image("shield-generator.png")),
+	m_image_base(manager.image("energy-generator.png")),
 	m_image_bar(manager.image("bar.png")),
-	mark::module::base({ 2, 2 }, manager.image("shield-generator.png")) {
+	mark::module::base({ 2, 2 }, manager.image("energy-generator.png")) {
 
 }
 
@@ -20,14 +20,8 @@ void mark::module::energy_generator::tick(mark::tick_context& context) {
 	info.pos = pos;
 	info.size = mark::module::size * 2.f;
 	info.rotation = parent().rotation();
+	info.frame = static_cast<uint8_t>(std::round(m_cur_energy / m_max_energy * 4.f));
 	context.sprites[0].emplace_back(info);
-
-	mark::tick_context::bar_info energy_bar;
-	energy_bar.image = m_image_bar;
-	energy_bar.pos = pos + mark::vector<double>(0, -mark::module::size);
-	energy_bar.type = mark::tick_context::bar_type::energy;
-	energy_bar.percentage = m_cur_energy / m_max_energy;
-	context.render(energy_bar);
 }
 
 void mark::module::energy_generator::shoot(mark::vector<double> pos) {
