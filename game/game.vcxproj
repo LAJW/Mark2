@@ -218,6 +218,9 @@
     <ClInclude Include="terrain_wall.h" />
     <ClInclude Include="world.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

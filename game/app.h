@@ -12,8 +12,12 @@ namespace mark {
 		void main();
 	private:
 		void render(const mark::sprite&, const mark::vector<double>& camera);
+		
 
 		sf::RenderWindow m_window;
+		sf::RenderTexture m_buffer;
+		sf::RenderTexture m_buffer2;
+		sf::Shader m_fragment_shader;
 		mark::resource::manager m_resource_manager;
 	};
 }

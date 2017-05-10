@@ -14,6 +14,9 @@ mark::app::app(const int argc, const char* argv[])
 
 mark::app::app(std::vector<std::string> arguments) 
 	:m_window(sf::VideoMode(1920, 1080), "MARK2") {
+	m_fragment_shader.loadFromFile("shader.glsl", sf::Shader::Fragment);
+	m_buffer.create(1920, 1080);
+	m_buffer2.create(1920, 1080);
 }
 
 void mark::app::main() {
@@ -62,12 +65,16 @@ void mark::app::main() {
 			world->command(mark::command{ mark::command::type::guide, target });
 
 			m_window.clear();
+			m_buffer.clear();
 			auto sprites = world->tick(dt, mark::vector<double>(m_window.getSize()));
 			for (const auto& layer : sprites) {
 				for (const auto& sprite : layer.second) {
 					render(sprite, world->camera());
 				}
 			}
+			m_buffer2.clear();
+			m_buffer2.draw(sf::Sprite(m_buffer.getTexture()), &m_fragment_shader);
+			m_window.draw(sf::Sprite(m_buffer2.getTexture()));
 			m_window.display();
 		}
 	}
@@ -84,5 +91,5 @@ void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& c
 	tmp.rotate(sprite.rotation());
 	tmp.setColor(sprite.color());
 	tmp.move(static_cast<float>(sprite.x() - camera.x + m_window.getSize().x / 2.0), static_cast<float>(sprite.y() - camera.y + m_window.getSize().y / 2.0));
-	m_window.draw(tmp);
+	m_buffer.draw(tmp);
 }
