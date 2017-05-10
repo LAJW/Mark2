@@ -3,9 +3,8 @@
 #include "tick_context.h"
 
 mark::module::battery::battery(mark::resource::manager& manager) :
-	m_image_base(manager.image("shield-generator.png")),
-	m_image_bar(manager.image("bar.png")),
-	mark::module::base({ 2, 2 }, manager.image("shield-generator.png")) {
+	m_image_base(manager.image("battery.png")),
+	mark::module::base({ 2, 2 }, manager.image("battery.png")) {
 
 }
 
@@ -18,14 +17,9 @@ void mark::module::battery::tick(mark::tick_context& context) {
 	info.pos = pos;
 	info.size = mark::module::size * 2.f;
 	info.rotation = parent().rotation();
+	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
 	context.sprites[0].emplace_back(info);
 
-	mark::tick_context::bar_info bar;
-	bar.image = m_image_bar,
-	bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2.0);
-	bar.type = mark::tick_context::bar_type::energy;
-	bar.percentage = m_cur_energy / m_max_energy;
-	context.render(bar);
 	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
 			&& module.get().energy_ratio() > this->energy_ratio()) {
