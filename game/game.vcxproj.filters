@@ -112,6 +112,9 @@
     <ClCompile Include="unit_base.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
+    <ClCompile Include="module_flamethrower.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -224,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="unit_bucket.h">
       <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="module_flamethrower.h">
+      <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

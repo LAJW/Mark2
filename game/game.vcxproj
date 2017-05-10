@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="module_flamethrower.cpp" />
     <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="main.cpp" />
@@ -180,6 +181,7 @@
   <ItemGroup>
     <ClInclude Include="adsr.h" />
     <ClInclude Include="app.h" />
+    <ClInclude Include="module_flamethrower.h" />
     <ClInclude Include="unit_bucket.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />

@@ -15,6 +15,7 @@
 #include "unit_landing_pad.h"
 #include "module_energy_generator.h"
 #include "module_battery.h"
+#include "module_flamethrower.h"
 
 auto make_turret(mark::resource::manager& resource_manager) {
 	mark::module::turret::info info;
@@ -56,6 +57,8 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	vessel->attach(std::move(cargo1), { -1, 1 });
 	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
 	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
+	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, -3 });
+	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, 1 });
 	vessel->attach(make_turret(resource_manager), { -3, -3 });
 	vessel->attach(make_turret(resource_manager), { -3, 1 });
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, 3 });
