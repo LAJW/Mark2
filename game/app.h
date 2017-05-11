@@ -11,7 +11,7 @@ namespace mark {
 		app(std::vector<std::string> arguments);
 		void main();
 	private:
-		void render(const mark::sprite&, const mark::vector<double>& camera);
+		void render(const mark::sprite&, const mark::vector<double>& camera, sf::RenderTexture& buffer);
 		
 
 		sf::RenderWindow m_window;

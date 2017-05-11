@@ -236,5 +236,11 @@
     <None Include="shader.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="occlusion.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shadows.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

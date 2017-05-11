@@ -119,8 +119,8 @@ auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<
 		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
 		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64)
 	);
-	context.sprites[0].insert(
-		context.sprites[0].end(),
+	context.sprites[-1].insert(
+		context.sprites[-1].end(),
 		std::make_move_iterator(sprites.begin()),
 		std::make_move_iterator(sprites.end())
 	);

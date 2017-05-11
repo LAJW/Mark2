@@ -26,6 +26,15 @@ void mark::app::main() {
 	bool moving = false;
 	bool shooting = false;
 
+	sf::RenderTexture occlusion_map;
+	occlusion_map.create(1920, 1080);
+	sf::RenderTexture vbo;
+	vbo.create(512, 1);
+	sf::Shader occlusion_shader;
+	occlusion_shader.loadFromFile("occlusion.glsl", sf::Shader::Fragment);
+	sf::Shader shadows_shader;
+	shadows_shader.loadFromFile("shadows.glsl", sf::Shader::Fragment);
+
 	while (m_window.isOpen()) {
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(now - last).count()) / 1000000.0;
@@ -65,22 +74,42 @@ void mark::app::main() {
 			world->command(mark::command{ mark::command::type::guide, target });
 
 			m_window.clear();
-			m_buffer.clear();
+			m_buffer.clear({ 0, 0, 0, 0 });
+			m_buffer2.clear();
+			vbo.clear(sf::Color::White);
+			occlusion_map.clear();
 			auto sprites = world->tick(dt, mark::vector<double>(m_window.getSize()));
 			for (const auto& layer : sprites) {
-				for (const auto& sprite : layer.second) {
-					render(sprite, world->camera());
+				if (layer.first < 0) {
+					for (const auto& sprite : layer.second) {
+						render(sprite, world->camera(), occlusion_map);
+					}
+				} else {
+					for (const auto& sprite : layer.second) {
+						render(sprite, world->camera(), m_buffer);
+					}
 				}
 			}
-			m_buffer2.clear();
-			m_buffer2.draw(sf::Sprite(m_buffer.getTexture()), &m_fragment_shader);
+			occlusion_map.display();
+			sf::Sprite sprite1(occlusion_map.getTexture());
+			sprite1.scale({ 512.f / 1920.f, 1.f / 1080.f });
+			vbo.draw(sprite1, &occlusion_shader);
+			vbo.display();
+			m_buffer.display();
+			m_buffer2.draw(sf::Sprite(occlusion_map.getTexture()));
+			m_buffer2.draw(sf::Sprite(m_buffer.getTexture()));
+			m_buffer2.draw(sf::Sprite(vbo.getTexture()));
+			sf::Sprite shadows(vbo.getTexture());
+			shadows.setScale({ 1920.f / 512.f, 1080.f / 1.f });;
+			m_buffer2.draw(shadows, &shadows_shader);
+			m_buffer2.display();
 			m_window.draw(sf::Sprite(m_buffer2.getTexture()));
 			m_window.display();
 		}
 	}
 }
 
-void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& camera) {
+void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& camera, sf::RenderTexture& buffer) {
 	sf::Sprite tmp;
 	const auto texture_size = static_cast<float>(sprite.image().getSize().y);
 	const auto scale = sprite.size() / texture_size;
@@ -91,5 +120,5 @@ void mark::app::render(const mark::sprite& sprite, const mark::vector<double>& c
 	tmp.rotate(sprite.rotation());
 	tmp.setColor(sprite.color());
 	tmp.move(static_cast<float>(sprite.x() - camera.x + m_window.getSize().x / 2.0), static_cast<float>(sprite.y() - camera.y + m_window.getSize().y / 2.0));
-	m_buffer.draw(tmp);
+	buffer.draw(tmp);
 }
