@@ -36,13 +36,13 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 }
 
 bool mark::module::shield_generator::damage(const mark::idamageable::info& attr) {
-	if (attr.damaged->find(this) == attr.damaged->end()) {
-		if (m_cur_shield > 0.f && attr.team != parent().team()) {
+	if (attr.damaged->find(this) == attr.damaged->end() && attr.team != parent().team()) {
+		if (m_cur_shield > 0.f) {
 			attr.damaged->insert(this);
 			m_model_shield.trigger(attr.pos);
 			m_cur_shield -= attr.physical;
 			return true;
-		} else if (m_cur_shield <= 0.f && attr.team != parent().team()) {
+		} else {
 			attr.damaged->insert(this);
 			m_cur_health -= attr.physical;
 			return true;

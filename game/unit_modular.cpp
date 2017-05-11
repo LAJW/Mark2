@@ -423,7 +423,7 @@ std::pair<mark::idamageable *, mark::vector<double>> {
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
 	for (auto& module : m_modules) {
 		const auto shield = dynamic_cast<mark::module::shield_generator*>(module.get());
-		if (shield && shield->shield() >= 0.f) {
+		if (shield && shield->shield() > 0.f) {
 			shields.push_back(*shield);
 		}
 	}
