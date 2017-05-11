@@ -25,6 +25,8 @@ namespace mark {
 				float velocity = NAN;
 				float seek_radius = 0.f;
 				float aoe_radius = 0.f;
+				float critical_chance = 0.1f;
+				float critical_multiplier = 0.1f;
 				// Can missile go through multiple targets
 				// 0 - infinite targets
 				// 1, 2, 3 - 1, 2, 3 targets.
@@ -47,6 +49,8 @@ namespace mark {
 			float m_velocity;
 			float m_seek_radius;
 			float m_aoe_radius;
+			float m_critical_chance;
+			float m_critical_multiplier;
 			size_t m_piercing;
 			bool m_dead = false;
 		};

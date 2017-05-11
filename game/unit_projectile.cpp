@@ -29,6 +29,8 @@ mark::unit::projectile::projectile(const mark::unit::projectile::info& args, boo
 	m_rotation(args.rotation),
 	m_seek_radius(args.seek_radius),
 	m_aoe_radius(args.aoe_radius),
+	m_critical_chance(args.critical_chance),
+	m_critical_multiplier(args.critical_multiplier),
 	m_piercing(args.piercing),
 	m_guide(args.guide) {
 	this->team(static_cast<int>(args.team));
@@ -84,6 +86,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			args.pos = collision.second;
 			args.team = this->team();
 			args.physical = 10.f;
+			args.critical_chance = m_critical_chance;
+			args.critical_multiplier = m_critical_multiplier;
 			if (collision.first->damage(args)) {
 				// hit an enemy unit
 				if (m_piercing == 1) {
@@ -107,6 +111,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			args.pos = m_pos;
 			args.team = this->team();
 			args.physical = 10.f;
+			args.critical_chance = m_critical_chance;
+			args.critical_multiplier = m_critical_multiplier;
 			for (auto damageable : damageables) {
 				damageable.get().damage(args);
 			}

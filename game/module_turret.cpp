@@ -78,6 +78,8 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			info.seek_radius = m_seek_radius;
 			info.team = parent().team();
 			info.piercing = m_piercing;
+			info.critical_chance = m_critical_chance;
+			info.critical_multiplier = m_critical_multiplier;
 			context.units.emplace_back(std::make_shared<mark::unit::projectile>(info));
 		}
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
