@@ -22,11 +22,11 @@ namespace mark {
 		private:
 			mark::model::animated m_model;
 			mark::model::shield m_model_shield;
-			mark::vector<float> m_direction = { 1, 0 };
+			std::shared_ptr<const mark::resource::image> m_image_explosion;
+			mark::cooldown m_gun_cooldown;
+			float m_rotation = 0.f;
 			float m_health = 100.f;
 			bool m_dead = false;
-			mark::cooldown m_gun_cooldown;
-			std::shared_ptr<const mark::resource::image> m_image_explosion;
 		};
 	}
 }

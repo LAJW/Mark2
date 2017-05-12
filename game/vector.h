@@ -107,4 +107,7 @@ namespace mark {
 
 	// given segment and a circle, get nearerst intersection, NAN on divergent
 	auto intersect(mark::segment_t, mark::vector<double> center, float radius) noexcept -> mark::vector<double>;
+
+	// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
+	auto turn(mark::vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float;
 }

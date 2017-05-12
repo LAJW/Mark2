@@ -178,15 +178,8 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		}
 	}
 	if (m_lookat != m_pos) {
-		const auto direction = m_lookat - m_pos;
-		const auto rot_diff = mark::atan(mark::rotate(direction, -m_rotation));
 		const auto turn_speed = m_ai ? 32.f : 360.f;
-		const auto rot_step = static_cast<float>(mark::sgn(rot_diff)  * turn_speed * dt);
-		if (std::abs(rot_diff) < turn_speed * dt) {
-			m_rotation = static_cast<float>(mark::atan(direction));
-		} else {
-			m_rotation += rot_step;
-		}
+		m_rotation = mark::turn(m_lookat - m_pos, m_rotation, turn_speed, dt);
 	}
 }
 

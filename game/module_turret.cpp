@@ -52,7 +52,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		}
 	} else {
 		// TODO Respect angular velocity here
-		m_rotation = static_cast<float>(mark::atan(m_target - pos));
+		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	m_cur_heat = std::max(0.0, m_cur_heat - 10.f * context.dt);
 	if (m_cur_cooldown >= 0) {

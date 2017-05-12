@@ -18,46 +18,51 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 	m_gun_cooldown.tick(dt);
 	m_model.tick(dt);
 	m_model_shield.tick(context, m_pos);
+	const auto velocity = 100.0;
+	const auto angular_velocity = 90.f;
 
 	auto neighbors = m_world.find(m_pos, 50.0);
-	const auto distance = m_world.camera() - m_pos;
-	if (mark::length(distance) < 1000) {
-		const auto length = mark::length(distance);
-		auto direction2 = mark::vector<double>(0, 0);
-		for (const auto& neighbor : neighbors) {
-			auto dist = (m_pos - neighbor->pos());
-			auto len = mark::length(dist);
-			if (len) {
-				dist = dist / len;
-				direction2 += dist;
+	if (m_world.target()) {
+		const auto target_pos = m_world.target()->pos();
+		const auto distance = target_pos - m_pos;
+		if (mark::length(distance) < 1000) {
+			const auto length = mark::length(distance);
+			auto direction2 = mark::vector<double>(0, 0);
+			for (const auto& neighbor : neighbors) {
+				auto dist = (m_pos - neighbor->pos());
+				auto len = mark::length(dist);
+				if (len) {
+					dist = dist / len;
+					direction2 += dist;
+				}
 			}
-		}
-		const auto path = m_world.map().find_path(m_pos, m_world.camera());
-		if (path.size() > 3) {
-			const auto first = mark::vector<double>(path[path.size() - 3]);
-			const auto direction = mark::normalize((first - m_pos)) + mark::normalize(direction2);
-			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -mark::atan(m_direction))));
-			m_direction = rotate(m_direction, static_cast<float>(turn_direction  * 180.f * dt));
-			m_pos += direction * 100.0 * dt;
-		} else if (mark::length(m_world.camera() - m_pos) > 320.0) {
-			const auto direction = mark::normalize((m_world.camera() - m_pos)) + mark::normalize(direction2);
-			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -mark::atan(m_direction))));
-			m_direction = rotate(m_direction, static_cast<float>(turn_direction  * 180.f * dt));
-			m_pos += direction * 100.0 * dt;
-		}
-		if (m_gun_cooldown.trigger()) {
-			mark::unit::projectile::info attr;
-			attr.world = &m_world;
-			attr.pos = m_pos;
-			attr.rotation = mark::atan(m_direction);
-			attr.velocity = 500.f;
-			attr.team = this->team();
-			context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
+			const auto path = m_world.map().find_path(m_pos, target_pos);
+			mark::vector<double> direction;
+			if (path.size() > 3) {
+				const auto first = mark::vector<double>(path[path.size() - 3]);
+				direction = mark::normalize((first - m_pos)) + mark::normalize(direction2);
+			} else if (mark::length(target_pos - m_pos) > 320.0) {
+				direction = mark::normalize((target_pos - m_pos)) + mark::normalize(direction2);
+			}
+			m_pos += direction * velocity * dt;
+			if (direction.x == 0 && direction.y == 0) {
+				m_rotation = mark::turn(target_pos - m_pos, m_rotation, angular_velocity, dt);
+			} else {
+				m_rotation = mark::turn(direction, m_rotation, angular_velocity, dt);
+			}
+			if (m_gun_cooldown.trigger()) {
+				mark::unit::projectile::info attr;
+				attr.world = &m_world;
+				attr.pos = m_pos;
+				attr.rotation = m_rotation;
+				attr.velocity = 500.f;
+				attr.team = this->team();
+				context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
+			}
 		}
 	}
 
-	const auto rotation = mark::atan(m_direction);
-	context.sprites[1].push_back(m_model.render(m_pos, 116.f, rotation, sf::Color::White));
+	context.sprites[1].push_back(m_model.render(m_pos, 116.f, m_rotation, sf::Color::White));
 	mark::tick_context::bar_info bar;
 	bar.image = m_world.resource_manager().image("bar.png");
 	bar.pos = m_pos + mark::vector<double>(0, -72);

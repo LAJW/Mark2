@@ -126,3 +126,14 @@ auto mark::intersect(
 	}
 	return { NAN, NAN };
 }
+
+// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
+auto mark::turn(mark::vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float {
+	const auto turn_direction = mark::sgn(mark::atan(mark::rotate(new_direction, -current_rotation)));
+	const auto rot_step = static_cast<float>(turn_direction  * angular_velocity * dt);
+	if (std::abs(mark::atan(mark::rotate(new_direction, -current_rotation))) < angular_velocity * dt) {
+		return static_cast<float>(mark::atan(new_direction));
+	} else {
+		return current_rotation + rot_step;
+	}
+}

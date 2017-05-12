@@ -46,14 +46,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		if (mark::length(lookat - m_pos) < m_velocity * dt * 2.0) {
 			m_guide.reset();
 		} else {
-			const auto direction = lookat - m_pos;
-			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-			const auto rot_step = static_cast<float>(turn_direction  * turn_speed * dt);
-			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < turn_speed * dt) {
-				m_rotation = static_cast<float>(mark::atan(direction));
-			} else {
-				m_rotation += rot_step;
-			}
+			m_rotation = mark::turn(lookat - m_pos, m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
 		auto target = m_world.find_one(
@@ -63,14 +56,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			return unit.team() != this->team() && !unit.invincible();
 		});
 		if (target) {
-			const auto direction = target->pos() - m_pos;
-			const auto turn_direction = mark::sgn(mark::atan(mark::rotate(direction, -m_rotation)));
-			const auto rot_step = static_cast<float>(turn_direction  * turn_speed * dt);
-			if (std::abs(mark::atan(mark::rotate(direction, -m_rotation))) < turn_speed * dt) {
-				m_rotation = static_cast<float>(mark::atan(direction));
-			} else {
-				m_rotation += rot_step;
-			}
+			m_rotation = mark::turn(target->pos() - m_pos, m_rotation, turn_speed, dt);
 		}
 	}
 	m_pos += step;
