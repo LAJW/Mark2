@@ -66,12 +66,11 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				context.sprites[0].emplace_back(info);
 			}
 		}
-		m_shoot = false;
 	}
 }
 
-void mark::module::cannon::shoot(mark::vector<double> pos) {
-	m_shoot = true;
+void mark::module::cannon::shoot(mark::vector<double> pos, bool release) {
+	m_shoot = !release;
 }
 
 std::string mark::module::cannon::describe() const {

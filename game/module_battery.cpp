@@ -28,10 +28,6 @@ void mark::module::battery::tick(mark::tick_context& context) {
 	}
 }
 
-void mark::module::battery::shoot(mark::vector<double> pos) {
-	/* noop */
-}
-
 auto mark::module::battery::describe() const->std::string {
 	return "Battery";
 }

@@ -353,14 +353,18 @@ auto mark::unit::modular::get_core() -> mark::module::core& {
 void mark::unit::modular::command(const mark::command& command) {
 	if (command.type == mark::command::type::move) {
 		m_moveto = command.pos;
+		m_move = !command.release;
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
 		for (auto& module : m_modules) {
 			module->target(command.pos);
 		}
+		if (m_move) {
+			m_moveto = m_lookat;
+		}
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
-	} else if (command.type == mark::command::type::activate) {
+	} else if (command.type == mark::command::type::activate && !command.release) {
 		auto pad = m_world.find_one(
 			m_pos,
 			150.0,
@@ -372,7 +376,7 @@ void mark::unit::modular::command(const mark::command& command) {
 		}
 	} else if (command.type == mark::command::type::shoot) {
 		for (auto& module : m_modules) {
-			module->shoot(command.pos);
+			module->shoot(command.pos, command.release);
 		}
 	}
 }

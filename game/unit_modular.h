@@ -57,6 +57,7 @@ namespace mark {
 			mark::vector<double> m_moveto;
 			mark::vector<double> m_lookat;
 			bool m_ai = false;
+			bool m_move = false;
 		};
 	}
 }

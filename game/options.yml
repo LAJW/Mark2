@@ -1,0 +1,15 @@
+keybindings:
+    move: left-mouse-button
+    ability: right-mouse-button
+    ability-1: 1
+    ability-2: 2
+    ability-3: 3
+    ability-4: 4
+    ability-5: 5
+    ability-6: 6
+    ability-7: 7
+    ability-8: 8
+    ability-9: 9
+    ability-0: 0
+    activate: g
+    reset: r

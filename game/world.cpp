@@ -262,7 +262,6 @@ auto mark::world::collide(mark::vector<double> center, float radius) ->
 }
 
 auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vector<double>, bool> {
-	assert(info.damage);
 	assert(info.context);
 	const auto collision = this->collide(info.segment);
 	if (!std::isnan(collision.second.x)) {

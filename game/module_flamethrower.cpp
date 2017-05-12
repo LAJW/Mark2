@@ -46,13 +46,12 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 			info.damage.team = parent().team();
 			const auto collision = parent().world().damage(info);
 		}
-		m_shoot = false;
 	}
 
 }
 
-void mark::module::flamethrower::shoot(mark::vector<double> pos) {
-	m_shoot = true;
+void mark::module::flamethrower::shoot(mark::vector<double> pos, bool release) {
+	m_shoot = !release;
 }
 
 auto mark::module::flamethrower::describe() const->std::string {

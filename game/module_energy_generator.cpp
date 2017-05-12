@@ -24,10 +24,6 @@ void mark::module::energy_generator::tick(mark::tick_context& context) {
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::module::energy_generator::shoot(mark::vector<double> pos) {
-	/* noop */
-}
-
 auto mark::module::energy_generator::describe() const->std::string {
 	return "Energy Generator";
 }

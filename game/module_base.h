@@ -51,7 +51,7 @@ namespace mark {
 			virtual void target(mark::vector<double> pos) { /* no op */ }
 
 			// Start shooting at
-			virtual void shoot(mark::vector<double> pos) { /* no op */ }
+			virtual void shoot(mark::vector<double> pos, bool release) { /* no op */ }
 
 			// Find collision point, return pointer to damaged module
 			virtual auto collide(const mark::segment_t&) ->

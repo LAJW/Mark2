@@ -13,7 +13,7 @@ namespace mark {
 		public:
 			cannon(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
-			void shoot(mark::vector<double> pos) override;
+			void shoot(mark::vector<double> pos, bool release) override;
 			virtual std::string describe() const;
 		private:
 			mark::model::animated m_model;

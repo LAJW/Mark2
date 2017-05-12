@@ -16,7 +16,6 @@ namespace mark {
 		public:
 			battery(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
-			void shoot(mark::vector<double> pos) override;
 			auto describe() const -> std::string override;
 			auto harvest_energy() -> float override;
 			auto energy_ratio() const -> float override;

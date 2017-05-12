@@ -84,7 +84,6 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		}
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
-	m_shoot = false;
 	const auto heat_color = static_cast<uint8_t>(std::round((1.f - m_cur_heat / 100.f) * 255.f));
 	{
 		mark::sprite::info info;
@@ -110,9 +109,9 @@ void mark::module::turret::target(mark::vector<double> pos) {
 	m_target = pos;
 }
 
-void mark::module::turret::shoot(mark::vector<double> pos) {
+void mark::module::turret::shoot(mark::vector<double> pos, bool release) {
 	m_target = pos;
-	m_shoot = true;
+	m_shoot = !release;
 }
 
 auto mark::module::turret::describe() const -> std::string {

@@ -89,7 +89,7 @@ namespace mark {
 			turret(mark::module::turret::info&);
 			virtual void tick(mark::tick_context& context) override;
 			void target(mark::vector<double> pos) override;
-			void shoot(mark::vector<double> pos) override;
+			void shoot(mark::vector<double> pos, bool release) override;
 			auto describe() const->std::string;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;

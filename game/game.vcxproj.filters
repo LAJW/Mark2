@@ -242,5 +242,8 @@
     <None Include="shadows.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="options.yml">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

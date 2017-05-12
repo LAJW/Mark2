@@ -148,7 +148,7 @@ void mark::unit::landing_pad::activate(const std::shared_ptr<mark::unit::base>& 
 }
 
 void mark::unit::landing_pad::command(const mark::command & command) {
-	if (command.type == mark::command::type::activate) {
+	if (command.type == mark::command::type::activate && !command.release) {
 		auto ship = m_ship.lock();
 		if (ship) {
 			ship->activate(this->shared_from_this());
@@ -156,7 +156,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 		}
 	} else if (command.type == mark::command::type::guide) {
 		m_mousepos = command.pos;
-	} else if (command.type == mark::command::type::move) {
+	} else if (command.type == mark::command::type::move && !command.release) {
 		auto ship = m_ship.lock();
 		if (ship) {
 			const auto relative = (command.pos - m_pos) / 16.0;
