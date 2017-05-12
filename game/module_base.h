@@ -22,6 +22,11 @@ namespace mark {
 		// Maximum module width and height
 		const unsigned max_dimension = 4;
 
+		// stats altering behavior of parent/adjacent modules
+		struct modifiers {
+			float velocity = 0.f;
+		};
+
 		class base:
 			public idamageable,
 			public iserializable {
@@ -77,6 +82,9 @@ namespace mark {
 
 			// called on module's death
 			virtual void on_death(mark::tick_context& context);
+
+			// get modifiers for parent modular ship
+			virtual auto global_modifiers() const -> mark::module::modifiers;
 
 		protected:
 			auto parent() const -> const mark::unit::modular&;

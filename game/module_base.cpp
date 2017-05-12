@@ -119,6 +119,11 @@ void mark::module::base::on_death(mark::tick_context& context) {
 	context.render(spray);
 }
 
+auto mark::module::base::global_modifiers() const->mark::module::modifiers
+{
+	return mark::module::modifiers();
+}
+
 auto mark::module::base::parent() const -> const mark::unit::modular& {
 	if (m_parent) {
 		return *m_parent;

@@ -131,14 +131,18 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		return;
 	}
 	this->remove_dead(context);
+	mark::module::modifiers mods;
 	for (auto& module : m_modules) {
 		module->tick(context);
+		const auto cur_mod = module->global_modifiers();
+		mods.velocity += cur_mod.velocity;
 	}
 	this->pick_up(context);
 
 	// movement / AI etc.
 	double dt = context.dt;
 	double speed = m_ai ? 64.0 : 320.0;
+	speed += mods.velocity;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
 		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
 #ifdef _DEBUG

@@ -16,6 +16,7 @@
 #include "module_energy_generator.h"
 #include "module_battery.h"
 #include "module_flamethrower.h"
+#include "module_engine.h"
 #include <assert.h>
 
 auto make_turret(mark::resource::manager& resource_manager) {
@@ -68,8 +69,8 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	vessel->attach(make_mortar(resource_manager), { -3, 3 });
 	vessel->attach(std::make_unique<mark::module::energy_generator>(resource_manager), { -3, -1 });
 	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -1 });
-	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -3 });
-	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, 1 });
+	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, -3 });
+	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, 1 });
 	return vessel;
 }
 
