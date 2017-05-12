@@ -36,17 +36,15 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 		std::unordered_set<mark::idamageable*> damaged;
 		for (float i = -15; i < 15; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(300, 0), i + parent().rotation());
-			const auto collision = parent().world().collide({ pos, cur });
-			if (!std::isnan(collision.second.x)) {
-				mark::idamageable::info attr;
-				attr.pos = collision.second;
-				attr.damaged = &damaged;
-				attr.physical = 200.f * static_cast<float>(context.dt);
-				attr.team = parent().team();
-				if (collision.first) {
-					collision.first->damage(attr);
-				}
-			}
+			mark::world::damage_info info;
+			info.context = &context;
+			info.aoe_radius = 0.f;
+			info.piercing = 1;
+			info.segment = { pos, cur };
+			info.damage.damaged = &damaged;
+			info.damage.physical = 200.f * static_cast<float>(context.dt);
+			info.damage.team = parent().team();
+			const auto collision = parent().world().damage(info);
 		}
 		m_shoot = false;
 	}
