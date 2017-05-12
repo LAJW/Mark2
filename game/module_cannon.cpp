@@ -33,50 +33,38 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), rotation);
 			const auto prev = pos + cur_dir * (cur_len - mark::module::size);
 			const auto cur = pos + cur_dir * (cur_len + 2.0);
-			const auto collision = world.collide({ prev, cur });
-			if (!std::isnan(collision.second.x)) {
-				mark::idamageable::info attr;
-				attr.pos = collision.second;
-				attr.damaged = &damaged;
-				attr.physical = 100.f * static_cast<float>(context.dt);
-				attr.team = parent().team();
-				if (collision.first) {
-					if (collision.first->damage(attr)) {
-						mark::tick_context::spray_info spray;
-						spray.image = m_im_ray;
-						spray.pos = collision.second;
-						spray.velocity(25.f, 50.f);
-						spray.lifespan(1.f);
-						spray.diameter(8.f);
-						spray.count = 4;
-						spray.direction = rotation + 180.f;
-						spray.cone = 180.f;
-						spray.color = sf::Color::Red;
-						context.render(spray);
-						break;
-					}
-				} else {
-					mark::tick_context::spray_info spray;
-					spray.image = m_im_ray;
-					spray.pos = collision.second;
-					spray.velocity(25.f, 50.f);
-					spray.lifespan(1.f);
-					spray.diameter(8.f);
-					spray.count = 4;
-					spray.direction = rotation + 180.f;
-					spray.cone = 180.f;
-					spray.color = sf::Color::Red;
-					context.render(spray);
-					break;
-				}
+			mark::world::damage_info info;
+			info.context = &context;
+			info.aoe_radius = 0.f;
+			info.piercing = 1;
+			info.segment = { prev, cur };
+			info.damage.damaged = &damaged;
+			info.damage.physical = 100.f * static_cast<float>(context.dt);
+			info.damage.team = parent().team();
+			const auto collision = world.damage(info);
+			if (collision.second) {
+				mark::tick_context::spray_info spray;
+				spray.image = m_im_ray;
+				spray.pos = collision.first;
+				spray.velocity(25.f, 50.f);
+				spray.lifespan(1.f);
+				spray.diameter(8.f);
+				spray.count = 4;
+				spray.direction = rotation + 180.f;
+				spray.cone = 180.f;
+				spray.color = sf::Color::Red;
+				context.render(spray);
+				break;
 			}
-			mark::sprite::info info;
-			info.image = m_im_ray;
-			info.pos = cur;
-			info.size = mark::module::size;
-			info.rotation = rotation;
-			info.color = sf::Color::Red;
-			context.sprites[0].emplace_back(info);
+			{
+				mark::sprite::info info;
+				info.image = m_im_ray;
+				info.pos = cur;
+				info.size = mark::module::size;
+				info.rotation = rotation;
+				info.color = sf::Color::Red;
+				context.sprites[0].emplace_back(info);
+			}
 		}
 		m_shoot = false;
 	}
