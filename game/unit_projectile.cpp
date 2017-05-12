@@ -74,49 +74,29 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		}
 	}
 	m_pos += step;
-	const auto collision = m_world.collide({
-		m_pos - step * 1.5,
-		m_pos + step * 0.5
-	});
-	auto damaged = false;
-	if (!std::isnan(collision.second.x)) {
-		if (collision.first) {
-			mark::idamageable::info args;
-			args.damaged = &m_damaged;
-			args.pos = collision.second;
-			args.team = this->team();
-			args.physical = 10.f;
-			args.critical_chance = m_critical_chance;
-			args.critical_multiplier = m_critical_multiplier;
-			if (collision.first->damage(args)) {
-				// hit an enemy unit
-				if (m_piercing == 1) {
-					m_pos = collision.second;
-					m_dead = true;
-				}
-			}
-			damaged = true;
-		} else {
-			// hit a wall
-			m_pos = collision.second;
-			m_dead = true;
-			damaged = true;
-		}
-	}
-	if (m_dead) {
-		if (m_aoe_radius >= 0.f) {
-			auto damageables = m_world.collide(m_pos, m_aoe_radius);
-			mark::idamageable::info args;
-			args.damaged = &m_damaged;
-			args.pos = m_pos;
-			args.team = this->team();
-			args.physical = 10.f;
-			args.critical_chance = m_critical_chance;
-			args.critical_multiplier = m_critical_multiplier;
-			for (auto damageable : damageables) {
-				damageable.get().damage(args);
-			}
-		}
+	mark::world::damage_info info;
+	info.context = &context;
+	info.segment = { m_pos - step, m_pos };
+	info.aoe_radius = m_aoe_radius;
+	info.piercing = m_piercing;
+	info.damage.damaged = &m_damaged;
+	info.damage.team = this->team();
+	info.damage.physical = 10.f;
+	info.damage.critical_chance = m_critical_chance;
+	info.damage.critical_multiplier = m_critical_multiplier;
+	const auto collision = m_world.damage(info);
+	m_dead = collision.second;
+	if (!std::isnan(collision.first.x)) {
+		mark::tick_context::spray_info spray;
+		spray.image = m_im_tail;
+		spray.pos = collision.first;
+		spray.velocity(5.f, 75.f);
+		spray.lifespan(0.3f);
+		spray.diameter(8.f);
+		spray.count = 80;
+		spray.cone = 360.f;
+		spray.color = { 125, 125, 125, 75 };
+		context.render(spray);
 	} else {
 		// tail: grey dust
 		{
@@ -163,18 +143,6 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			args.rotation = m_rotation;
 			context.sprites[1].emplace_back(args);
 		}
-	}
-	if (damaged) {
-		mark::tick_context::spray_info spray;
-		spray.image = m_im_tail;
-		spray.pos = pos();
-		spray.velocity(5.f, 75.f);
-		spray.lifespan(0.3f);
-		spray.diameter(8.f);
-		spray.count = 80;
-		spray.cone = 360.f;
-		spray.color = { 125, 125, 125, 75 };
-		context.render(spray);
 	}
 }
 

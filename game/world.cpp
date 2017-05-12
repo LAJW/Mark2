@@ -16,6 +16,7 @@
 #include "module_energy_generator.h"
 #include "module_battery.h"
 #include "module_flamethrower.h"
+#include <assert.h>
 
 auto make_turret(mark::resource::manager& resource_manager) {
 	mark::module::turret::info info;
@@ -258,4 +259,28 @@ auto mark::world::collide(mark::vector<double> center, float radius) ->
 		);
 	}
 	return out;
+}
+
+auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vector<double>, bool> {
+	assert(info.damage);
+	assert(info.context);
+	const auto collision = this->collide(info.segment);
+	if (!std::isnan(collision.second.x)) {
+		auto dead = false;
+		if (collision.first) {
+			if (collision.first->damage(info.damage) && info.piercing == 1) {
+				dead = true;
+			}
+		} else {
+			dead = true;
+		}
+		if (info.aoe_radius >= 0.f) {
+			auto damageables = this->collide(collision.second, info.aoe_radius);
+			for (auto damageable : damageables) {
+				damageable.get().damage(info.damage);
+			}
+		}
+		return { collision.second, dead };
+	}
+	return { { NAN, NAN }, false };
 }

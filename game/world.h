@@ -13,6 +13,7 @@
 namespace mark {
 	class sprite;
 	class command;
+	struct tick_context;
 	namespace resource {
 		class manager;
 	}
@@ -22,7 +23,6 @@ namespace mark {
 	namespace terrain {
 		class base;
 	}
-
 	class world {
 	public:
 		world(mark::resource::manager& resource_manager);
@@ -49,6 +49,14 @@ namespace mark {
 			std::pair<mark::idamageable*, mark::vector<double>>;
 		auto collide(mark::vector<double> center, float radius) ->
 			std::vector<std::reference_wrapper<mark::idamageable>>;
+		struct damage_info {
+			mark::idamageable::info damage;
+			mark::tick_context* context = nullptr;
+			mark::segment_t segment;
+			unsigned piercing = 1;
+			float aoe_radius = 0.f;
+		};
+		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
 	private:
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
