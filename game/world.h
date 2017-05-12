@@ -41,14 +41,6 @@ namespace mark {
 		// get target for commands
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
-		// Collide with units and terrain
-		// Returns damageable and collision position
-		// If damageable is null - terrain was hit
-		// If nothing was hit - position is [ NAN, NAN ]
-		auto collide(const mark::segment_t&) ->
-			std::pair<mark::idamageable*, mark::vector<double>>;
-		auto collide(mark::vector<double> center, float radius) ->
-			std::vector<std::reference_wrapper<mark::idamageable>>;
 		struct damage_info {
 			mark::idamageable::info damage;
 			mark::tick_context* context = nullptr;
@@ -58,6 +50,14 @@ namespace mark {
 		};
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
 	private:
+		// Collide with units and terrain
+		// Returns damageable and collision position
+		// If damageable is null - terrain was hit
+		// If nothing was hit - position is [ NAN, NAN ]
+		auto collide(const mark::segment_t&) ->
+			std::pair<mark::idamageable*, mark::vector<double>>;
+		auto collide(mark::vector<double> center, float radius) ->
+			std::vector<std::reference_wrapper<mark::idamageable>>;
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
 		mark::resource::manager& m_resource_manager;
