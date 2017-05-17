@@ -10,7 +10,12 @@
 #include "map.h"
 #include "particle.h"
 
+namespace sf {
+	class Texture;
+}
+
 namespace mark {
+	using image = sf::Texture;
 	class sprite;
 	class command;
 	struct tick_context;
@@ -49,6 +54,10 @@ namespace mark {
 			float aoe_radius = 0.f;
 		};
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
+
+		const std::shared_ptr<const mark::image> image_bar;
+		const std::shared_ptr<const mark::image> image_font;
+		const std::shared_ptr<const mark::image> image_stun;
 	private:
 		// Collide with units and terrain
 		// Returns damageable and collision position

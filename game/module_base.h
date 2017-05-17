@@ -2,6 +2,7 @@
 #include <vector>
 #include "idamageable.h"
 #include "iserializable.h"
+#include "lfo.h"
 #include "unit_modular.h"
 #include "vector.h"
 
@@ -91,11 +92,13 @@ namespace mark {
 			auto parent() -> mark::unit::modular&;
 			float m_cur_health = 100.f;
 			float m_max_health = 100.f;
+			float m_stunned = 0.f;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;
 			mark::unit::modular* m_parent = nullptr;
 			mark::vector<int8_t> m_grid_pos;
+			float m_stun_lfo;
 		};
 	}
 }

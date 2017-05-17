@@ -14,6 +14,7 @@ mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<cons
 
 void mark::module::base::tick(mark::tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
+	const auto pos = this->pos();
 	if (health_percentage > 0.5f) {
 		// no-op
 	} else if (health_percentage > 0.25f) {
@@ -24,7 +25,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.cone = 90.f;
 		info.color = { 200, 200, 200, 25 };
 		info.velocity(64.f, 128.f);
-		info.pos = pos();
+		info.pos = pos;
 		info.diameter(16.f, 32.f);
 		info.count = 4;
 		context.render(info);
@@ -37,10 +38,21 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.color = { 0, 0, 0, 75 };
 		info.velocity(64.f, 128.f);
 		info.diameter(16.f, 32.f);
-		info.pos = pos();
+		info.pos = pos;
 		info.count = 4;
 		context.render(info);
 	}
+	if (m_stunned >= 0) {
+		m_stun_lfo = std::fmod(m_stun_lfo + context.dt, 1.f);
+		m_stunned -= std::max(m_stunned -= context.dt, 0.f);
+		mark::sprite::info stun_sprite;
+		stun_sprite.image = parent().world().image_stun;
+		stun_sprite.pos = pos;
+		stun_sprite.rotation = m_stun_lfo * 360.f;
+		stun_sprite.size = mark::module::size * 2;
+		context.sprites[3].emplace_back(stun_sprite);
+	}
+
 }
 
 auto mark::module::base::collide(const mark::segment_t& ray) ->

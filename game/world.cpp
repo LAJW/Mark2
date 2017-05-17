@@ -76,7 +76,10 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 
 mark::world::world(mark::resource::manager& resource_manager):
 	m_resource_manager(resource_manager),
-	m_map(mark::map::make_cavern(resource_manager)) {
+	m_map(mark::map::make_cavern(resource_manager)),
+	image_bar(resource_manager.image("bar.png")),
+	image_font(resource_manager.image("font.png")),
+	image_stun(resource_manager.image("stun.png")) {
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {

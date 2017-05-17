@@ -8,9 +8,6 @@
     <Filter Include="Module">
       <UniqueIdentifier>{6c24dafb-6592-4c7a-8d94-4b49e5f3196c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util">
-      <UniqueIdentifier>{8eb8acd6-265b-451e-be8b-ddb5d3b6ae68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Terrain">
       <UniqueIdentifier>{ad4e4f86-d887-4674-98ef-5ba05ab33698}</UniqueIdentifier>
     </Filter>
@@ -36,18 +33,6 @@
     </ClCompile>
     <ClCompile Include="module_shield_generator.cpp">
       <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="adsr.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="cooldown.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="lfo.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="resource_manager.cpp">
-      <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="terrain_floor.cpp">
       <Filter>Terrain</Filter>
@@ -106,9 +91,6 @@
     <ClCompile Include="unit_bucket.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
-    <ClCompile Include="vector.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="unit_base.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
@@ -117,6 +99,21 @@
     </ClCompile>
     <ClCompile Include="module_engine.cpp">
       <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="adsr.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="cooldown.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="lfo.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_manager.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="vector.cpp">
+      <Filter>General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,36 +159,6 @@
     <ClInclude Include="terrain_floor.h">
       <Filter>Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="adsr.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="cooldown.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="exception.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="vector.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="property.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="lfo.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="json.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="iserializable.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="resource_image.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="resource_manager.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="app.h">
       <Filter>General</Filter>
     </ClInclude>
@@ -236,6 +203,36 @@
     </ClInclude>
     <ClInclude Include="module_engine.h">
       <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="adsr.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="cooldown.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="exception.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="iserializable.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="json.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="lfo.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="property.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="resource_image.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="resource_manager.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
