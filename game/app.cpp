@@ -147,6 +147,8 @@ void mark::app::main() {
 	occlusion_shader.loadFromFile("occlusion.glsl", sf::Shader::Fragment);
 	sf::Shader shadows_shader;
 	shadows_shader.loadFromFile("shadows.glsl", sf::Shader::Fragment);
+	sf::Shader bump_mapping;
+	bump_mapping.loadFromFile("bump_mapping.glsl", sf::Shader::Fragment);
 
 	while (m_window.isOpen()) {
 		const auto now = std::chrono::system_clock::now();
@@ -198,7 +200,7 @@ void mark::app::main() {
 			vbo.draw(sprite1, &occlusion_shader);
 			vbo.display();
 			m_buffer.display();
-			m_buffer2.draw(sf::Sprite(occlusion_map.getTexture()));
+			m_buffer2.draw(sf::Sprite(occlusion_map.getTexture()), &bump_mapping);
 			m_buffer2.draw(sf::Sprite(m_buffer.getTexture()));
 			m_buffer2.draw(sf::Sprite(vbo.getTexture()));
 			sf::Sprite shadows(vbo.getTexture());

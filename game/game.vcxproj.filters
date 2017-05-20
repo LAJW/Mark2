@@ -248,5 +248,8 @@
     <None Include="options.yml">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="bump_mapping.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

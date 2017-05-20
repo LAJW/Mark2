@@ -7,7 +7,7 @@
 mark::terrain::floor::floor(
 	mark::resource::manager& resource_manager,
 	int variant):
-	m_image(resource_manager.image("ice.png")),
+	m_image(resource_manager.image("ice-normal.png")),
 	m_variant(variant),
 	m_resource_manager(resource_manager) { }
 

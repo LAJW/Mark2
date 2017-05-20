@@ -221,6 +221,7 @@
     <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bump_mapping.glsl" />
     <None Include="occlusion.glsl" />
     <None Include="options.yml" />
     <None Include="shader.glsl" />
