@@ -42,9 +42,9 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.count = 4;
 		context.render(info);
 	}
-	if (m_stunned >= 0) {
+	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + context.dt, 1.f);
-		m_stunned -= std::max(m_stunned -= context.dt, 0.f);
+		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
 		mark::sprite::info stun_sprite;
 		stun_sprite.image = parent().world().image_stun;
 		stun_sprite.pos = pos;
@@ -104,12 +104,17 @@ auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
 bool mark::module::base::damage(const mark::idamageable::info & attr) {
 	if (attr.team != parent().team() && m_cur_health > 0
 		&& attr.damaged->find(this) == attr.damaged->end()) {
-		const auto critical = parent().world().resource_manager().random(0.f, 1.f) > attr.critical_chance;
+		auto& rm = parent().world().resource_manager();
+		const auto critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+		const auto stun = rm.random(0.f, 1.f) <= attr.stun_chance;
 		attr.damaged->insert(this);
-		if (critical > attr.critical_chance) {
+		if (critical) {
 			m_cur_health -= attr.physical * attr.critical_multiplier;
 		} else {
 			m_cur_health -= attr.physical;
+		}
+		if (stun) {
+			m_stunned += attr.stun_duration;
 		}
 		return true;
 	}

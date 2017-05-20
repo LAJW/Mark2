@@ -70,6 +70,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	info.damage.physical = 10.f;
 	info.damage.critical_chance = m_critical_chance;
 	info.damage.critical_multiplier = m_critical_multiplier;
+	info.damage.stun_chance = 0.1f;
+	info.damage.stun_duration = 1.f;
 	const auto collision = m_world.damage(info);
 	m_dead = collision.second;
 	if (!std::isnan(collision.first.x)) {

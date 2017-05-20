@@ -16,6 +16,8 @@ namespace mark {
 			float energy = 0.f;
 			float critical_chance = 0.1f;
 			float critical_multiplier = 1.50f;
+			float stun_chance = 0.0f;
+			float stun_duration = 0.f;
 			size_t team = 0;
 			bool pierce = false;
 		};
