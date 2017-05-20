@@ -2,6 +2,7 @@
 #include <vector>
 #include "iserializable.h"
 #include "vector.h"
+#include "tick_context.h"
 
 namespace mark {
 	class sprite;
@@ -11,7 +12,7 @@ namespace mark {
 		public:
 			virtual ~base() = default;
 			virtual bool traversable() const = 0;
-			virtual auto render(mark::vector<int> map_pos) const->std::vector<mark::sprite> = 0;
+			virtual void tick(mark::tick_context& context, mark::vector<int> map_pos) const = 0;
 			// collide a ray with the terrain
 			// pos - position of the segment in the world
 			// line - line to be collided with

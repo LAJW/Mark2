@@ -13,13 +13,14 @@ namespace mark {
 	};
 	class sprite;
 	class world;
+	struct tick_context;
 
 	class map final : public mark::iserializable {
 	public:
 		static mark::map make_cavern(mark::resource::manager& resource_manager);
 		static mark::map make_square(mark::resource::manager& resource_manager);
 		auto traversable(mark::vector<double> pos, double radius = 0.0) const -> bool;
-		auto render(mark::vector<double> top_left, mark::vector<double> bottom_right) const->std::vector<mark::sprite>;
+		void tick(mark::vector<double> top_left, mark::vector<double> bottom_right, mark::tick_context& context);
 		auto find_path(
 			mark::vector<double> start,
 			mark::vector<double> end,

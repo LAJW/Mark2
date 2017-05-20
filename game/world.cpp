@@ -115,20 +115,15 @@ auto mark::world::resource_manager() -> mark::resource::manager& {
 	return m_resource_manager;
 }
 
-auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<int, std::vector<mark::sprite>> {
+auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::pair<std::map<int, std::vector<mark::sprite>>, std::map<int, std::vector<mark::sprite>>> {
 	if (dt > 0.1) {
 		dt = 0.1;
 	}
 	mark::tick_context context(m_resource_manager);
-	std::vector<mark::sprite> sprites = m_map.render(
+	m_map.tick(
 		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
-		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64)
-	);
-	context.sprites[-1].insert(
-		context.sprites[-1].end(),
-		std::make_move_iterator(sprites.begin()),
-		std::make_move_iterator(sprites.end())
-	);
+		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64),
+		context);
 
 	context.dt = dt;
 	for (auto& unit : m_units) {
@@ -173,7 +168,7 @@ auto mark::world::tick(double dt, mark::vector<double> screen_size) -> std::map<
 	if (camera_target) {
 		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * dt;
 	}
-	return context.sprites;
+	return { std::move(context.sprites), std::move(context.normals) };
 }
 
 auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<std::shared_ptr<mark::unit::base>> {

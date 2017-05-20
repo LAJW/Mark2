@@ -7,6 +7,7 @@
 #include "sprite.h"
 #include "terrain_floor.h"
 #include "terrain_wall.h"
+#include "tick_context.h"
 
 static auto world_to_map(
 	const mark::vector<double>& pos,
@@ -150,7 +151,7 @@ auto mark::map::traversable(const mark::vector<int> i_pos, const int radius) con
 	return true;
 }
 
-auto mark::map::render(mark::vector<double> world_tl, mark::vector<double> world_br) const->std::vector<mark::sprite> {
+void mark::map::tick(mark::vector<double> world_tl, mark::vector<double> world_br, mark::tick_context& context) {
 	const auto size = this->size();
 	const auto tl = world_to_map(world_tl, size);
 	const auto br = world_to_map(world_br, size);
@@ -159,16 +160,10 @@ auto mark::map::render(mark::vector<double> world_tl, mark::vector<double> world
 		for (int y = std::max(tl.y, 0); y < std::min(size.y, br.y); y++) {
 			const auto& point = m_terrain[x][y];
 			if (point) {
-				auto tmp = m_terrain[x][y]->render(mark::vector<int>(x, y) - size / 2);
-				sprites.insert(
-					sprites.end(),
-					std::make_move_iterator(tmp.begin()),
-					std::make_move_iterator(tmp.end())
-				);
+				m_terrain[x][y]->tick(context, mark::vector<int>(x, y) - size / 2);
 			}
 		}
 	}
-	return sprites;
 }
 
 auto mark::map::size() const->mark::vector<int> {

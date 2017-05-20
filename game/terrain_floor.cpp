@@ -7,18 +7,20 @@
 mark::terrain::floor::floor(
 	mark::resource::manager& resource_manager,
 	int variant):
-	m_image(resource_manager.image("ice-normal.png")),
+	m_image(resource_manager.image("ice.png")),
+	m_image_normal(resource_manager.image("ice-normal.png")),
 	m_variant(variant),
 	m_resource_manager(resource_manager) { }
 
-auto mark::terrain::floor::render(mark::vector<int> map_pos) const ->
-	std::vector<mark::sprite> {
+void mark::terrain::floor::tick(mark::tick_context& context, mark::vector<int> map_pos) const {
 	mark::sprite::info info;
 	info.image = m_image;
 	info.pos = mark::vector<double>(map_pos) * mark::terrain::grid_size;
 	info.size = static_cast<float>(mark::terrain::grid_size);
 	info.frame = m_variant;
-	return { info };
+	context.sprites[-1].emplace_back(info);
+	info.image = m_image_normal;
+	context.normals[-1].emplace_back(info);
 }
 
 void mark::terrain::floor::variant(int variant) {

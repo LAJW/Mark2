@@ -14,6 +14,7 @@ namespace mark {
 		tick_context(mark::resource::manager&);
 		double dt;
 		std::map<int, std::vector<mark::sprite>> sprites;
+		std::map<int, std::vector<mark::sprite>> normals;
 		std::vector<std::shared_ptr<mark::unit::base>> units;
 		std::vector<mark::particle> particles;
 		enum class bar_type {

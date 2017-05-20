@@ -7,12 +7,12 @@ mark::terrain::wall::wall(mark::resource::manager& resource_manager)
 	:m_image(resource_manager.image("snow.png")) {
 }
 
-auto mark::terrain::wall::render(mark::vector<int> map_pos) const -> std::vector<mark::sprite> {
+void mark::terrain::wall::tick(mark::tick_context& context, mark::vector<int> map_pos) const {
 	mark::sprite::info info;
 	info.image = m_image;
 	info.pos = mark::vector<double>(map_pos) * mark::terrain::grid_size;
 	info.size = static_cast<float>(mark::terrain::grid_size);
-	return { info };
+	context.sprites[-1].emplace_back(info);
 }
 
 auto mark::terrain::wall::collide(

@@ -17,7 +17,7 @@ namespace mark {
 		public:
 			wall(mark::resource::manager& resource_manager);
 			auto traversable() const -> bool override { return false; };
-			auto render(mark::vector<int> map_pos) const->std::vector<mark::sprite> override;
+			void tick(mark::tick_context& context, mark::vector<int> map_pos) const;
 			auto collide(mark::vector<double> world_pos, mark::segment_t segment) const ->
 				mark::vector<double> override;
 		private:

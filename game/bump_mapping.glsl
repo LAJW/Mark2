@@ -30,5 +30,9 @@ void main() {
 
 	vec3 result = lightColor.rgb * lambert /* * att */;
 
-	gl_FragColor = vec4(result, 1);
+	if (lambert > 0.5) {
+		gl_FragColor = vec4(lightColor.rgb, (lambert - 0.5) * 0.25);
+	} else {
+		gl_FragColor = vec4(0, 0, 0, pow((0.5 - lambert) * 2, 1));
+	}
 }
