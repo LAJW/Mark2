@@ -31,7 +31,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 				info.image = image;
 				info.pos = m_pos + mark::vector<double>(x, y) * 32.0;
 				info.size = 32.f;
-				context.sprites[0].emplace_back(info);
+				context.sprites[100].emplace_back(info);
 			}
 		}
 		double top = 0.0;
@@ -47,7 +47,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 			info.image = m_grabbed->thumbnail();
 			info.pos = m_mousepos;
 			info.size = size;
-			context.sprites[0].emplace_back(info);
+			context.sprites[100].emplace_back(info);
 		}
 
 		// display tooltips

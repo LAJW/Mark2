@@ -144,6 +144,8 @@ void mark::app::main() {
 	occlusion_map.create(1920, 1080);
 	sf::RenderTexture normal_map;
 	normal_map.create(1920, 1080);
+	sf::RenderTexture ui_layer;
+	ui_layer.create(1920, 1080);
 	sf::RenderTexture vbo;
 	vbo.create(512, 1);
 	sf::Shader occlusion_shader;
@@ -183,6 +185,7 @@ void mark::app::main() {
 			m_window.clear();
 			m_buffer.clear({ 0, 0, 0, 0 });
 			m_buffer2.clear();
+			ui_layer.clear({ 0, 0, 0, 0 });
 			vbo.clear(sf::Color::White);
 			occlusion_map.clear();
 			normal_map.clear({ 0x7E, 0x7E, 0xFF, 0xFF });
@@ -215,9 +218,13 @@ void mark::app::main() {
 					for (const auto& sprite : layer.second) {
 						render(sprite, world->camera(), occlusion_map);
 					}
-				} else {
+				} else if (layer.first < 100) {
 					for (const auto& sprite : layer.second) {
 						render(sprite, world->camera(), m_buffer);
+					}
+				} else {
+					for (const auto& sprite : layer.second) {
+						render(sprite, world->camera(), ui_layer);
 					}
 				}
 			}
@@ -230,6 +237,7 @@ void mark::app::main() {
 
 			occlusion_map.display();
 			normal_map.display();
+			ui_layer.display();
 			sf::Sprite sprite1(occlusion_map.getTexture());
 			sprite1.scale({ 512.f / 1920.f, 1.f / 1080.f });
 			vbo.draw(sprite1, &occlusion_shader);
@@ -245,6 +253,7 @@ void mark::app::main() {
 			shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
 			shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
 			m_buffer2.draw(shadows, &shadows_shader);
+			m_buffer2.draw(sf::Sprite(ui_layer.getTexture()));
 			m_buffer2.display();
 			m_window.draw(sf::Sprite(m_buffer2.getTexture()));
 			m_window.display();

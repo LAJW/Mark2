@@ -142,7 +142,7 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 		mark::sprite::info info;
 		info.image = image;
 		info.pos = slot_pos;
-		context.sprites[0].emplace_back(info);
+		context.sprites[100].emplace_back(info);
 		const auto& module = m_modules[point.x + point.y * 16].get();
 		if (module) {
 			const auto module_pos = slot_pos + mark::vector<double>(module->size()) * 16.0 / 2.0 - mark::vector<double>(8, 8);
@@ -151,7 +151,7 @@ void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tic
 			info.image = module->thumbnail();
 			info.pos = module_pos;
 			info.size = size;
-			context.sprites[1].emplace_back(info);
+			context.sprites[100].emplace_back(info);
 		}
 	}
 }
