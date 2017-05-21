@@ -188,23 +188,27 @@ void mark::app::main() {
 			normal_map.clear({ 0x7E, 0x7E, 0xFF, 0xFF });
 			mark::tick_context context(m_resource_manager);
 			context.dt = dt;
-			world->tick(context, mark::vector<double>(m_window.getSize()));
+			const auto resolution = mark::vector<double>(m_window.getSize());
+			world->tick(context, resolution);
 			const auto& sprites = context.sprites;
 			const auto& normals = context.normals;
-			const auto lights_count = std::min(
-				context.lights.size(),
-				static_cast<size_t>(64)
-			);
 
 			std::vector<sf::Glsl::Vec2> lights_pos;
 			std::vector<sf::Glsl::Vec4> lights_color;
 
 			for (const auto& pair : context.lights) {
-				const auto pos = pair.first;
+				const auto pos = pair.first - world->camera();
 				const auto color = pair.second;
-				lights_color.push_back(color);
-				lights_pos.push_back(mark::vector<float>(pos - world->camera()));
+				if (pos.x >= -resolution.x / 2.0 - 160.0 && pos.x <= resolution.x / 2.0 + 160.0
+					&& pos.y >= -resolution.y / 2.0 - 160.0 && pos.y <= resolution.y / 2.0 + 160.0) {
+					lights_color.push_back(color);
+					lights_pos.push_back(mark::vector<float>(pos));
+				}
 			}
+			const auto lights_count = std::min(
+				lights_pos.size(),
+				static_cast<size_t>(64)
+			);
 
 			for (const auto& layer : sprites) {
 				if (layer.first < 0) {

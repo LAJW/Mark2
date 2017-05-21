@@ -131,6 +131,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			args.rotation = m_rotation;
 			context.sprites[1].emplace_back(args);
 		}
+		context.lights.emplace_back(m_pos, sf::Color::White);
 	}
 }
 
