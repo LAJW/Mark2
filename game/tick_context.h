@@ -15,6 +15,7 @@ namespace mark {
 		double dt;
 		std::map<int, std::vector<mark::sprite>> sprites;
 		std::map<int, std::vector<mark::sprite>> normals;
+		std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
 		std::vector<std::shared_ptr<mark::unit::base>> units;
 		std::vector<mark::particle> particles;
 		enum class bar_type {

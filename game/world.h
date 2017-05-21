@@ -32,7 +32,7 @@ namespace mark {
 	public:
 		world(mark::resource::manager& resource_manager);
 		auto resource_manager() -> mark::resource::manager&;
-		auto tick(double dt, mark::vector<double> screen_size) -> std::pair<std::map<int, std::vector<mark::sprite>>, std::map<int, std::vector<mark::sprite>>>;
+		void tick(mark::tick_context&, mark::vector<double> screen_size);
 		auto map() const->const mark::map&;
 		auto camera() const->mark::vector<double> { return m_camera; }
 		auto find(mark::vector<double> pos, double radius)->std::vector<std::shared_ptr<mark::unit::base>>;

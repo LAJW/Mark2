@@ -9,6 +9,7 @@
 #include "vector.h"
 #include <iostream>
 #include "command.h"
+#include "tick_context.h"
 
 namespace std {
 	template<>
@@ -185,9 +186,25 @@ void mark::app::main() {
 			vbo.clear(sf::Color::White);
 			occlusion_map.clear();
 			normal_map.clear({ 0x7E, 0x7E, 0xFF, 0xFF });
-			auto pair = world->tick(dt, mark::vector<double>(m_window.getSize()));
-			auto& sprites = pair.first;
-			auto& normals = pair.second;
+			mark::tick_context context(m_resource_manager);
+			context.dt = dt;
+			world->tick(context, mark::vector<double>(m_window.getSize()));
+			const auto& sprites = context.sprites;
+			const auto& normals = context.normals;
+			const auto lights_count = std::min(
+				context.lights.size(),
+				static_cast<size_t>(64)
+			);
+
+			std::vector<sf::Glsl::Vec2> lights_pos;
+			std::vector<sf::Glsl::Vec4> lights_color;
+
+			for (const auto& pair : context.lights) {
+				const auto pos = pair.first;
+				const auto color = pair.second;
+				lights_color.push_back(color);
+				lights_pos.push_back(mark::vector<float>(pos - world->camera()));
+			}
 
 			for (const auto& layer : sprites) {
 				if (layer.first < 0) {
@@ -200,11 +217,13 @@ void mark::app::main() {
 					}
 				}
 			}
+
 			for (const auto& layer : normals) {
 				for (const auto& sprite : layer.second) {
 					render(sprite, world->camera(), normal_map);
 				}
 			}
+
 			occlusion_map.display();
 			normal_map.display();
 			sf::Sprite sprite1(occlusion_map.getTexture());
@@ -218,6 +237,9 @@ void mark::app::main() {
 			m_buffer2.draw(sf::Sprite(vbo.getTexture()));
 			sf::Sprite shadows(vbo.getTexture());
 			shadows.setScale({ 1920.f / 512.f, 1080.f / 1.f });;
+			shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
+			shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
+			shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
 			m_buffer2.draw(shadows, &shadows_shader);
 			m_buffer2.display();
 			m_window.draw(sf::Sprite(m_buffer2.getTexture()));

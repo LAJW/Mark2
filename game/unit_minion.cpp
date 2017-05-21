@@ -15,6 +15,7 @@ mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
 
 void mark::unit::minion::tick(mark::tick_context& context) {
 	double dt = context.dt;
+	context.lights.emplace_back(m_pos, sf::Color::White);
 	m_gun_cooldown.tick(dt);
 	m_model.tick(dt);
 	m_model_shield.tick(context, m_pos);

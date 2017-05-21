@@ -26,6 +26,9 @@ void main() {
 
 //uniform values
 uniform sampler2D diffuse;
+uniform int lights_count;
+uniform vec4 lights_color[64];
+uniform vec2 lights_pos[64];
 const vec2 resolution = vec2(512, 512);
 
 //sample from the 1D distance map
@@ -70,5 +73,13 @@ void main(void) {
 
 	//multiply the summed amount by our distance, which gives us a radial falloff
 	//then multiply by vertex (light) color  
-	gl_FragColor = gl_Color * vec4(vec3(0.0), pow(1 - sum * smoothstep(1.0, 0.0, r), 3));
+	vec2 pos = vec2(norm.x * 1920.0 / 2.0, norm.y * -1080.0 / 2.0);
+	float transparency = pow(1 - sum * smoothstep(1.0, 0.0, r), 3);
+	for (int i = 0; i < lights_count; i++) {
+		float len = length(lights_pos[i] - pos);
+		if (len < 160.0) {
+			transparency *= (len / 160.0) * 0.5 + 0.5;
+		}
+	}
+	gl_FragColor = gl_Color * vec4(vec3(0.0), transparency);
 }
