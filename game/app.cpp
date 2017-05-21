@@ -23,7 +23,7 @@ mark::app::app(std::vector<std::string> arguments)
 void mark::app::main() {
 	const auto keymap = mark::keymap("options.yml");
 	auto world = std::make_unique<mark::world>(m_resource_manager);
-	mark::renderer renderer;
+	mark::renderer renderer({ 1920, 1080 }, 512);
 
 	auto last = std::chrono::system_clock::now();
 
@@ -37,7 +37,9 @@ void mark::app::main() {
 
 			const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
 			while (m_window.pollEvent(event)) {
-				if (event.type == sf::Event::Closed) {
+				if (event.type == sf::Event::Resized) {
+					m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+				} if (event.type == sf::Event::Closed) {
 					m_window.close();
 				} else {
 					auto command = keymap.translate(event);

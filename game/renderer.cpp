@@ -17,14 +17,20 @@ namespace {
 	}
 }
 
-mark::renderer::renderer() {
-	m_buffer.create(1920, 1080);
-	m_buffer2.create(1920, 1080);
-	m_occlusion_map.create(1920, 1080);
-	m_normal_map.create(1920, 1080);
-	m_ui_layer.create(1920, 1080);
-	m_vbo.create(512, 1);
-	m_vbo.setSmooth(true);
+mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res) {
+	m_buffer = std::make_unique<sf::RenderTexture>();
+	m_buffer->create(res.x, res.y);
+	m_buffer2 = std::make_unique<sf::RenderTexture>();
+	m_buffer2->create(res.x, res.y);
+	m_occlusion_map = std::make_unique<sf::RenderTexture>();
+	m_occlusion_map->create(res.x, res.y);
+	m_normal_map = std::make_unique<sf::RenderTexture>();
+	m_normal_map->create(res.x, res.y);
+	m_ui_layer = std::make_unique<sf::RenderTexture>();
+	m_ui_layer->create(res.x, res.y);
+	m_vbo = std::make_unique<sf::RenderTexture>();
+	m_vbo->create(512, 1);
+	m_vbo->setSmooth(true);
 	m_occlusion_shader.loadFromFile("occlusion.glsl", sf::Shader::Fragment);
 	m_shadows_shader.loadFromFile("shadows.glsl", sf::Shader::Fragment);
 	m_bump_mapping.loadFromFile("bump_mapping.glsl", sf::Shader::Fragment);
@@ -35,12 +41,32 @@ void mark::renderer::render(
 	mark::vector<double> camera,
 	mark::vector<double> resolution,
 	sf::RenderWindow& window) {
-	m_buffer.clear({ 0, 0, 0, 0 });
-	m_buffer2.clear();
-	m_ui_layer.clear({ 0, 0, 0, 0 });
-	m_vbo.clear(sf::Color::White);
-	m_occlusion_map.clear();
-	m_normal_map.clear({ 0x7E, 0x7E, 0xFF, 0xFF });
+
+	const auto shadow_res = m_vbo->getSize().x;
+
+	if (mark::vector<double>(m_buffer->getSize()) != resolution) {
+		const auto res = mark::vector<unsigned>(resolution);
+		m_buffer = std::make_unique<sf::RenderTexture>();
+		m_buffer->create(res.x, res.y);
+		m_buffer2 = std::make_unique<sf::RenderTexture>();
+		m_buffer2->create(res.x, res.y);
+		m_occlusion_map = std::make_unique<sf::RenderTexture>();
+		m_occlusion_map->create(res.x, res.y);
+		m_normal_map = std::make_unique<sf::RenderTexture>();
+		m_normal_map->create(res.x, res.y);
+		m_ui_layer = std::make_unique<sf::RenderTexture>();
+		m_ui_layer->create(res.x, res.y);
+	}
+	m_shadows_shader.setUniform("shadow_resolution", static_cast<float>(shadow_res));
+	m_shadows_shader.setUniform("resolution", sf::Glsl::Vec2(resolution));
+	m_bump_mapping.setUniform("resolution", sf::Glsl::Vec2(resolution));
+	m_occlusion_shader.setUniform("shadow_res", static_cast<float>(shadow_res));
+	m_buffer->clear({ 0, 0, 0, 0 });
+	m_buffer2->clear();
+	m_ui_layer->clear({ 0, 0, 0, 0 });
+	m_vbo->clear(sf::Color::White);
+	m_occlusion_map->clear();
+	m_normal_map->clear({ 0x7E, 0x7E, 0xFF, 0xFF }); // normal flat surface
 
 	const auto& sprites = context.sprites;
 	const auto& normals = context.normals;
@@ -65,45 +91,45 @@ void mark::renderer::render(
 	for (const auto& layer : sprites) {
 		if (layer.first < 0) {
 			for (const auto& sprite : layer.second) {
-				::render(sprite, camera, m_occlusion_map, resolution);
+				::render(sprite, camera, *m_occlusion_map, resolution);
 			}
 		} else if (layer.first < 100) {
 			for (const auto& sprite : layer.second) {
-				::render(sprite, camera, m_buffer, resolution);
+				::render(sprite, camera, *m_buffer, resolution);
 			}
 		} else {
 			for (const auto& sprite : layer.second) {
-				::render(sprite, camera, m_ui_layer, resolution);
+				::render(sprite, camera, *m_ui_layer, resolution);
 			}
 		}
 	}
 
 	for (const auto& layer : normals) {
 		for (const auto& sprite : layer.second) {
-			::render(sprite, camera, m_normal_map, resolution);
+			::render(sprite, camera, *m_normal_map, resolution);
 		}
 	}
 
-	m_occlusion_map.display();
-	m_normal_map.display();
-	m_ui_layer.display();
-	sf::Sprite sprite1(m_occlusion_map.getTexture());
-	sprite1.scale({ 512.f / 1920.f, 1.f / 1080.f });
-	m_vbo.draw(sprite1, &m_occlusion_shader);
-	m_vbo.display();
-	m_buffer.display();
-	m_buffer2.draw(sf::Sprite(m_occlusion_map.getTexture()));
-	m_buffer2.draw(sf::Sprite(m_normal_map.getTexture()), &m_bump_mapping);
-	m_buffer2.draw(sf::Sprite(m_buffer.getTexture()));
-	m_buffer2.draw(sf::Sprite(m_vbo.getTexture()));
-	sf::Sprite shadows(m_vbo.getTexture());
-	shadows.setScale({ 1920.f / 512.f, 1080.f / 1.f });;
+	m_occlusion_map->display();
+	m_normal_map->display();
+	m_ui_layer->display();
+	sf::Sprite sprite1(m_occlusion_map->getTexture());
+	sprite1.scale({ static_cast<float>(shadow_res) / static_cast<float>(resolution.x), 1.f / static_cast<float>(resolution.y) });
+	m_vbo->draw(sprite1, &m_occlusion_shader);
+	m_vbo->display();
+	m_buffer->display();
+	m_buffer2->draw(sf::Sprite(m_occlusion_map->getTexture()));
+	m_buffer2->draw(sf::Sprite(m_normal_map->getTexture()), &m_bump_mapping);
+	m_buffer2->draw(sf::Sprite(m_buffer->getTexture()));
+	m_buffer2->draw(sf::Sprite(m_vbo->getTexture()));
+	sf::Sprite shadows(m_vbo->getTexture());
+	shadows.setScale({ static_cast<float>(resolution.x) / static_cast<float>(shadow_res), static_cast<float>(resolution.y / 1.f) });;
 	m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
 	m_shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
 	m_shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
-	m_buffer2.draw(shadows, &m_shadows_shader);
-	m_buffer2.draw(sf::Sprite(m_ui_layer.getTexture()));
-	m_buffer2.display();
-	window.draw(sf::Sprite(m_buffer2.getTexture()));
+	m_buffer2->draw(shadows, &m_shadows_shader);
+	m_buffer2->draw(sf::Sprite(m_ui_layer->getTexture()));
+	m_buffer2->display();
+	window.draw(sf::Sprite(m_buffer2->getTexture()));
 	window.display();
 }

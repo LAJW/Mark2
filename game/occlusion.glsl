@@ -21,7 +21,7 @@ void main() {
 
 //uniform values
 uniform sampler2D diffuse;
-const vec2 resolution = vec2(512, 512);
+uniform float shadow_res;
 
 //alpha threshold for our occlusion map
 const float THRESHOLD = 0.75;
@@ -29,9 +29,9 @@ const float THRESHOLD = 0.75;
 void main(void) {
   float distance = 1.0;
 
-  for (float y = 0.0; y < resolution.y; y += 1.0) {
+  for (float y = 0.0; y < shadow_res; y += 1.0) {
 		//rectangular to polar filter
-		vec2 norm = vec2(gl_TexCoord[0].s, y / resolution.y) * 2.0 - 1.0;
+		vec2 norm = vec2(gl_TexCoord[0].s, y / shadow_res) * 2.0 - 1.0;
 		float theta = PI * 1.5 + norm.x * PI; 
 		float r = (1.0 + norm.y) * 0.5;
 
@@ -42,7 +42,7 @@ void main(void) {
 		vec4 data = texture2D(diffuse, coord);
 
 		//the current distance is how far from the top we've come
-		float dst = y / resolution.y;
+		float dst = y / shadow_res;
 
 		//if we've hit an opaque fragment (occluder), then get new distance
 		//if the new distance is below the current, then we'll use that for our ray

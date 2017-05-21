@@ -29,7 +29,8 @@ uniform sampler2D diffuse;
 uniform int lights_count;
 uniform vec4 lights_color[64];
 uniform vec2 lights_pos[64];
-const vec2 resolution = vec2(512, 512);
+uniform float shadow_resolution;
+uniform vec2 resolution;
 
 //sample from the 1D distance map
 float sample(vec2 coord, float r) {
@@ -52,7 +53,7 @@ void main(void) {
 
 	//we multiply the blur amount by our distance from center
 	//this leads to more blurriness as the shadow "fades away"
-	float blur = (1./resolution.x)  * smoothstep(0., 1., r); 
+	float blur = (1.0 / shadow_resolution)  * smoothstep(0., 1., r); 
 
 	//now we use a simple gaussian blur
 	float sum = 0.0;
@@ -73,7 +74,7 @@ void main(void) {
 
 	//multiply the summed amount by our distance, which gives us a radial falloff
 	//then multiply by vertex (light) color  
-	vec2 pos = vec2(norm.x * 1920.0 / 2.0, norm.y * -1080.0 / 2.0);
+	vec2 pos = vec2(norm.x * resolution.x / 2.0, norm.y * -resolution.y / 2.0);
 	float transparency = pow(1 - sum * smoothstep(1.0, 0.0, r), 3);
 	for (int i = 0; i < lights_count; i++) {
 		float len = length(lights_pos[i] - pos);

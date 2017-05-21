@@ -2,13 +2,13 @@
 #version 120
 
 uniform sampler2D diffuse;
+uniform vec2 resolution;
 
 void main() {
 
 	const bool useNormals = true;
 	const bool useShadow = true;
 	const vec4 lightColor = vec4(1, 1, 1, 1);
-	const vec2 resolution = vec2(1920, 1080);
 
 	vec2 position = gl_TexCoord[0].st;
 	vec3 light = vec3(resolution / 2.0, 0.1);
