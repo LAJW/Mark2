@@ -11,9 +11,6 @@ namespace mark {
 		app(std::vector<std::string> arguments);
 		void main();
 	private:
-		void render(const mark::sprite&, const mark::vector<double>& camera, sf::RenderTexture& buffer);
-		
-
 		sf::RenderWindow m_window;
 		mark::resource::manager m_resource_manager;
 	};
