@@ -15,9 +15,6 @@ namespace mark {
 		
 
 		sf::RenderWindow m_window;
-		sf::RenderTexture m_buffer;
-		sf::RenderTexture m_buffer2;
-		sf::Shader m_fragment_shader;
 		mark::resource::manager m_resource_manager;
 	};
 }

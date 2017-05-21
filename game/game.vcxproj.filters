@@ -115,6 +115,7 @@
     <ClCompile Include="vector.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="keymap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -232,6 +233,9 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="vector.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="keymap.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
