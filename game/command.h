@@ -11,6 +11,7 @@ namespace mark {
 			ai,
 			activate,
 			shoot,
+			ability_0,
 			ability_1,
 			ability_2,
 			ability_3,
@@ -20,7 +21,6 @@ namespace mark {
 			ability_7,
 			ability_8,
 			ability_9,
-			ability_0,
 			reset
 		} type;
 		mark::vector<double> pos;

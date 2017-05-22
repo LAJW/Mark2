@@ -195,6 +195,17 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 				}
 			}
 		}
+	} else if (!command.release) {
+		if (command.type >= command::type::ability_0
+			&& command.type <= command::type::ability_9
+			|| command.type == command::type::shoot) {
+			auto ship = m_ship.lock();
+			if (ship) {
+				const auto relative = (command.pos - m_pos) / 16.0;
+				const auto pick_pos = mark::floor(relative);
+				ship->toggle_bind(command.type, pick_pos);
+			}
+		}
 	}
 }
 
