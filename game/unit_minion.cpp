@@ -37,10 +37,15 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 					direction2 += dist;
 				}
 			}
-			const auto path = m_world.map().find_path(m_pos, target_pos);
+			if (m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - target_pos) < 150.f) {
+				m_path = m_world.map().find_path(m_pos, target_pos);
+				m_path_age = 1.f;
+			} else {
+				m_path_age -= static_cast<float>(context.dt);
+			}
 			mark::vector<double> direction;
-			if (path.size() > 3) {
-				const auto first = mark::vector<double>(path[path.size() - 3]);
+			if (m_path.size() > 3) {
+				const auto first = mark::vector<double>(m_path[m_path.size() - 3]);
 				direction = mark::normalize((first - m_pos)) + mark::normalize(direction2);
 			} else if (mark::length(target_pos - m_pos) > 320.0) {
 				direction = mark::normalize((target_pos - m_pos)) + mark::normalize(direction2);
