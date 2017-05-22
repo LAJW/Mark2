@@ -29,6 +29,7 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 		info.pos = pos;
 		info.size = 64.f;
 		info.rotation = parent().rotation();
+		info.color = this->heat_color();
 		context.sprites[0].emplace_back(info);
 	}
 	{

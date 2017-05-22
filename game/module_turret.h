@@ -111,7 +111,6 @@ namespace mark {
 			float            m_critical_multiplier = 1.5f;
 			float            m_max_health = 100.f;
 			float            m_cur_health = 100.f;
-			float            m_cur_heat = 0.f;
 
 			float            m_physical = 10.f;
 			float            m_energy = 10.f;

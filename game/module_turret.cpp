@@ -28,7 +28,6 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_critical_multiplier(info.critical_multiplier),
 	m_max_health(info.max_health),
 	m_cur_health(info.cur_health), 
-	m_cur_heat(info.cur_heat),
 	m_physical(info.physical),
 	m_energy(info.energy),
 	m_heat(info.heat),
@@ -54,7 +53,6 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		// TODO Respect angular velocity here
 		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
-	m_cur_heat = std::max(0.0, m_cur_heat - 10.f * context.dt);
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (m_shoot) {
@@ -84,14 +82,14 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		}
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
-	const auto heat_color = static_cast<uint8_t>(std::round((1.f - m_cur_heat / 100.f) * 255.f));
+	const auto heat_color = this->heat_color();
 	{
 		mark::sprite::info info;
 		info.image = m_im_cannon;
 		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
 		info.size = 32.f;
 		info.rotation = m_rotation;
-		info.color = { 255, heat_color, heat_color, 255 };
+		info.color = heat_color;
 		context.sprites[1].emplace_back(info);
 	}
 	{
@@ -100,7 +98,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		info.pos = pos;
 		info.size = 32.f;
 		info.rotation = parent().rotation();
-		info.color = { 255, heat_color, heat_color, 255 };
+		info.color = heat_color;
 		context.sprites[0].emplace_back(info);
 	}
 }

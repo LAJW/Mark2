@@ -15,9 +15,23 @@ mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<cons
 void mark::module::base::tick(mark::tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
 	const auto pos = this->pos();
-	if (health_percentage > 0.5f) {
-		// no-op
-	} else if (health_percentage > 0.25f) {
+
+	auto attached = parent().get_attached(*this);
+	for (auto& module : attached) {
+		auto& module_heat = module.get().m_cur_heat;
+		if (module_heat - m_cur_heat > 1.f) {
+			m_cur_heat += 0.5f;
+			module_heat -= 0.5f;
+		} else if (module_heat > m_cur_heat) {
+			const auto avg_heat = (module_heat + m_cur_heat) / 2.f;
+			m_cur_heat = avg_heat;
+			module_heat = avg_heat;
+		}
+	}
+	if (m_cur_heat >= 0.f) {
+		m_cur_heat = std::max(m_cur_heat - 2.f * static_cast<float>(context.dt), 0.f);
+	}
+	if (health_percentage <= 0.5f) {
 		mark::tick_context::spray_info info;
 		info.image = parent().world().resource_manager().image("glare.png");
 		info.lifespan(.3, 1.f);
@@ -29,7 +43,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.diameter(16.f, 32.f);
 		info.count = 4;
 		context.render(info);
-	} else {
+	} else if (health_percentage <= 0.25f) {
 		mark::tick_context::spray_info info;
 		info.image = parent().world().resource_manager().image("glare.png");
 		info.lifespan(.3, 1.f);
@@ -151,6 +165,11 @@ auto mark::module::base::parent() const -> const mark::unit::modular& {
 
 auto mark::module::base::parent() -> mark::unit::modular&{
 	return const_cast<mark::unit::modular&>(static_cast<const mark::module::base*>(this)->parent());
+}
+
+auto mark::module::base::heat_color() const -> sf::Color {
+	const auto intensity = static_cast<uint8_t>((1.f - m_cur_heat / max_heat) * 255.f);
+	return { 255, intensity, intensity, 255 };
 }
 
 auto mark::module::base::pos() const -> mark::vector<double> {

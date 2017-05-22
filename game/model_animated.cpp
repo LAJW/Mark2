@@ -23,5 +23,6 @@ mark::sprite mark::model::animated::render(mark::vector<double> pos, float size,
 	info.pos = pos;
 	info.size = size;
 	info.rotation = rotation;
+	info.color = color;
 	return mark::sprite(info);
 }

@@ -25,6 +25,7 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	info.pos = pos;
 	info.size = mark::module::size * 2.f;
 	info.rotation = parent().rotation();
+	info.color = this->heat_color();
 	context.sprites[0].emplace_back(info);
 
 	mark::tick_context::bar_info shield_bar;

@@ -21,6 +21,7 @@ void mark::module::energy_generator::tick(mark::tick_context& context) {
 	info.size = mark::module::size * 2.f;
 	info.rotation = parent().rotation();
 	info.frame = static_cast<uint8_t>(std::round(m_cur_energy / m_max_energy * 4.f));
+	info.color = this->heat_color();
 	context.sprites[0].emplace_back(info);
 }
 

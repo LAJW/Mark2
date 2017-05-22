@@ -23,7 +23,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		pos,
 		model_size,
 		rotation,
-		sf::Color::White));
+		this->heat_color()));
 	auto& world = parent().world();
 	mark::tick_context::bar_info bar;
 	if (m_shoot) {

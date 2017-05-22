@@ -8,6 +8,7 @@
 
 namespace sf {
 	class Texture;
+	class Color;
 }
 
 namespace mark {
@@ -32,6 +33,7 @@ namespace mark {
 			public idamageable,
 			public iserializable {
 		public:
+			static constexpr auto max_heat = 100.f;
 			friend mark::unit::modular;
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
 			virtual ~base() = default;
@@ -90,9 +92,12 @@ namespace mark {
 		protected:
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;
+			auto heat_color() const -> sf::Color;
+
 			float m_cur_health = 100.f;
 			float m_max_health = 100.f;
 			float m_stunned = 0.f;
+			float m_cur_heat = 0.f;
 		private:
 			std::shared_ptr<const mark::resource::image> m_thumbnail;
 			const mark::vector<unsigned> m_size;
