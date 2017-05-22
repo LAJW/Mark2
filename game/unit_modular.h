@@ -3,6 +3,8 @@
 #include <vector>
 #include <functional>
 #include "unit_base.h"
+#include "command.h"
+#include <unordered_map>
 
 namespace mark {
 
@@ -44,6 +46,8 @@ namespace mark {
 			auto collide(mark::vector<double> center, float radius) ->
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
 			auto lookat() const noexcept -> mark::vector<double>;
+			// bind module at position to command
+			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 		private:
 			auto attached(
 				mark::vector<int8_t> pos,
@@ -51,6 +55,10 @@ namespace mark {
 				std::vector<std::reference_wrapper<const mark::module::base>>;
 			void remove_dead(mark::tick_context&);
 			void pick_up(mark::tick_context&);
+			// Remove 
+			void unbind(const mark::module::base& module);
+
+
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
@@ -58,6 +66,7 @@ namespace mark {
 			mark::vector<double> m_lookat;
 			bool m_ai = false;
 			bool m_move = false;
+			std::unordered_multimap<enum class mark::command::type, std::reference_wrapper<mark::module::base>> m_bindings;
 		};
 	}
 }

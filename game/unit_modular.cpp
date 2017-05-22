@@ -333,6 +333,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos) ->
 			*module_it = std::move(m_modules.back());
 		}
 		m_modules.pop_back();
+		this->unbind(*out);
 		return std::move(out);
 	} else {
 		return nullptr;
@@ -371,10 +372,11 @@ void mark::unit::modular::command(const mark::command& command) {
 		if (pad) {
 			pad->activate(this->shared_from_this());
 		}
-	} else if (command.type == mark::command::type::shoot) {
-		for (auto& module : m_modules) {
-			module->shoot(command.pos, command.release);
-		}
+	} else {
+		auto bindings = m_bindings.equal_range(command.type);
+		std::for_each(bindings.first, bindings.second, [&command](auto module) {
+			module.second.get().shoot(command.pos, command.release);
+		});
 	}
 }
 
@@ -479,6 +481,31 @@ auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
 	return m_lookat;
 }
 
+void mark::unit::modular::toggle_bind(enum class mark::command::type command, mark::vector<int> pos) {
+	const auto module_it = std::find_if(
+		m_modules.begin(),
+		m_modules.end(),
+		[pos](const auto& module) {
+		return ::overlap(mark::vector<int>(module->grid_pos()), module->size(), pos);
+	});
+	if (module_it != m_modules.end()) {
+		auto& module = **module_it;
+		const auto bindings = m_bindings.equal_range(command);
+		const auto binding = std::find_if(
+			bindings.first,
+			bindings.second,
+			[&module](auto pair) {
+				return &module == &pair.second.get();
+			}
+		);
+		if (binding == bindings.second) {
+			m_bindings.insert({ command, module });
+		} else {
+			m_bindings.erase(binding);
+		}
+	}
+}
+
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	auto end_it = std::partition(
 		m_modules.begin(),
@@ -490,8 +517,9 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 		std::for_each(
 			end_it,
 			m_modules.end(),
-			[&context](auto& module) {
+			[&context, this](auto& module) {
 			module->on_death(context);
+			this->unbind(*module);
 		});
 		m_modules.erase(end_it, m_modules.end());
 		{
@@ -532,6 +560,18 @@ void mark::unit::modular::pick_up(mark::tick_context& context) {
 		if (module) {
 			context.units.push_back(std::make_shared<mark::unit::bucket>(m_world, bucket->pos(), std::move(module)));
 			break;
+		}
+	}
+}
+
+void mark::unit::modular::unbind(const mark::module::base& module) {
+	auto it = m_bindings.begin();
+	const auto end = m_bindings.end();
+	while (it != end) {
+		auto cur = it;
+		it++;
+		if (&cur->second.get() == &module) {
+			m_bindings.erase(cur);
 		}
 	}
 }

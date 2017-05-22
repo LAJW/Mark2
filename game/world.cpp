@@ -60,17 +60,27 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world) 
 	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
 	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
 	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, -3 });
+	vessel->toggle_bind(mark::command::type::ability_1, { 3, -3 });
 	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, 1 });
+	vessel->toggle_bind(mark::command::type::ability_1, { 3, 1 });
 	vessel->attach(make_turret(resource_manager), { -3, -3 });
+	vessel->toggle_bind(mark::command::type::shoot, { -3, -3 });
 	vessel->attach(make_turret(resource_manager), { -3, 1 });
+	vessel->toggle_bind(mark::command::type::shoot, { -3, 1 });
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, 3 });
+	vessel->toggle_bind(mark::command::type::ability_2, { -1, 3 });
 	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, -5 });
+	vessel->toggle_bind(mark::command::type::ability_2, { -1, -5 });
 	vessel->attach(make_mortar(resource_manager), { -3, -5 });
+	vessel->toggle_bind(mark::command::type::shoot, { -3, -5 });
 	vessel->attach(make_mortar(resource_manager), { -3, 3 });
+	vessel->toggle_bind(mark::command::type::shoot, { -3, 3 });
 	vessel->attach(std::make_unique<mark::module::energy_generator>(resource_manager), { -3, -1 });
 	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -1 });
 	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, -3 });
+	vessel->toggle_bind(mark::command::type::ability_3, { -7, -3 });
 	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, 1 });
+	vessel->toggle_bind(mark::command::type::ability_3, { -7, 1 });
 	return vessel;
 }
 
