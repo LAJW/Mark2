@@ -67,6 +67,8 @@ namespace mark {
 			bool m_ai = false;
 			bool m_move = false;
 			std::unordered_multimap<enum class mark::command::type, std::reference_wrapper<mark::module::base>> m_bindings;
+			std::vector<mark::vector<double>> m_path; // path cache
+			float m_path_age = 0.f;
 		};
 	}
 }

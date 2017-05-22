@@ -50,8 +50,8 @@ auto make_mortar(mark::resource::manager& resource_manager) {
 	return std::make_unique<mark::module::turret>(info);
 }
 
-auto create_ship(mark::resource::manager& resource_manager, mark::world& world) {
-	auto vessel = std::make_shared<mark::unit::modular>(world, mark::vector<double>(0.0, 0.0), 10.f);
+auto create_ship(mark::resource::manager& resource_manager, mark::world& world, mark::vector<double> pos = { 0, 0 }) {
+	auto vessel = std::make_shared<mark::unit::modular>(world, pos, 10.f);
 	auto core = std::make_unique<mark::module::core>(resource_manager);
 	vessel->attach(std::move(core), { -1, -1 });
 	auto cargo1 = std::make_unique<mark::module::cargo>(resource_manager);
@@ -103,7 +103,11 @@ mark::world::world(mark::resource::manager& resource_manager):
 		for (int y = 0; y < 1000; y++) {
 			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				mark::command command;
+				command.type = mark::command::type::ai;
+				m_units.push_back(create_ship(resource_manager, *this, pos));
+				m_units.back()->command(command);
 			}
 		}
 	}
@@ -111,10 +115,6 @@ mark::world::world(mark::resource::manager& resource_manager):
 	vessel->team(1);
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
-	// m_units.push_back(create_ship(resource_manager, *this));
-	mark::command command;
-	command.type = mark::command::type::ai;
-	// m_units.back()->command(command);
 }
 
 auto mark::world::map() const -> const mark::map&{

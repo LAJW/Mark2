@@ -144,9 +144,14 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	double speed = m_ai ? 64.0 : 320.0;
 	speed += mods.velocity;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
-		const auto path = m_world.map().find_path(m_pos, m_moveto, 50.0);
+		if (m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) {
+			m_path = m_world.map().find_path(m_pos, m_moveto);
+			m_path_age = 1.f;
+		} else {
+			m_path_age -= static_cast<float>(context.dt);
+		}
 #ifdef _DEBUG
-		for (const auto& step : path) {
+		for (const auto& step : m_path) {
 			mark::sprite::info args;
 			args.image = m_world.resource_manager().image("generator.png");
 			args.pos = step;
@@ -154,8 +159,8 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 		}
 #endif // !_DEBUG
 		const auto dir = mark::normalize(m_moveto - m_pos);
-		if (path.size() > 3) {
-			const auto first = path[path.size() - 3];
+		if (m_path.size() > 3) {
+			const auto first = m_path[m_path.size() - 3];
 			m_pos += mark::normalize(first - m_pos) * speed * dt;
 		} else {
 			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
