@@ -28,6 +28,7 @@ namespace mark {
 		// collide world with a line segment return NAN/NAN if there was no collision
 		auto can_find() const -> bool; // did we run out of find calls
 		auto collide(mark::segment_t) const -> mark::vector<double>;
+		void serialize(YAML::Emitter&) const override;
 	private:
 		using terrain_t = std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>;
 		map(mark::map::terrain_t data);

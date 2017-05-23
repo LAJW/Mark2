@@ -292,6 +292,28 @@ auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
 	return { NAN, NAN };
 }
 
+void mark::map::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << "map";
+	out << Key << "terrain" << BeginSeq;
+	for (unsigned x = 0, width = m_terrain.size(); x < width; x++) {
+		const auto& row = m_terrain[x];
+		for (unsigned y = 0, height = row.size(); y < height; y++) {
+			const auto& tile = row[y];
+			if (tile) {
+				out << BeginMap;
+				out << Key << "x" << Value << x;
+				out << Key << "y" << Value << y;
+				out << Key << "terrain" << Value;
+				tile->serialize(out);
+				out << EndMap;
+			}
+		}
+	}
+	out << EndSeq;
+}
+
 mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
 	return mark::map(make_map(resource_manager));
 }

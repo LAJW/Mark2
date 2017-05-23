@@ -85,3 +85,11 @@ auto mark::terrain::floor::collide(
 		return min;
 	}
 }
+
+void mark::terrain::floor::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << "type" << Value << "terrain_floor";
+	out << "variant" << Value << m_variant;
+	out << EndMap;
+}

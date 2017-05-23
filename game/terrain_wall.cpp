@@ -39,3 +39,10 @@ auto mark::terrain::wall::collide(
 	}
 	return min;
 }
+
+void mark::terrain::wall::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "terrain_wall";
+	out << EndMap;
+}

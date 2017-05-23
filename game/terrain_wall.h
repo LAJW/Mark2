@@ -20,6 +20,7 @@ namespace mark {
 			void tick(mark::tick_context& context, mark::vector<int> map_pos) const;
 			auto collide(mark::vector<double> world_pos, mark::segment_t segment) const ->
 				mark::vector<double> override;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 		};
