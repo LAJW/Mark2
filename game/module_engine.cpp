@@ -41,5 +41,6 @@ void mark::module::engine::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "module_engine";
+	this->serialize_base(out);
 	out << EndMap;
 }

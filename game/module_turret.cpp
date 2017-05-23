@@ -154,6 +154,8 @@ void mark::module::turret::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "module_turret";
+	this->serialize_base(out);
+
 	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
 	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
 	out << Key << "rate_of_fire_curve" << Value << ::serialize(m_rate_of_fire_curve);

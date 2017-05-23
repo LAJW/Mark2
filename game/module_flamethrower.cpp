@@ -71,5 +71,6 @@ void mark::module::flamethrower::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "module_flamethrower";
+	this->serialize_base(out);
 	out << EndMap;
 }

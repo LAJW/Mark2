@@ -34,5 +34,6 @@ void mark::module::core::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "module_core";
+	this->serialize_base(out);
 	out << EndMap;
 }

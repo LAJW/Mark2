@@ -93,6 +93,8 @@ namespace mark {
 			auto parent() const -> const mark::unit::modular&;
 			auto parent() -> mark::unit::modular&;
 			auto heat_color() const -> sf::Color;
+			// serialize module::base properties, call only from module serializers
+			void serialize_base(YAML::Emitter&) const;
 
 			float m_cur_health = 100.f;
 			float m_max_health = 100.f;

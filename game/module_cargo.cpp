@@ -203,6 +203,8 @@ void mark::module::cargo::serialize(YAML::Emitter& out) const {
 	out << BeginMap;
 	out << Key << "type" << Value << "module_cargo";
 
+	this->serialize_base(out);
+
 	out << Key << "contents" << Value << BeginSeq;
 	for (unsigned i = 0, size = m_modules.size(); i < size; i++) {
 		const auto& module = m_modules[i];

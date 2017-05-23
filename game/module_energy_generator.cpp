@@ -42,6 +42,7 @@ void mark::module::energy_generator::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "module_energy_generator";
+	this->serialize_base(out);
 	out << Key << "max_energy" << Value << m_max_energy;
 	out << Key << "cur_energy" << Value << m_cur_energy;
 	out << Key << "energy_regen" << Value << m_energy_regen;

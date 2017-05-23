@@ -172,6 +172,24 @@ auto mark::module::base::heat_color() const -> sf::Color {
 	return { 255, intensity, intensity, 255 };
 }
 
+void mark::module::base::serialize_base(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << Key << "cur_health" << Value << m_cur_health;
+	out << Key << "max_health" << Value << m_max_health;
+	out << Key << "stunned" << Value << m_stunned;
+	out << Key << "cur_heat" << Value << m_cur_heat;
+
+	out << Key << "size" << Value << BeginMap;
+	out << Key << "x" << m_size.x;
+	out << Value << "y" << m_size.y;
+	out << EndMap;
+
+	out << Key << "grid_pos" << Value << BeginMap;
+	out << Key << "x" << m_grid_pos.x;
+	out << Value << "y" << m_grid_pos.y;
+	out << EndMap;
+}
+
 auto mark::module::base::pos() const -> mark::vector<double> {
 	const auto pos = (mark::vector<float>(grid_pos()) + mark::vector<float>(this->size()) / 2.f)
 		* static_cast<float>(mark::module::size);
