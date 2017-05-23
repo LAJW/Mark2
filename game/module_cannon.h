@@ -14,7 +14,8 @@ namespace mark {
 			cannon(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
 			void shoot(mark::vector<double> pos, bool release) override;
-			virtual std::string describe() const;
+			auto describe() const -> std::string override;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			mark::model::animated m_model;
 			std::shared_ptr<const mark::resource::image> m_im_ray;

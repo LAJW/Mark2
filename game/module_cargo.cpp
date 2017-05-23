@@ -197,3 +197,24 @@ bool mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
 	}
 	return false;
 }
+
+void mark::module::cargo::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_cargo";
+
+	out << Key << "contents" << Value << BeginSeq;
+	for (unsigned i = 0, size = m_modules.size(); i < size; i++) {
+		const auto& module = m_modules[i];
+		if (module) {
+			out << BeginMap;
+			out << Key << "slot" << Value << i;
+			out << Key << "item" << Value;
+			module->serialize(out);
+			out << EndMap;
+		}
+	}
+	out << EndSeq;
+
+	out << EndMap;
+}

@@ -29,3 +29,10 @@ auto mark::module::core::detachable() const -> bool {
 auto mark::module::core::describe() const ->std::string {
 	return "Core Module";
 }
+
+void mark::module::core::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_core";
+	out << EndMap;
+}

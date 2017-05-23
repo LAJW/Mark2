@@ -20,6 +20,7 @@ namespace mark {
 			virtual auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			auto shield() const noexcept -> float;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_generator;
 			mark::model::shield m_model_shield;

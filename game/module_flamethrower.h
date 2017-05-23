@@ -19,6 +19,7 @@ namespace mark {
 			auto describe() const -> std::string override;
 			auto harvest_energy() -> float override;
 			auto energy_ratio() const -> float override;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image_base;
 			bool m_shoot = false;

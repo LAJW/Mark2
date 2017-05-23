@@ -36,3 +36,10 @@ auto mark::module::engine::global_modifiers() const->mark::module::modifiers {
 void mark::module::engine::shoot(mark::vector<double> pos, bool release) {
 	m_active = !release;
 }
+
+void mark::module::engine::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_engine";
+	out << EndMap;
+}

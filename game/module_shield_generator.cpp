@@ -78,3 +78,12 @@ auto mark::module::shield_generator::collide(const mark::segment_t& ray) ->
 auto mark::module::shield_generator::shield() const noexcept -> float {
 	return m_cur_shield;
 }
+
+void mark::module::shield_generator::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_shield_generator";
+	out << Key << "cur_shield" << Value << m_cur_shield;
+	out << Key << "max_shield" << Value << m_max_shield;
+	out << EndMap;
+}

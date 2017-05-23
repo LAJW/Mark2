@@ -66,3 +66,10 @@ auto mark::module::flamethrower::harvest_energy() -> float {
 auto mark::module::flamethrower::energy_ratio() const -> float {
 	return 0.f;
 }
+
+void mark::module::flamethrower::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_flamethrower";
+	out << EndMap;
+}

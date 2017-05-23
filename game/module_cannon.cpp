@@ -77,3 +77,10 @@ std::string mark::module::cannon::describe() const {
 	return "Laser Cannon\n"
 		"DPS: 60\n";
 }
+
+void mark::module::cannon::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "module_cannon";
+	out << EndMap;
+}

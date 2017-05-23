@@ -16,6 +16,7 @@ namespace mark {
 			void tick(mark::tick_context& context) override;
 			auto detachable() const -> bool;
 			auto describe() const -> std::string override;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 		};

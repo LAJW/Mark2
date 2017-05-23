@@ -28,6 +28,7 @@ namespace mark {
 			// return true on success
 			// return false if module could not be pushed
 			bool push(std::unique_ptr<mark::module::base>& module);
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;
 			std::shared_ptr<const mark::resource::image> m_im_light;
