@@ -91,6 +91,7 @@ namespace mark {
 			void target(mark::vector<double> pos) override;
 			void shoot(mark::vector<double> pos, bool release) override;
 			auto describe() const->std::string;
+			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_base;
 			std::shared_ptr<const mark::resource::image> m_im_cannon;
@@ -109,8 +110,6 @@ namespace mark {
 			float            m_heat_per_shot = 5.f;
 			float            m_critical_chance = 0.1f;
 			float            m_critical_multiplier = 1.5f;
-			float            m_max_health = 100.f;
-			float            m_cur_health = 100.f;
 
 			float            m_physical = 10.f;
 			float            m_energy = 10.f;

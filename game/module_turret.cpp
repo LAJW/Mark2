@@ -8,6 +8,7 @@
 #include "unit_projectile.h"
 #include "unit_modular.h"
 #include "world.h"
+#include "exception.h"
 
 mark::module::turret::turret(mark::module::turret::info& info):
 	base(mark::vector<unsigned>(info.size),
@@ -26,8 +27,6 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_heat_per_shot(info.heat_per_shot),
 	m_critical_chance(info.critical_chance),
 	m_critical_multiplier(info.critical_multiplier),
-	m_max_health(info.max_health),
-	m_cur_health(info.cur_health), 
 	m_physical(info.physical),
 	m_energy(info.energy),
 	m_heat(info.heat),
@@ -132,4 +131,58 @@ auto mark::module::turret::describe() const -> std::string {
 		os << "Average heat for best accuracy" << std::endl;
 	}
 	return os.str();
+}
+
+namespace {
+	// serialize curve
+	auto serialize(mark::curve::ptr ptr) -> std::string {
+		if (ptr == mark::curve::flat) {
+			return "flat";
+		} else if (ptr == mark::curve::invert) {
+			return "invert";
+		} else if (ptr == mark::curve::linear) {
+			return "linear";
+		} else if (ptr == mark::curve::sin) {
+			return "sin";
+		} else {
+			throw mark::exception("BAD_CURVE");
+		}
+	}
+}
+
+void mark::module::turret::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "turret";
+	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
+	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
+	out << Key << "rate_of_fire_curve" << Value << ::serialize(m_rate_of_fire_curve);
+	out << Key << "rotation" << Value << m_rotation;
+	out << Key << "angular_velocity" << Value << m_angular_velocity;
+	out << Key << "projectile_count" << Value << static_cast<unsigned>(m_projectile_count);
+	out << Key << "burst_delay" << Value << m_burst_delay;
+	out << Key << "guided" << Value << m_guided;
+	out << Key << "cone" << Value << m_cone;
+	out << Key << "cone_curve" << Value << ::serialize(m_cone_curve);
+	out << Key << "heat_per_shot" << Value << m_heat_per_shot;
+	out << Key << "critical_chance" << Value << m_critical_chance;
+	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
+
+	out << Key << "physical" << Value << m_physical;
+	out << Key << "energy" << Value << m_energy;
+	out << Key << "heat" << Value << m_heat;
+	out << Key << "projectile_angular_velocity" << Value << m_projectile_angular_velocity;
+	out << Key << "velocity" << Value << m_velocity;
+	out << Key << "acceleration" << Value << m_acceleration;
+	out << Key << "aoe_radius" << Value << m_aoe_radius;
+	out << Key << "seek_radius" << Value << m_seek_radius;
+	out << Key << "range" << Value << m_range;
+	out << Key << "piercing" << Value << m_piercing;
+
+	out << Key << "target" << Value << BeginMap;
+	out << Key << "x" << m_target.x;
+	out << Key << "y" << m_target.y;
+	out << EndMap;
+
+	out << EndMap;
 }
