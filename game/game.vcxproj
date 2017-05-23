@@ -152,6 +152,7 @@
     <ClCompile Include="module_engine.cpp" />
     <ClCompile Include="module_flamethrower.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="terrain_base.cpp" />
     <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="main.cpp" />

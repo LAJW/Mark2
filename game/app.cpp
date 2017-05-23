@@ -25,12 +25,11 @@ mark::app::app(std::vector<std::string> arguments)
 
 void mark::app::main() {
 
-	YAML::Emitter out;
 
 	const auto keymap = mark::keymap("options.yml");
-	auto world = std::make_unique<mark::world>(m_resource_manager);
 
-	world->serialize(out);
+	const auto node = YAML::LoadFile("state.yml");
+	auto world = std::make_unique<mark::world>(m_resource_manager, node);
 
 	mark::renderer renderer({ 1920, 1080 }, 512);
 
@@ -123,6 +122,8 @@ void mark::app::main() {
 		}
 	}
 
+	/* YAML::Emitter out;
+	world->serialize(out);
 	std::ofstream state("state.yml");
-	state << out.c_str();
+	state << out.c_str(); */
 }

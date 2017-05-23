@@ -10,6 +10,7 @@ namespace mark {
 		constexpr double grid_size = 32.0;
 		class base : public iserializable {
 		public:
+			static auto deserialize(mark::resource::manager&, const YAML::Node&) -> std::shared_ptr<mark::terrain::base>;
 			virtual ~base() = default;
 			virtual bool traversable() const = 0;
 			virtual void tick(mark::tick_context& context, mark::vector<int> map_pos) const = 0;

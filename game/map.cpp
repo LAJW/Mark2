@@ -329,5 +329,16 @@ mark::map mark::map::make_square(mark::resource::manager& resource_manager) {
 	return fix_corners(resource_manager, create_walls(resource_manager, std::move(terrain)));
 }
 
+mark::map::map(mark::resource::manager& resource_manager, const YAML::Node& node) {
+	std::vector<std::vector<std::shared_ptr<mark::terrain::base>>> floor(1000, std::vector<std::shared_ptr<mark::terrain::base>>(1000, nullptr));
+
+	for (const auto& child : node["terrain"]) {
+		const auto x = child["x"].as<unsigned>();
+		const auto y = child["y"].as<unsigned>();
+		floor[x][y] = mark::terrain::base::deserialize(resource_manager, child["terrain"]);
+	}
+	m_terrain = std::move(floor);
+}
+
 mark::map::map(mark::map::terrain_t terrain)
 	:m_terrain(terrain) { }

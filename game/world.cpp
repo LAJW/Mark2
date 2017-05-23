@@ -117,6 +117,15 @@ mark::world::world(mark::resource::manager& resource_manager):
 	m_units.push_back(vessel);
 }
 
+mark::world::world(mark::resource::manager& resource_manager, const YAML::Node& node):
+	m_resource_manager(resource_manager),
+	m_map(resource_manager, node["map"]),
+	image_bar(resource_manager.image("bar.png")),
+	image_font(resource_manager.image("font.png")),
+	image_stun(resource_manager.image("stun.png")) {
+
+}
+
 auto mark::world::map() const -> const mark::map&{
 	return m_map;
 }
@@ -314,7 +323,8 @@ void mark::world::serialize(YAML::Emitter& out) const {
 	}
 	out << EndSeq;
 
-	out << Key << "map" << Value << BeginSeq;
+	out << Key << "map" << Value;
 	m_map.serialize(out);
-	out << EndSeq;
+
+	out << EndMap;
 }

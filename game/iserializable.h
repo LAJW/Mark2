@@ -5,7 +5,7 @@
 namespace mark {
 	class iserializable {
 	public:
-		static std::unique_ptr<iserializable> deserialize(const YAML::Node&);
+		static std::shared_ptr<mark::iserializable> deserialize(const YAML::Node&);
 		inline virtual void serialize(YAML::Emitter& out) const {
 			out << "Serializer not defined for this object";
 		};

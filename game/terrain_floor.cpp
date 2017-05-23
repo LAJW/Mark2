@@ -4,13 +4,17 @@
 #include "resource_manager.h"
 #include "sprite.h"
 
+mark::terrain::floor::floor(mark::resource::manager& resource_manager, const YAML::Node& node) :
+	m_image(resource_manager.image("ice.png")),
+	m_image_normal(resource_manager.image("ice-normal.png")),
+	m_variant(node["variant"].as<unsigned>()) { } 
+
 mark::terrain::floor::floor(
 	mark::resource::manager& resource_manager,
 	int variant):
 	m_image(resource_manager.image("ice.png")),
 	m_image_normal(resource_manager.image("ice-normal.png")),
-	m_variant(variant),
-	m_resource_manager(resource_manager) { }
+	m_variant(variant) { }
 
 void mark::terrain::floor::tick(mark::tick_context& context, mark::vector<int> map_pos) const {
 	mark::sprite::info info;

@@ -16,6 +16,7 @@ namespace mark {
 	namespace terrain {
 		class floor : public mark::terrain::base {
 		public:
+			floor(mark::resource::manager& resource_manager, const YAML::Node&);
 			floor(mark::resource::manager& resource_manager, int variant = 4);
 			auto traversable() const -> bool override { return true; };
 			void tick(mark::tick_context& context, mark::vector<int> map_pos) const override;
@@ -25,7 +26,6 @@ namespace mark {
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_image_normal;
-			mark::resource::manager& m_resource_manager;
 			int m_variant;
 		};
 	}

@@ -124,7 +124,7 @@ void mark::renderer::render(
 	m_buffer2->draw(sf::Sprite(m_vbo->getTexture()));
 	sf::Sprite shadows(m_vbo->getTexture());
 	shadows.setScale({ static_cast<float>(resolution.x) / static_cast<float>(shadow_res), static_cast<float>(resolution.y / 1.f) });;
-	m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
+	// m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
 	m_shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
 	m_shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
 	m_buffer2->draw(shadows, &m_shadows_shader);

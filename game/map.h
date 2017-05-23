@@ -19,6 +19,7 @@ namespace mark {
 	public:
 		static mark::map make_cavern(mark::resource::manager& resource_manager);
 		static mark::map make_square(mark::resource::manager& resource_manager);
+		map(mark::resource::manager&, const YAML::Node&);
 		auto traversable(mark::vector<double> pos, double radius = 0.0) const -> bool;
 		void tick(mark::vector<double> top_left, mark::vector<double> bottom_right, mark::tick_context& context);
 		auto find_path(
