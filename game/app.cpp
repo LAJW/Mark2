@@ -87,7 +87,7 @@ void mark::app::main() {
 						std::ostringstream os;
 						os << static_cast<int>(i);
 						mark::print(
-							m_resource_manager.image("font.png"),
+							world->image_font,
 							context.sprites[102],
 							sprite.pos + mark::vector<double>(-24.f, 7.f),
 							{ 300 - 14.f, 300 - 14.f },
@@ -100,7 +100,7 @@ void mark::app::main() {
 						std::ostringstream os;
 						os << status.total;
 						mark::print(
-							m_resource_manager.image("font.png"),
+							world->image_font,
 							context.sprites[102],
 							sprite.pos + mark::vector<double>(16.f, 7.f),
 							{ 300 - 14.f, 300 - 14.f },
