@@ -530,6 +530,46 @@ auto mark::unit::modular::bound_status() const ->
 	return out;
 }
 
+void mark::unit::modular::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+
+	out << Key << "type" << Value << "modular";
+
+	out << Key << "modules" << Value << BeginSeq;
+	for (const auto& module : m_modules) {
+		module->serialize(out);
+	}
+	out << EndSeq;
+
+	out << Key << "moveto" << Value << BeginMap;
+	out << Key << "x" << Value << m_moveto.x;
+	out << Key << "y" << Value << m_moveto.y;
+	out << EndMap;
+
+	out << Key << "lookat" << Value << BeginMap;
+	out << Key << "x" << Value << m_lookat.x;
+	out << Key << "y" << Value << m_lookat.y;
+	out << EndMap;
+
+	out << Key << "ai" << Value << m_ai;
+
+	out << Key << "move" << Value << m_move;
+
+	out << Key << "bindings" << Value << BeginSeq;
+
+	for (const auto& pair : m_bindings) {
+		out << BeginMap;
+		out << Key << "key" << Value << static_cast<int>(pair.first);
+		out << Key << "module_id" << pair.second.get().id();
+		out << EndMap;
+	}
+	out << EndSeq;
+
+	// base
+	out << EndMap;
+}
+
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	auto end_it = std::partition(
 		m_modules.begin(),

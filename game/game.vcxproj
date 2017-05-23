@@ -211,7 +211,6 @@
     <ClInclude Include="property.h" />
     <ClInclude Include="resource_image.h" />
     <ClInclude Include="iserializable.h" />
-    <ClInclude Include="json.h" />
     <ClInclude Include="module_base.h" />
     <ClInclude Include="module_core.h" />
     <ClInclude Include="resource_manager.h" />

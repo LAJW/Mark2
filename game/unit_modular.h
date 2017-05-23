@@ -64,6 +64,7 @@ namespace mark {
 			// bind module at position to command
 			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 			auto bound_status() const -> std::array<bound_status, 11>;
+			void serialize(YAML::Emitter&) const;
 		private:
 			auto attached(
 				mark::vector<int8_t> pos,

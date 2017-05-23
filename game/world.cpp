@@ -289,3 +289,32 @@ auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vect
 	}
 	return { { NAN, NAN }, false };
 }
+
+void mark::world::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+
+	out << Key << "id" << Value << this->id();
+
+	out << Key << "type" << Value << "world";
+
+	const auto camera_target = m_camera_target.lock();
+	if (camera_target) {
+		out << Key << "camera_target_id" << Value << camera_target->id();
+	}
+
+	out << Key << "camera" << Value << BeginMap;
+	out << Key << "x" << Value << m_camera.x;
+	out << Key << "y" << Value << m_camera.y;
+	out << EndMap;
+
+	out << Key << "units" << Value << BeginSeq;
+	for (const auto& unit : m_units) {
+		unit->serialize(out);
+	}
+	out << EndSeq;
+
+	out << Key << "map" << Value << BeginSeq;
+	m_map.serialize(out);
+	out << EndSeq;
+}

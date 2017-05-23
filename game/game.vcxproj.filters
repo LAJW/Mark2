@@ -220,9 +220,6 @@
     <ClInclude Include="iserializable.h">
       <Filter>General</Filter>
     </ClInclude>
-    <ClInclude Include="json.h">
-      <Filter>General</Filter>
-    </ClInclude>
     <ClInclude Include="lfo.h">
       <Filter>General</Filter>
     </ClInclude>

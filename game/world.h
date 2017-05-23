@@ -28,7 +28,7 @@ namespace mark {
 	namespace terrain {
 		class base;
 	}
-	class world {
+	class world : public mark::iserializable {
 	public:
 		world(mark::resource::manager& resource_manager);
 		auto resource_manager() -> mark::resource::manager&;
@@ -54,6 +54,7 @@ namespace mark {
 			float aoe_radius = 0.f;
 		};
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
+		void serialize(YAML::Emitter& out) const override;
 
 		const std::shared_ptr<const mark::image> image_bar;
 		const std::shared_ptr<const mark::image> image_font;

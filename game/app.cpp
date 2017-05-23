@@ -13,6 +13,9 @@
 #include "keymap.h"
 #include "renderer.h"
 #include "unit_modular.h"
+#include "yaml-cpp\yaml.h"
+#include <unordered_map>
+#include <string>
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
@@ -22,8 +25,18 @@ mark::app::app(std::vector<std::string> arguments)
 }
 
 void mark::app::main() {
+
+	YAML::Emitter out;
+
 	const auto keymap = mark::keymap("options.yml");
 	auto world = std::make_unique<mark::world>(m_resource_manager);
+
+	world->serialize(out);
+	std::cout << out.c_str() << std::endl;
+
+	system("PAUSE");
+	return;
+
 	mark::renderer renderer({ 1920, 1080 }, 512);
 
 	auto last = std::chrono::system_clock::now();
