@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <memory>
 #include <vector>
 #include <functional>
@@ -6,7 +7,15 @@
 #include "command.h"
 #include <unordered_map>
 
+namespace sf {
+	class Texture;
+}
+
 namespace mark {
+
+	namespace resource {
+		using image = sf::Texture;
+	}
 
 	namespace module {
 		class base;
@@ -22,6 +31,12 @@ namespace mark {
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
 			static constexpr unsigned max_size = 40;
+			struct bound_status {
+				std::shared_ptr<const mark::resource::image> thumbnail;
+				uint16_t total = 0;
+				uint16_t ready = 0;
+				float cooldown = 0.f;
+			};
 		public:
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
@@ -48,6 +63,7 @@ namespace mark {
 			auto lookat() const noexcept -> mark::vector<double>;
 			// bind module at position to command
 			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
+			auto bound_status() const -> std::array<bound_status, 11>;
 		private:
 			auto attached(
 				mark::vector<int8_t> pos,

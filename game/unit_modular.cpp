@@ -511,6 +511,25 @@ void mark::unit::modular::toggle_bind(enum class mark::command::type command, ma
 	}
 }
 
+auto mark::unit::modular::bound_status() const ->
+	std::array<struct mark::unit::modular::bound_status, 11> {
+	std::array<struct mark::unit::modular::bound_status, 11> out;
+	for (const auto& binding : m_bindings) {
+		uint8_t slot;
+		if (binding.first == mark::command::type::shoot) {
+			slot = 0;
+		} else if (binding.first == mark::command::type::ability_0) {
+			slot = 10;
+		} else {
+			slot = static_cast<uint8_t>(binding.first) -
+				static_cast<uint8_t>(mark::command::type::ability_1) + 1;
+		}
+		out[slot].total++;
+		out[slot].thumbnail = binding.second.get().thumbnail();
+	}
+	return out;
+}
+
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	auto end_it = std::partition(
 		m_modules.begin(),

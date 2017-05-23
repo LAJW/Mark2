@@ -12,6 +12,7 @@
 #include "tick_context.h"
 #include "keymap.h"
 #include "renderer.h"
+#include "unit_modular.h"
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}
@@ -55,11 +56,61 @@ void mark::app::main() {
 			guide.type = mark::command::type::guide;
 			guide.pos = target;
 			world->command(guide);
-
 			mark::tick_context context(m_resource_manager);
+
 			context.dt = dt;
 			const auto resolution = mark::vector<double>(m_window.getSize());
 			world->tick(context, resolution);
+
+			const auto ship = std::dynamic_pointer_cast<mark::unit::modular>(world->target());
+			if (ship) {
+				const auto grid = m_resource_manager.image("grid-background.png");
+				const auto list = ship->bound_status();
+				const auto resolution = m_window.getSize();
+				const auto icon_size = 64.0;
+				for (uint8_t i = 0; i < list.size(); i++) {
+					const auto di = static_cast<double>(i);
+					const auto& status = list[i];
+					mark::sprite::info sprite;
+					sprite.image = status.thumbnail;
+					sprite.size = icon_size;
+					sprite.pos = world->camera() + mark::vector<double>(
+						di * icon_size - icon_size * list.size() / 2,
+						resolution.y / 2 - icon_size
+					);
+					if (status.thumbnail) {
+						context.sprites[101].emplace_back(sprite);
+					}
+					sprite.image = grid;
+					context.sprites[100].emplace_back(sprite);
+					{
+						std::ostringstream os;
+						os << static_cast<int>(i);
+						mark::print(
+							m_resource_manager.image("font.png"),
+							context.sprites[102],
+							sprite.pos + mark::vector<double>(-24.f, 7.f),
+							{ 300 - 14.f, 300 - 14.f },
+							14.f,
+							sf::Color::White,
+							os.str()
+						);
+					}
+					{
+						std::ostringstream os;
+						os << status.total;
+						mark::print(
+							m_resource_manager.image("font.png"),
+							context.sprites[102],
+							sprite.pos + mark::vector<double>(16.f, 7.f),
+							{ 300 - 14.f, 300 - 14.f },
+							14.f,
+							sf::Color::White,
+							os.str()
+						);
+					}
+				}
+			}
 			renderer.render(context, world->camera(), resolution, m_window);
 		}
 	}
