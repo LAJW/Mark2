@@ -26,6 +26,7 @@ namespace mark {
 			mark::vector<double> end,
 			double radius = 0.0) const->std::vector<mark::vector<double>>;
 		// collide world with a line segment return NAN/NAN if there was no collision
+		auto can_find() const -> bool; // did we run out of find calls
 		auto collide(mark::segment_t) const -> mark::vector<double>;
 	private:
 		using terrain_t = std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>;
@@ -33,5 +34,6 @@ namespace mark {
 		auto size() const -> mark::vector<int>;
 		auto traversable(mark::vector<int> pos, int radius) const -> bool;
 		terrain_t m_terrain;
+		mutable unsigned m_find_count;
 	};
 }

@@ -144,7 +144,7 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	double speed = m_ai ? 64.0 : 320.0;
 	speed += mods.velocity;
 	if (mark::length(m_moveto - m_pos) > speed * dt) {
-		if (m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) {
+		if ((m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) && m_world.map().can_find()) {
 			m_path = m_world.map().find_path(m_pos, m_moveto);
 			m_path_age = 1.f;
 		} else {

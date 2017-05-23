@@ -152,6 +152,7 @@ auto mark::map::traversable(const mark::vector<int> i_pos, const int radius) con
 }
 
 void mark::map::tick(mark::vector<double> world_tl, mark::vector<double> world_br, mark::tick_context& context) {
+	m_find_count = 0;
 	const auto size = this->size();
 	const auto tl = world_to_map(world_tl, size);
 	const auto br = world_to_map(world_br, size);
@@ -210,6 +211,7 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 	std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
 	std::vector<std::unique_ptr<Node>> closed;
 
+	m_find_count++;
 	while (!open.empty()) {
 		auto min_it = open.begin();
 		for (auto it = open.begin(), end = open.end(); it != end; it++) {
@@ -256,6 +258,10 @@ auto mark::map::find_path(mark::vector<double> world_start, mark::vector<double>
 		}
 	}
 	return std::vector<mark::vector<double>>();
+}
+
+auto mark::map::can_find() const -> bool {
+	return m_find_count <= 5;
 }
 
 auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
