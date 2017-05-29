@@ -4,16 +4,19 @@
 namespace {
 	void static render(const mark::sprite& sprite, const mark::vector<double>& camera, sf::RenderTexture& buffer, mark::vector<double> resolution) {
 		sf::Sprite tmp;
-		const auto texture_size = static_cast<float>(sprite.image().getSize().y);
-		const auto scale = sprite.size() / texture_size;
-		tmp.setTexture(sprite.image());
-		tmp.setTextureRect({ static_cast<int>(texture_size) * static_cast<int>(sprite.frame()), 0, static_cast<int>(texture_size), static_cast<int>(texture_size)  });
-		tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
-		tmp.scale(scale, scale);
-		tmp.rotate(sprite.rotation());
-		tmp.setColor(sprite.color());
-		tmp.move(static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0), static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
-		buffer.draw(tmp);
+		// HACK: Thumbnails not deserialized
+		if (&sprite.image()) {
+			const auto texture_size = static_cast<float>(sprite.image().getSize().y);
+			const auto scale = sprite.size() / texture_size;
+			tmp.setTexture(sprite.image());
+			tmp.setTextureRect({ static_cast<int>(texture_size) * static_cast<int>(sprite.frame()), 0, static_cast<int>(texture_size), static_cast<int>(texture_size) });
+			tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
+			tmp.scale(scale, scale);
+			tmp.rotate(sprite.rotation());
+			tmp.setColor(sprite.color());
+			tmp.move(static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0), static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
+			buffer.draw(tmp);
+		}
 	}
 }
 

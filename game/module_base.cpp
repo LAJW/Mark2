@@ -178,7 +178,7 @@ mark::module::base::base(mark::resource::manager& rm, const YAML::Node& node):
 	m_stunned(node["stunned"].as<float>()),
 	m_cur_heat(node["cur_heat"].as<float>()),
 	m_grid_pos(node["grid_pos"]["x"].as<int>(), node["grid_pos"]["y"].as<int>()),
-	m_size(node["size"]["x"].as<unsigned>(), node["grid_pos"]["y"].as<unsigned>()) { }
+	m_size(node["size"]["x"].as<unsigned>(), node["size"]["y"].as<unsigned>()) { }
 
 void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;

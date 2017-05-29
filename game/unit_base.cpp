@@ -11,11 +11,11 @@ mark::unit::base::base(mark::world& world, const YAML::Node& node):
 
 }
 
-void mark::unit::base::serialize_base(YAML::Emitter& out) {
+void mark::unit::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;
-	out << Key << "pos" << BeginMap;
-	out << Key << m_pos.x;
-	out << Key << m_pos.y;
+	out << Key << "pos" << Value << BeginMap;
+	out << Key << "x" << Value << m_pos.x;
+	out << Key << "y" << Value << m_pos.y;
 	out << EndMap;
 }
 

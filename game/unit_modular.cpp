@@ -548,6 +548,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
 void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
+	this->serialize_base(out);
 
 	out << Key << "type" << Value << "modular";
 

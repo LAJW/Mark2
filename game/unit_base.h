@@ -38,7 +38,7 @@ namespace mark {
 			Property<int> team = 0;
 		protected:
 			base(mark::world& world, const YAML::Node&);
-			void serialize_base(YAML::Emitter&);
+			void serialize_base(YAML::Emitter&) const;
 			virtual ~base() = default;
 
 			mark::vector<double> m_pos;

@@ -8,10 +8,12 @@
 #include "module_flamethrower.h"
 #include "module_shield_generator.h"
 #include "module_turret.h"
+#include <iostream>
 
 auto mark::module::deserialize(mark::resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<mark::module::base> {
 	const auto type = node["type"].as<std::string>();
+	std::cout << type << std::endl;
 	if (type == "module_battery") {
 		return std::make_unique<mark::module::battery>(rm, node);
 	} else if (type == "module_cannon") {
@@ -19,7 +21,7 @@ auto mark::module::deserialize(mark::resource::manager& rm, const YAML::Node& no
 	} else if (type == "module_cargo") {
 		return std::make_unique<mark::module::cargo>(rm, node);
 	} else if (type == "module_core") {
-		return std::make_unique<mark::module::energy_generator>(rm, node);
+		return std::make_unique<mark::module::core>(rm, node);
 	} else if (type == "module_energy_generator") {
 		return std::make_unique<mark::module::energy_generator>(rm, node);
 	} else if (type == "module_engine") {
