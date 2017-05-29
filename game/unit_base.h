@@ -14,12 +14,14 @@ namespace mark {
 	struct tick_context;
 
 	namespace unit {
+		class base;
+		auto deserialize(mark::world& world, const YAML::Node&) -> std::shared_ptr<mark::unit::base>;
+
 		class base:
 			public mark::iserializable,
 			public mark::idamageable,
 			public std::enable_shared_from_this<mark::unit::base> {
 		public:
-			static auto deserialize(mark::world& world, const YAML::Node&) -> std::shared_ptr<mark::unit::base>;
 			base(mark::world& world, mark::vector<double> pos)
 				:m_pos(pos), m_world(world) { }
 			virtual void tick(mark::tick_context& context) = 0;

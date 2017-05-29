@@ -124,6 +124,10 @@ mark::world::world(mark::resource::manager& resource_manager, const YAML::Node& 
 	image_font(resource_manager.image("font.png")),
 	image_stun(resource_manager.image("stun.png")) {
 
+	for (const auto& unit_node : node["units"]) {
+		m_units.push_back(mark::unit::deserialize(*this, unit_node));
+	}
+
 }
 
 auto mark::world::map() const -> const mark::map&{

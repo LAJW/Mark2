@@ -208,7 +208,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="tick_context.h" />
-    <ClInclude Include="unit_deserialize.cpp" />
+    <ClCompile Include="unit_deserialize.cpp" />
     <ClInclude Include="unit_landing_pad.h" />
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="property.h" />

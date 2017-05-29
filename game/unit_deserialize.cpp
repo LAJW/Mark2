@@ -1,8 +1,10 @@
+#include "unit_base.h"
 #include "exception.h"
 #include "unit_modular.h"
 #include "unit_projectile.h"
+#include "module_base.h"
 
-auto mark::unit::base::deserialize(mark::world& world, const YAML::Node& node) ->
+auto mark::unit::deserialize(mark::world& world, const YAML::Node& node) ->
 	std::shared_ptr<mark::unit::base> {
 	const auto type = node["type"].as<std::string>();
 	if (type == "modular") {
