@@ -86,6 +86,7 @@ namespace mark {
 				float critical_multiplier = 1.5f;
 				size_t piercing = 1;
 			};
+			turret(mark::resource::manager&, const YAML::Node&);
 			turret(mark::module::turret::info&);
 			virtual void tick(mark::tick_context& context) override;
 			void target(mark::vector<double> pos) override;

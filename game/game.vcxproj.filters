@@ -120,6 +120,9 @@
       <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="terrain_base.cpp" />
+    <ClCompile Include="module_deserialize.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module_base.h">
@@ -241,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="renderer.h">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_deserialize.cpp">
+      <Filter>Unit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

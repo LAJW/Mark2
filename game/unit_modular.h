@@ -2,10 +2,9 @@
 #include <array>
 #include <memory>
 #include <vector>
-#include <functional>
+#include <unordered_map>
 #include "unit_base.h"
 #include "command.h"
-#include <unordered_map>
 
 namespace sf {
 	class Texture;
@@ -38,6 +37,7 @@ namespace mark {
 				float cooldown = 0.f;
 			};
 		public:
+			modular(mark::world& world, const YAML::Node&);
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);

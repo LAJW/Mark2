@@ -172,6 +172,14 @@ auto mark::module::base::heat_color() const -> sf::Color {
 	return { 255, intensity, intensity, 255 };
 }
 
+mark::module::base::base(mark::resource::manager& rm, const YAML::Node& node):
+	m_cur_health(node["cur_health"].as<float>()),
+	m_max_health(node["max_health"].as<float>()),
+	m_stunned(node["stunned"].as<float>()),
+	m_cur_heat(node["cur_heat"].as<float>()),
+	m_grid_pos(node["grid_pos"]["x"].as<int>(), node["grid_pos"]["y"].as<int>()),
+	m_size(node["size"]["x"].as<unsigned>(), node["grid_pos"]["y"].as<unsigned>()) { }
+
 void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "cur_health" << Value << m_cur_health;

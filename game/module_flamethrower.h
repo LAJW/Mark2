@@ -13,6 +13,7 @@ namespace mark {
 	namespace module {
 		class flamethrower : public mark::module::base{
 		public:
+			flamethrower(mark::resource::manager&, const YAML::Node&);
 			flamethrower(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
 			void shoot(mark::vector<double> pos, bool release) override;

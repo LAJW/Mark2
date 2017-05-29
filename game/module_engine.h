@@ -13,6 +13,7 @@ namespace mark {
 	namespace module {
 		class engine : public mark::module::base {
 		public:
+			engine(mark::resource::manager&, const YAML::Node&);
 			engine(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
 			auto describe() const->std::string override;

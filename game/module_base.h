@@ -14,6 +14,7 @@ namespace sf {
 namespace mark {
 	namespace resource {
 		using image = sf::Texture;
+		class manager;
 	}
 	class sprite;
 
@@ -29,12 +30,18 @@ namespace mark {
 			float velocity = 0.f;
 		};
 
+		class base;
+
+		auto deserialize(mark::resource::manager&, const YAML::Node&) ->
+			std::unique_ptr<mark::module::base>;
+
 		class base:
 			public idamageable,
 			public iserializable {
 		public:
 			static constexpr auto max_heat = 100.f;
 			friend mark::unit::modular;
+			base(mark::resource::manager&, const YAML::Node&);
 			base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail);
 			virtual ~base() = default;
 

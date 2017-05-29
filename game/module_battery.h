@@ -12,8 +12,9 @@ namespace mark {
 		using image = sf::Texture;
 	}
 	namespace module {
-		class battery : public mark::module::base{
+		class battery : public mark::module::base {
 		public:
+			battery(mark::resource::manager&, const YAML::Node&);
 			battery(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
 			auto describe() const -> std::string override;

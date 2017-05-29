@@ -148,7 +148,48 @@ namespace {
 			throw mark::exception("BAD_CURVE");
 		}
 	}
+	auto deserialize(const std::string str) -> mark::curve::ptr {
+		if (str == "flat") {
+			return mark::curve::flat;
+		} else if (str == "invert") {
+			return mark::curve::invert;
+		} else if (str == "linear") {
+			return mark::curve::linear;
+		} else if (str == "sin") {
+			return mark::curve::sin;
+		} else {
+			throw mark::exception("BAD_CURVE");
+		}
+	}
 }
+
+mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node) :
+	mark::module::base(rm, node),
+	m_im_base(rm.image("turret-base.png")),
+	m_im_cannon(rm.image("turret-cannon.png")),
+	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
+	m_cur_cooldown(node["cur_cooldown"].as<float>()),
+	m_rate_of_fire(node["rate_of_fire"].as<float>()),
+	m_rotation(node["rotation"].as<float>()),
+	m_angular_velocity(node["angular_velocity"].as<float>()),
+	m_projectile_count(node["projectile_count"].as<unsigned>()),
+	m_burst_delay(node["burst_delay"].as<float>()),
+	m_guided(node["guided"].as<bool>()),
+	m_cone(node["cone"].as<float>()),
+	m_cone_curve(::deserialize(node["cone_curve"].as<std::string>())),
+	m_heat_per_shot(node["heat_per_shot"].as<float>()),
+	m_critical_chance(node["critical_chance"].as<float>()),
+	m_critical_multiplier(node["critical_multiplier"].as<float>()),
+	m_physical(node["physical"].as<float>()),
+	m_energy(node["energy"].as<float>()),
+	m_heat(node["heat"].as<float>()),
+	m_projectile_angular_velocity(node["projectile_angular_velocity"].as<float>()),
+	m_velocity(node["velocity"].as<float>()),
+	m_aoe_radius(node["aoe_radius"].as<float>()),
+	m_seek_radius(node["seek_radius"].as<float>()),
+	m_range(node["range"].as<float>()),
+	m_piercing(node["piercing"].as<float>()),
+	m_target(node["target"]["x"].as<double>(), node["target"]["y"].as<double>()) { }
 
 void mark::module::turret::serialize(YAML::Emitter& out) const {
 	using namespace YAML;

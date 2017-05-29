@@ -45,6 +45,13 @@ auto mark::module::battery::energy_ratio() const -> float {
 	return m_cur_energy / m_max_energy;
 }
 
+// deserialize / serialize
+
+mark::module::battery::battery(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_max_energy(node["max_energy"].as<float>()),
+	m_cur_energy(node["cur_energy"].as<float>()) { }
+
 void mark::module::battery::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;

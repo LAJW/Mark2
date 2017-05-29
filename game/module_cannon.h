@@ -11,6 +11,7 @@ namespace mark {
 	namespace module {
 		class cannon : public mark::module::base{
 		public:
+			cannon(mark::resource::manager&, const YAML::Node&);
 			cannon(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;
 			void shoot(mark::vector<double> pos, bool release) override;

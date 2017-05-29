@@ -198,6 +198,14 @@ bool mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
 	return false;
 }
 
+mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_im_body(rm.image("cargo.png")),
+	m_im_light(rm.image("glare.png")),
+	m_lfo(0.5f, rm.random(0.f, 6.f)),
+	m_modules(64) { }
+
+
 void mark::module::cargo::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;

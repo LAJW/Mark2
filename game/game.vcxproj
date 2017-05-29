@@ -149,6 +149,7 @@
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="keymap.cpp" />
+    <ClCompile Include="module_deserialize.cpp" />
     <ClCompile Include="module_engine.cpp" />
     <ClCompile Include="module_flamethrower.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="tick_context.h" />
+    <ClInclude Include="unit_deserialize.cpp" />
     <ClInclude Include="unit_landing_pad.h" />
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="property.h" />

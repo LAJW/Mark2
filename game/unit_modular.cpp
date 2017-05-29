@@ -530,6 +530,21 @@ auto mark::unit::modular::bound_status() const ->
 	return out;
 }
 
+mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
+	mark::unit::base(world, node),
+	m_moveto(node["moveto"]["x"].as<double>(), node["moveto"]["y"].as<double>()),
+	m_lookat(node["lookat"]["x"].as<double>(), node["lookat"]["y"].as<double>()),
+	m_ai(node["ai"].as<bool>()),
+	m_move(node["move"].as<bool>()) {
+	for (const auto& module_node : node["modules"]) {
+		const auto pos_x = module_node["grid_pos"]["x"].as<int>();
+		const auto pos_y = module_node["grid_pos"]["y"].as<int>();
+		const auto pos = mark::vector<int>(pos_x, pos_y);
+		auto module = mark::module::deserialize(world.resource_manager(), module_node);
+		this->attach(std::move(module), pos);
+	}
+}
+
 void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;

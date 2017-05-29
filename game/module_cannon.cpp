@@ -78,6 +78,14 @@ std::string mark::module::cannon::describe() const {
 		"DPS: 60\n";
 }
 
+// Serialize / Deserialize
+
+mark::module::cannon::cannon(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_model(rm.image("cannon.png")),
+	m_im_ray(rm.image("ray.png")) { }
+
+
 void mark::module::cannon::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;

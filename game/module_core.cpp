@@ -5,6 +5,10 @@
 #include "sprite.h"
 #include "tick_context.h"
 
+mark::module::core::core(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_image(rm.image("core.png")) { }
+
 mark::module::core::core(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("core.png")),
 	m_image(resource_manager.image("core.png")) {

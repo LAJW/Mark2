@@ -13,6 +13,7 @@ namespace mark {
 	namespace module {
 		class shield_generator : public base {
 		public:
+			shield_generator(mark::resource::manager&, const YAML::Node&);
 			shield_generator(mark::resource::manager& resource_manager);
 			void tick(mark::tick_context& context) override;
 			bool damage(const mark::idamageable::info&) override;

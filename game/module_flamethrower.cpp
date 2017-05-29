@@ -67,6 +67,12 @@ auto mark::module::flamethrower::energy_ratio() const -> float {
 	return 0.f;
 }
 
+// Serialize / Deserialize
+
+mark::module::flamethrower::flamethrower(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_image_base(rm.image("turret.png")) { }
+
 void mark::module::flamethrower::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;

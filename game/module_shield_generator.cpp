@@ -7,6 +7,11 @@
 #include "world.h"
 #include <sstream>
 
+mark::module::shield_generator::shield_generator(mark::resource::manager& rm, const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_im_generator(rm.image("shield-generator.png")),
+	m_model_shield(rm, 128.f) { }
+
 mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
 	m_im_generator(resource_manager.image("shield-generator.png")),

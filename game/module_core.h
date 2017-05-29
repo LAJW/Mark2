@@ -12,6 +12,7 @@ namespace mark {
 	namespace module {
 		class core : public base {
 		public:
+			core(mark::resource::manager&, const YAML::Node&);
 			core(mark::resource::manager& resource_manager);
 			void tick(mark::tick_context& context) override;
 			auto detachable() const -> bool;

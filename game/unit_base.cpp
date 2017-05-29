@@ -5,3 +5,17 @@ auto mark::unit::base::collide(mark::vector<double> center, float radius) ->
 	return { };
 }
 
+mark::unit::base::base(mark::world& world, const YAML::Node& node):
+	m_world(world),
+	m_pos(node["pos"]["x"].as<double>(0), node["pos"]["y"].as<double>(0)) {
+
+}
+
+void mark::unit::base::serialize_base(YAML::Emitter& out) {
+	using namespace YAML;
+	out << Key << "pos" << BeginMap;
+	out << Key << m_pos.x;
+	out << Key << m_pos.y;
+	out << EndMap;
+}
+

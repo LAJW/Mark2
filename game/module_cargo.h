@@ -11,6 +11,7 @@ namespace mark {
 	namespace module {
 		class cargo : public mark::module::base {
 		public:
+			cargo(mark::resource::manager&, const YAML::Node&);
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;

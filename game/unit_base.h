@@ -19,6 +19,7 @@ namespace mark {
 			public mark::idamageable,
 			public std::enable_shared_from_this<mark::unit::base> {
 		public:
+			static auto deserialize(mark::world& world, const YAML::Node&) -> std::shared_ptr<mark::unit::base>;
 			base(mark::world& world, mark::vector<double> pos)
 				:m_pos(pos), m_world(world) { }
 			virtual void tick(mark::tick_context& context) = 0;
@@ -34,7 +35,10 @@ namespace mark {
 				std::vector<std::reference_wrapper<mark::idamageable>>;
 			Property<int> team = 0;
 		protected:
+			base(mark::world& world, const YAML::Node&);
+			void serialize_base(YAML::Emitter&);
 			virtual ~base() = default;
+
 			mark::vector<double> m_pos;
 			mark::world& m_world;
 		};

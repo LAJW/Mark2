@@ -38,6 +38,18 @@ auto mark::module::energy_generator::energy_ratio() const -> float {
 	return m_cur_energy / m_max_energy;
 }
 
+// Serialize / Deserialize
+
+mark::module::energy_generator::energy_generator(
+	mark::resource::manager& rm,
+	const YAML::Node& node):
+	mark::module::base(rm, node),
+	m_image_base(rm.image("energy-generator.png")),
+	m_image_bar(rm.image("bar.png")),
+	m_cur_energy(node["cur_energy"].as<float>()),
+	m_max_energy(node["max_energy"].as<float>()),
+	m_energy_regen(node["energy_regen"].as<float>()) { }
+
 void mark::module::energy_generator::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
