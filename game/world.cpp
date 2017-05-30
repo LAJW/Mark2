@@ -117,19 +117,6 @@ mark::world::world(mark::resource::manager& resource_manager):
 	m_units.push_back(vessel);
 }
 
-mark::world::world(mark::resource::manager& resource_manager, const YAML::Node& node):
-	m_resource_manager(resource_manager),
-	m_map(resource_manager, node["map"]),
-	image_bar(resource_manager.image("bar.png")),
-	image_font(resource_manager.image("font.png")),
-	image_stun(resource_manager.image("stun.png")) {
-
-	for (const auto& unit_node : node["units"]) {
-		m_units.push_back(mark::unit::deserialize(*this, unit_node));
-	}
-
-}
-
 auto mark::world::map() const -> const mark::map&{
 	return m_map;
 }
@@ -301,6 +288,25 @@ auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vect
 		return { collision.second, dead };
 	}
 	return { { NAN, NAN }, false };
+}
+
+// Serializer / Deserializer
+
+mark::world::world(mark::resource::manager& rm, const YAML::Node& node):
+	m_resource_manager(rm),
+	m_map(rm, node["map"]),
+	image_bar(rm.image("bar.png")),
+	image_font(rm.image("font.png")),
+	image_stun(rm.image("stun.png")) {
+
+	std::string camera_target_id = node["camera_target_id"].as<std::string>();
+	for (const auto& unit_node : node["units"]) {
+		m_units.push_back(mark::unit::deserialize(*this, unit_node));
+		if (unit_node["id"].as<std::string>() == camera_target_id) {
+			m_camera_target = m_units.back();
+		}
+	}
+
 }
 
 void mark::world::serialize(YAML::Emitter& out) const {

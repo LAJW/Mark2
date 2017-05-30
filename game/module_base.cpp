@@ -182,6 +182,7 @@ mark::module::base::base(mark::resource::manager& rm, const YAML::Node& node):
 
 void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;
+	out << Key << "id" << Value << this->id();
 	out << Key << "cur_health" << Value << m_cur_health;
 	out << Key << "max_health" << Value << m_max_health;
 	out << Key << "stunned" << Value << m_stunned;
