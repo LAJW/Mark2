@@ -147,3 +147,53 @@ auto mark::unit::projectile::collide(const mark::segment_t&) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
 	return { nullptr, { NAN, NAN } };
 }
+
+// Serializer / Deserializer
+
+mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
+	mark::unit::base(world, node),
+	m_image(world.resource_manager().image("shell.png")),
+	m_im_tail(world.resource_manager().image("glare.png")),
+	m_velocity(node["velocity"].as<float>()),
+	m_rotation(node["rotation"].as<float>()),
+	m_seek_radius(node["seek_radius"].as<float>()),
+	m_aoe_radius(node["aoe_radius"].as<float>()),
+	m_critical_chance(node["critical_chance"].as<float>()),
+	m_critical_multiplier(node["critical_multiplier"].as<float>()),
+	m_piercing(node["piercing"].as<unsigned>()) { }
+
+
+void mark::unit::projectile::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "unit_projectile";
+	this->serialize_base(out);
+	out << Key << "rotation" << Value << m_rotation;
+	out << Key << "velocity" << Value << m_velocity;
+	out << Key << "seek_radius" << Value << m_seek_radius;
+	out << Key << "aoe_radius" << Value << m_aoe_radius;
+	out << Key << "critical_chance" << Value << m_critical_chance;
+	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
+	out << Key << "piercing" << Value << m_piercing;
+	const auto guide = m_guide.lock();
+	if (guide) {
+		out << Key << "guide" << Value << guide->id();
+	}
+
+	out << Key << "damaged" << Value << BeginSeq;
+	for (const auto& damaged : m_damaged) {
+		out << reinterpret_cast<uint64_t>(damaged);
+	}
+	out << EndSeq;
+
+	out << EndMap;
+}
+
+void mark::unit::projectile::resolve_ref(
+	const YAML::Node& node,
+	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) {
+	
+	if (node["guide"]) {
+		m_guide = std::dynamic_pointer_cast<mark::unit::modular>(units.at(node["guide"].as<uint64_t>()).lock());
+	}
+}

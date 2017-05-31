@@ -33,12 +33,17 @@ namespace mark {
 				size_t piercing = 1;
 				size_t team = 0;
 			};
+			projectile(mark::world&, const YAML::Node&);
 			projectile(const projectile::info&);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
 			auto invincible() const -> bool override;
-			virtual auto collide(const mark::segment_t&) ->
+			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
+			void serialize(YAML::Emitter&) const override;
+			void resolve_ref(
+				const YAML::Node&,
+				const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units);
 		private:
 			projectile(const projectile::info&, bool);
 			std::shared_ptr<const mark::resource::image> m_image;

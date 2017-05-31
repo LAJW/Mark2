@@ -15,6 +15,8 @@ auto mark::unit::deserialize(
 		return std::make_shared<mark::unit::modular>(world, node);
 	} else if (type == "unit_landing_pad") {
 		return std::make_shared<mark::unit::landing_pad>(world, node);
+	} else if (type == "unit_projectile") {
+		return std::make_shared<mark::unit::projectile>(world, node);
 	} else {
 		throw mark::exception("UNKNOWN_UNIT");
 	}
