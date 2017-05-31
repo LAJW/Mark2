@@ -91,14 +91,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;UNIT_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Lib\yaml-cpp\include;C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Lib\SFML-2.4.2_shared\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Lib\yaml-cpp\build\Release;C:\Lib\SFML-2.4.2_shared\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libyaml-cppmd.lib;sfml-graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -120,7 +120,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;UNIT_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Lib\yaml-cpp\include;C:\Lib\SFML-2.4.2_shared\include;C:\Lib\Catch\single_include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="..\game\adsr.cpp" />
     <ClCompile Include="..\game\cooldown.cpp" />
+    <ClCompile Include="..\game\keymap.cpp" />
     <ClCompile Include="..\game\lfo.cpp" />
     <ClCompile Include="..\game\map.cpp" />
     <ClCompile Include="..\game\model_animated.cpp" />
@@ -156,18 +157,22 @@
     <ClCompile Include="..\game\module_cannon.cpp" />
     <ClCompile Include="..\game\module_cargo.cpp" />
     <ClCompile Include="..\game\module_core.cpp" />
+    <ClCompile Include="..\game\module_deserialize.cpp" />
     <ClCompile Include="..\game\module_energy_generator.cpp" />
-    <ClCompile Include="..\game\module_mortar.cpp" />
+    <ClCompile Include="..\game\module_engine.cpp" />
+    <ClCompile Include="..\game\module_flamethrower.cpp" />
     <ClCompile Include="..\game\module_shield_generator.cpp" />
     <ClCompile Include="..\game\module_turret.cpp" />
     <ClCompile Include="..\game\particle.cpp" />
     <ClCompile Include="..\game\resource_manager.cpp" />
     <ClCompile Include="..\game\sprite.cpp" />
+    <ClCompile Include="..\game\terrain_base.cpp" />
     <ClCompile Include="..\game\terrain_floor.cpp" />
     <ClCompile Include="..\game\terrain_wall.cpp" />
     <ClCompile Include="..\game\tick_context.cpp" />
     <ClCompile Include="..\game\unit_base.cpp" />
     <ClCompile Include="..\game\unit_bucket.cpp" />
+    <ClCompile Include="..\game\unit_deserialize.cpp" />
     <ClCompile Include="..\game\unit_landing_pad.cpp" />
     <ClCompile Include="..\game\unit_minion.cpp" />
     <ClCompile Include="..\game\unit_modular.cpp" />
@@ -184,7 +189,7 @@
     <ClInclude Include="..\game\exception.h" />
     <ClInclude Include="..\game\idamageable.h" />
     <ClInclude Include="..\game\iserializable.h" />
-    <ClInclude Include="..\game\json.h" />
+    <ClInclude Include="..\game\keymap.h" />
     <ClInclude Include="..\game\lfo.h" />
     <ClInclude Include="..\game\map.h" />
     <ClInclude Include="..\game\model_animated.h" />
@@ -195,7 +200,8 @@
     <ClInclude Include="..\game\module_cargo.h" />
     <ClInclude Include="..\game\module_core.h" />
     <ClInclude Include="..\game\module_energy_generator.h" />
-    <ClInclude Include="..\game\module_mortar.h" />
+    <ClInclude Include="..\game\module_engine.h" />
+    <ClInclude Include="..\game\module_flamethrower.h" />
     <ClInclude Include="..\game\module_shield_generator.h" />
     <ClInclude Include="..\game\module_turret.h" />
     <ClInclude Include="..\game\particle.h" />

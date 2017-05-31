@@ -1,58 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Module">
-      <UniqueIdentifier>{6c24dafb-6592-4c7a-8d94-4b49e5f3196c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Terrain">
-      <UniqueIdentifier>{ad4e4f86-d887-4674-98ef-5ba05ab33698}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unit">
-      <UniqueIdentifier>{6c8b5d36-eb51-4ba2-8d07-6438c119012c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="General">
-      <UniqueIdentifier>{743598ac-0ec5-47d7-adf2-19e43df39c2a}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="module_base.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_cannon.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_cargo.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_core.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_shield_generator.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="terrain_floor.cpp">
-      <Filter>Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="terrain_wall.cpp">
-      <Filter>Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_projectile.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_landing_pad.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_minion.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_modular.cpp">
-      <Filter>Unit</Filter>
+    <ClCompile Include="adsr.cpp">
+      <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="app.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer.cpp">
       <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -64,43 +19,7 @@
     <ClCompile Include="model_animated.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="particle.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
-    <ClCompile Include="sprite.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
-    <ClCompile Include="world.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
-    <ClCompile Include="module_turret.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
     <ClCompile Include="model_shield.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
-    <ClCompile Include="tick_context.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
-    <ClCompile Include="module_energy_generator.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_battery.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_bucket.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_base.cpp">
-      <Filter>Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="module_flamethrower.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="module_engine.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="adsr.cpp">
       <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="cooldown.cpp">
@@ -109,74 +28,143 @@
     <ClCompile Include="lfo.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
     <ClCompile Include="resource_manager.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="tick_context.cpp">
       <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="vector.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="keymap.cpp" />
-    <ClCompile Include="renderer.cpp">
+    <ClCompile Include="world.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="terrain_base.cpp" />
     <ClCompile Include="module_deserialize.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="module_engine.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_flamethrower.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_battery.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_cannon.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_base.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_cargo.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_core.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_energy_generator.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_shield_generator.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="module_turret.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_floor.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_wall.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_base.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_bucket.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_landing_pad.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_minion.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_modular.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_projectile.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_deserialize.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="keymap.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_base.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="module_base.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_cannon.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_cargo.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_core.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_shield_generator.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_turret.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_projectile.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_base.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_landing_pad.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_minion.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_modular.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain_wall.h">
-      <Filter>Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain_base.h">
-      <Filter>Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain_floor.h">
-      <Filter>Terrain</Filter>
+    <Filter Include="General">
+      <UniqueIdentifier>{906ef365-ee78-4ef2-81ec-adf8d0bd62a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module">
+      <UniqueIdentifier>{6b5d2276-2d4c-45f3-98c6-75cdfba55a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{b37d0f7b-475c-4608-8e52-99aa5aed11b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Terrain">
+      <UniqueIdentifier>{c6eb9957-5839-4bc5-aa00-258d3cce8379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unit">
+      <UniqueIdentifier>{d9a7fe68-c8fd-4fbe-a549-887729308338}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="adsr.h">
+      <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="app.h">
       <Filter>General</Filter>
     </ClInclude>
+    <ClInclude Include="keymap.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>General</Filter>
+    </ClInclude>
     <ClInclude Include="command.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="cooldown.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="exception.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="idamageable.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="lfo.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="model_animated.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="model_shield.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="particle.h">
@@ -188,49 +176,13 @@
     <ClInclude Include="tick_context.h">
       <Filter>General</Filter>
     </ClInclude>
-    <ClInclude Include="world.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="model_shield.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="module_energy_generator.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_battery.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="idamageable.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="unit_bucket.h">
-      <Filter>Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="module_flamethrower.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="module_engine.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="adsr.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="cooldown.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="exception.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="iserializable.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="lfo.h">
-      <Filter>General</Filter>
-    </ClInclude>
     <ClInclude Include="property.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="resource_image.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="iserializable.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="resource_manager.h">
@@ -239,30 +191,81 @@
     <ClInclude Include="vector.h">
       <Filter>General</Filter>
     </ClInclude>
-    <ClInclude Include="keymap.h">
+    <ClInclude Include="world.h">
       <Filter>General</Filter>
     </ClInclude>
-    <ClInclude Include="renderer.h">
-      <Filter>General</Filter>
+    <ClInclude Include="module_engine.h">
+      <Filter>Module</Filter>
     </ClInclude>
-    <ClInclude Include="unit_deserialize.cpp">
+    <ClInclude Include="module_flamethrower.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_battery.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_cannon.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_cargo.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_energy_generator.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_shield_generator.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_turret.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_base.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="module_core.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_base.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_floor.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_wall.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_bucket.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_landing_pad.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_projectile.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_base.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_minion.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_modular.h">
       <Filter>Unit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.glsl">
+    <None Include="bump_mapping.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="occlusion.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shadows.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="options.yml">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="bump_mapping.glsl">
+    <None Include="shader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shadows.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
