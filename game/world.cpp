@@ -292,9 +292,10 @@ auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vect
 
 // Serializer / Deserializer
 
-mark::world::world(mark::resource::manager& rm, const YAML::Node& node):
+mark::world::world(mark::resource::manager& rm, const YAML::Node& node) :
 	m_resource_manager(rm),
 	m_map(rm, node["map"]),
+	m_camera(node["camera"]["x"].as<double>(), node["camera"]["y"].as<double>()),
 	image_bar(rm.image("bar.png")),
 	image_font(rm.image("font.png")),
 	image_stun(rm.image("stun.png")) {
