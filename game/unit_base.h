@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "iserializable.h"
 #include "property.h"
 #include "vector.h"
@@ -15,7 +16,10 @@ namespace mark {
 
 	namespace unit {
 		class base;
-		auto deserialize(mark::world& world, const YAML::Node&) -> std::shared_ptr<mark::unit::base>;
+		auto deserialize(
+			mark::world& world,
+			const YAML::Node& node) ->
+			std::shared_ptr<mark::unit::base>;
 
 		class base:
 			public mark::iserializable,
@@ -35,6 +39,10 @@ namespace mark {
 				std::pair<mark::idamageable*, mark::vector<double>> = 0;
 			virtual auto collide(mark::vector<double> center, float radius) ->
 				std::vector<std::reference_wrapper<mark::idamageable>>;
+			// Resolve references after deserializing
+			virtual void resolve_ref(
+				const YAML::Node&,
+				const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units);
 			Property<int> team = 0;
 		protected:
 			base(mark::world& world, const YAML::Node&);

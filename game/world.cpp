@@ -299,13 +299,18 @@ mark::world::world(mark::resource::manager& rm, const YAML::Node& node):
 	image_font(rm.image("font.png")),
 	image_stun(rm.image("stun.png")) {
 
-	std::string camera_target_id = node["camera_target_id"].as<std::string>();
+	std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>> unit_map;
+	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
 	for (const auto& unit_node : node["units"]) {
 		m_units.push_back(mark::unit::deserialize(*this, unit_node));
-		if (unit_node["id"].as<std::string>() == camera_target_id) {
-			m_camera_target = m_units.back();
-		}
+		const auto unit_id = unit_node["id"].as<uint64_t>();
+		unit_map.emplace(unit_id, m_units.back());
 	}
+	for (const auto& unit_node : node["units"]) {
+		const auto unit_id = unit_node["id"].as<uint64_t>();
+		unit_map[unit_id].lock()->resolve_ref(unit_node, unit_map);
+	}
+	m_camera_target = unit_map.at(camera_target_id);
 
 }
 

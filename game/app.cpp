@@ -122,8 +122,8 @@ void mark::app::main() {
 		}
 	}
 
-	/* YAML::Emitter out;
+	YAML::Emitter out;
 	world->serialize(out);
 	std::ofstream state("state.yml");
-	state << out.c_str(); */
+	state << out.c_str();
 }

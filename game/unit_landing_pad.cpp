@@ -212,3 +212,41 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 auto mark::unit::landing_pad::collide(const mark::segment_t &) -> std::pair<mark::idamageable *, mark::vector<double>> {
 	return { nullptr, { NAN, NAN } };
 }
+
+// Serialize / Deserialize
+
+mark::unit::landing_pad::landing_pad(
+	mark::world& world,
+	const YAML::Node& node):
+	mark::unit::base(world, node),
+	m_image(world.resource_manager().image("landing-pad.png")) {
+
+	if (node["grabbed"]) {
+		m_grabbed = mark::module::deserialize(world.resource_manager(), node["grabbed"]);
+	}
+}
+
+void mark::unit::landing_pad::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "unit_landing_pad";
+	this->serialize_base(out);
+	const auto ship = m_ship.lock();
+	if (ship) {
+		out << Key << "ship_id" << Value << ship->id();
+	}
+	if (m_grabbed) {
+		out << Key << "grabbed" << Value;
+		m_grabbed->serialize(out);
+	}
+	out << EndMap;
+}
+
+void mark::unit::landing_pad::resolve_ref(
+	const YAML::Node& node,
+	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) {
+	if (node["ship_id"]) {
+		const auto ship_id = node["ship_id"].as<uint64_t>();
+		m_ship = std::dynamic_pointer_cast<mark::unit::modular>(units.at(ship_id).lock());
+	}
+}

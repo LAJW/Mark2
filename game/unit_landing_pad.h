@@ -17,6 +17,7 @@ namespace mark {
 		class modular;
 		class landing_pad final : public mark::unit::base {
 		public:
+			landing_pad(mark::world& world, const YAML::Node&);
 			landing_pad(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override { return false; };
@@ -24,8 +25,10 @@ namespace mark {
 			void dock(mark::unit::modular* ship);
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
 			void command(const mark::command& command) override;
-			virtual auto collide(const mark::segment_t&) ->
+			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
+			void serialize(YAML::Emitter&) const override;
+			void resolve_ref(const YAML::Node&, const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::weak_ptr<mark::unit::modular> m_ship;
