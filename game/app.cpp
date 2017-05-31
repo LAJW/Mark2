@@ -28,8 +28,13 @@ void mark::app::main() {
 
 	const auto keymap = mark::keymap("options.yml");
 
-	const auto node = YAML::LoadFile("state.yml");
-	auto world = std::make_unique<mark::world>(m_resource_manager, node);
+	std::unique_ptr<mark::world> world;
+	try {
+		const auto node = YAML::LoadFile("state.yml");
+		world = std::make_unique<mark::world>(m_resource_manager, node);
+	} catch (std::exception&) {
+		world = std::make_unique<mark::world>(m_resource_manager);
+	}
 
 	mark::renderer renderer({ 1920, 1080 }, 512);
 
