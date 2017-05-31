@@ -45,8 +45,8 @@ namespace {
 		std::vector<bool> map(max_size * max_size, false);
 		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
 		for (const auto& module : modules) {
-			for (int8_t x = 0; x < module->size().x; x++) {
-				for (int8_t y = 0; y < module->size().y; y++) {
+			for (int8_t x = 0; x < static_cast<int8_t>(module->size().x); x++) {
+				for (int8_t y = 0; y < static_cast<int8_t>(module->size().y); y++) {
 					const auto px = hs.x + module->grid_pos().x + x;
 					const auto py = hs.y + module->grid_pos().y + y;
 					map[py * max_size + px] = true;
@@ -316,8 +316,8 @@ auto mark::unit::modular::detach(mark::vector<int> pos) ->
 
 		auto map = availability_map(m_modules);
 		const auto hs = mark::vector<int8_t>(max_size / 2, max_size / 2);
-		for (int8_t x = 0; x < module->size().x; x++) {
-			for (int8_t y = 0; y < module->size().y; y++) {
+		for (int8_t x = 0; x < static_cast<int8_t>(module->size().x); x++) {
+			for (int8_t y = 0; y < static_cast<int8_t>(module->size().y); y++) {
 				const auto px = hs.x + module->grid_pos().x + x;
 				const auto py = hs.y + module->grid_pos().y + y;
 				map[py * max_size + px] = false;

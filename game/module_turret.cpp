@@ -67,7 +67,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			const auto heat_angle = m_cone * m_cone_curve(m_cur_heat / 100.f) * context.random(-1.f, 1.f);
 			float cur_angle = 0.f;
 			if (m_projectile_count != 1) {
-				cur_angle = (static_cast<float>(i) / static_cast<float>(m_projectile_count - 1) - 0.5) * m_cone;
+				cur_angle = (static_cast<float>(i) / static_cast<float>(m_projectile_count - 1) - 0.5f) * m_cone;
 			}
 			info.rotation = m_rotation + cur_angle + heat_angle;
 			info.velocity = m_velocity;
@@ -163,7 +163,7 @@ namespace {
 	}
 }
 
-mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node) :
+mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node):
 	mark::module::base(rm, node),
 	m_im_base(rm.image("turret-base.png")),
 	m_im_cannon(rm.image("turret-cannon.png")),
@@ -188,7 +188,7 @@ mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node
 	m_aoe_radius(node["aoe_radius"].as<float>()),
 	m_seek_radius(node["seek_radius"].as<float>()),
 	m_range(node["range"].as<float>()),
-	m_piercing(node["piercing"].as<float>()),
+	m_piercing(node["piercing"].as<size_t>()),
 	m_target(node["target"]["x"].as<double>(), node["target"]["y"].as<double>()) { }
 
 void mark::module::turret::serialize(YAML::Emitter& out) const {

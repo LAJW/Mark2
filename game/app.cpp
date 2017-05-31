@@ -51,7 +51,7 @@ void mark::app::main() {
 			const auto target = world->camera() + mark::vector<double>(sf::Mouse::getPosition(m_window)) - mark::vector<double>(m_window.getSize()) / 2.0;
 			while (m_window.pollEvent(event)) {
 				if (event.type == sf::Event::Resized) {
-					m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+					m_window.setView(sf::View(sf::FloatRect(0, 0, static_cast<float>(event.size.width), static_cast<float>(event.size.height))));
 				} if (event.type == sf::Event::Closed) {
 					m_window.close();
 				} else {

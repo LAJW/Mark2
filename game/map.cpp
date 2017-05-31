@@ -297,9 +297,9 @@ void mark::map::serialize(YAML::Emitter& out) const {
 	out << BeginMap;
 	out << Key << "type" << "map";
 	out << Key << "terrain" << BeginSeq;
-	for (unsigned x = 0, width = m_terrain.size(); x < width; x++) {
+	for (size_t x = 0, width = m_terrain.size(); x < width; x++) {
 		const auto& row = m_terrain[x];
-		for (unsigned y = 0, height = row.size(); y < height; y++) {
+		for (size_t y = 0, height = row.size(); y < height; y++) {
 			const auto& tile = row[y];
 			if (tile) {
 				out << BeginMap;

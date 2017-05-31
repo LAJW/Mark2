@@ -51,7 +51,7 @@ namespace mark {
 			mark::idamageable::info damage;
 			mark::tick_context* context = nullptr;
 			mark::segment_t segment;
-			unsigned piercing = 1;
+			size_t piercing = 1;
 			float aoe_radius = 0.f;
 		};
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;

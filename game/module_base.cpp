@@ -34,7 +34,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 	if (health_percentage <= 0.5f) {
 		mark::tick_context::spray_info info;
 		info.image = parent().world().resource_manager().image("glare.png");
-		info.lifespan(.3, 1.f);
+		info.lifespan(.3f, 1.f);
 		info.direction = -45.f;
 		info.cone = 90.f;
 		info.color = { 200, 200, 200, 25 };
@@ -46,7 +46,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 	} else if (health_percentage <= 0.25f) {
 		mark::tick_context::spray_info info;
 		info.image = parent().world().resource_manager().image("glare.png");
-		info.lifespan(.3, 1.f);
+		info.lifespan(.3f, 1.f);
 		info.direction = -45.f;
 		info.cone = 90.f;
 		info.color = { 0, 0, 0, 75 };
@@ -57,7 +57,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 		context.render(info);
 	}
 	if (m_stunned > 0) {
-		m_stun_lfo = std::fmod(m_stun_lfo + context.dt, 1.f);
+		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);
 		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
 		mark::sprite::info stun_sprite;
 		stun_sprite.image = parent().world().image_stun;
