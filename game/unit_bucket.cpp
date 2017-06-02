@@ -7,6 +7,10 @@
 #include "world.h"
 #include "map.h"
 
+mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node):
+	mark::unit::base(world, node),
+	m_module(mark::module::deserialize(world.resource_manager(), node["module"])) { }
+
 mark::unit::bucket::bucket(mark::world& world, mark::vector<double> pos, std::unique_ptr<mark::module::base> module):
 	mark::unit::base(world, pos),
 	m_module(std::move(module)) {
@@ -65,4 +69,17 @@ auto mark::unit::bucket::collide(const mark::segment_t &) ->
 
 auto mark::unit::bucket::release() -> std::unique_ptr<mark::module::base> {
 	return std::move(m_module);
+}
+
+void mark::unit::bucket::serialize(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "unit_bucket";
+	this->serialize_base(out);
+
+	out << Key << "module" << Value << BeginMap;
+	m_module->serialize(out);
+	out << EndMap;
+
+	out << EndMap;
 }
