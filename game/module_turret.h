@@ -26,6 +26,8 @@ namespace mark {
 	namespace module {
 		class turret : public mark::module::base {
 		public:
+			static constexpr const char* type_name = "module_turret";
+
 			struct info {
 				// base
 				mark::resource::manager* resource_manager;

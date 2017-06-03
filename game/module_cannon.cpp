@@ -89,7 +89,7 @@ mark::module::cannon::cannon(mark::resource::manager& rm, const YAML::Node& node
 void mark::module::cannon::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "module_cannon";
+	out << Key << "type" << Value << type_name;
 	this->serialize_base(out);
 	out << EndMap;
 }

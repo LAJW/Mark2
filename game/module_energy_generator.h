@@ -9,6 +9,8 @@ namespace mark {
 	namespace module {
 		class energy_generator : public mark::module::base {
 		public:
+			static constexpr const char* type_name = "module_energy_generator";
+
 			energy_generator(mark::resource::manager&, const YAML::Node&);
 			energy_generator(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;

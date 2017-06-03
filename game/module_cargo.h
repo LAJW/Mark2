@@ -11,6 +11,8 @@ namespace mark {
 	namespace module {
 		class cargo : public mark::module::base {
 		public:
+			static constexpr const char* type_name = "module_cargo";
+
 			cargo(mark::resource::manager&, const YAML::Node&);
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;

@@ -9,6 +9,8 @@ namespace mark {
 	namespace module {
 		class flamethrower : public mark::module::base{
 		public:
+			static constexpr const char* type_name = "module_flamethrower";
+
 			flamethrower(mark::resource::manager&, const YAML::Node&);
 			flamethrower(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;

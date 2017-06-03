@@ -12,6 +12,8 @@ namespace mark {
 	namespace module {
 		class core : public base {
 		public:
+			static constexpr const char* type_name = "module_core";
+
 			core(mark::resource::manager&, const YAML::Node&);
 			core(mark::resource::manager& resource_manager);
 			void tick(mark::tick_context& context) override;

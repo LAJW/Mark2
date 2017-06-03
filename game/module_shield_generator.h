@@ -13,6 +13,8 @@ namespace mark {
 	namespace module {
 		class shield_generator : public base {
 		public:
+			static constexpr const char* type_name = "shield_generator";
+
 			shield_generator(mark::resource::manager&, const YAML::Node&);
 			shield_generator(mark::resource::manager& resource_manager);
 			void tick(mark::tick_context& context) override;

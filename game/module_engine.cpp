@@ -42,7 +42,7 @@ mark::module::engine::engine(mark::resource::manager& rm, const YAML::Node& node
 void mark::module::engine::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "module_engine";
+	out << Key << "type" << Value << type_name;
 	this->serialize_base(out);
 	out << EndMap;
 }

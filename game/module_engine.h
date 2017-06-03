@@ -9,6 +9,8 @@ namespace mark {
 	namespace module {
 		class engine : public mark::module::base {
 		public:
+			static constexpr const char* type_name = "module_engine";
+
 			engine(mark::resource::manager&, const YAML::Node&);
 			engine(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;

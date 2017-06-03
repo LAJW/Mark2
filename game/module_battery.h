@@ -10,6 +10,8 @@ namespace mark {
 	namespace module {
 		class battery : public mark::module::base {
 		public:
+			static constexpr const char* type_name = "module_battery";
+
 			battery(mark::resource::manager&, const YAML::Node&);
 			battery(mark::resource::manager& manager);
 			void tick(mark::tick_context& context) override;

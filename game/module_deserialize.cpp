@@ -12,23 +12,23 @@
 auto mark::module::deserialize(mark::resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<mark::module::base> {
 	const auto type = node["type"].as<std::string>();
-	if (type == "module_battery") {
+	if (type == mark::module::battery::type_name) {
 		return std::make_unique<mark::module::battery>(rm, node);
-	} else if (type == "module_cannon") {
+	} else if (type == mark::module::cannon::type_name) {
 		return std::make_unique<mark::module::cannon>(rm, node);
-	} else if (type == "module_cargo") {
+	} else if (type == mark::module::cargo::type_name) {
 		return std::make_unique<mark::module::cargo>(rm, node);
-	} else if (type == "module_core") {
+	} else if (type == mark::module::core::type_name) {
 		return std::make_unique<mark::module::core>(rm, node);
-	} else if (type == "module_energy_generator") {
+	} else if (type == mark::module::energy_generator::type_name) {
 		return std::make_unique<mark::module::energy_generator>(rm, node);
-	} else if (type == "module_engine") {
+	} else if (type == mark::module::engine::type_name) {
 		return std::make_unique<mark::module::engine>(rm, node);
-	} else if (type == "module_flamethrower") {
+	} else if (type == mark::module::flamethrower::type_name) {
 		return std::make_unique<mark::module::flamethrower>(rm, node);
-	} else if (type == "module_shield_generator") {
+	} else if (type == mark::module::shield_generator::type_name) {
 		return std::make_unique<mark::module::shield_generator>(rm, node);
-	} else if (type == "module_turret") {
+	} else if (type == mark::module::turret::type_name) {
 		return std::make_unique<mark::module::turret>(rm, node);
 	} else {
 		throw mark::exception("UNKNOWN_MODULE");

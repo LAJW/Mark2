@@ -215,7 +215,7 @@ mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node):
 void mark::module::cargo::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "module_cargo";
+	out << Key << "type" << Value << type_name;
 
 	this->serialize_base(out);
 
