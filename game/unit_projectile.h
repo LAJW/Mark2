@@ -2,14 +2,10 @@
 #include <unordered_set>
 #include "unit_base.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	class world;
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 	}
 	namespace unit {
 		class modular;

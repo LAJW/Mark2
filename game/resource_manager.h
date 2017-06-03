@@ -4,13 +4,9 @@
 #include <unordered_map>
 #include <random>
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 
 #ifndef UNIT_TEST
 		class manager {

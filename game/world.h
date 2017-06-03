@@ -15,7 +15,6 @@ namespace sf {
 }
 
 namespace mark {
-	using image = sf::Texture;
 	class sprite;
 	class command;
 	struct tick_context;
@@ -57,9 +56,9 @@ namespace mark {
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
 		void serialize(YAML::Emitter& out) const override;
 
-		const std::shared_ptr<const mark::image> image_bar;
-		const std::shared_ptr<const mark::image> image_font;
-		const std::shared_ptr<const mark::image> image_stun;
+		const std::shared_ptr<const mark::resource::image> image_bar;
+		const std::shared_ptr<const mark::resource::image> image_font;
+		const std::shared_ptr<const mark::resource::image> image_stun;
 	private:
 		// Collide with units and terrain
 		// Returns damageable and collision position

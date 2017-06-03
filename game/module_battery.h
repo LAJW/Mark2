@@ -2,14 +2,10 @@
 #include "module_base.h"
 #include "lfo.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	namespace resource {
 		class manager;
-		using image = sf::Texture;
+		class image;
 	}
 	namespace module {
 		class battery : public mark::module::base {

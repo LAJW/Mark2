@@ -3,7 +3,6 @@
 #include "vector.h"
 
 namespace sf {
-	class Texture;
 	class Color;
 }
 
@@ -11,7 +10,7 @@ namespace mark {
 	class sprite;
 	namespace resource {
 		class manager;
-		using image = sf::Texture;
+		class image;
 	}
 	namespace model {
 		class animated {

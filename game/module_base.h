@@ -7,13 +7,12 @@
 #include "vector.h"
 
 namespace sf {
-	class Texture;
 	class Color;
 }
 
 namespace mark {
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 		class manager;
 	}
 	class sprite;

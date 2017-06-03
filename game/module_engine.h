@@ -1,14 +1,10 @@
 #pragma once
 #include "module_base.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	namespace resource {
 		class manager;
-		using image = sf::Texture;
+		class image;
 	}
 	namespace module {
 		class engine : public mark::module::base {

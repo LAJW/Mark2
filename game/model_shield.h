@@ -4,15 +4,11 @@
 #include "adsr.h"
 #include "vector.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	struct tick_context;
 	namespace resource {
 		class manager;
-		using image = sf::Texture;
+		class image;
 	}
 	namespace model {
 		class shield {

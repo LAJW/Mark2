@@ -2,15 +2,11 @@
 #include <memory>
 #include "terrain_base.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	class world;
 	namespace resource {
 		class manager;
-		using image = sf::Texture;
+		class image;
 	}
 
 	namespace terrain {

@@ -3,13 +3,9 @@
 #include "vector.h"
 #include <SFML/Graphics/Color.hpp>
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 	}
 	class sprite {
 	public:

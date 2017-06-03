@@ -6,14 +6,10 @@
 #include "unit_base.h"
 #include "command.h"
 
-namespace sf {
-	class Texture;
-}
-
 namespace mark {
 
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 	}
 
 	namespace module {

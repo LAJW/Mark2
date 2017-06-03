@@ -1,18 +1,23 @@
 #pragma once
-#ifndef UNIT_TEST
-#include <SFML/Graphics/Texture.hpp>
-#else
+#include <string>
 #include "vector.h"
+
 namespace sf {
-	class Texture {
-	public:
-		inline mark::vector<unsigned> getSize() const { return { 64, 64 }; }
-	};
+	class Texture;
 }
-#endif
 
 namespace mark {
 	namespace resource {
-		using image = sf::Texture;
+		class image {
+		public:
+			image(std::string filename);
+			~image();
+			auto getSize() const noexcept -> mark::vector<unsigned>;
+			auto filename() const noexcept -> const std::string&;
+			auto texture() const noexcept -> const sf::Texture&;
+		private:
+			std::string m_filename;
+			sf::Texture* m_texture;
+		};
 	};
 }

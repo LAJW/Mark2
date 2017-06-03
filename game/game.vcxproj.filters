@@ -112,6 +112,9 @@
     <ClCompile Include="terrain_base.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="resource_image.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">

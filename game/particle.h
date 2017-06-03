@@ -11,7 +11,7 @@ namespace sf {
 
 namespace mark {
 	namespace resource {
-		using image = sf::Texture;
+		class image;
 	}
 	class sprite;
 	class particle {

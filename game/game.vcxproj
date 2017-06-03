@@ -168,6 +168,7 @@
     <ClCompile Include="module_turret.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="resource_image.cpp" />
     <ClCompile Include="resource_manager.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="terrain_base.cpp" />
