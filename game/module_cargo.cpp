@@ -203,7 +203,13 @@ mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node):
 	m_im_body(rm.image("cargo.png")),
 	m_im_light(rm.image("glare.png")),
 	m_lfo(0.5f, rm.random(0.f, 6.f)),
-	m_modules(64) { }
+	m_modules(64) {
+	for (const auto& slot_node : node["contents"]) {
+		const auto slot = slot_node["slot"].as<size_t>();
+		auto module = mark::module::deserialize(rm, slot_node["item"]);
+		m_modules[slot] = std::move(module);
+	}
+}
 
 
 void mark::module::cargo::serialize(YAML::Emitter& out) const {
