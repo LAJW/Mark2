@@ -17,7 +17,7 @@ mark::resource::image::~image() {
 	delete m_texture;
 }
 
-auto mark::resource::image::getSize() const noexcept -> mark::vector<unsigned> {
+auto mark::resource::image::size() const noexcept -> mark::vector<unsigned> {
 	return m_texture->getSize();
 }
 

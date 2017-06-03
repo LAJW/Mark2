@@ -1,14 +1,13 @@
 #include "renderer.h"
 #include "tick_context.h"
 #include "resource_image.h"
-#include <SFML/Graphics/Texture.hpp>
 
 namespace {
 	void static render(const mark::sprite& sprite, const mark::vector<double>& camera, sf::RenderTexture& buffer, mark::vector<double> resolution) {
 		sf::Sprite tmp;
 		// HACK: Thumbnails not deserialized
 		if (&sprite.image()) {
-			const auto texture_size = static_cast<float>(sprite.image().getSize().y);
+			const auto texture_size = static_cast<float>(sprite.image().size().y);
 			const auto scale = sprite.size() / texture_size;
 			tmp.setTexture(sprite.image().texture());
 			tmp.setTextureRect({ static_cast<int>(texture_size) * static_cast<int>(sprite.frame()), 0, static_cast<int>(texture_size), static_cast<int>(texture_size) });

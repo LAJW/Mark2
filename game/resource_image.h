@@ -12,7 +12,7 @@ namespace mark {
 		public:
 			image(std::string filename);
 			~image();
-			auto getSize() const noexcept -> mark::vector<unsigned>;
+			auto size() const noexcept -> mark::vector<unsigned>;
 			auto filename() const noexcept -> const std::string&;
 			auto texture() const noexcept -> const sf::Texture&;
 		private:

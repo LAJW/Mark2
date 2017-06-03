@@ -32,7 +32,7 @@ mark::particle::particle(mark::particle::info& attr, bool) :
 void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& sprites) {
 	const auto direction = mark::rotate(mark::vector<float>(1.f, 0.f), m_direction);
 	m_pos += mark::vector<double>(direction) * dt * static_cast<double>(m_velocity);
-	const auto image_size = m_image->getSize();
+	const auto image_size = m_image->size();
 	const auto frame_count = image_size.x / image_size.y;
 	const auto frame = static_cast<unsigned>((1.f - m_cur_lifespan / m_lifespan) * static_cast<float>(frame_count));
 	sf::Color color;
