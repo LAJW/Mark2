@@ -9,7 +9,7 @@ mark::resource::image::image(std::string filename):
 	m_filename(filename) {
 
 	auto texture = std::make_unique<sf::Texture>();
-	texture->loadFromFile(filename);
+	texture->loadFromFile("resource/texture/" + filename);
 	m_texture = texture.release();
 }
 

@@ -4,6 +4,7 @@
 #include "exception.h"
 #include "tick_context.h"
 #include "world.h"
+#include "resource_image.h"
 
 mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail):
 	m_size(size),
@@ -172,13 +173,30 @@ auto mark::module::base::heat_color() const -> sf::Color {
 	return { 255, intensity, intensity, 255 };
 }
 
+auto mark::module::base::pos() const -> mark::vector<double> {
+	const auto pos = (mark::vector<float>(grid_pos()) + mark::vector<float>(this->size()) / 2.f)
+		* static_cast<float>(mark::module::size);
+	return parent().pos() + mark::vector<double>(rotate(pos, parent().rotation()));
+}
+
+auto mark::module::base::thumbnail() const -> std::shared_ptr<const mark::resource::image> {
+	return m_thumbnail;
+}
+
+auto mark::module::base::size() const -> mark::vector<unsigned> {
+	return m_size;
+}
+
+// Serializer / Deserializer
+
 mark::module::base::base(mark::resource::manager& rm, const YAML::Node& node):
 	m_cur_health(node["cur_health"].as<float>()),
 	m_max_health(node["max_health"].as<float>()),
 	m_stunned(node["stunned"].as<float>()),
 	m_cur_heat(node["cur_heat"].as<float>()),
 	m_grid_pos(node["grid_pos"].as<mark::vector<int>>()),
-	m_size(node["size"].as<mark::vector<unsigned>>()) { }
+	m_size(node["size"].as<mark::vector<unsigned>>()),
+	m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png"))) { }
 
 void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;
@@ -197,18 +215,7 @@ void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	out << Key << "x" << m_grid_pos.x;
 	out << Value << "y" << m_grid_pos.y;
 	out << EndMap;
+
+	out << Key << "thumbnail" << Value << m_thumbnail->filename();
 }
 
-auto mark::module::base::pos() const -> mark::vector<double> {
-	const auto pos = (mark::vector<float>(grid_pos()) + mark::vector<float>(this->size()) / 2.f)
-		* static_cast<float>(mark::module::size);
-	return parent().pos() + mark::vector<double>(rotate(pos, parent().rotation()));
-}
-
-auto mark::module::base::thumbnail() const -> std::shared_ptr<const mark::resource::image> {
-	return m_thumbnail;
-}
-
-auto mark::module::base::size() const -> mark::vector<unsigned> {
-	return m_size;
-}
