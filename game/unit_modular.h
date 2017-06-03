@@ -29,7 +29,10 @@ namespace mark {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
+
+			static constexpr char* type_name = "modular";
 			static constexpr unsigned max_size = 40;
+
 			struct bound_status {
 				std::shared_ptr<const mark::resource::image> thumbnail;
 				uint16_t total = 0;

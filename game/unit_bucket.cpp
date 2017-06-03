@@ -74,7 +74,7 @@ auto mark::unit::bucket::release() -> std::unique_ptr<mark::module::base> {
 void mark::unit::bucket::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "unit_bucket";
+	out << Key << "type" << Value << mark::unit::bucket::type_name;
 	this->serialize_base(out);
 
 	out << Key << "module" << Value << BeginMap;

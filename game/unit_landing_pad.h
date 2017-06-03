@@ -17,6 +17,8 @@ namespace mark {
 		class modular;
 		class landing_pad final : public mark::unit::base {
 		public:
+			static constexpr char* type_name = "unit_landing_pad";
+
 			landing_pad(mark::world& world, const YAML::Node&);
 			landing_pad(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;

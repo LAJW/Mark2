@@ -229,7 +229,7 @@ mark::unit::landing_pad::landing_pad(
 void mark::unit::landing_pad::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "unit_landing_pad";
+	out << Key << "type" << Value << mark::unit::landing_pad::type_name;
 	this->serialize_base(out);
 	const auto ship = m_ship.lock();
 	if (ship) {

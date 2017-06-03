@@ -1,8 +1,8 @@
-#include "unit_base.h"
 #include "exception.h"
+#include "module_base.h"
+#include "unit_bucket.h"
 #include "unit_modular.h"
 #include "unit_projectile.h"
-#include "module_base.h"
 #include "unit_landing_pad.h"
 
 auto mark::unit::deserialize(
@@ -11,12 +11,14 @@ auto mark::unit::deserialize(
 	std::shared_ptr<mark::unit::base> {
 
 	const auto type = node["type"].as<std::string>();
-	if (type == "modular") {
+	if (type == mark::unit::modular::type_name) {
 		return std::make_shared<mark::unit::modular>(world, node);
-	} else if (type == "unit_landing_pad") {
+	} else if (type == mark::unit::landing_pad::type_name) {
 		return std::make_shared<mark::unit::landing_pad>(world, node);
-	} else if (type == "unit_projectile") {
+	} else if (type == mark::unit::projectile::type_name) {
 		return std::make_shared<mark::unit::projectile>(world, node);
+	} else if (type == mark::unit::bucket::type_name) {
+		return std::make_shared<mark::unit::bucket>(world, node);
 	} else {
 		throw mark::exception("UNKNOWN_UNIT");
 	}

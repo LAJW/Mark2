@@ -559,7 +559,7 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	out << BeginMap;
 	this->serialize_base(out);
 
-	out << Key << "type" << Value << "modular";
+	out << Key << "type" << Value << mark::unit::modular::type_name;
 
 	out << Key << "modules" << Value << BeginSeq;
 	for (const auto& module : m_modules) {

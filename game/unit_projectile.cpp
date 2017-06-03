@@ -166,7 +166,7 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
 void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << "unit_projectile";
+	out << Key << "type" << Value << mark::unit::projectile::type_name;
 	this->serialize_base(out);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "velocity" << Value << m_velocity;

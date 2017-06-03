@@ -13,6 +13,8 @@ namespace mark {
 	namespace unit {
 		class bucket final : public mark::unit::base {
 		public:
+			static constexpr char* type_name = "unit_bucket";
+
 			bucket(mark::world& world, const YAML::Node&);
 			bucket(mark::world& world, mark::vector<double> pos, std::unique_ptr<mark::module::base>);
 			void tick(mark::tick_context& context) override;
