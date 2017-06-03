@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "yaml-cpp/yaml.h"
+#include "yaml.h"
 
 namespace mark {
 	class iserializable {

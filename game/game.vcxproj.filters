@@ -251,6 +251,9 @@
     <ClInclude Include="unit_modular.h">
       <Filter>Unit</Filter>
     </ClInclude>
+    <ClInclude Include="yaml.h">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

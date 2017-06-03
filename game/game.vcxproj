@@ -227,6 +227,7 @@
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="world.h" />
+    <ClInclude Include="yaml.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl" />
