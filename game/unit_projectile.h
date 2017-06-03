@@ -11,7 +11,7 @@ namespace mark {
 		class modular;
 		class projectile final : public mark::unit::base {
 		public:
-			static constexpr char* type_name = "unit_projectile";
+			static constexpr const char* type_name = "unit_projectile";
 			// projectile constructor attributes
 			struct info {
 				mark::world* world = nullptr;

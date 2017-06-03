@@ -10,7 +10,7 @@ namespace mark {
 	namespace unit {
 		class minion final : public mark::unit::base {
 		public:
-			static constexpr char* type_name = "unit_minion";
+			static constexpr const char* type_name = "unit_minion";
 
 			minion(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;

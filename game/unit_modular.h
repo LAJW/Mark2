@@ -26,7 +26,7 @@ namespace mark {
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
 
-			static constexpr char* type_name = "modular";
+			static constexpr const char* type_name = "unit_modular";
 			static constexpr unsigned max_size = 40;
 
 			struct bound_status {
