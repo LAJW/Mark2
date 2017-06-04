@@ -15,6 +15,7 @@
 #include "module_shield_generator.h"
 #include "module_cargo.h"
 #include "unit_bucket.h"
+#include "unit_gate.h"
 
 // MODULAR
 
@@ -372,7 +373,7 @@ void mark::unit::modular::command(const mark::command& command) {
 			m_pos,
 			150.0,
 			[this](const auto& unit) {
-			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr;
+			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr || dynamic_cast<const mark::unit::gate*>(&unit) != nullptr;
 		});
 		if (pad) {
 			pad->activate(this->shared_from_this());

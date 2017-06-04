@@ -115,6 +115,9 @@
     <ClCompile Include="resource_image.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="unit_gate.cpp">
+      <Filter>Unit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -256,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="yaml.h">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_gate.h">
+      <Filter>Unit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

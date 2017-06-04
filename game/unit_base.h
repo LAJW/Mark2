@@ -31,6 +31,7 @@ namespace mark {
 			virtual void tick(mark::tick_context& context) = 0;
 			virtual void command(const mark::command&) { };
 			auto inline pos() const { return m_pos; }
+			void inline pos(const mark::vector<double>& pos) { m_pos = pos; }
 			virtual auto dead() const -> bool = 0;
 			virtual void on_death(mark::tick_context& context) { /* no-op */ };
 			virtual bool invincible() const = 0;

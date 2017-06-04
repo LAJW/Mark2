@@ -176,6 +176,7 @@
     <ClCompile Include="terrain_wall.cpp" />
     <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
+    <ClCompile Include="unit_gate.cpp" />
     <ClCompile Include="unit_landing_pad.cpp" />
     <ClCompile Include="unit_minion.cpp" />
     <ClCompile Include="unit_modular.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="tick_context.h" />
     <ClInclude Include="unit_base.h" />
     <ClInclude Include="unit_bucket.h" />
+    <ClInclude Include="unit_gate.h" />
     <ClInclude Include="unit_landing_pad.h" />
     <ClInclude Include="unit_minion.h" />
     <ClInclude Include="unit_modular.h" />

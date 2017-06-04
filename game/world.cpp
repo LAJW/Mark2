@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <assert.h>
 #include "world.h"
 #include "resource_manager.h"
 #include "unit_base.h"
@@ -17,7 +18,7 @@
 #include "module_battery.h"
 #include "module_flamethrower.h"
 #include "module_engine.h"
-#include <assert.h>
+#include "unit_gate.h"
 
 auto make_turret(mark::resource::manager& resource_manager) {
 	mark::module::turret::info info;
@@ -99,6 +100,15 @@ mark::world::world(mark::resource::manager& resource_manager):
 		}
 	}
 	end:;
+	for (int x = 999; x >= 0; x--) {
+		for (int y = 999; y >= 0; y--) {
+			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<mark::unit::gate>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+				goto end2;
+			}
+		}
+	}
+	end2:;
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
@@ -313,6 +323,47 @@ mark::world::world(mark::resource::manager& rm, const YAML::Node& node) :
 	}
 	m_camera_target = unit_map.at(camera_target_id);
 
+}
+
+void mark::world::next() {
+	m_map = mark::map::make_cavern(m_resource_manager);
+	auto camera_target = m_camera_target.lock();
+	// TODO: Transfer old units and map to history
+	m_units.clear();
+	m_units.push_back(camera_target);
+	camera_target->pos({ 0, 0 });
+	m_camera = { 0, 0 };
+
+	for (int x = 0; x < 1000; x++) {
+		for (int y = 0; y < 1000; y++) {
+			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<mark::unit::landing_pad>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+				goto end;
+			}
+		}
+	}
+	end:;
+	for (int x = 999; x >= 0; x--) {
+		for (int y = 999; y >= 0; y--) {
+			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<mark::unit::gate>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+				goto end2;
+			}
+		}
+	}
+	end2:;
+	for (int x = 0; x < 1000; x++) {
+		for (int y = 0; y < 1000; y++) {
+			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
+			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
+				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				mark::command command;
+				command.type = mark::command::type::ai;
+				m_units.push_back(create_ship(m_resource_manager, *this, pos));
+				m_units.back()->command(command);
+			}
+		}
+	}
 }
 
 void mark::world::serialize(YAML::Emitter& out) const {

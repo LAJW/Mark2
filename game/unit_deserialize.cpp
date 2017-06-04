@@ -4,6 +4,7 @@
 #include "unit_modular.h"
 #include "unit_projectile.h"
 #include "unit_landing_pad.h"
+#include "unit_gate.h"
 
 auto mark::unit::deserialize(
 	mark::world& world,
@@ -11,7 +12,9 @@ auto mark::unit::deserialize(
 	std::shared_ptr<mark::unit::base> {
 
 	const auto type = node["type"].as<std::string>();
-	if (type == mark::unit::modular::type_name) {
+	if (type == mark::unit::gate::type_name) {
+		return std::make_shared<mark::unit::gate>(world, node);
+	} else if (type == mark::unit::modular::type_name) {
 		return std::make_shared<mark::unit::modular>(world, node);
 	} else if (type == mark::unit::landing_pad::type_name) {
 		return std::make_shared<mark::unit::landing_pad>(world, node);

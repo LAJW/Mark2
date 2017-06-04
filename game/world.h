@@ -54,6 +54,8 @@ namespace mark {
 			float aoe_radius = 0.f;
 		};
 		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
+		// go to the next map
+		void next();
 		void serialize(YAML::Emitter& out) const override;
 
 		const std::shared_ptr<const mark::resource::image> image_bar;
