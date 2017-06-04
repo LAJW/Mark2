@@ -26,20 +26,6 @@ namespace mark {
 		auto frame() const -> size_t { return m_frame; }
 		inline auto color() const -> sf::Color { return m_color; }
 	private:
-		sprite(
-			std::shared_ptr<const mark::resource::image> image,
-			double x, double y,
-			float size = 16.f,
-			float rotation = 0.f,
-			size_t frame = 0,
-			sf::Color color = sf::Color::White);
-		sprite(
-			std::shared_ptr<const mark::resource::image> image,
-			const mark::vector<double>& pos,
-			float size = 16.f,
-			float rotation = 0.f,
-			size_t frame = 0,
-			sf::Color color = sf::Color::White);
 		std::shared_ptr<const mark::resource::image> m_image;
 		double m_x;
 		double m_y;
