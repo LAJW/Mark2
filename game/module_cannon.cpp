@@ -10,6 +10,7 @@ mark::module::cannon::cannon(mark::resource::manager& resource_manager):
 	mark::module::base({ 4, 2 }, resource_manager.image("cannon.png")),
 	m_model(resource_manager.image("cannon.png")),
 	m_im_ray(resource_manager.image("ray.png")) {
+
 }
 
 void mark::module::cannon::tick(mark::tick_context& context) {
@@ -26,11 +27,17 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		this->heat_color()));
 	auto& world = parent().world();
 	mark::tick_context::bar_info bar;
+	if (m_angular_velocity == 0.f) {
+		m_rotation = rotation;
+	} else {
+		// TODO Respect angular velocity here
+		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
+	}
 	if (m_shoot) {
 		std::unordered_set<mark::idamageable*> damaged;
 		for (int i = 1; i < 200; i++) {
 			const auto cur_len = mark::module::size * static_cast<double>(i);
-			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), rotation);
+			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), m_rotation);
 			const auto prev = pos + cur_dir * (cur_len - mark::module::size);
 			const auto cur = pos + cur_dir * (cur_len + 2.0);
 			mark::world::damage_info info;
@@ -50,7 +57,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				spray.lifespan(1.f);
 				spray.diameter(8.f);
 				spray.count = 4;
-				spray.direction = rotation + 180.f;
+				spray.direction = m_rotation + 180.f;
 				spray.cone = 180.f;
 				spray.color = sf::Color::Red;
 				context.render(spray);
@@ -61,7 +68,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				info.image = m_im_ray;
 				info.pos = cur;
 				info.size = mark::module::size;
-				info.rotation = rotation;
+				info.rotation = m_rotation;
 				info.color = sf::Color::Red;
 				context.sprites[0].emplace_back(info);
 			}
@@ -69,7 +76,12 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	}
 }
 
+void mark::module::cannon::target(mark::vector<double> pos) {
+	m_target = pos;
+}
+
 void mark::module::cannon::shoot(mark::vector<double> pos, bool release) {
+	m_target = pos;
 	m_shoot = !release;
 }
 
