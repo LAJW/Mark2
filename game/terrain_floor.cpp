@@ -1,4 +1,4 @@
-#include <array>
+#include "stdafx.h"
 #include "terrain_floor.h"
 #include "world.h"
 #include "resource_manager.h"

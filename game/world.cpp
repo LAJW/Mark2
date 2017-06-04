@@ -1,5 +1,4 @@
-#include <algorithm>
-#include <assert.h>
+#include "stdafx.h"
 #include "world.h"
 #include "resource_manager.h"
 #include "unit_base.h"

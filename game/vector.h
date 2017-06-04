@@ -1,9 +1,6 @@
 #pragma once
-#define _USE_MATH_DEFINES
+#include "stdafx.h"
 #include <SFML/System/Vector2.hpp>
-#include <math.h>
-#include <cmath>
-#include <utility>
 
 namespace mark {
 	template<typename T>

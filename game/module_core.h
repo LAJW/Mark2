@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include "stdafx.h"
 #include "module_base.h"
 #include "resource_image.h"
 

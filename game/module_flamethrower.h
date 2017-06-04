@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "module_base.h"
 
 namespace mark {

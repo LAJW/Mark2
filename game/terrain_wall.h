@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "terrain_base.h"
 
 namespace mark {

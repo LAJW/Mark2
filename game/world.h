@@ -1,8 +1,5 @@
 #pragma once
-#include <functional>
-#include <map>
-#include <memory>
-#include <vector>
+#include "stdafx.h"
 #include "iserializable.h"
 #include "idamageable.h"
 #include "property.h"

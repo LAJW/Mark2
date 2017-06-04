@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <random>
 #include <algorithm>
 #include "map.h"

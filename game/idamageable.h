@@ -1,6 +1,5 @@
 #pragma once
-#include <unordered_set>
-#include "vector.h"
+#include "stdafx.h"
 
 namespace mark {
 	class idamageable {

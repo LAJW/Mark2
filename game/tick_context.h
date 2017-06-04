@@ -1,7 +1,5 @@
 #pragma once
-#include <map>
-#include <memory>
-#include <vector>
+#include "stdafx.h"
 #include "sprite.h"
 #include "particle.h"
 #include "resource_manager.h"

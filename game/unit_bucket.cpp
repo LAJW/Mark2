@@ -1,5 +1,4 @@
-#include <algorithm>
-#include <assert.h>
+#include "stdafx.h"
 #include "unit_bucket.h"
 #include "sprite.h"
 #include "tick_context.h"

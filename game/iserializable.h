@@ -1,6 +1,5 @@
 #pragma once
-#include <memory>
-#include "yaml.h"
+#include "stdafx.h"
 
 namespace mark {
 	class iserializable {

@@ -1,7 +1,6 @@
 #pragma once
+#include "stdafx.h"
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include "vector.h"
 
 namespace mark {
 	struct tick_context;

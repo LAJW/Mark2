@@ -1,8 +1,5 @@
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <random>
+#include "stdafx.h"
 
 namespace mark {
 	namespace resource {

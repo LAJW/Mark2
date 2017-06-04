@@ -1,20 +1,20 @@
+#include "stdafx.h"
 #include <chrono>
-#include "app.h"
-#include <SFML/Graphics.hpp>
-#include <yaml-cpp/yaml.h>
-#include "resource_image.h"
-#include "resource_manager.h"
-#include "world.h"
-#include "sprite.h"
-#include "vector.h"
+#include <fstream>
 #include <iostream>
+#include <SFML/Graphics.hpp>
+
+#include "app.h"
 #include "command.h"
-#include "tick_context.h"
 #include "keymap.h"
 #include "renderer.h"
+#include "resource_image.h"
+#include "resource_manager.h"
+#include "sprite.h"
+#include "tick_context.h"
 #include "unit_modular.h"
-#include "yaml-cpp\yaml.h"
-#include <fstream>
+#include "vector.h"
+#include "world.h"
 
 mark::app::app(const int argc, const char* argv[])
 	:app({ argv, argv + argc }) {}

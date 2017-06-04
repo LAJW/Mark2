@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "terrain_base.h"
 #include "exception.h"
 #include "terrain_floor.h"

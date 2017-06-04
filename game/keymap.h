@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <unordered_map>
+#include "stdafx.h"
 #include <SFML/Window/Event.hpp>
 #include "command.h"
 

@@ -1,7 +1,5 @@
 #pragma once
-#include <memory>
-#include "vector.h"
-#include <SFML/Graphics/Color.hpp>
+#include "stdafx.h"
 
 namespace mark {
 	namespace resource {

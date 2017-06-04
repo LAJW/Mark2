@@ -1,9 +1,5 @@
 #pragma once
-#include <map>
-#include <memory>
-#include <vector>
-#include <SFML/Graphics/Color.hpp>
-#include "vector.h"
+#include "stdafx.h"
 
 namespace sf {
 	class Texture;

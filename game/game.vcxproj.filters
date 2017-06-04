@@ -118,6 +118,9 @@
     <ClCompile Include="unit_gate.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="unit_gate.h">
       <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include <memory>
+#include "stdafx.h"
 #include "lfo.h"
 #include "adsr.h"
 #include "vector.h"

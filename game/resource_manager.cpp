@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "resource_manager.h"
 #include "resource_image.h"
 

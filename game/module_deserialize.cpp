@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "exception.h"
 #include "module_battery.h"
 #include "module_cannon.h"

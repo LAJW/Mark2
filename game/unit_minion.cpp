@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "unit_minion.h"
 #include "world.h"
 #include "sprite.h"

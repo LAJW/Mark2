@@ -1,10 +1,5 @@
 #pragma once
-#include <memory>
-#include "vector.h"
-
-namespace sf {
-	class Color;
-}
+#include "stdafx.h"
 
 namespace mark {
 	class sprite;

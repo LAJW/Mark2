@@ -1,10 +1,7 @@
 #pragma once
-#include <vector>
-#include <memory>
-#include <unordered_map>
+#include "stdafx.h"
 #include "iserializable.h"
 #include "property.h"
-#include "vector.h"
 #include "idamageable.h"
 
 namespace mark {

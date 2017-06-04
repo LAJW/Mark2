@@ -1,10 +1,9 @@
 #pragma once
-#include <vector>
+#include "stdafx.h"
 #include "idamageable.h"
 #include "iserializable.h"
 #include "lfo.h"
 #include "unit_modular.h"
-#include "vector.h"
 
 namespace sf {
 	class Color;

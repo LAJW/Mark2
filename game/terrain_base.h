@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
+#include "stdafx.h"
 #include "iserializable.h"
-#include "vector.h"
 #include "tick_context.h"
 
 namespace mark {

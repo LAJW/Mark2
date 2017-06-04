@@ -1,4 +1,4 @@
-#pragma once
+#include "stdafx.h"
 #include "module_shield_generator.h"
 #include "resource_manager.h"
 #include "resource_image.h"

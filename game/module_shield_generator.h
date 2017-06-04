@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "lfo.h"
 #include "module_base.h"
 #include "model_shield.h"

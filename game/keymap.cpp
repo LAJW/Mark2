@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "keymap.h"
 #include "yaml-cpp\yaml.h"
 

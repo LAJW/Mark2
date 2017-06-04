@@ -1,7 +1,7 @@
 #pragma once
+#include "stdafx.h"
 #include "resource_manager.h"
 #include <SFML/Graphics.hpp>
-#include "vector.h"
 
 namespace mark {
 	class sprite;

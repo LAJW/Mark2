@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "renderer.h"
 #include "tick_context.h"
 #include "resource_image.h"

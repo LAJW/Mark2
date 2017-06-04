@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include "stdafx.h"
 #include "vector.h"
 
 namespace sf {

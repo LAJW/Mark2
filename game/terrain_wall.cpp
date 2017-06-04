@@ -1,4 +1,4 @@
-#include <array>
+#include "stdafx.h"
 #include "terrain_wall.h"
 #include "sprite.h"
 #include "resource_manager.h"

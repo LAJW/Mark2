@@ -1,7 +1,6 @@
 #pragma once
+#include "stdafx.h"
 #include "lfo.h"
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 mark::lfo::lfo(float frequency, float phase):
 	m_frequency(frequency),

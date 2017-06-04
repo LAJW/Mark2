@@ -1,4 +1,4 @@
-#include <algorithm>
+#include "stdafx.h"
 #include "vector.h"
 
 auto mark::distance(const float alpha, const mark::vector<double> point) noexcept -> double {

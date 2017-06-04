@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "adsr.h"
 #include "cooldown.h"
 #include "unit_base.h"

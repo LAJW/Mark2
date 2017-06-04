@@ -96,8 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -129,8 +128,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -171,6 +169,10 @@
     <ClCompile Include="resource_image.cpp" />
     <ClCompile Include="resource_manager.cpp" />
     <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="terrain_base.cpp" />
     <ClCompile Include="terrain_floor.cpp" />
     <ClCompile Include="terrain_wall.cpp" />
@@ -217,6 +219,7 @@
     <ClInclude Include="resource_image.h" />
     <ClInclude Include="resource_manager.h" />
     <ClInclude Include="sprite.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="terrain_base.h" />
     <ClInclude Include="terrain_floor.h" />
     <ClInclude Include="terrain_wall.h" />

@@ -1,5 +1,4 @@
-#include <array>
-#include <assert.h>
+#include "stdafx.h"
 #include "module_base.h"
 #include "exception.h"
 #include "tick_context.h"

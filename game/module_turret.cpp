@@ -1,4 +1,4 @@
-#pragma once
+#include "stdafx.h"
 #include <sstream>
 #include "module_turret.h"
 #include "resource_manager.h"

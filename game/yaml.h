@@ -1,6 +1,6 @@
 #pragma once
+#include "stdafx.h"
 #include <yaml-cpp\yaml.h>
-#include "vector.h"
 
 namespace YAML {
 	template<typename T>

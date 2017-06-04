@@ -1,5 +1,4 @@
-#include <string>
-#include <algorithm>
+#include "stdafx.h"
 #include "tick_context.h"
 
 namespace {

@@ -1,8 +1,8 @@
+#include "stdafx.h"
 #include "resource_image.h"
 
 #ifndef UNIT_TEST
 
-#include <memory>
 #include <SFML/Graphics/Texture.hpp>
 
 mark::resource::image::image(std::string filename):

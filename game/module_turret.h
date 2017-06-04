@@ -1,5 +1,5 @@
 #pragma once
-#include <algorithm>
+#include "stdafx.h"
 #include "adsr.h"
 #include "module_base.h"
 

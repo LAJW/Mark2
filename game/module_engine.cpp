@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "module_engine.h"
 #include "resource_manager.h"
 #include "tick_context.h"
@@ -46,3 +47,4 @@ void mark::module::engine::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
+

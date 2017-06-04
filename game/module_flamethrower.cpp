@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "module_flamethrower.h"
 #include "resource_manager.h"
 #include "tick_context.h"

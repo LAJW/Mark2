@@ -1,8 +1,5 @@
 #pragma once
-#include <array>
-#include <memory>
-#include <vector>
-#include <unordered_map>
+#include "stdafx.h"
 #include "unit_base.h"
 #include "command.h"
 
