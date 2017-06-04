@@ -115,83 +115,7 @@ namespace {
 		}
 		return false;
 	}
-}
 
-
-mark::unit::modular::modular(
-	mark::world& world,
-	mark::vector<double> pos,
-	float rotation):
-	mark::unit::base(world, pos),
-	m_rotation(rotation) {}
-
-void mark::unit::modular::tick(mark::tick_context& context) {
-	if (this->dead()) {
-		return;
-	}
-	this->remove_dead(context);
-	mark::module::modifiers mods;
-	for (auto& module : m_modules) {
-		module->tick(context);
-		const auto cur_mod = module->global_modifiers();
-		mods.velocity += cur_mod.velocity;
-	}
-	this->pick_up(context);
-
-	// movement / AI etc.
-	double dt = context.dt;
-	double speed = m_ai ? 64.0 : 320.0;
-	speed += mods.velocity;
-	if (mark::length(m_moveto - m_pos) > speed * dt) {
-		if ((m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) && m_world.map().can_find()) {
-			m_path = m_world.map().find_path(m_pos, m_moveto);
-			m_path_age = 1.f;
-		} else {
-			m_path_age -= static_cast<float>(context.dt);
-		}
-#ifdef _DEBUG
-		for (const auto& step : m_path) {
-			mark::sprite::info args;
-			args.image = m_world.resource_manager().image("generator.png");
-			args.pos = step;
-			context.sprites[100].emplace_back(args);
-		}
-#endif // !_DEBUG
-		const auto dir = mark::normalize(m_moveto - m_pos);
-		if (m_path.size() > 3) {
-			const auto first = m_path[m_path.size() - 3];
-			m_pos += mark::normalize(first - m_pos) * speed * dt;
-		} else {
-			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
-			if (m_world.map().traversable(m_pos + step, 50.0)) {
-				m_pos += step;
-			}
-		}
-	} else {
-		m_pos = m_moveto;
-	}
-	if (m_ai) {
-		auto enemy = m_world.find_one(
-			m_pos,
-			1000.f,
-			[this](const auto& unit) {
-			return unit.team() != this->team() && !unit.invincible();
-		});
-		if (enemy) {
-			m_moveto = enemy->pos();
-			m_lookat = enemy->pos();
-			for (auto& module : m_modules) {
-				module->target(enemy->pos());
-			}
-		}
-	}
-	if (m_lookat != m_pos) {
-		const auto turn_speed = m_ai ? 32.f : 360.f;
-		m_rotation = mark::turn(m_lookat - m_pos, m_rotation, turn_speed, dt);
-	}
-}
-
-namespace {
 	template <typename object_t, typename modules_t>
 	static auto attached(
 		modules_t& modules,
@@ -225,6 +149,92 @@ namespace {
 			}
 		}
 		return out;
+	}
+}
+
+
+
+mark::unit::modular::modular(
+	mark::world& world,
+	mark::vector<double> pos,
+	float rotation):
+	mark::unit::base(world, pos),
+	m_rotation(rotation) {}
+
+void mark::unit::modular::tick_modules(mark::tick_context& context) {
+	this->remove_dead(context);
+	for (auto& module : m_modules) {
+		module->tick(context);
+	}
+}
+
+void mark::unit::modular::tick_movement(
+	double dt,
+	const mark::module::modifiers& mods) {
+
+	double speed = m_ai ? 64.0 : 320.0;
+	speed += mods.velocity;
+	if (mark::length(m_moveto - m_pos) > speed * dt) {
+		if ((m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) && m_world.map().can_find()) {
+			m_path = m_world.map().find_path(m_pos, m_moveto);
+			m_path_age = 1.f;
+		} else {
+			m_path_age -= static_cast<float>(dt);
+		}
+		const auto dir = mark::normalize(m_moveto - m_pos);
+		if (m_path.size() > 3) {
+			const auto first = m_path[m_path.size() - 3];
+			m_pos += mark::normalize(first - m_pos) * speed * dt;
+		} else {
+			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
+			if (m_world.map().traversable(m_pos + step, 50.0)) {
+				m_pos += step;
+			}
+		}
+	} else {
+		m_pos = m_moveto;
+	}
+	if (m_lookat != m_pos) {
+		const auto turn_speed = m_ai ? 32.f : 360.f;
+		m_rotation = mark::turn(m_lookat - m_pos, m_rotation, turn_speed, dt);
+	}
+}
+
+void mark::unit::modular::tick_ai() {
+	auto enemy = m_world.find_one(
+		m_pos,
+		1000.f,
+		[this](const auto& unit) {
+		return unit.team() != this->team() && !unit.invincible();
+	});
+	if (enemy) {
+		m_moveto = enemy->pos();
+		m_lookat = enemy->pos();
+		for (auto& module : m_modules) {
+			module->target(enemy->pos());
+		}
+	}
+}
+
+auto mark::unit::modular::modifiers() const -> mark::module::modifiers {
+	mark::module::modifiers mods;
+	for (auto& module : m_modules) {
+		const auto cur_mod = module->global_modifiers();
+		mods.velocity += cur_mod.velocity;
+	}
+	return mods;
+}
+
+void mark::unit::modular::tick(mark::tick_context& context) {
+	if (this->dead()) {
+		return;
+	}
+	const auto modifiers = this->modifiers();
+	this->tick_modules(context);
+	this->pick_up(context);
+	this->tick_movement(context.dt, modifiers);
+	if (m_ai) {
+		this->tick_ai();
 	}
 }
 
@@ -371,7 +381,8 @@ void mark::unit::modular::command(const mark::command& command) {
 			m_pos,
 			150.0,
 			[this](const auto& unit) {
-			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr || dynamic_cast<const mark::unit::gate*>(&unit) != nullptr;
+			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr
+				|| dynamic_cast<const mark::unit::gate*>(&unit) != nullptr;
 		});
 		if (pad) {
 			pad->activate(this->shared_from_this());
@@ -403,7 +414,7 @@ bool mark::unit::modular::damage(const mark::idamageable::info& attr) {
 	for (auto& module : m_modules) {
 		if (module->damage(attr)) {
 			attr.damaged->insert(this);
-return true;
+			return true;
 		}
 	}
 	return false;
@@ -528,6 +539,8 @@ auto mark::unit::modular::bound_status() const ->
 	}
 	return out;
 }
+
+// Serializer / Deserializer
 
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
 	mark::unit::base(world, node),

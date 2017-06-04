@@ -13,6 +13,7 @@ namespace mark {
 		class base;
 		class core;
 		class cargo;
+		struct modifiers;
 	};
 	class world;
 
@@ -70,6 +71,10 @@ namespace mark {
 			void pick_up(mark::tick_context&);
 			// Remove 
 			void unbind(const mark::module::base& module);
+			auto modifiers() const -> mark::module::modifiers;
+			void tick_modules(mark::tick_context& context);
+			void tick_movement(double dt, const mark::module::modifiers& mods);
+			void tick_ai();
 
 
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
