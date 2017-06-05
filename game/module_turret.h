@@ -2,23 +2,9 @@
 #include "stdafx.h"
 #include "adsr.h"
 #include "module_base.h"
+#include "curve.h"
 
 namespace mark {
-	namespace curve {
-		typedef float(*ptr)(float);
-		inline float flat(float) {
-			return 1.f;
-		}
-		inline float linear(float x) {
-			return std::max(std::min(1.f, x), 0.f);
-		}
-		inline float invert(float x) {
-			return linear(1 - x);
-		}
-		inline float sin(float x) {
-			return std::sin(x * (float)M_PI * 2.f) * 0.5f + 0.5f;
-		}
-	}
 	namespace resource {
 		class manager;
 		class image;

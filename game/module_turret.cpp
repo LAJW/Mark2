@@ -133,36 +133,6 @@ auto mark::module::turret::describe() const -> std::string {
 	return os.str();
 }
 
-namespace {
-	// serialize curve
-	auto serialize(mark::curve::ptr ptr) -> std::string {
-		if (ptr == mark::curve::flat) {
-			return "flat";
-		} else if (ptr == mark::curve::invert) {
-			return "invert";
-		} else if (ptr == mark::curve::linear) {
-			return "linear";
-		} else if (ptr == mark::curve::sin) {
-			return "sin";
-		} else {
-			throw mark::exception("BAD_CURVE");
-		}
-	}
-	auto deserialize(const std::string str) -> mark::curve::ptr {
-		if (str == "flat") {
-			return mark::curve::flat;
-		} else if (str == "invert") {
-			return mark::curve::invert;
-		} else if (str == "linear") {
-			return mark::curve::linear;
-		} else if (str == "sin") {
-			return mark::curve::sin;
-		} else {
-			throw mark::exception("BAD_CURVE");
-		}
-	}
-}
-
 mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node):
 	mark::module::base(rm, node),
 	m_im_base(rm.image("turret-base.png")),
@@ -176,7 +146,7 @@ mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node
 	m_burst_delay(node["burst_delay"].as<float>()),
 	m_guided(node["guided"].as<bool>()),
 	m_cone(node["cone"].as<float>()),
-	m_cone_curve(::deserialize(node["cone_curve"].as<std::string>())),
+	m_cone_curve(mark::curve::deserialize(node["cone_curve"].as<std::string>())),
 	m_heat_per_shot(node["heat_per_shot"].as<float>()),
 	m_critical_chance(node["critical_chance"].as<float>()),
 	m_critical_multiplier(node["critical_multiplier"].as<float>()),
@@ -199,14 +169,14 @@ void mark::module::turret::serialize(YAML::Emitter& out) const {
 
 	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
 	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
-	out << Key << "rate_of_fire_curve" << Value << ::serialize(m_rate_of_fire_curve);
+	out << Key << "rate_of_fire_curve" << Value << mark::curve::serialize(m_rate_of_fire_curve);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "angular_velocity" << Value << m_angular_velocity;
 	out << Key << "projectile_count" << Value << static_cast<unsigned>(m_projectile_count);
 	out << Key << "burst_delay" << Value << m_burst_delay;
 	out << Key << "guided" << Value << m_guided;
 	out << Key << "cone" << Value << m_cone;
-	out << Key << "cone_curve" << Value << ::serialize(m_cone_curve);
+	out << Key << "cone_curve" << Value << mark::curve::serialize(m_cone_curve);
 	out << Key << "heat_per_shot" << Value << m_heat_per_shot;
 	out << Key << "critical_chance" << Value << m_critical_chance;
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;

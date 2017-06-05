@@ -121,6 +121,9 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="curve.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -267,6 +270,9 @@
       <Filter>Unit</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="curve.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>

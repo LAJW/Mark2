@@ -149,6 +149,7 @@
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="cooldown.cpp" />
+    <ClCompile Include="curve.cpp" />
     <ClCompile Include="keymap.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="main.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />
+    <ClInclude Include="curve.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="idamageable.h" />
     <ClInclude Include="iserializable.h" />
