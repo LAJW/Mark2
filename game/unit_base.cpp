@@ -6,9 +6,12 @@ auto mark::unit::base::collide(mark::vector<double> center, float radius) ->
 	return { };
 }
 
+mark::unit::base::base(mark::world & world, mark::vector<double> pos)
+	:pos(pos), m_world(world) { }
+
 mark::unit::base::base(mark::world& world, const YAML::Node& node):
 	m_world(world),
-	pos({ node["pos"]["x"].as<double>(0), node["pos"]["y"].as<double>(0) }),
+	pos(node["pos"].as<mark::vector<double>>()),
 	team(node["team"].as<unsigned>(0)) { }
 
 void mark::unit::base::resolve_ref(
