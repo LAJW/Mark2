@@ -545,16 +545,14 @@ auto mark::unit::modular::bound_status() const ->
 
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
 	mark::unit::base(world, node),
-	m_moveto(node["moveto"]["x"].as<double>(), node["moveto"]["y"].as<double>()),
-	m_lookat(node["lookat"]["x"].as<double>(), node["lookat"]["y"].as<double>()),
+	m_moveto(node["moveto"].as<mark::vector<double>>()),
+	m_lookat(node["lookat"].as<mark::vector<double>>()),
 	m_ai(node["ai"].as<bool>()),
 	m_move(node["move"].as<bool>()) {
 
 	std::unordered_map<uint64_t, std::reference_wrapper<mark::module::base>> id_map;
 	for (const auto& module_node : node["modules"]) {
-		const auto pos_x = module_node["grid_pos"]["x"].as<int>();
-		const auto pos_y = module_node["grid_pos"]["y"].as<int>();
-		const auto pos = mark::vector<int>(pos_x, pos_y);
+		const auto pos = module_node["grid_pos"].as<mark::vector<int>>();
 		const auto id = module_node["id"].as<uint64_t>();
 		auto module = mark::module::deserialize(world.resource_manager(), module_node);
 		this->attach(std::move(module), pos);
@@ -563,7 +561,10 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
 	for (const auto& binding_node : node["bindings"]) {
 		const auto key = binding_node["key"].as<int>();
 		const auto module_id = binding_node["module_id"].as<uint64_t>();
-		m_bindings.insert({ static_cast<enum class mark::command::type>(key), id_map.at(module_id) });
+		m_bindings.insert({
+			static_cast<enum class mark::command::type>(key),
+			id_map.at(module_id)
+		});
 	}
 }
 
