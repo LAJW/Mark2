@@ -69,7 +69,7 @@ namespace mark {
 				std::vector<std::reference_wrapper<const mark::module::base>>;
 			void remove_dead(mark::tick_context&);
 			void pick_up(mark::tick_context&);
-			// Remove 
+			// Remove module from module bindings
 			void unbind(const mark::module::base& module);
 			auto modifiers() const -> mark::module::modifiers;
 			void tick_modules(mark::tick_context& context);

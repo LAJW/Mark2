@@ -11,7 +11,6 @@ namespace mark {
 	struct tick_context {
 		tick_context(mark::resource::manager&);
 		double dt;
-		float dtf;
 		std::map<int, std::vector<mark::sprite>> sprites;
 		std::map<int, std::vector<mark::sprite>> normals;
 		std::vector<std::pair<mark::vector<double>, sf::Color>> lights;

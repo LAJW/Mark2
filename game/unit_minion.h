@@ -18,10 +18,11 @@ namespace mark {
 			auto dead() const -> bool override;
 			auto damage(const mark::idamageable::info&) -> bool override;
 			auto invincible() const -> bool override;
-			virtual auto collide(const mark::segment_t&) ->
+			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			auto collide(mark::vector<double> center, float radius) ->
 				std::vector<std::reference_wrapper<mark::idamageable>> override;
+			void on_death(mark::tick_context& context) override;
 		private:
 			mark::model::animated m_model;
 			mark::model::shield m_model_shield;

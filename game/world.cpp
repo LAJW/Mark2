@@ -144,7 +144,11 @@ void mark::world::tick(mark::tick_context& context, mark::vector<double> screen_
 		context);
 
 	for (auto& unit : m_units) {
-		unit->tick(context);
+		// ticking can damage other units and they may become dead in the process
+		// dead unit is a unit due to be removed
+		if (!unit->dead()) {
+			unit->tick(context);
+		}
 	}
 	for (auto& particle : m_particles) {
 		particle.tick(context.dt, context.sprites);

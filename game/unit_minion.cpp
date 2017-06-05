@@ -71,23 +71,13 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 
 	context.sprites[1].push_back(m_model.render(m_pos, 116.f, m_rotation, sf::Color::White));
 	mark::tick_context::bar_info bar;
-	bar.image = m_world.resource_manager().image("bar.png");
+	bar.image = m_world.image_bar;
 	bar.pos = m_pos + mark::vector<double>(0, -72);
 	bar.type = mark::tick_context::bar_type::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
-	if (m_health < 0) {
-		mark::tick_context::spray_info spray;
-		spray.image = m_image_explosion;
-		spray.pos = pos();
-		spray.velocity(50.f, 350.f);
-		spray.lifespan(0.5f);
-		spray.diameter(32.f);
-		spray.count = 80;
-		context.render(spray);
-		m_dead = true;
-	}
 }
+
 
 auto mark::unit::minion::dead() const -> bool {
 	return m_dead;
@@ -130,3 +120,18 @@ auto mark::unit::minion::collide(mark::vector<double> center, float radius) ->
 		return { };
 	}
 }
+
+void mark::unit::minion::on_death(mark::tick_context & context) {
+	if (m_health < 0) {
+		mark::tick_context::spray_info spray;
+		spray.image = m_image_explosion;
+		spray.pos = pos();
+		spray.velocity(50.f, 350.f);
+		spray.lifespan(0.5f);
+		spray.diameter(32.f);
+		spray.count = 80;
+		context.render(spray);
+		m_dead = true;
+	}
+}
+

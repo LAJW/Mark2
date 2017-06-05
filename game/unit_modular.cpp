@@ -116,6 +116,7 @@ namespace {
 		return false;
 	}
 
+	// Shared implementation of the modular::attached() function
 	template <typename object_t, typename modules_t>
 	static auto attached(
 		modules_t& modules,
@@ -164,7 +165,10 @@ mark::unit::modular::modular(
 void mark::unit::modular::tick_modules(mark::tick_context& context) {
 	this->remove_dead(context);
 	for (auto& module : m_modules) {
-		module->tick(context);
+		// Module might be already dead, don't tick dead modules
+		if (!module->dead()) {
+			module->tick(context);
+		}
 	}
 }
 
@@ -226,9 +230,6 @@ auto mark::unit::modular::modifiers() const -> mark::module::modifiers {
 }
 
 void mark::unit::modular::tick(mark::tick_context& context) {
-	if (this->dead()) {
-		return;
-	}
 	const auto modifiers = this->modifiers();
 	this->tick_modules(context);
 	this->pick_up(context);
