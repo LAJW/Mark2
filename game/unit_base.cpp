@@ -8,7 +8,7 @@ auto mark::unit::base::collide(mark::vector<double> center, float radius) ->
 
 mark::unit::base::base(mark::world& world, const YAML::Node& node):
 	m_world(world),
-	m_pos(node["pos"]["x"].as<double>(0), node["pos"]["y"].as<double>(0)),
+	pos({ node["pos"]["x"].as<double>(0), node["pos"]["y"].as<double>(0) }),
 	team(node["team"].as<unsigned>(0)) { }
 
 void mark::unit::base::resolve_ref(
@@ -22,8 +22,8 @@ void mark::unit::base::serialize_base(YAML::Emitter& out) const {
 	out << Key << "id" << Value << this->id();
 	out << Key << "team" << Value << this->team();
 	out << Key << "pos" << Value << BeginMap;
-	out << Key << "x" << Value << m_pos.x;
-	out << Key << "y" << Value << m_pos.y;
+	out << Key << "x" << Value << pos().x;
+	out << Key << "y" << Value << pos().y;
 	out << EndMap;
 }
 

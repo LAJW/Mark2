@@ -12,6 +12,10 @@ mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<cons
 	assert(size.y <= mark::module::max_dimension);
 }
 
+inline mark::unit::base::base(mark::world & world, mark::vector<double> pos)
+	:pos(pos), m_world(world) {
+}
+
 void mark::module::base::tick(mark::tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
 	const auto pos = this->pos();

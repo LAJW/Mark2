@@ -21,7 +21,7 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 		return;
 	}
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * mark::module::size;
-	const auto nearby_buckets = m_world.find(m_pos, size, [this](const mark::unit::base& unit) {
+	const auto nearby_buckets = m_world.find(pos(), size, [this](const mark::unit::base& unit) {
 		return &unit != this && dynamic_cast<const mark::unit::bucket*>(&unit);
 	});
 	mark::vector<double> direction;
@@ -29,22 +29,22 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 		for (const auto& bucket : nearby_buckets) {
 			direction += bucket->pos();
 		}
-		if (direction == m_pos) {
+		if (direction == pos()) {
 			direction.x = context.random(-1.0, 1.0);
 			direction.y = context.random(-1.0, 1.0);
 		} else {
-			direction = direction - m_pos;
+			direction = direction - pos();
 			direction /= static_cast<double>(nearby_buckets.size());
 			direction = mark::normalize(direction) * -1.0;
 		}
-		const auto new_pos = m_pos + direction * (mark::module::size * 2.0 * context.dt);
-		if (m_world.map().traversable(m_pos, size)) {
-			m_pos = new_pos;
+		const auto new_pos = pos() + direction * (mark::module::size * 2.0 * context.dt);
+		if (m_world.map().traversable(pos(), size)) {
+			pos() = new_pos;
 		}
 	}
 	mark::sprite::info info;
 	info.image = m_module->thumbnail();
-	info.pos = m_pos;
+	info.pos = pos();
 	info.size = size;
 	context.sprites[1].emplace_back(info);
 }

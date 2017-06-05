@@ -18,7 +18,7 @@ mark::unit::landing_pad::landing_pad(mark::world& world, mark::vector<double> po
 void mark::unit::landing_pad::tick(mark::tick_context& context) {
 	mark::sprite::info info;
 	info.image = m_image;
-	info.pos = m_pos;
+	info.pos = pos();
 	info.size = 320.f;
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
@@ -29,7 +29,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 			for (int y = -10; y < 10; y++) {
 				mark::sprite::info info;
 				info.image = image;
-				info.pos = m_pos + mark::vector<double>(x, y) * 32.0;
+				info.pos = pos() + mark::vector<double>(x, y) * 32.0;
 				info.size = 32.f;
 				context.sprites[100].emplace_back(info);
 			}
@@ -37,7 +37,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		double top = 0.0;
 		for (auto& cargo_ref : ship->containers()) {
 			auto& cargo = cargo_ref.get();
-			auto pos = mark::vector<double>(m_pos.x + 320.0, m_pos.y - 320.0 + top);
+			auto pos = mark::vector<double>(this->pos().x + 320.0, this->pos().y - 320.0 + top);
 			cargo.render_contents(pos, context);
 			top += cargo.interior_size().y * 16.0 + 32.0;
 		}
@@ -51,7 +51,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 		}
 
 		// display tooltips
-		const auto relative = (m_mousepos - m_pos) / 16.0;
+		const auto relative = (m_mousepos - pos()) / 16.0;
 		const auto module_pos = mark::round(relative);
 		const auto pick_pos = mark::floor(relative);
 		if (!m_grabbed) {
@@ -86,7 +86,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 				for (auto& cargo_ref : ship->containers()) {
 					auto& cargo = cargo_ref.get();
 					const auto size = cargo.interior_size();
-					const auto relative = m_mousepos - m_pos + mark::vector<double>(-320 + 8, -top + 320 + 8);
+					const auto relative = m_mousepos - pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
 					if (relative.y >= 0 && relative.y < size.y * 16) {
 						const auto pick_pos = mark::floor(relative / 16.0);
 						const auto module = cargo.module(pick_pos);
@@ -122,7 +122,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 
 void mark::unit::landing_pad::dock(mark::unit::modular* ship) {
 	if (ship) {
-		auto ship_ptr = std::dynamic_pointer_cast<mark::unit::modular>(m_world.find_one(m_pos, 500.0, [ship](const mark::unit::base& unit) {
+		auto ship_ptr = std::dynamic_pointer_cast<mark::unit::modular>(m_world.find_one(pos(), 500.0, [ship](const mark::unit::base& unit) {
 			return &unit == ship;
 		}));
 		m_ship = ship_ptr;
@@ -138,11 +138,11 @@ void mark::unit::landing_pad::activate(const std::shared_ptr<mark::unit::base>& 
 		m_world.target(this->shared_from_this());
 		mark::command move;
 		move.type = mark::command::type::move;
-		move.pos = m_pos;
+		move.pos = pos();
 		modular->command(move);
 		mark::command look;
 		look.type = mark::command::type::guide;
-		look.pos = m_pos + mark::vector<double>(1, 0);
+		look.pos = pos() + mark::vector<double>(1, 0);
 		modular->command(look);
 	}
 }
@@ -159,7 +159,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 	} else if (command.type == mark::command::type::move && !command.release) {
 		auto ship = m_ship.lock();
 		if (ship) {
-			const auto relative = (command.pos - m_pos) / 16.0;
+			const auto relative = (command.pos - pos()) / 16.0;
 			const auto module_pos = mark::round(relative);
 			const auto pick_pos = mark::floor(relative);
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
@@ -178,7 +178,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 				for (auto& cargo_ref : ship->containers()) {
 					auto& cargo = cargo_ref.get();
 					const auto size = cargo.interior_size();
-					const auto relative = command.pos - m_pos + mark::vector<double>(-320 + 8, -top + 320 + 8);
+					const auto relative = command.pos - pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
 					if (relative.y >= 0 && relative.y < size.y * 16) {
 						if (m_grabbed) {
 							const auto drop_pos = mark::round(relative / 16.0 - mark::vector<double>(m_grabbed->size()) / 2.0);
@@ -201,7 +201,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 			|| command.type == command::type::shoot) {
 			auto ship = m_ship.lock();
 			if (ship) {
-				const auto relative = (command.pos - m_pos) / 16.0;
+				const auto relative = (command.pos - pos()) / 16.0;
 				const auto pick_pos = mark::floor(relative);
 				ship->toggle_bind(command.type, pick_pos);
 			}

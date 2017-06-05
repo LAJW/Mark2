@@ -44,26 +44,26 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	const auto turn_speed = 500.f;
 	if (guide) {
 		const auto lookat = guide->lookat();
-		if (mark::length(lookat - m_pos) < m_velocity * dt * 2.0) {
+		if (mark::length(lookat - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
 		} else {
-			m_rotation = mark::turn(lookat - m_pos, m_rotation, turn_speed, dt);
+			m_rotation = mark::turn(lookat - pos(), m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
 		auto target = m_world.find_one(
-			m_pos,
+			pos(),
 			m_seek_radius,
 			[this](const mark::unit::base& unit) {
 			return unit.team() != this->team() && !unit.invincible();
 		});
 		if (target) {
-			m_rotation = mark::turn(target->pos() - m_pos, m_rotation, turn_speed, dt);
+			m_rotation = mark::turn(target->pos() - pos(), m_rotation, turn_speed, dt);
 		}
 	}
-	m_pos += step;
+	pos() += step;
 	mark::world::damage_info info;
 	info.context = &context;
-	info.segment = { m_pos - step, m_pos };
+	info.segment = { pos() - step, pos() };
 	info.aoe_radius = m_aoe_radius;
 	info.piercing = m_piercing;
 	info.damage.damaged = &m_damaged;
@@ -119,7 +119,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		{
 			mark::sprite::info args;
 			args.image = m_im_tail;
-			args.pos = m_pos - step;
+			args.pos = pos() - step;
 			args.size = 32.f;
 			args.color = sf::Color(255, 200, 150, 255);
 			context.sprites[0].emplace_back(args);
@@ -127,12 +127,12 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		{
 			mark::sprite::info args;
 			args.image = m_image;
-			args.pos = m_pos;
+			args.pos = pos();
 			args.size = 10.f;
 			args.rotation = m_rotation;
 			context.sprites[1].emplace_back(args);
 		}
-		context.lights.emplace_back(m_pos, sf::Color::White);
+		context.lights.emplace_back(pos(), sf::Color::White);
 	}
 }
 

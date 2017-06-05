@@ -178,35 +178,35 @@ void mark::unit::modular::tick_movement(
 
 	double speed = m_ai ? 64.0 : 320.0;
 	speed += mods.velocity;
-	if (mark::length(m_moveto - m_pos) > speed * dt) {
+	if (mark::length(m_moveto - pos()) > speed * dt) {
 		if ((m_path_age <= 0.f || m_path.size() > 0 && mark::length(m_path.back() - m_moveto) < 150.f) && m_world.map().can_find()) {
-			m_path = m_world.map().find_path(m_pos, m_moveto);
+			m_path = m_world.map().find_path(pos(), m_moveto);
 			m_path_age = 1.f;
 		} else {
 			m_path_age -= static_cast<float>(dt);
 		}
-		const auto dir = mark::normalize(m_moveto - m_pos);
+		const auto dir = mark::normalize(m_moveto - pos());
 		if (m_path.size() > 3) {
 			const auto first = m_path[m_path.size() - 3];
-			m_pos += mark::normalize(first - m_pos) * speed * dt;
+			pos() += mark::normalize(first - pos()) * speed * dt;
 		} else {
-			const auto step = mark::normalize(m_moveto - m_pos) * speed * dt;
-			if (m_world.map().traversable(m_pos + step, 50.0)) {
-				m_pos += step;
+			const auto step = mark::normalize(m_moveto - pos()) * speed * dt;
+			if (m_world.map().traversable(pos() + step, 50.0)) {
+				pos() += step;
 			}
 		}
 	} else {
-		m_pos = m_moveto;
+		pos() = m_moveto;
 	}
-	if (m_lookat != m_pos) {
+	if (m_lookat != pos()) {
 		const auto turn_speed = m_ai ? 32.f : 360.f;
-		m_rotation = mark::turn(m_lookat - m_pos, m_rotation, turn_speed, dt);
+		m_rotation = mark::turn(m_lookat - pos(), m_rotation, turn_speed, dt);
 	}
 }
 
 void mark::unit::modular::tick_ai() {
 	auto enemy = m_world.find_one(
-		m_pos,
+		pos(),
 		1000.f,
 		[this](const auto& unit) {
 		return unit.team() != this->team() && !unit.invincible();
@@ -379,7 +379,7 @@ void mark::unit::modular::command(const mark::command& command) {
 		m_ai = true;
 	} else if (command.type == mark::command::type::activate && !command.release) {
 		auto pad = m_world.find_one(
-			m_pos,
+			pos(),
 			150.0,
 			[this](const auto& unit) {
 			return dynamic_cast<const mark::unit::landing_pad*>(&unit) != nullptr
@@ -405,7 +405,7 @@ void mark::unit::modular::on_death(mark::tick_context& context) {
 		if (!module->dead()) {
 			context.units.emplace_back(std::make_shared<mark::unit::bucket>(
 				m_world,
-				m_pos,
+				pos(),
 				std::move(module)));
 		}
 	}
@@ -640,7 +640,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 				std::make_move_iterator(m_modules.end()),
 				std::back_inserter(context.units),
 				[this](auto module) {
-				return std::make_shared<mark::unit::bucket>(m_world, m_pos, std::move(module));
+				return std::make_shared<mark::unit::bucket>(m_world, pos(), std::move(module));
 			});
 			m_modules.erase(end_it, m_modules.end());
 		}
@@ -648,7 +648,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 }
 
 void mark::unit::modular::pick_up(mark::tick_context& context) {
-	auto buckets = m_world.find(m_pos, 150.f, [](const auto& unit) {
+	auto buckets = m_world.find(pos(), 150.f, [](const auto& unit) {
 		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr && !unit.dead();
 	});
 	auto containers = this->containers();

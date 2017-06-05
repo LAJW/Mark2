@@ -23,12 +23,9 @@ namespace mark {
 			public mark::idamageable,
 			public std::enable_shared_from_this<mark::unit::base> {
 		public:
-			base(mark::world& world, mark::vector<double> pos)
-				:m_pos(pos), m_world(world) { }
+			base(mark::world& world, mark::vector<double> pos);
 			virtual void tick(mark::tick_context& context) = 0;
 			virtual void command(const mark::command&) { };
-			auto inline pos() const { return m_pos; }
-			void inline pos(const mark::vector<double>& pos) { m_pos = pos; }
 			virtual auto dead() const -> bool = 0;
 			virtual void on_death(mark::tick_context& context) { /* no-op */ };
 			virtual bool invincible() const = 0;
@@ -41,13 +38,14 @@ namespace mark {
 			virtual void resolve_ref(
 				const YAML::Node&,
 				const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units);
+
 			Property<int> team = 0;
+			Property<mark::vector<double>> pos;
 		protected:
 			base(mark::world& world, const YAML::Node&);
 			void serialize_base(YAML::Emitter&) const;
 			virtual ~base() = default;
 
-			mark::vector<double> m_pos;
 			mark::world& m_world;
 		};
 	}
