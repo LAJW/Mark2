@@ -28,7 +28,7 @@ namespace mark {
 			mark::model::shield m_model_shield;
 			std::shared_ptr<const mark::resource::image> m_image_explosion;
 			mark::cooldown m_gun_cooldown;
-			std::vector<mark::vector<double>> m_path; // path cache
+			std::vector<mark::vector<double>> m_path_cache; // path cache
 			float m_path_age = 0.f;
 			float m_rotation = 0.f;
 			float m_health = 100.f;
