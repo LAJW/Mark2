@@ -619,20 +619,6 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(mark::vector<uint8_t> pos) noexcept ->
-	mark::module::base* {
-	return const_cast<module::base*>(static_cast<const modular*>(this)->at(pos));
-}
-
-auto mark::unit::modular::at(mark::vector<uint8_t> pos) const noexcept ->
-	const mark::module::base* {
-	if (pos.x < max_size && pos.y < max_size) {
-		return p_at(pos);
-	} else {
-		return nullptr;
-	}
-}
-
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	auto end_it = std::partition(
 		m_modules.begin(),

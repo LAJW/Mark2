@@ -62,6 +62,8 @@ namespace mark {
 			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 			auto bound_status() const -> std::array<bound_status, 11>;
 			void serialize(YAML::Emitter&) const;
+			auto at(mark::vector<uint8_t> pos) noexcept -> mark::module::base*;
+			auto at(mark::vector<uint8_t> pos) const noexcept-> const mark::module::base*;
 		private:
 			auto attached(
 				mark::vector<int8_t> pos,
@@ -75,9 +77,12 @@ namespace mark {
 			void tick_modules(mark::tick_context& context);
 			void tick_movement(double dt, const mark::module::modifiers& mods);
 			void tick_ai();
+			auto p_at(mark::vector<uint8_t> pos) noexcept -> mark::module::base*;
+			auto p_at(mark::vector<uint8_t> pos) const noexcept-> const mark::module::base*;
 
 
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
+			std::array<mark::module::base*, max_size * max_size> m_grid = { nullptr };
 			mark::module::core* m_core = nullptr;
 			float m_rotation = 0.f;
 			mark::vector<double> m_moveto;
