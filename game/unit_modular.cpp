@@ -18,6 +18,17 @@
 // MODULAR
 
 namespace {
+	// temporary refactor helper
+	auto to_new(mark::vector<int8_t> pos) -> mark::vector<uint8_t> {
+		const auto max_size = static_cast<int8_t>(mark::unit::modular::max_size);
+		return { static_cast<uint8_t>(max_size + pos.x), static_cast<uint8_t>(max_size + pos.y) };
+	}
+	auto to_old(mark::vector<uint8_t> pos) -> mark::vector<int8_t> {
+		const auto max_size = static_cast<int8_t>(mark::unit::modular::max_size);
+		const auto ipos = mark::vector<int8_t>(pos);
+		return { ipos.x - max_size, ipos.y - max_size };
+	}
+
 	// point in a box
 	bool overlap(
 		mark::vector<int> pos1,

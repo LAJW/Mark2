@@ -62,6 +62,7 @@ namespace mark {
 			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 			auto bound_status() const -> std::array<bound_status, 11>;
 			void serialize(YAML::Emitter&) const;
+			// get module at position. Returns null if out of bounds or no module present.
 			auto at(mark::vector<uint8_t> pos) noexcept -> mark::module::base*;
 			auto at(mark::vector<uint8_t> pos) const noexcept-> const mark::module::base*;
 		private:

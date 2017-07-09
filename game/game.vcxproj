@@ -195,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adsr.h" />
+    <ClInclude Include="algorithm.h" />
     <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />

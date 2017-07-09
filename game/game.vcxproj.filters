@@ -275,6 +275,9 @@
     <ClInclude Include="curve.h">
       <Filter>General</Filter>
     </ClInclude>
+    <ClInclude Include="algorithm.h">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

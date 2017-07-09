@@ -8,6 +8,7 @@
 #include "resource_manager.h"
 #include "unit_bucket.h"
 #include <sstream>
+#include "algorithm.h"
 
 mark::module::cargo::cargo(mark::resource::manager& resource_manager):
 	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
@@ -121,7 +122,7 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
-	for (int i = 0; i < m_modules.size(); i++) {
+	for (const auto i : mark::enumerate(m_modules.size())) {
 		const mark::vector<int> module_pos(i % 16, i / 16);
 		auto& module = m_modules[i];
 		if (module) {
@@ -137,8 +138,8 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 
 void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context & context) {
 	const auto image = parent().world().resource_manager().image("grid-background.png");
-	auto size = this->interior_size();
-	for (const auto point : mark::area(size)) {
+	const auto size = this->interior_size();
+	for (const auto point : mark::enumerate(size)) {
 		const auto slot_pos = pos_in + mark::vector<double>(point * 16);
 		mark::sprite::info info;
 		info.image = image;
