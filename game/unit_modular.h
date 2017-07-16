@@ -38,9 +38,20 @@ namespace mark {
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
 			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
+			// deprecated
 			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
-			auto get_attached(mark::module::base&)->std::vector<std::reference_wrapper<mark::module::base>>;
+			// deprecated
+			auto get_attached(const mark::module::base&) ->
+				std::vector<std::reference_wrapper<mark::module::base>>;
+			auto attached(const mark::module::base&) ->
+				std::vector<std::reference_wrapper<mark::module::base>>;
+			auto attached(const mark::module::base&) const ->
+				std::vector<std::reference_wrapper<const mark::module::base>>;
+			// deprecated
 			auto get_core()->mark::module::core&;
+			auto core() -> mark::module::core&;
+			auto core() const -> const mark::module::core&;
+
 			void tick(mark::tick_context& context) override;
 			inline auto rotation() const { return m_rotation; }
 			auto dead() const -> bool override;
@@ -63,13 +74,11 @@ namespace mark {
 			auto bound_status() const -> std::array<bound_status, 11>;
 			void serialize(YAML::Emitter&) const;
 			// get module at position. Returns null if out of bounds or no module present.
-			auto at(mark::vector<uint8_t> pos) noexcept -> mark::module::base*;
-			auto at(mark::vector<uint8_t> pos) const noexcept-> const mark::module::base*;
+			auto at(mark::vector<int8_t> pos) noexcept -> mark::module::base*;
+			auto at(mark::vector<int8_t> pos) const noexcept-> const mark::module::base*;
 		private:
-			auto attached(
-				mark::vector<int8_t> pos,
-				mark::vector<uint8_t> size) const ->
-				std::vector<std::reference_wrapper<const mark::module::base>>;
+			// attach without performing integrity check
+			void p_attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
 			void remove_dead(mark::tick_context&);
 			void pick_up(mark::tick_context&);
 			// Remove module from module bindings
@@ -78,8 +87,13 @@ namespace mark {
 			void tick_modules(mark::tick_context& context);
 			void tick_movement(double dt, const mark::module::modifiers& mods);
 			void tick_ai();
-			auto p_at(mark::vector<uint8_t> pos) noexcept -> mark::module::base*;
-			auto p_at(mark::vector<uint8_t> pos) const noexcept-> const mark::module::base*;
+			auto p_connected_to_core(const mark::module::base&) const -> bool;
+			// get pointer in reference to the center of the grid
+			auto p_at(mark::vector<int8_t> pos) noexcept -> mark::module::base*&;
+			auto p_at(mark::vector<int8_t> pos) const noexcept -> const mark::module::base*;
+			// get pointer in reference to the top left corner of the grid
+			auto p_grid(mark::vector<uint8_t> pos) noexcept -> mark::module::base*&;
+			auto p_grid(mark::vector<uint8_t> pos) const noexcept -> const mark::module::base*;
 
 
 			std::vector<std::unique_ptr<mark::module::base>> m_modules;
