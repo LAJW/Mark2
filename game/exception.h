@@ -14,4 +14,10 @@ namespace mark {
 		inline user_error(const char* message) : exception(message) {}
 		inline user_error(const std::string& message) : exception(message) {}
 	};
+	namespace error {
+		class base : public mark::exception {
+		public:
+			base() : mark::exception("mark_error") { };
+		};
+	}
 }
