@@ -136,7 +136,7 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 	return nullptr;
 }
 
-void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context & context) {
+void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context& context) {
 	const auto image = parent().world().resource_manager().image("grid-background.png");
 	const auto size = this->interior_size();
 	for (const auto point : mark::enumerate(size)) {
