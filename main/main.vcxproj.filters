@@ -13,21 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{6414aa59-3bfe-4f33-9304-b50620b360f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\General">
-      <UniqueIdentifier>{550e4f86-0243-4d2d-8cc1-25fa438cf2a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Module">
-      <UniqueIdentifier>{a44fdc7a-ab9a-4db3-80b3-d2b6cf874163}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Terrain">
-      <UniqueIdentifier>{ccf29319-3d92-4b6b-9218-618dc6a0e83d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Unit">
-      <UniqueIdentifier>{778c0b6c-ad54-4dd2-9259-50a29bded84e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

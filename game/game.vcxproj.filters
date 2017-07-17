@@ -10,9 +10,6 @@
     <ClCompile Include="renderer.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>General</Filter>
     </ClCompile>
