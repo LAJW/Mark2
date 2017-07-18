@@ -2,10 +2,10 @@
 #include "resource_manager.h"
 #include "resource_image.h"
 
-mark::resource::manager::manager():
+mark::resource::manager_impl::manager_impl():
 	m_gen(m_rd()) { }
 
-auto mark::resource::manager::image(const std::string& filename) -> std::shared_ptr<const mark::resource::image> {
+auto mark::resource::manager_impl::image(const std::string& filename) -> std::shared_ptr<const mark::resource::image> {
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
 	if (!image) {
@@ -17,23 +17,23 @@ auto mark::resource::manager::image(const std::string& filename) -> std::shared_
 	}
 }
 
-auto mark::resource::manager::random_int(int min, int max) -> int {
+auto mark::resource::manager_impl::random_int(int min, int max) -> int {
 	std::uniform_int_distribution<> dist(min, max);
 	return dist(m_gen);
 }
 
-auto mark::resource::manager::random_double(double min, double max) -> double {
+auto mark::resource::manager_impl::random_double(double min, double max) -> double {
 	std::uniform_real_distribution<> dist(min, max);
 	return dist(m_gen);
 }
 
-auto mark::resource::manager_stub::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
+auto mark::resource::manager::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
 	return std::make_shared<mark::resource::image>();
 };
-auto mark::resource::manager_stub::random_int(int min, int max) -> int {
+auto mark::resource::manager::random_int(int min, int max) -> int {
 	return (max - min) / 2 + min;
 }
-auto mark::resource::manager_stub::random_double(double min, double max) -> double {
+auto mark::resource::manager::random_double(double min, double max) -> double {
 	return (max - min) / 2 + min;
 }
 

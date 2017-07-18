@@ -6,7 +6,7 @@
 // Map
 
 TEST_CASE("should return nullptr or possibly crash") {
-	mark::resource::manager_stub rm;
+	mark::resource::manager rm;
 	const auto map = mark::map::make_square(rm);
 	const auto result = map.collide({
 		{ 0, 0 },

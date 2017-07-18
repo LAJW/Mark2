@@ -7,7 +7,6 @@ namespace mark {
 
 		class manager {
 		public:
-			manager();
 			virtual auto image(const std::string& filename) ->
 				std::shared_ptr<const mark::resource::image>;
 			template<typename T>
@@ -17,10 +16,6 @@ namespace mark {
 		protected:
 			virtual auto random_int(int min, int max) -> int;
 			virtual auto random_double(double min, double max) -> double;
-		private:
-			std::unordered_map<std::string, std::weak_ptr<const mark::resource::image>> m_images;
-			std::random_device m_rd;
-			std::mt19937_64 m_gen;
 		};
 		template<>
 		auto manager::random<int>(int min, int max) -> int;
@@ -31,13 +26,18 @@ namespace mark {
 		template<>
 		auto manager::random<float>(float min, float max) -> float;
 
-		class manager_stub final : public manager {
+		class manager_impl final : public manager {
 		public:
+			manager_impl();
 			auto image(const std::string& filename)->
 				std::shared_ptr<const mark::resource::image> override;
 		protected:
 			auto random_int(int min, int max) -> int override;
 			auto random_double(double min, double max) -> double override;
+		private:
+			std::unordered_map<std::string, std::weak_ptr<const mark::resource::image>> m_images;
+			std::random_device m_rd;
+			std::mt19937_64 m_gen;
 		};
 	};
 }
