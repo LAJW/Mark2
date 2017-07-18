@@ -27,13 +27,13 @@ auto mark::resource::manager_impl::random_double(double min, double max) -> doub
 	return dist(m_gen);
 }
 
-auto mark::resource::manager::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
-	return std::make_shared<mark::resource::image>();
+auto mark::resource::manager_stub::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
+	return std::make_shared<mark::resource::image_stub>();
 };
-auto mark::resource::manager::random_int(int min, int max) -> int {
+auto mark::resource::manager_stub::random_int(int min, int max) -> int {
 	return (max - min) / 2 + min;
 }
-auto mark::resource::manager::random_double(double min, double max) -> double {
+auto mark::resource::manager_stub::random_double(double min, double max) -> double {
 	return (max - min) / 2 + min;
 }
 

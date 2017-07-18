@@ -12,6 +12,6 @@ namespace mark {
 		void main();
 	private:
 		sf::RenderWindow m_window;
-		mark::resource::manager m_resource_manager;
+		mark::resource::manager_impl m_resource_manager;
 	};
 }

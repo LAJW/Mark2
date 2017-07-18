@@ -20,14 +20,14 @@ auto mark::resource::image_impl::texture() const noexcept -> const sf::Texture& 
 	return *m_texture;
 }
 
-auto mark::resource::image::size() const noexcept -> mark::vector<unsigned> {
+auto mark::resource::image_stub::size() const noexcept -> mark::vector<unsigned> {
 	return { 64, 64 };
 }
 
-auto mark::resource::image::filename() const noexcept -> const std::string& {
+auto mark::resource::image_stub::filename() const noexcept -> const std::string& {
 	return "file.png";
 }
 
-auto mark::resource::image::texture() const noexcept -> const sf::Texture& {
+auto mark::resource::image_stub::texture() const noexcept -> const sf::Texture& {
 	return *static_cast<sf::Texture*>(nullptr);
 }
