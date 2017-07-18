@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "unit_landing_pad.h"
 #include "world.h"
@@ -9,6 +10,7 @@
 #include "module_shield_generator.h"
 #include "command.h"
 #include "module_cargo.h"
+#include "exception.h"
 
 mark::unit::landing_pad::landing_pad(mark::world& world, mark::vector<double> pos):
 	mark::unit::base(world, pos),
@@ -166,9 +168,9 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 				// ship drag&drop
 				if (m_grabbed) {
 					const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
-					if (ship->can_attach(m_grabbed, drop_pos)) {
-						ship->attach(std::move(m_grabbed), drop_pos);
-					}
+					try {
+						ship->attach(m_grabbed, drop_pos);
+					} catch (const mark::exception&) { /* no-op */ }
 				} else {
 					m_grabbed = ship->detach(pick_pos);
 				}
