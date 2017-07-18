@@ -2,8 +2,6 @@
 #include "resource_manager.h"
 #include "resource_image.h"
 
-#ifndef UNIT_TEST
-
 mark::resource::manager::manager():
 	m_gen(m_rd()) { }
 
@@ -11,7 +9,7 @@ auto mark::resource::manager::image(const std::string& filename) -> std::shared_
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
 	if (!image) {
-		auto new_image = std::make_shared<mark::resource::image>(filename);
+		auto new_image = std::make_shared<mark::resource::image_impl>(filename);
 		image_ptr = new_image;
 		return new_image;
 	} else {
@@ -29,19 +27,15 @@ auto mark::resource::manager::random_double(double min, double max) -> double {
 	return dist(m_gen);
 }
 
-#else
-
-auto mark::resource::manager::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
+auto mark::resource::manager_stub::image(const std::string& filename)->std::shared_ptr<const mark::resource::image> {
 	return std::make_shared<mark::resource::image>();
 };
-auto mark::resource::manager::random_int(int min, int max) -> int {
+auto mark::resource::manager_stub::random_int(int min, int max) -> int {
 	return (max - min) / 2 + min;
 }
-auto mark::resource::manager::random_double(double min, double max) -> double {
+auto mark::resource::manager_stub::random_double(double min, double max) -> double {
 	return (max - min) / 2 + min;
 }
-
-#endif
 
 template<>
 auto mark::resource::manager::random<int>(int min, int max) -> int {

@@ -1,23 +1,27 @@
 #pragma once
 #include "stdafx.h"
 #include "vector.h"
-
-namespace sf {
-	class Texture;
-}
+#include <SFML/Graphics/Texture.hpp>
 
 namespace mark {
 	namespace resource {
 		class image {
 		public:
-			image(std::string filename);
-			~image();
-			auto size() const noexcept -> mark::vector<unsigned>;
-			auto filename() const noexcept -> const std::string&;
-			auto texture() const noexcept -> const sf::Texture&;
+			virtual ~image() = default;
+			virtual auto size() const noexcept -> mark::vector<unsigned>;
+			virtual auto filename() const noexcept -> const std::string&;
+			virtual auto texture() const noexcept -> const sf::Texture&;
+		};
+
+		class image_impl final : public image {
+		public:
+			image_impl(std::string filename);
+			auto size() const noexcept -> mark::vector<unsigned> override;
+			auto filename() const noexcept -> const std::string& override;
+			auto texture() const noexcept -> const sf::Texture& override;
 		private:
 			std::string m_filename;
-			sf::Texture* m_texture;
+			std::unique_ptr<sf::Texture> m_texture;
 		};
 	};
 }

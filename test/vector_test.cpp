@@ -1,6 +1,6 @@
+#include "../game/stdafx.h"
 #include <catch.hpp>
 #include "../game/vector.h"
-
 
 TEST_CASE("Horizontal line, point 0, 0 - distance should be 0") {
 	REQUIRE(mark::distance(0, { 0, 0 }) == 0);

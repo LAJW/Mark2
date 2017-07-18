@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 #include <yaml-cpp\yaml.h>
 
 namespace YAML {
