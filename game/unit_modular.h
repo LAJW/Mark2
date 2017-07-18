@@ -37,7 +37,10 @@ namespace mark {
 			modular(mark::world& world, const YAML::Node&);
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
-			void attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
+			// Attaches module to the modular
+			// Throws mark::exception if object cannot be attached
+			// Doesn't destroy passed in module on error
+			void attach(std::unique_ptr<module::base>& module, mark::vector<int> pos);
 			// deprecated
 			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
 			// deprecated

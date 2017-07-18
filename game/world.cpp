@@ -50,46 +50,55 @@ auto make_mortar(mark::resource::manager& resource_manager) {
 	return std::make_unique<mark::module::turret>(info);
 }
 
+auto to_base(std::unique_ptr<mark::module::base> ptr) {
+	return ptr;
+}
+
 auto create_ship(mark::resource::manager& resource_manager, mark::world& world, mark::vector<double> pos = { 0, 0 }) {
 	auto vessel = std::make_shared<mark::unit::modular>(world, pos, 10.f);
-	auto core = std::make_unique<mark::module::core>(resource_manager);
-	vessel->attach(std::move(core), { -1, -1 });
+	auto core = to_base(std::make_unique<mark::module::core>(resource_manager));
+	vessel->attach(core, { -1, -1 });
 	auto cargo1 = std::make_unique<mark::module::cargo>(resource_manager);
 	cargo1->drop({ 0, 0 }, std::make_unique<mark::module::shield_generator>(resource_manager));
-	vessel->attach(std::move(cargo1), { -1, 1 });
-	vessel->attach(std::make_unique<mark::module::cargo>(resource_manager), { -1, -3 });
-	vessel->attach(std::make_unique<mark::module::shield_generator>(resource_manager), { 1, -1 });
-	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, -3 });
+	vessel->attach(to_base(std::move(cargo1)), { -1, 1 });
+	vessel->attach(to_base(std::make_unique<mark::module::cargo>(resource_manager)), { -1, -3 });
+	vessel->attach(to_base(std::make_unique<mark::module::shield_generator>(resource_manager)), { 1, -1 });
+	vessel->attach(to_base(std::make_unique<mark::module::flamethrower>(resource_manager)), { 3, -3 });
 	vessel->toggle_bind(mark::command::type::ability_1, { 3, -3 });
-	vessel->attach(std::make_unique<mark::module::flamethrower>(resource_manager), { 3, 1 });
+	vessel->attach(to_base(std::make_unique<mark::module::flamethrower>(resource_manager)), { 3, 1 });
 	vessel->toggle_bind(mark::command::type::ability_1, { 3, 1 });
-	vessel->attach(make_turret(resource_manager), { -3, -3 });
+	vessel->attach(to_base(make_turret(resource_manager)), { -3, -3 });
 	vessel->toggle_bind(mark::command::type::shoot, { -3, -3 });
-	vessel->attach(make_turret(resource_manager), { -3, 1 });
+	vessel->attach(to_base(make_turret(resource_manager)), { -3, 1 });
 	vessel->toggle_bind(mark::command::type::shoot, { -3, 1 });
-	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, 3 });
+	vessel->attach(to_base(std::make_unique<mark::module::cannon>(resource_manager)), { -1, 3 });
 	vessel->toggle_bind(mark::command::type::ability_2, { -1, 3 });
-	vessel->attach(std::make_unique<mark::module::cannon>(resource_manager), { -1, -5 });
+	vessel->attach(to_base(std::make_unique<mark::module::cannon>(resource_manager)), { -1, -5 });
 	vessel->toggle_bind(mark::command::type::ability_2, { -1, -5 });
-	vessel->attach(make_mortar(resource_manager), { -3, -5 });
+	vessel->attach(to_base(make_mortar(resource_manager)), { -3, -5 });
 	vessel->toggle_bind(mark::command::type::shoot, { -3, -5 });
-	vessel->attach(make_mortar(resource_manager), { -3, 3 });
+	vessel->attach(to_base(make_mortar(resource_manager)), { -3, 3 });
 	vessel->toggle_bind(mark::command::type::shoot, { -3, 3 });
-	vessel->attach(std::make_unique<mark::module::energy_generator>(resource_manager), { -3, -1 });
-	vessel->attach(std::make_unique<mark::module::battery>(resource_manager), { -5, -1 });
-	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, -3 });
+	vessel->attach(to_base(std::make_unique<mark::module::energy_generator>(resource_manager)), { -3, -1 });
+	vessel->attach(to_base(std::make_unique<mark::module::battery>(resource_manager)), { -5, -1 });
+	vessel->attach(to_base(std::make_unique<mark::module::engine>(resource_manager)), { -7, -3 });
 	vessel->toggle_bind(mark::command::type::ability_3, { -7, -3 });
-	vessel->attach(std::make_unique<mark::module::engine>(resource_manager), { -7, 1 });
+	vessel->attach(to_base(std::make_unique<mark::module::engine>(resource_manager)), { -7, 1 });
 	vessel->toggle_bind(mark::command::type::ability_3, { -7, 1 });
 	return vessel;
 }
 
-mark::world::world(mark::resource::manager& resource_manager):
+mark::world::world(mark::resource::manager& resource_manager, const bool empty) :
 	m_resource_manager(resource_manager),
-	m_map(mark::map::make_cavern(resource_manager)),
+	m_map(empty
+		? mark::map::make_square(resource_manager)
+		: mark::map::make_cavern(resource_manager)),
 	image_bar(resource_manager.image("bar.png")),
 	image_font(resource_manager.image("font.png")),
 	image_stun(resource_manager.image("stun.png")) {
+	if (empty) {
+		return;
+	}
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {

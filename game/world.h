@@ -26,7 +26,7 @@ namespace mark {
 	}
 	class world : public mark::iserializable {
 	public:
-		world(mark::resource::manager& resource_manager);
+		world(mark::resource::manager& resource_manager, bool empty = false);
 		world(mark::resource::manager&, const YAML::Node&);
 		auto resource_manager() -> mark::resource::manager&;
 		void tick(mark::tick_context&, mark::vector<double> screen_size);

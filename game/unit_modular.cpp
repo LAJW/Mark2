@@ -252,9 +252,8 @@ std::vector<std::reference_wrapper<const mark::module::base>> {
 	return ::attached<const mark::module::base>(*this, module);
 }
 
-
 void mark::unit::modular::attach(
-	std::unique_ptr<mark::module::base> module,
+	std::unique_ptr<mark::module::base>& module,
 	mark::vector<int> pos_) {
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	if (!module) {
@@ -280,7 +279,7 @@ void mark::unit::modular::attach(
 		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
 	}
 	// check if has neighbours
-	if (core || module->neighbours().empty()) {
+	if (!core && module->neighbours().empty()) {
 		module->m_parent = nullptr;
 		throw mark::user_error("NO_NEIGHBOURS");
 	}
