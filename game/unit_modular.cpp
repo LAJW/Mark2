@@ -275,13 +275,13 @@ void mark::unit::modular::attach(
 	}
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
-	for (const auto i : mark::enumerate(module->size())) {
-		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
-	}
 	// check if has neighbours
 	if (!core && module->neighbours().empty()) {
 		module->m_parent = nullptr;
 		throw mark::user_error("NO_NEIGHBOURS");
+	}
+	for (const auto i : mark::enumerate(module->size())) {
+		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
 	}
 	m_modules.emplace_back(std::move(module));
 }
