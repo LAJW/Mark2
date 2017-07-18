@@ -48,3 +48,100 @@ TEST_CASE("Try creating modular with two cores") {
 		REQUIRE(core2 != nullptr);
 	}
 }
+
+TEST_CASE("Create modular with a turret to the right") {
+	mark::resource::manager_stub rm;
+	mark::world world(rm, true);
+	mark::unit::modular modular(world, { 0, 0 }, 0);
+	std::unique_ptr<mark::module::base> core =
+		std::make_unique<mark::module::core>(rm);
+	modular.attach(core, { -1, -1 });
+
+	mark::module::turret::info info;
+	info.resource_manager = &rm;
+	std::unique_ptr<mark::module::base> turret =
+		std::make_unique<mark::module::turret>(info);
+	const auto& turret_ref = *turret;
+
+	modular.attach(turret, { 1, -1 });
+	REQUIRE(turret_ref.grid_pos() == mark::vector<int>(1, -1));
+	REQUIRE(turret_ref.pos().x == Approx(mark::module::size * 2));
+	REQUIRE(turret_ref.pos().y == Approx(0));
+}
+
+TEST_CASE("Attach turret in all possible positions") {
+	mark::resource::manager_stub rm;
+	mark::world world(rm, true);
+	mark::unit::modular modular(world, { 0, 0 }, 0);
+	std::unique_ptr<mark::module::base> core =
+		std::make_unique<mark::module::core>(rm);
+	modular.attach(core, { -1, -1 });
+
+	mark::module::turret::info info;
+	info.resource_manager = &rm;
+	std::unique_ptr<mark::module::base> turret =
+		std::make_unique<mark::module::turret>(info);
+	const auto& turret_ref = *turret;
+
+	// Right
+	modular.attach(turret, { 1, -1 });
+	turret = modular.detach({ 1, -1 });
+
+	modular.attach(turret, { 1, -2 });
+	turret = modular.detach({ 1, -2 });
+
+	modular.attach(turret, { 1, 0 });
+	turret = modular.detach({ 1, 0 });
+
+	// Left
+	modular.attach(turret, { -3, -1 });
+	turret = modular.detach({ -3, -1 });
+
+	modular.attach(turret, { -3, -2 });
+	turret = modular.detach({ -3, -2 });
+
+	modular.attach(turret, { -3, 0 });
+	turret = modular.detach({ -3, 0 });
+
+	// Top
+	modular.attach(turret, { -1, 1 });
+	turret = modular.detach({ -1, 1 });
+
+	modular.attach(turret, { -2, 1 });
+	turret = modular.detach({ -2, 1 });
+
+	modular.attach(turret, { 0, 1 });
+	turret = modular.detach({ 0, 1 });
+
+	// Left
+	modular.attach(turret, { -1, -3 });
+	turret = modular.detach({ -1, -3 });
+
+	modular.attach(turret, { -2, -3 });
+	turret = modular.detach({ -2, -3 });
+
+	modular.attach(turret, { 0, -3 });
+	turret = modular.detach({ 0, -3 });
+}
+
+TEST_CASE("Failed detached attach should not set internal map") {
+	mark::resource::manager_stub rm;
+	mark::world world(rm, true);
+	mark::unit::modular modular(world, { 0, 0 }, 0);
+	std::unique_ptr<mark::module::base> core =
+		std::make_unique<mark::module::core>(rm);
+	modular.attach(core, { -1, -1 });
+
+	mark::module::turret::info info;
+	info.resource_manager = &rm;
+	std::unique_ptr<mark::module::base> turret =
+		std::make_unique<mark::module::turret>(info);
+	const auto& turret_ref = *turret;
+
+	REQUIRE(modular.at({ 3, -1 }) == nullptr);
+	try {
+		modular.attach(turret, { 3, -1 });
+	} catch (const std::exception&) { /* no-op */ }
+	turret = modular.detach({ 3, -1 });
+	REQUIRE(modular.at({ 3, -1 }) == nullptr);
+}
