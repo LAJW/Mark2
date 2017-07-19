@@ -36,7 +36,10 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_aoe_radius(info.aoe_radius),
 	m_seek_radius(info.seek_radius),
 	m_range(info.range),
-	m_piercing(info.piercing) { }
+	m_piercing(info.piercing) {
+	m_cur_health = info.cur_health;
+	m_max_health = info.max_health;
+}
 
 void mark::module::turret::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
