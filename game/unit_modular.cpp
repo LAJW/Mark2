@@ -666,12 +666,28 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 		for (const auto& module : m_modules) {
 			module->on_death(context);
 			this->unbind(*module);
+			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
+			const auto module_size = mark::vector<int8_t>(module->size());
+			for (const auto i : mark::enumerate(module_size)) {
+				this->p_at(module_pos + i) = nullptr;
+			}
 		}
 		const auto first_detached_it = std::partition(
 			m_modules.begin(),
 			m_modules.end(),
 			[this](const auto& module) {
 				return this->p_connected_to_core(*module);
+		});
+		std::for_each(
+			first_detached_it,
+			m_modules.end(),
+			[this](const auto& module) {
+			this->unbind(*module);
+			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
+			const auto module_size = mark::vector<int8_t>(module->size());
+			for (const auto i : mark::enumerate(module_size)) {
+				this->p_at(module_pos + i) = nullptr;
+			}
 		});
 		std::transform(
 			std::make_move_iterator(first_detached_it),
