@@ -4,6 +4,7 @@
 #include "../game/module_core.h"
 #include "../game/module_turret.h"
 #include "../game/exception.h"
+#include "../game/tick_context.h"
 #include <catch.hpp>
 
 TEST_CASE("Create an empty modular") {
@@ -144,4 +145,24 @@ TEST_CASE("Failed detached attach should not set internal map") {
 	} catch (const std::exception&) { /* no-op */ }
 	turret = modular.detach({ 3, -1 });
 	REQUIRE(modular.at({ 3, -1 }) == nullptr);
+}
+
+TEST_CASE("Remove dead modules") {
+	mark::resource::manager_stub rm;
+	mark::world world(rm, true);
+	mark::unit::modular modular(world, { 0, 0 }, 0);
+	std::unique_ptr<mark::module::base> core =
+		std::make_unique<mark::module::core>(rm);
+	modular.attach(core, { -1, -1 });
+
+	mark::module::turret::info info;
+	info.cur_health = 0.f;
+	info.resource_manager = &rm;
+	std::unique_ptr<mark::module::base> turret =
+		std::make_unique<mark::module::turret>(info);
+	modular.attach(turret, { 1, -1 });
+	mark::tick_context context(rm);
+	context.dt = 0.15;
+	modular.tick(context);
+	REQUIRE(modular.at({ 1, -1 }) == nullptr);
 }
