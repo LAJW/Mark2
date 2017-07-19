@@ -20,7 +20,7 @@ void mark::module::battery::tick(mark::tick_context& context) {
 	info.rotation = parent().rotation();
 	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
 	info.color = this->heat_color();
-	context.sprites[0].emplace_back(info);
+	context.sprites[2].emplace_back(info);
 
 	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
