@@ -21,25 +21,27 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 		return;
 	}
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * mark::module::size;
-	const auto nearby_buckets = m_world.find(pos(), size, [this](const mark::unit::base& unit) {
+	const auto nearby_buckets = m_world.find(
+		pos(), size, [this](const mark::unit::base& unit) {
 		return &unit != this && dynamic_cast<const mark::unit::bucket*>(&unit);
 	});
-	mark::vector<double> direction;
 	if (!nearby_buckets.empty()) {
+		mark::vector<double> diff;
 		for (const auto& bucket : nearby_buckets) {
-			direction += bucket->pos();
+			const auto vec = bucket->pos() - pos();
+			const auto len = mark::length(vec);
+			if (len != 0) {
+				diff -= vec / (len * len);
+			}
 		}
-		if (direction == pos()) {
-			direction.x = context.random(-1.0, 1.0);
-			direction.y = context.random(-1.0, 1.0);
+		if (diff == mark::vector<double>(0, 0)) {
+			m_direction = context.random<float>(-180.f, 180.f);
 		} else {
-			direction = direction - pos();
-			direction /= static_cast<double>(nearby_buckets.size());
-			direction = mark::normalize(direction) * -1.0;
+			m_direction = mark::atan(diff);
 		}
-		const auto new_pos = pos() + direction * (mark::module::size * 2.0 * context.dt);
-		if (m_world.map().traversable(pos(), size)) {
-			pos() = new_pos;
+		const auto ds = mark::rotate(mark::vector<double>(30.0 * context.dt, 0), m_direction);
+		if (m_world.map().traversable(pos() + ds, size)) {
+			this->pos(pos() + ds);
 		}
 	}
 	mark::sprite::info info;

@@ -28,6 +28,7 @@ namespace mark {
 			void serialize(YAML::Emitter& out) const override;
 		private:
 			std::unique_ptr<mark::module::base> m_module;
+			float m_direction = NAN;
 		};
 	}
 }
