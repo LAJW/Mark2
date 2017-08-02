@@ -7,15 +7,14 @@ namespace mark {
 	namespace resource {
 		class manager;
 	}
-	namespace terrain {
-		class base;
-	};
 	class sprite;
 	class world;
 	struct tick_context;
 
 	class map final : public mark::iserializable {
 	public:
+		static constexpr const double tile_size = 32.0;
+
 		static mark::map make_cavern(mark::resource::manager& resource_manager);
 		static mark::map make_square(mark::resource::manager& resource_manager);
 
@@ -39,15 +38,30 @@ namespace mark {
 		void serialize(YAML::Emitter&) const override;
 
 	private:
-		using terrain_t = std::vector<std::vector<std::shared_ptr<mark::terrain::base>>>;
+		enum class terrain_type {
+			null,
+			abyss,
+			floor_1,
+			floor_2,
+			floor_3,
+			wall
+		};
 
-		map(mark::map::terrain_t data);
+		static std::string serialize_terrain_type(terrain_type);
+		static terrain_type deserialize(const std::string&);
 
-		auto size() const -> mark::vector<int>;
+		map(mark::resource::manager&, mark::vector<size_t> size);
+		auto mark::map::traversable(const mark::vector<int> i_pos, const size_t radius) const -> bool;
 
-		auto traversable(mark::vector<int> pos, int radius) const -> bool;
+		auto size() const noexcept -> const mark::vector<size_t>&;
+		auto at(mark::vector<int> pos) noexcept -> terrain_type*;
+		auto at(mark::vector<int> pos) const noexcept -> const terrain_type*;
+		auto world_to_map(mark::vector<double>) const noexcept->mark::vector<int>;
+		auto map_to_world(mark::vector<int>) const noexcept->mark::vector<double>;
 
-		terrain_t m_terrain;
-		mutable unsigned m_find_count;
+		std::reference_wrapper<mark::resource::manager> m_rm;
+		std::vector<terrain_type> m_terrain;
+		mark::vector<size_t> m_size;
+		mutable unsigned m_find_count = 0;
 	};
 }
