@@ -9,6 +9,45 @@
 #include "tick_context.h"
 #include "exception.h"
 
+// Make specific types of maps
+
+mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
+	mark::map map(resource_manager, { 1000, 1000 });
+	std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::uniform_int_distribution<> dist_1_100(1, 10);
+	std::uniform_int_distribution<> dist_0_3(0, 3);
+
+	auto point = mark::vector<int>(500, 500);
+	for (int i = 0; i < 100; i++) {
+		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
+		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
+		const auto length = dist_1_100(gen);
+
+		for (int j = -5; j < length + 5; j++) {
+			for (int k = -3; k <= 3; k++) {
+				map.set(
+					point + direction * j + orto * k,
+					terrain_type::floor_1);
+			}
+		}
+		point += direction * length;
+	}
+	return map;
+}
+
+mark::map mark::map::make_square(mark::resource::manager& resource_manager) {
+	mark::map map(resource_manager, { 20, 20 });
+	for (int x = 1; x < 20 - 1; x++) {
+		for (int y = 1; y < 20 - 1; y++) {
+			map.set({ x, y }, mark::map::terrain_type::floor_1);
+		}
+	}
+	return map;
+}
+
+// Map functionality
+
 auto mark::map::world_to_map(mark::vector<double> pos) const noexcept ->
 	mark::vector<int> {
 	return mark::round(pos / mark::map::tile_size)
@@ -37,8 +76,7 @@ auto mark::map::traversable(
 	for (const auto i : mark::enumerate(offset * 2)) {
 		if (mark::length(offset - i) <= radius) {
 			const auto tile = this->at(i_pos + i - offset);
-			if (!tile || *tile == terrain_type::null
-				|| *tile == terrain_type::wall) {
+			if (tile == terrain_type::null || tile == terrain_type::wall) {
 				return false;
 			}
 		}
@@ -59,8 +97,7 @@ void mark::map::tick(
 	const auto br = mark::vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
 	for (const auto i : mark::enumerate(br - tl)) {
 		const auto pos = i + tl;
-		const auto point = this->at(pos);
-		if (point && *point == terrain_type::floor_1) {
+		if (this->at(pos) == terrain_type::floor_1) {
 			mark::sprite::info info;
 			info.image = m_rm.get().image("floor.png");
 			info.size = mark::map::tile_size;
@@ -89,7 +126,7 @@ std::string mark::map::serialize_terrain_type(terrain_type t) {
 	}
 }
 
-mark::map::terrain_type mark::map::deserialize(const std::string& str) {
+mark::map::terrain_type mark::map::deserialize_terrain_type(const std::string& str) {
 	if (str == "null") {
 		return map::terrain_type::null;
 	} else if (str == "abyss") {
@@ -116,17 +153,18 @@ auto mark::map::size() const noexcept -> const mark::vector<size_t>& {
 	return m_size;
 }
 
-auto mark::map::at(mark::vector<int> pos) noexcept -> terrain_type* {
-	const map& self = *this;
-	return const_cast<terrain_type*>(self.at(pos));
+auto mark::map::at(mark::vector<int> pos) const noexcept ->
+	const terrain_type {
+	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
+		return m_terrain[pos.x + m_size.x * pos.y];
+	} else {
+		return terrain_type::null;
+	}
 }
 
-auto mark::map::at(mark::vector<int> pos) const noexcept ->
-	const terrain_type* {
+void mark::map::set(mark::vector<int> pos, terrain_type type) noexcept {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
-		return &m_terrain[pos.x + m_size.x * pos.y];
-	} else {
-		return nullptr;
+		m_terrain[pos.x + m_size.x * pos.y] = type;
 	}
 }
 
@@ -228,18 +266,38 @@ auto mark::map::can_find() const -> bool {
 }
 
 auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
+	constexpr const auto a = mark::map::tile_size / 2.0;
 	const auto length = mark::length(segment.second - segment.first);
 	const auto direction = mark::normalize(segment.second - segment.first);
-	// previous block - to skip over already checked blocks
-	auto prev = mark::vector<double>(NAN, NAN);
-	for (double i = 0; i < length; i+= mark::map::tile_size / 2.0) {
-		const auto cur = segment.first + i * direction;
-		if (cur == prev) {
-			continue;
-		}
-		const auto pos = this->world_to_map(cur);
-		if (this->at(pos)) {
-			// do something
+	auto prev = this->at(this->world_to_map(segment.first));
+	for (double i = 1; i < length; i+= a) {
+		const auto cur_pos = this->world_to_map(segment.first + i * direction);
+		const auto cur = this->at(cur_pos);
+		if (prev != cur) {
+			const auto center = this->map_to_world(cur_pos);
+			const mark::vector<double> tl(-a, -a);
+			const mark::vector<double> bl(-a, a);
+			const mark::vector<double> tr(a, -a);
+			const mark::vector<double> br(a, a);
+			const std::array<segment_t, 4> borders {
+				mark::segment_t(center + tl, center + tr), 
+				{ center + tr, center + br },
+				{ center + br, center + bl },
+				{ center + bl, center + tl }
+			};
+			auto min = mark::vector<double>(NAN, NAN);
+			double min_len = INFINITY;
+			for (const auto& border : borders) {
+				const auto intersection = intersect(segment, border);
+				if (!isnan(intersection.x)) {
+					const auto len = mark::length(intersection - segment.first);
+					if (len < min_len) {
+						min = intersection;
+						min_len = len;
+					}
+				}
+			}
+			return min;
 		}
 		prev = cur;
 	}
@@ -247,48 +305,33 @@ auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
 }
 
 void mark::map::serialize(YAML::Emitter& out) const {
-}
-
-mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
-	mark::map map(resource_manager, { 1000, 1000 });
-	std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::uniform_int_distribution<> dist_1_100(1, 10);
-	std::uniform_int_distribution<> dist_0_3(0, 3);
-
-	auto point = mark::vector<int>(500, 500);
-	for (int i = 0; i < 100; i++) {
-		const auto direction = mark::vector<int>(mark::rotate(mark::vector<float>(1, 0), dist_0_3(gen) * 90.f));
-		const auto orto = mark::vector<int>(mark::rotate(mark::vector<float>(direction), 90.f));
-		const auto length = dist_1_100(gen);
-
-		for (int j = -5; j < length + 5; j++) {
-			for (int k = -3; k <= 3; k++) {
-				if (const auto tile = map.at(point + direction * j + orto * k)) {
-					*tile = mark::map::terrain_type::floor_1;
-				}
-			}
-		}
-		point += direction * length;
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << "map";
+	out << Key << "size" << Value << BeginMap;
+	out << Key << "x" << Value << m_size.x;
+	out << Key << "y" << Value << m_size.y;
+	out << EndMap;
+	out << Key << "data" << Value << BeginSeq;
+	for (const auto terrain : m_terrain) {
+		out << serialize_terrain_type(terrain);
 	}
-	return map;
-}
-
-mark::map mark::map::make_square(mark::resource::manager& resource_manager) {
-	mark::map map(resource_manager, { 20, 20 });
-	for (int x = 1; x < 20 - 1; x++) {
-		for (int y = 1; y < 20 - 1; y++) {
-			*map.at({ x, y }) = mark::map::terrain_type::floor_1;
-		}
-	}
-	return map;
+	out << EndSeq;
+	out << EndMap;
 }
 
 mark::map::map(
 	mark::resource::manager& resource_manager,
-	const YAML::Node& node):
+	const YAML::Node& node) :
 	m_rm(resource_manager),
-	m_size({ 1000, 1000 }),
-	m_terrain(1000 * 1000) {
-	throw std::runtime_error("NOT IMPLEMENTED");
+	m_size(node["size"].as<mark::vector<size_t>>()) {
+	if (node["type"].as<std::string>() != "map") {
+		std::runtime_error("BAD_DESERIALIZE");
+	}
+	m_terrain = { m_size.x * m_size.y, terrain_type::null };
+	size_t i = 0;
+	for (const auto cell : node["data"]) {
+		m_terrain[i] = deserialize_terrain_type(cell.as<std::string>());
+		i++;
+	}
 }

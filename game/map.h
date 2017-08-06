@@ -48,14 +48,14 @@ namespace mark {
 		};
 
 		static std::string serialize_terrain_type(terrain_type);
-		static terrain_type deserialize(const std::string&);
+		static terrain_type deserialize_terrain_type(const std::string&);
 
 		map(mark::resource::manager&, mark::vector<size_t> size);
 		auto mark::map::traversable(const mark::vector<int> i_pos, const size_t radius) const -> bool;
 
 		auto size() const noexcept -> const mark::vector<size_t>&;
-		auto at(mark::vector<int> pos) noexcept -> terrain_type*;
-		auto at(mark::vector<int> pos) const noexcept -> const terrain_type*;
+		auto at(mark::vector<int> pos) const noexcept -> const terrain_type;
+		void set(mark::vector<int> pos, terrain_type) noexcept;
 		auto world_to_map(mark::vector<double>) const noexcept->mark::vector<int>;
 		auto map_to_world(mark::vector<int>) const noexcept->mark::vector<double>;
 
