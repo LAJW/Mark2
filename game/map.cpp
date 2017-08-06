@@ -95,15 +95,24 @@ void mark::map::tick(
 	const auto br_ = this->world_to_map(world_br);
 	const auto tl = mark::vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
 	const auto br = mark::vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
+	const auto floor = m_rm.get().image("ice-16.png");
 	for (const auto i : mark::enumerate(br - tl)) {
 		const auto pos = i + tl;
-		if (this->at(pos) == terrain_type::floor_1) {
-			mark::sprite::info info;
-			info.image = m_rm.get().image("floor.png");
-			info.size = mark::map::tile_size;
-			info.pos = map_to_world(pos);
-			context.sprites[-1].emplace_back(info);
-		}
+		const auto ctl = this->at(pos - mark::vector<int>(1, 1));
+		const auto cbl = this->at(pos - mark::vector<int>(1, 0));
+		const auto ctr = this->at(pos - mark::vector<int>(0, 1));
+		const auto cbr = this->at(pos);
+		const auto frame =
+			(ctl == terrain_type::floor_1 & 1)
+			| (cbl == terrain_type::floor_1 & 1) << 1
+			| (ctr == terrain_type::floor_1 & 1) << 2
+			| (cbr == terrain_type::floor_1 & 1) << 3;
+		mark::sprite::info info;
+		info.image = floor;
+		info.frame = frame;
+		info.size = mark::map::tile_size;
+		info.pos = map_to_world(pos) - mark::vector<double>(0.5, 0.5) * tile_size;
+		context.sprites[-1].emplace_back(info);
 	}
 }
 
