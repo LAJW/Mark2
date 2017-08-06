@@ -108,8 +108,13 @@ void mark::unit::modular::tick_movement(
 			pos() += mark::normalize(first - pos()) * speed * dt;
 		} else {
 			const auto step = mark::normalize(m_moveto - pos()) * speed * dt;
+			// TODO - intersect radius with terrain, stick to the wall, follow x/y axis
 			if (m_world.map().traversable(pos() + step, 50.0)) {
 				pos() += step;
+			} else if (m_world.map().traversable(pos() + mark::vector<double>(step.x, 0), 50.)) {
+				pos() += mark::vector<double>(step.x, 0);
+			} else if (m_world.map().traversable(pos() + mark::vector<double>(0, step.y), 50.)) {
+				pos() += mark::vector<double>(0, step.y);
 			}
 		}
 	} else {

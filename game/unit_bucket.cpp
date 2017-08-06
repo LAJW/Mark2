@@ -37,7 +37,7 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 		if (diff == mark::vector<double>(0, 0)) {
 			m_direction = context.random<float>(-180.f, 180.f);
 		} else {
-			m_direction = mark::atan(diff);
+			m_direction = static_cast<float>(mark::atan(diff));
 		}
 		const auto ds = mark::rotate(mark::vector<double>(30.0 * context.dt, 0), m_direction);
 		if (m_world.map().traversable(pos() + ds, size)) {
