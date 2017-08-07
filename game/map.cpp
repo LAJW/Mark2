@@ -70,15 +70,22 @@ auto mark::map::traversable(
 auto mark::map::traversable(
 	const mark::vector<int> i_pos,
 	const size_t uradius) const -> bool {
-	const auto radius = static_cast<int>(uradius);
-	const auto size = this->size();
-	const auto offset = mark::vector<int>(radius, radius);
-	for (const auto i : mark::enumerate(offset * 2)) {
-		if (mark::length(offset - i) <= radius) {
+	if (uradius > 1 && false) {
+		// TODO This bit is completely broken
+		const auto radius = static_cast<int>(uradius);
+		const auto offset = mark::vector<int>(radius, radius);
+		for (const auto i : mark::enumerate(offset * 2)) {
 			const auto tile = this->at(i_pos + i - offset);
-			if (tile == terrain_type::null || tile == terrain_type::wall) {
+			if (tile == terrain_type::null
+				|| tile == terrain_type::wall) {
 				return false;
 			}
+		}
+	} else {
+		const auto tile = this->at(i_pos);
+		if (tile == terrain_type::null
+			|| tile == terrain_type::wall) {
+			return false;
 		}
 	}
 	return true;
@@ -103,10 +110,10 @@ void mark::map::tick(
 		const auto ctr = this->at(pos - mark::vector<int>(0, 1));
 		const auto cbr = this->at(pos);
 		const auto frame =
-			(ctl == terrain_type::floor_1 & 1)
-			| (cbl == terrain_type::floor_1 & 1) << 1
-			| (ctr == terrain_type::floor_1 & 1) << 2
-			| (cbr == terrain_type::floor_1 & 1) << 3;
+			((ctl == terrain_type::floor_1) & 1)
+			| ((cbl == terrain_type::floor_1) & 1) << 1
+			| ((ctr == terrain_type::floor_1) & 1) << 2
+			| ((cbr == terrain_type::floor_1) & 1) << 3;
 		mark::sprite::info info;
 		info.image = floor;
 		info.frame = frame;
@@ -184,9 +191,9 @@ struct Node {
 };
 
 auto mark::map::find_path(
-	mark::vector<double> world_start,
-	mark::vector<double> world_end, double radius) const ->
-	std::vector<mark::vector<double>> {
+	const mark::vector<double> world_start,
+	mark::vector<double> world_end,
+	const double radius) const -> std::vector<mark::vector<double>> {
 	const auto map_radius = static_cast<int>(std::ceil(radius / mark::map::tile_size));
 	// if end is not traversable, find nearest traversable point, and update world end
 	if (!this->traversable(world_end, radius)) {
@@ -207,10 +214,10 @@ auto mark::map::find_path(
 	bool straight_exists = true;
 	const auto dir = mark::normalize(world_end - world_start);
 	const auto dist = mark::length(world_end - world_start);
-	for (double i = 0.0; i < dist; i += 24.0) {
-		const auto cur = dir * i + world_start;
-		if (!this->traversable(cur, radius)) {
+	for (double i = 0.0; i <= dist; i += tile_size / 2.f) {
+		if (!this->traversable(dir * i + world_start, radius)) {
 			straight_exists = false;
+			break;
 		}
 	}
 	if (straight_exists) {

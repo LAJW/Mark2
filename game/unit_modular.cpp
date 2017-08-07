@@ -93,16 +93,19 @@ void mark::unit::modular::tick_movement(
 	double dt,
 	const mark::module::modifiers& mods) {
 
-	double speed = m_ai ? 64.0 : 320.0;
-	speed += mods.velocity;
+	double speed = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
+	const auto radius = 150.f;
 	if (mark::length(m_moveto - pos()) > speed * dt) {
-		if ((m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - m_moveto) < 150.f) && m_world.map().can_find()) {
-			m_path_cache = m_world.map().find_path(pos(), m_moveto);
+		if (team() == 1
+			|| (m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - m_moveto) < radius)
+				&& m_world.map().can_find()) {
+			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
 			m_path_age = 1.f;
 		} else {
 			m_path_age -= static_cast<float>(dt);
 		}
 		const auto dir = mark::normalize(m_moveto - pos());
+
 		if (m_path_cache.size() > 3) {
 			const auto first = m_path_cache[m_path_cache.size() - 3];
 			pos() += mark::normalize(first - pos()) * speed * dt;
