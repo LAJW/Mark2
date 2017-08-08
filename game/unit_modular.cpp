@@ -672,21 +672,24 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			return !module->dead();
 	});
 	if (first_dead_it != m_modules.end()) {
-		for (const auto& module : m_modules) {
+		std::for_each(
+			first_dead_it,
+			m_modules.end(),
+			[this, &context](std::unique_ptr<mark::module::base>& module) {
+			module->on_death(context);
 			if (module.get() == m_core) {
 				m_core = nullptr;
 			}
-			module->on_death(context);
 			this->unbind(*module);
 			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
 			const auto module_size = mark::vector<int8_t>(module->size());
 			for (const auto i : mark::enumerate(module_size)) {
 				this->p_at(module_pos + i) = nullptr;
 			}
-		}
+		});
 		const auto first_detached_it = std::partition(
 			m_modules.begin(),
-			m_modules.end(),
+			first_dead_it,
 			[this](const auto& module) {
 				return this->p_connected_to_core(*module);
 		});
