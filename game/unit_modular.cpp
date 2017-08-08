@@ -442,7 +442,7 @@ void mark::unit::modular::command(const mark::command& command) {
 }
 
 auto mark::unit::modular::dead() const -> bool {
-	return m_core && m_core->dead();
+	return !m_core || m_core->dead();
 }
 
 void mark::unit::modular::on_death(mark::tick_context& context) {
@@ -672,6 +672,9 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	});
 	if (first_dead_it != m_modules.end()) {
 		for (const auto& module : m_modules) {
+			if (module.get() == m_core) {
+				m_core = nullptr;
+			}
 			module->on_death(context);
 			this->unbind(*module);
 			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
