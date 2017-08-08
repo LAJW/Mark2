@@ -86,9 +86,8 @@ void mark::unit::bucket::serialize(YAML::Emitter& out) const {
 	out << Key << "type" << Value << mark::unit::bucket::type_name;
 	this->serialize_base(out);
 
-	out << Key << "module" << Value << BeginMap;
+	out << Key << "module" << Value;
 	m_module->serialize(out);
-	out << EndMap;
 
 	out << EndMap;
 }
