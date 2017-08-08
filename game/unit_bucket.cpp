@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "exception.h"
 #include "unit_bucket.h"
 #include "sprite.h"
 #include "tick_context.h"
@@ -70,6 +71,13 @@ auto mark::unit::bucket::collide(const mark::segment_t &) ->
 
 auto mark::unit::bucket::release() -> std::unique_ptr<mark::module::base> {
 	return std::move(m_module);
+}
+
+void mark::unit::bucket::insert(std::unique_ptr<mark::module::base> module) {
+	if (m_module) {
+		throw mark::exception("BUCKET_FULL");
+	}
+	m_module = std::move(module);
 }
 
 void mark::unit::bucket::serialize(YAML::Emitter& out) const {

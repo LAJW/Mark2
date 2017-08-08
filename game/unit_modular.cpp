@@ -238,7 +238,9 @@ auto mark::unit::modular::modifiers() const -> mark::module::modifiers {
 void mark::unit::modular::tick(mark::tick_context& context) {
 	const auto modifiers = this->modifiers();
 	this->tick_modules(context);
-	this->pick_up(context);
+	if (!m_ai) {
+		this->pick_up(context);
+	}
 	this->tick_movement(context.dt, modifiers);
 	if (m_ai) {
 		this->tick_ai();
@@ -713,21 +715,22 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 }
 
 void mark::unit::modular::pick_up(mark::tick_context& context) {
-	auto buckets = m_world.find(pos(), 150.f, [](const auto& unit) {
-		return dynamic_cast<const mark::unit::bucket*>(&unit) != nullptr && !unit.dead();
+	auto units = m_world.find(pos(), 150.f, [](const auto& unit) {
+		return !unit.dead();
 	});
 	auto containers = this->containers();
-	for (auto& bucket : buckets) {
-		auto module = std::dynamic_pointer_cast<mark::unit::bucket>(bucket)->release();
-		for (auto& container : containers) {
-			if (container.get().push(module)) {
-				break;
+	for (auto& unit : units) {
+		const auto bucket = std::dynamic_pointer_cast<mark::unit::bucket>(unit);
+		if (bucket) {
+			auto module = bucket->release();
+			for (auto& container : containers) {
+				if (container.get().push(module)) {
+					break;
+				}
 			}
-		}
-		if (module) {
-			context.units.push_back(std::make_shared<mark::unit::bucket>(
-				m_world, bucket->pos(), std::move(module)));
-			break;
+			if (module) {
+				bucket->insert(std::move(module));
+			}
 		}
 	}
 }

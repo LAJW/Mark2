@@ -25,6 +25,7 @@ namespace mark {
 			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			auto release() -> std::unique_ptr<mark::module::base>;
+			void insert(std::unique_ptr<mark::module::base>);
 			void serialize(YAML::Emitter& out) const override;
 		private:
 			std::unique_ptr<mark::module::base> m_module;
