@@ -123,7 +123,8 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 		return nullptr;
 	}
 	for (const auto i : mark::enumerate(m_modules.size())) {
-		const mark::vector<int> module_pos(i % 16, i / 16);
+		const auto si = static_cast<int>(i);
+		const mark::vector<int> module_pos(si % 16, si / 16);
 		auto& module = m_modules[i];
 		if (module) {
 			const auto border = module_pos + mark::vector<int>(module->size());

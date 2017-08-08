@@ -5,7 +5,6 @@
 #include "exception.h"
 #include "sprite.h"
 #include "world.h"
-#include "terrain_base.h"
 #include "command.h"
 #include "resource_manager.h"
 #include "tick_context.h"

@@ -3,7 +3,6 @@
 #include "world.h"
 #include "sprite.h"
 #include "resource_manager.h"
-#include "terrain_base.h"
 #include "tick_context.h"
 #include <assert.h>
 #include "unit_modular.h"

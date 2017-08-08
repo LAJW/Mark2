@@ -137,6 +137,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Lib\yaml-cpp\include;C:\Lib\SFML-2.4.2_shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -176,9 +177,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="terrain_base.cpp" />
-    <ClCompile Include="terrain_floor.cpp" />
-    <ClCompile Include="terrain_wall.cpp" />
     <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="unit_gate.cpp" />
@@ -225,9 +223,6 @@
     <ClInclude Include="resource_manager.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="terrain_base.h" />
-    <ClInclude Include="terrain_floor.h" />
-    <ClInclude Include="terrain_wall.h" />
     <ClInclude Include="tick_context.h" />
     <ClInclude Include="unit_base.h" />
     <ClInclude Include="unit_bucket.h" />
