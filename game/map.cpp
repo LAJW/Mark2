@@ -70,12 +70,12 @@ auto mark::map::traversable(
 auto mark::map::traversable(
 	const mark::vector<int> i_pos,
 	const size_t uradius) const -> bool {
-	if (uradius > 1 && false) {
-		// TODO This bit is completely broken
+	if (uradius > 1) {
 		const auto radius = static_cast<int>(uradius);
 		const auto offset = mark::vector<int>(radius, radius);
 		for (const auto i : mark::enumerate(offset * 2)) {
-			const auto tile = this->at(i_pos + i - offset);
+			const auto cur = i - offset;
+			const auto tile = this->at(i_pos + cur);
 			if (tile == terrain_type::null
 				|| tile == terrain_type::wall) {
 				return false;
