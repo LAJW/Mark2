@@ -74,11 +74,13 @@ auto mark::map::traversable(
 		const auto radius = static_cast<int>(uradius);
 		const auto offset = mark::vector<int>(radius, radius);
 		for (const auto i : mark::enumerate(offset * 2)) {
-			const auto cur = i - offset;
-			const auto tile = this->at(i_pos + cur);
-			if (tile == terrain_type::null
-				|| tile == terrain_type::wall) {
-				return false;
+			if (mark::length(i - offset) <= radius) {
+				const auto cur = i - offset;
+				const auto tile = this->at(i_pos + cur);
+				if (tile == terrain_type::null
+					|| tile == terrain_type::wall) {
+					return false;
+				}
 			}
 		}
 	} else {
