@@ -281,30 +281,34 @@ auto mark::map::can_find() const -> bool {
 	return m_find_count <= 5;
 }
 
-auto mark::map::collide(mark::segment_t segment) const -> mark::vector<double> {
+auto mark::map::collide(mark::segment_t segment_) const -> mark::vector<double> {
+	const auto direction = mark::normalize(segment_.second - segment_.first);
 	constexpr const auto a = mark::map::tile_size / 2.0;
+	// floating point error margin for comparing segments
+	constexpr const auto margin = 8.;
+	const mark::segment_t segment {
+		segment_.first - direction * margin,
+		segment_.second + direction * margin };
 	const auto length = mark::length(segment.second - segment.first);
-	const auto direction = mark::normalize(segment.second - segment.first);
 	auto prev = this->at(this->world_to_map(segment.first));
-	for (double i = 1; i < length; i+= a) {
+	for (double i = a; i < length + a; i += a) {
 		const auto cur_pos = this->world_to_map(segment.first + i * direction);
 		const auto cur = this->at(cur_pos);
 		if (prev != cur) {
 			const auto center = this->map_to_world(cur_pos);
-			const mark::vector<double> tl(-a, -a);
-			const mark::vector<double> bl(-a, a);
-			const mark::vector<double> tr(a, -a);
-			const mark::vector<double> br(a, a);
 			const std::array<segment_t, 4> borders {
-				mark::segment_t(center + tl, center + tr), 
-				{ center + tr, center + br },
-				{ center + br, center + bl },
-				{ center + bl, center + tl }
+				mark::segment_t{ { -a, -a - margin }, { -a, a + margin } },
+				{ { -a - margin, a }, { a + margin, a } },
+				{ { a, a + margin }, { a, -a - margin } },
+				{ { a + margin, -a }, { -a - margin, -a } }
 			};
-			auto min = mark::vector<double>(NAN, NAN);
+			auto min = segment.second;
 			double min_len = INFINITY;
 			for (const auto& border : borders) {
-				const auto intersection = intersect(segment, border);
+				const auto intersection = intersect(segment, {
+					border.first + center,
+					border.second + center
+				});
 				if (!isnan(intersection.x)) {
 					const auto len = mark::length(intersection - segment.first);
 					if (len < min_len) {
