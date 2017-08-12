@@ -2,8 +2,11 @@
 #include "stdafx.h"
 
 namespace mark {
+	template <typename T, bool = std::is_arithmetic_v<T> || std::is_unsigned_v<T>>
+	class enumerator;
+
 	template <typename T>
-	class enumerator {
+	class enumerator<T, true> {
 	public:
 		class iterator:
 			public std::iterator<std::bidirectional_iterator_tag, T, void> {
@@ -30,6 +33,9 @@ namespace mark {
 			T m_value;
 		};
 		using const_iterator = iterator;
+		enumerator(T end):
+			m_begin(0),
+			m_end(end) { }
 		enumerator(T begin, T end):
 			m_begin(begin),
 			m_end(end) { }
@@ -44,15 +50,14 @@ namespace mark {
 		iterator m_end;
 	};
 
+	// TODO: Type static assert to check whether T is specialization of mark::vector
 	template<typename T>
-	class area_t {
+	class enumerator<T, false> {
 	public:
 		class iterator:
-			public std::iterator<
-				std::bidirectional_iterator_tag,
-				mark::vector<T>, void> {
+			public std::iterator<std::bidirectional_iterator_tag, T, void> {
 		public:
-			iterator(const mark::area_t<T>& area, mark::vector<T> i):
+			iterator(const mark::enumerator<T>& area, T i):
 				m_area(area),
 				m_i(i) {}
 			iterator& operator++() noexcept {
@@ -82,14 +87,14 @@ namespace mark {
 				return m_i;
 			}
 		private:
-			const mark::area_t<T>& m_area;
-			mark::vector<T> m_i = 0;
+			const mark::enumerator<T>& m_area;
+			T m_i = 0;
 		};
 		using const_iterator = iterator;
-		area_t(mark::vector<T> bottom_right):
+		enumerator(const T& bottom_right):
 			top_left(0, 0),
 			bottom_right(bottom_right) {}
-		area_t(mark::vector<T> top_left, mark::vector<T> bottom_right):
+		enumerator(const T& top_left, const T& bottom_right):
 			top_left(top_left),
 			bottom_right(bottom_right) {}
 		const_iterator begin() const noexcept {
@@ -98,28 +103,18 @@ namespace mark {
 		const_iterator end() const noexcept {
 			return iterator(*this, { top_left.x, bottom_right.y });
 		}
-		const mark::vector<T> top_left;
-		const mark::vector<T> bottom_right;
+		const T top_left;
+		const T bottom_right;
 	};
 
-	template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>> 
-	auto enumerate(T min, T max) {
+	template<typename T> 
+	auto enumerate(const T& min, const T& max) {
 		return mark::enumerator<T>(min, max);
 	}
 
-	template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>> 
-	auto enumerate(T max) {
-		return mark::enumerator<T>(static_cast<T>(0), max);
-	}
-
 	template<typename T> 
-	auto enumerate(mark::vector<T> min, mark::vector<T> max) {
-		return mark::area_t<T>(min, max);
-	}
-
-	template<typename T> 
-	auto enumerate(mark::vector<T> max) {
-		return mark::area_t<T>(max);
+	auto enumerate(const T& max) {
+		return mark::enumerator<T>(max);
 	}
 
 	template <typename iterator_t, typename pred_t>
