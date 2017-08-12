@@ -2,7 +2,7 @@
 #include "stdafx.h"
 
 namespace mark {
-	template <typename T, bool = std::is_arithmetic_v<T> || std::is_unsigned_v<T>>
+	template <typename T, bool = std::is_arithmetic_v<T>>
 	class enumerator;
 
 	template <typename T>
@@ -92,11 +92,11 @@ namespace mark {
 		};
 		using const_iterator = iterator;
 		enumerator(const T& bottom_right):
-			top_left(0, 0),
-			bottom_right(bottom_right) {}
+			enumerator({ 0, 0 }, bottom_right) { }
 		enumerator(const T& top_left, const T& bottom_right):
 			top_left(top_left),
-			bottom_right(bottom_right) {}
+			bottom_right(bottom_right) {
+		}
 		const_iterator begin() const noexcept {
 			return iterator(*this, top_left);
 		}
