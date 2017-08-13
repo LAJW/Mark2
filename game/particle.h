@@ -20,6 +20,7 @@ namespace mark {
 			float lifespan = 0.3f;
 			sf::Color color = sf::Color::White;
 			float size = 8.f;
+			int layer = 0;
 		};
 		particle(mark::particle::info& info);
 		void tick(double dt, std::map<int, std::vector<mark::sprite>>& m_pos);
@@ -34,5 +35,6 @@ namespace mark {
 		float m_direction;
 		float m_size;
 		sf::Color m_color;
+		int m_layer;
 	};
 }

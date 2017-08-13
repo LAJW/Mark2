@@ -27,7 +27,8 @@ mark::particle::particle(mark::particle::info& attr, bool) :
 	m_velocity(attr.velocity),
 	m_direction(attr.direction),
 	m_size(attr.size),
-	m_color(attr.color) { }
+	m_color(attr.color),
+	m_layer(attr.layer) { }
 
 void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& sprites) {
 	const auto direction = mark::rotate(mark::vector<float>(1.f, 0.f), m_direction);
@@ -48,6 +49,6 @@ void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& s
 	info.rotation = m_direction;
 	info.frame = frame;
 	info.color = color;
-	sprites[0].emplace_back(info);
+	sprites[m_layer].emplace_back(info);
 	m_cur_lifespan -= static_cast<float>(dt);
 }

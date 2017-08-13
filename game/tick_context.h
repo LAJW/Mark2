@@ -57,6 +57,7 @@ namespace mark {
 			float direction = 0.f;
 			float cone = 360.f;
 			sf::Color color = sf::Color::White;
+			int layer = 0;
 
 			void velocity(float min, float max = NAN);
 			void lifespan(float min, float max = NAN);

@@ -42,6 +42,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.pos = pos;
 		info.diameter(16.f, 32.f);
 		info.count = 4;
+		info.layer = 5;
 		context.render(info);
 	} else if (health_percentage <= 0.25f) {
 		mark::tick_context::spray_info info;
@@ -54,6 +55,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 		info.diameter(16.f, 32.f);
 		info.pos = pos;
 		info.count = 4;
+		info.layer = 5;
 		context.render(info);
 	}
 	if (m_stunned > 0) {

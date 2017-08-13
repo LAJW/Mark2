@@ -169,6 +169,7 @@ void mark::tick_context::render(const mark::tick_context::spray_info& info) {
 		attr.lifespan = tmp_lifespan;
 		attr.color = info.color;
 		attr.size = tmp_diameter;
+		attr.layer = info.layer;
 		this->particles.emplace_back(attr);
 	}
 }
