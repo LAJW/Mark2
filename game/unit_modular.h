@@ -18,7 +18,6 @@ namespace mark {
 	class world;
 
 	namespace unit {
-		class landing_pad;
 		class modular final : public base {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
@@ -79,6 +78,8 @@ namespace mark {
 			// get module at position. Returns null if out of bounds or no module present.
 			auto at(mark::vector<int8_t> pos) noexcept -> mark::module::base*;
 			auto at(mark::vector<int8_t> pos) const noexcept-> const mark::module::base*;
+			// is module resting on the landing pad
+			auto landed() const noexcept -> bool;
 		private:
 			// attach without performing integrity check
 			void p_attach(std::unique_ptr<module::base> module, mark::vector<int> pos);

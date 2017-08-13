@@ -31,32 +31,34 @@ void mark::module::base::tick(mark::tick_context & context) {
 	if (m_cur_heat >= 0.f) {
 		m_cur_heat = std::max(m_cur_heat - 2.f * static_cast<float>(context.dt), 0.f);
 	}
-	if (health_percentage <= 0.5f) {
-		mark::tick_context::spray_info info;
-		info.image = parent().world().resource_manager().image("glare.png");
-		info.lifespan(.3f, 1.f);
-		info.direction = -45.f;
-		info.cone = 90.f;
-		info.color = { 200, 200, 200, 25 };
-		info.velocity(64.f, 128.f);
-		info.pos = pos;
-		info.diameter(16.f, 32.f);
-		info.count = 4;
-		info.layer = 5;
-		context.render(info);
-	} else if (health_percentage <= 0.25f) {
-		mark::tick_context::spray_info info;
-		info.image = parent().world().resource_manager().image("glare.png");
-		info.lifespan(.3f, 1.f);
-		info.direction = -45.f;
-		info.cone = 90.f;
-		info.color = { 0, 0, 0, 75 };
-		info.velocity(64.f, 128.f);
-		info.diameter(16.f, 32.f);
-		info.pos = pos;
-		info.count = 4;
-		info.layer = 5;
-		context.render(info);
+	if (!this->parent().landed()) {
+		if (health_percentage <= 0.5f) {
+			mark::tick_context::spray_info info;
+			info.image = parent().world().resource_manager().image("glare.png");
+			info.lifespan(.3f, 1.f);
+			info.direction = -45.f;
+			info.cone = 90.f;
+			info.color = { 200, 200, 200, 25 };
+			info.velocity(64.f, 128.f);
+			info.pos = pos;
+			info.diameter(16.f, 32.f);
+			info.count = 4;
+			info.layer = 5;
+			context.render(info);
+		} else if (health_percentage <= 0.25f) {
+			mark::tick_context::spray_info info;
+			info.image = parent().world().resource_manager().image("glare.png");
+			info.lifespan(.3f, 1.f);
+			info.direction = -45.f;
+			info.cone = 90.f;
+			info.color = { 0, 0, 0, 75 };
+			info.velocity(64.f, 128.f);
+			info.diameter(16.f, 32.f);
+			info.pos = pos;
+			info.count = 4;
+			info.layer = 5;
+			context.render(info);
+		}
 	}
 	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);

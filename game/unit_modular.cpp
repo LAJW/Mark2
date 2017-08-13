@@ -665,6 +665,10 @@ auto mark::unit::modular::at(mark::vector<int8_t> pos) const noexcept ->
 	}
 }
 
+auto mark::unit::modular::landed() const noexcept -> bool {
+	return !m_ai && m_world.target().get() != this;
+}
+
 void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	const auto first_dead_it = std::partition(
 		m_modules.begin(),
