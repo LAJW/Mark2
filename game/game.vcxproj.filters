@@ -4,9 +4,6 @@
     <ClCompile Include="adsr.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="app.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
     <ClCompile Include="renderer.cpp">
       <Filter>General</Filter>
     </ClCompile>
@@ -129,9 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adsr.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="app.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="keymap.h">

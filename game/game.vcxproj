@@ -149,7 +149,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="adsr.cpp" />
-    <ClCompile Include="app.cpp" />
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="curve.cpp" />
     <ClCompile Include="keymap.cpp" />
@@ -194,7 +193,6 @@
   <ItemGroup>
     <ClInclude Include="adsr.h" />
     <ClInclude Include="algorithm.h" />
-    <ClInclude Include="app.h" />
     <ClInclude Include="command.h" />
     <ClInclude Include="cooldown.h" />
     <ClInclude Include="curve.h" />
