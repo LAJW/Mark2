@@ -57,6 +57,17 @@ auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module:
 	return m_modules;
 }
 
+namespace {
+	auto overlaps(
+		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& left,
+		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right) -> bool {
+		return left.first.x < right.second.x
+			&& left.second.x < right.first.x
+			&& left.first.y < right.second.y
+			&& left.second.y < right.first.y;
+	}
+}
+
 mark::error::guard mark::module::cargo::drop(
 	mark::vector<int> spos,
 	std::unique_ptr<mark::module::base>& incoming) {
@@ -75,10 +86,9 @@ mark::error::guard mark::module::cargo::drop(
 		if (const auto& module = m_modules[i]) {
 			const auto module_pos = mark::vector<unsigned>(i % 16, i / 16);
 			const auto module_border = module_pos + module->size();
-			if (incoming_pos.x < module_border.x
-				&& incoming_border.x < module_pos.x
-				&& incoming_pos.y < module_border.y
-				&& incoming_border.y < module_pos.y) {
+			if (overlaps(
+				{ incoming_pos, incoming_border },
+				{ module_pos, module_border })) {
 				return mark::error::code::occupied;
 			}
 		}
