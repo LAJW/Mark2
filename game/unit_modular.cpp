@@ -94,6 +94,7 @@ void mark::unit::modular::tick_movement(
 
 	double speed = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
 	const auto radius = 75.f;
+	mark::vector<double> step;
 	if (mark::length(m_moveto - pos()) > speed * dt) {
 		if (team() == 1
 			|| (m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - m_moveto) < radius)
@@ -107,20 +108,20 @@ void mark::unit::modular::tick_movement(
 
 		if (m_path_cache.size() > 3) {
 			const auto first = m_path_cache[m_path_cache.size() - 3];
-			pos() += mark::normalize(first - pos()) * speed * dt;
+			step = mark::normalize(first - pos()) * speed * dt;
 		} else {
-			const auto step = mark::normalize(m_moveto - pos()) * speed * dt;
-			// TODO - intersect radius with terrain, stick to the wall, follow x/y axis
-			if (m_world.map().traversable(pos() + step, radius)) {
-				pos() += step;
-			} else if (m_world.map().traversable(pos() + mark::vector<double>(step.x, 0), radius)) {
-				pos() += mark::vector<double>(step.x, 0);
-			} else if (m_world.map().traversable(pos() + mark::vector<double>(0, step.y), radius)) {
-				pos() += mark::vector<double>(0, step.y);
-			}
+			step = mark::normalize(m_moveto - pos()) * speed * dt;
 		}
 	} else {
-		pos() = m_moveto;
+		step = m_moveto - pos();
+	}
+	// TODO - intersect radius with terrain, stick to the wall, follow x/y axis
+	if (m_world.map().traversable(pos() + step, radius)) {
+		pos() += step;
+	} else if (m_world.map().traversable(pos() + mark::vector<double>(step.x, 0), radius)) {
+		pos() += mark::vector<double>(step.x, 0);
+	} else if (m_world.map().traversable(pos() + mark::vector<double>(0, step.y), radius)) {
+		pos() += mark::vector<double>(0, step.y);
 	}
 	if (m_lookat != pos()) {
 		const auto turn_speed = m_ai ? 32.f : 360.f;
