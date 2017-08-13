@@ -707,7 +707,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 		});
 		std::transform(
 			std::make_move_iterator(first_detached_it),
-			std::make_move_iterator(m_modules.end()),
+			std::make_move_iterator(first_dead_it),
 			std::back_inserter(context.units),
 			[this](auto module) {
 			return std::make_shared<mark::unit::bucket>(
