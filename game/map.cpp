@@ -75,7 +75,7 @@ auto mark::map::traversable(
 		const auto offset = mark::vector<int>(radius, radius);
 		for (const auto i : mark::enumerate(-offset, offset)) {
 			if (mark::length(i) <= radius) {
-				const auto tile = this->at(i_pos + i);
+				const auto tile = this->get(i_pos + i);
 				if (tile == terrain_type::null
 					|| tile == terrain_type::wall) {
 					return false;
@@ -83,7 +83,7 @@ auto mark::map::traversable(
 			}
 		}
 	} else {
-		const auto tile = this->at(i_pos);
+		const auto tile = this->get(i_pos);
 		if (tile == terrain_type::null
 			|| tile == terrain_type::wall) {
 			return false;
@@ -105,10 +105,10 @@ void mark::map::tick(
 	const auto br = mark::vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
 	const auto floor = m_rm.get().image("ice-16.png");
 	for (const auto pos : mark::enumerate(tl, br)) {
-		const auto ctl = this->at(pos - mark::vector<int>(1, 1));
-		const auto cbl = this->at(pos - mark::vector<int>(1, 0));
-		const auto ctr = this->at(pos - mark::vector<int>(0, 1));
-		const auto cbr = this->at(pos);
+		const auto ctl = this->get(pos - mark::vector<int>(1, 1));
+		const auto cbl = this->get(pos - mark::vector<int>(1, 0));
+		const auto ctr = this->get(pos - mark::vector<int>(0, 1));
+		const auto cbr = this->get(pos);
 		const auto frame =
 			((ctl == terrain_type::floor_1) & 1)
 			| ((cbl == terrain_type::floor_1) & 1) << 1
@@ -116,7 +116,7 @@ void mark::map::tick(
 			| ((cbr == terrain_type::floor_1) & 1) << 3;
 		mark::sprite::info info;
 		info.image = floor;
-		info.frame = frame;
+		info.frame = frame + get_variant(pos) * 16;
 		info.size = mark::map::tile_size;
 		info.pos = map_to_world(pos) - mark::vector<double>(0.5, 0.5) * tile_size;
 		context.sprites[-1].emplace_back(info);
@@ -163,18 +163,30 @@ mark::map::terrain_type mark::map::deserialize_terrain_type(const std::string& s
 mark::map::map(mark::resource::manager& rm, mark::vector<size_t> size):
 	m_rm(rm),
 	m_size(size),
-	m_terrain(size.x * size.y) { }
+	m_terrain(size.x * size.y),
+	m_variant(size.x * size.y) {
+	for (auto& variant : m_variant) {
+		variant = rm.random<unsigned>(0, 2);
+	}
+}
 
 auto mark::map::size() const noexcept -> const mark::vector<size_t>& {
 	return m_size;
 }
 
-auto mark::map::at(mark::vector<int> pos) const noexcept ->
-	const terrain_type {
+auto mark::map::get(mark::vector<int> pos) const noexcept -> terrain_type {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y];
 	} else {
 		return terrain_type::null;
+	}
+}
+
+auto mark::map::get_variant(mark::vector<int> pos) const noexcept -> unsigned {
+	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
+		return m_variant[pos.x + m_size.x * pos.y];
+	} else {
+		return 0;
 	}
 }
 
@@ -290,10 +302,10 @@ auto mark::map::collide(mark::segment_t segment_) const -> mark::vector<double> 
 		segment_.first - direction * margin,
 		segment_.second + direction * margin };
 	const auto length = mark::length(segment.second - segment.first);
-	auto prev = this->at(this->world_to_map(segment.first));
+	auto prev = this->get(this->world_to_map(segment.first));
 	for (double i = a; i < length + a; i += a) {
 		const auto cur_pos = this->world_to_map(segment.first + i * direction);
-		const auto cur = this->at(cur_pos);
+		const auto cur = this->get(cur_pos);
 		if (prev != cur) {
 			const auto center = this->map_to_world(cur_pos);
 			const std::array<segment_t, 4> borders {
@@ -343,8 +355,7 @@ void mark::map::serialize(YAML::Emitter& out) const {
 mark::map::map(
 	mark::resource::manager& resource_manager,
 	const YAML::Node& node) :
-	m_rm(resource_manager),
-	m_size(node["size"].as<mark::vector<size_t>>()) {
+	map(resource_manager, node["size"].as<mark::vector<size_t>>()) {
 	if (node["type"].as<std::string>() != "map") {
 		std::runtime_error("BAD_DESERIALIZE");
 	}

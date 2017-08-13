@@ -54,13 +54,15 @@ namespace mark {
 		auto mark::map::traversable(const mark::vector<int> i_pos, const size_t radius) const -> bool;
 
 		auto size() const noexcept -> const mark::vector<size_t>&;
-		auto at(mark::vector<int> pos) const noexcept -> const terrain_type;
+		auto get(mark::vector<int> pos) const noexcept -> terrain_type;
+		auto get_variant(mark::vector<int> pos) const noexcept -> unsigned;
 		void set(mark::vector<int> pos, terrain_type) noexcept;
 		auto world_to_map(mark::vector<double>) const noexcept->mark::vector<int>;
 		auto map_to_world(mark::vector<int>) const noexcept->mark::vector<double>;
 
 		std::reference_wrapper<mark::resource::manager> m_rm;
 		std::vector<terrain_type> m_terrain;
+		std::vector<unsigned> m_variant;
 		mark::vector<size_t> m_size;
 		mutable unsigned m_find_count = 0;
 	};
