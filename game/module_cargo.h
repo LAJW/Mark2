@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "exception.h"
 #include "module_base.h"
 #include "resource_image.h"
 #include "lfo.h"
@@ -18,8 +19,7 @@ namespace mark {
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;
-			void drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module);
-			auto can_drop(mark::vector<int> pos, const std::unique_ptr<mark::module::base>& module) const -> bool;
+			error::guard drop(mark::vector<int> pos, std::unique_ptr<mark::module::base>& module);
 			auto module(mark::vector<int> pos) -> mark::module::base*;
 			auto module(mark::vector<int> pos) const->const mark::module::base*;
 			auto pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base>;
@@ -29,9 +29,7 @@ namespace mark {
 			auto describe() const -> std::string;
 			void on_death(mark::tick_context& context);
 			// try to push element to the container
-			// return true on success
-			// return false if module could not be pushed
-			bool push(std::unique_ptr<mark::module::base>& module);
+			mark::error::guard push(std::unique_ptr<mark::module::base>& module);
 			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;

@@ -727,7 +727,8 @@ void mark::unit::modular::pick_up(mark::tick_context& context) {
 		if (bucket) {
 			auto module = bucket->release();
 			for (auto& container : containers) {
-				if (container.get().push(module)) {
+				if (container.get().push(module)
+					== mark::error::code::success) {
 					break;
 				}
 			}

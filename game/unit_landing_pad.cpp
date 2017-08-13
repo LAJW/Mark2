@@ -183,8 +183,9 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 					if (relative.y >= 0 && relative.y < size.y * 16) {
 						if (m_grabbed) {
 							const auto drop_pos = mark::round(relative / 16.0 - mark::vector<double>(m_grabbed->size()) / 2.0);
-							if (cargo.can_drop(drop_pos, m_grabbed)) {
-								cargo.drop(drop_pos, std::move(m_grabbed));
+							if (cargo.drop(drop_pos, m_grabbed)
+								== mark::error::code::success) {
+								break;
 							}
 						} else {
 							const auto pick_pos = mark::floor(relative / 16.0);

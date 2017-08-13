@@ -57,42 +57,34 @@ auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module:
 	return m_modules;
 }
 
-void mark::module::cargo::drop(mark::vector<int> pos, std::unique_ptr<mark::module::base> module) {
-	try {
-		const auto vector_pos = pos.y * 16 + pos.x;
-		auto& place = m_modules.at(vector_pos);
-		if (place == nullptr) {
-			place = std::move(module);
-		} else {
-			throw mark::exception("OCCUPIED");
-		}
-	} catch (std::runtime_error&) {
-		throw mark::exception("BAD_POS");
-	}
-	if (pos.x < 0 && pos.y < 0) {
-		throw mark::exception("BAS_POS");
-	}
-}
+mark::error::guard mark::module::cargo::drop(
+	mark::vector<int> spos,
+	std::unique_ptr<mark::module::base>& incoming) {
 
-auto mark::module::cargo::can_drop(
-	mark::vector<int> i_pos,
-	const std::unique_ptr<mark::module::base>& module) const -> bool {
-	if (i_pos.x < 0 || i_pos.y < 0) {
-		return false;
+	// Check if fits inside the container
+	const auto cargo_size = mark::vector<size_t>(16, m_modules.size() / 16);
+	if (spos.x < 0 || spos.y < 0
+		|| spos.x + incoming->size().x > cargo_size.x
+		|| spos.y + incoming->size().y > cargo_size.y) {
+		return mark::error::code::bad_pos;
 	}
-	const auto pos = mark::vector<unsigned>(i_pos);
-	for (unsigned i = 0; i < m_modules.size(); i++) {
-		const mark::vector<unsigned> module_pos(i % 16, i / 16);
-		auto& slot = m_modules[i];
-		if (slot) {
-			const auto border = module_pos + mark::vector<unsigned>(slot->size());
-			if (pos.x + module->size().x >= module_pos.x && pos.x < border.x
-				&& pos.y + module->size().y >= module_pos.y && pos.y < border.y) {
-				return false;
+	// Check if doesn't overlap with any of the existing modules
+	const auto incoming_pos = mark::vector<unsigned>(spos);
+	const auto incoming_border = incoming_pos + incoming->size();
+	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
+		if (const auto& module = m_modules[i]) {
+			const auto module_pos = mark::vector<unsigned>(i % 16, i / 16);
+			const auto module_border = module_pos + module->size();
+			if (incoming_pos.x < module_border.x
+				&& incoming_border.x < module_pos.x
+				&& incoming_pos.y < module_border.y
+				&& incoming_border.y < module_pos.y) {
+				return mark::error::code::occupied;
 			}
 		}
 	}
-	return true;
+	m_modules[incoming_pos.y * 16 + incoming_pos.x] = std::move(incoming);
+	return mark::error::code::success;
 }
 
 auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*{
@@ -189,15 +181,14 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 	}
 }
 
-bool mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
-	for (unsigned i = 0; i < m_modules.size(); i++) {
+mark::error::guard mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
+	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
 		mark::vector<int> drop_pos(i % 16, i / 16);
-		if (this->can_drop(drop_pos, module)) {
-			this->drop(drop_pos, std::move(module));
-			return true;
+		if (this->drop(drop_pos, module) == mark::error::code::success) {
+			return mark::error::code::success;
 		}
 	}
-	return false;
+	return mark::error::code::occupied;
 }
 
 mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node):
