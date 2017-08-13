@@ -11,11 +11,9 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 
 void mark::module::battery::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
-	const auto pos = this->pos();
-
 	mark::sprite::info info;
 	info.image = m_image_base;
-	info.pos = pos;
+	info.pos = this->pos();
 	info.size = mark::module::size * 2.f;
 	info.rotation = parent().rotation();
 	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
@@ -50,6 +48,7 @@ auto mark::module::battery::energy_ratio() const -> float {
 
 mark::module::battery::battery(mark::resource::manager& rm, const YAML::Node& node):
 	mark::module::base(rm, node),
+	m_image_base(rm.image("battery.png")),
 	m_max_energy(node["max_energy"].as<float>()),
 	m_cur_energy(node["cur_energy"].as<float>()) { }
 
