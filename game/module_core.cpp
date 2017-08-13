@@ -23,7 +23,7 @@ void mark::module::core::tick(mark::tick_context& context) {
 	info.size = 32.f;
 	info.rotation = parent().rotation();
 	info.color = this->heat_color();
-	context.sprites[0].emplace_back(info);
+	context.sprites[2].emplace_back(info);
 }
 
 auto mark::module::core::detachable() const -> bool {

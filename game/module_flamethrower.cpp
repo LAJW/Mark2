@@ -20,7 +20,7 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 		info.size = mark::module::size * 2.f;
 		info.rotation = parent().rotation();
 		info.color = this->heat_color();
-		context.sprites[0].emplace_back(info);
+		context.sprites[2].emplace_back(info);
 	}
 
 	if (m_shoot) {

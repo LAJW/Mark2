@@ -20,7 +20,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	const auto rotation = parent().rotation();
 	const auto model_size = std::max(this->size().x, this->size().y)
 		* mark::module::size;
-	context.sprites[1].push_back(m_model.render(
+	context.sprites[2].push_back(m_model.render(
 		pos,
 		model_size,
 		rotation,

@@ -92,7 +92,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		info.size = 32.f;
 		info.rotation = m_rotation;
 		info.color = heat_color;
-		context.sprites[1].emplace_back(info);
+		context.sprites[2].emplace_back(info);
 	}
 	{
 		mark::sprite::info info;
@@ -101,7 +101,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		info.size = 32.f;
 		info.rotation = parent().rotation();
 		info.color = heat_color;
-		context.sprites[0].emplace_back(info);
+		context.sprites[2].emplace_back(info);
 	}
 }
 
