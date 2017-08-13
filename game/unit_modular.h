@@ -40,11 +40,7 @@ namespace mark {
 			// Throws mark::exception if object cannot be attached
 			// Doesn't destroy passed in module on error
 			void attach(std::unique_ptr<module::base>& module, mark::vector<int> pos);
-			// deprecated
 			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
-			// deprecated
-			auto get_attached(const mark::module::base&) ->
-				std::vector<std::reference_wrapper<mark::module::base>>;
 			auto attached(const mark::module::base&) ->
 				std::vector<std::reference_wrapper<mark::module::base>>;
 			auto attached(const mark::module::base&) const ->

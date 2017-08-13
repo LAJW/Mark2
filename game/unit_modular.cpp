@@ -35,10 +35,7 @@ namespace {
 
 	// Shared implementation of the modular::attached() function
 	template <typename module_t, typename modular_t>
-	static auto attached(modular_t& modular, const mark::module::base& module) {
-		const auto size = mark::vector<int8_t>(module.size());
-		const auto pos = mark::vector<int8_t>(module.grid_pos());
-
+	static auto attached(modular_t& modular, mark::vector<int8_t> pos, mark::vector<int8_t> size) {
 		std::vector<std::reference_wrapper<module_t>> out;
 		auto out_insert = [&out](module_t* module_ptr) {
 			if (module_ptr && (out.empty() || &out.back().get() != module_ptr)) {
@@ -247,19 +244,20 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	}
 }
 
-auto mark::unit::modular::get_attached(const mark::module::base& module) ->
-std::vector<std::reference_wrapper<mark::module::base>> {
-	return ::attached<mark::module::base>(*this, module);
-}
-
 auto mark::unit::modular::attached(const mark::module::base& module) ->
 std::vector<std::reference_wrapper<mark::module::base>> {
-	return ::attached<mark::module::base>(*this, module);
+	return ::attached<mark::module::base>(
+		*this,
+		mark::vector<int8_t>(module.grid_pos()),
+		mark::vector<int8_t>(module.size()));
 }
 
 auto mark::unit::modular::attached(const mark::module::base& module) const ->
 std::vector<std::reference_wrapper<const mark::module::base>> {
-	return ::attached<const mark::module::base>(*this, module);
+	return ::attached<const mark::module::base>(
+		*this,
+		mark::vector<int8_t>(module.grid_pos()),
+		mark::vector<int8_t>(module.size()));
 }
 
 void mark::unit::modular::attach(
@@ -327,9 +325,27 @@ void mark::unit::modular::p_attach(
 
 auto mark::unit::modular::can_attach(
 	const std::unique_ptr<module::base>& module,
-	mark::vector<int> pos) const -> bool {
-	// TODO deprecated
-	return true;
+	mark::vector<int> pos_) const -> bool {
+	const auto module_pos = mark::vector<int8_t>(pos_);
+	if (!module) {
+		return false;
+	}
+	for (const auto i : mark::enumerate(mark::vector<int8_t>(module->size()))) {
+		if (this->p_at(module_pos + i)) {
+			return false;
+		}
+	}
+	// establish core, check if core already present
+	auto core = dynamic_cast<mark::module::core*>(module.get());
+	if (core) {
+		if (m_core) {
+			return false;
+		}
+	}
+	return !::attached<const mark::module::base>(
+		*this,
+		mark::vector<int8_t>(module_pos),
+		mark::vector<int8_t>(module->size())).empty();
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos) const ->

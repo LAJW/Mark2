@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "unit_landing_pad.h"
 #include "world.h"
@@ -42,18 +41,30 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 			cargo.render_contents(pos, context);
 			top += cargo.interior_size().y * 16.0 + 32.0;
 		}
+		const auto relative = (m_mousepos - pos()) / 16.0;
+		const auto module_pos = mark::round(relative);
 		if (m_grabbed) {
-			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-			mark::sprite::info info;
-			info.image = m_grabbed->thumbnail();
-			info.pos = m_mousepos;
-			info.size = size;
-			context.sprites[100].emplace_back(info);
+			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+				const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+				const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
+				const auto color = ship->can_attach(m_grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
+				mark::sprite::info info;
+				info.image = m_grabbed->thumbnail();
+				info.pos = mark::vector<double>(module_pos * 16) + pos();
+				info.size = size;
+				info.color = color;
+				context.sprites[100].emplace_back(info);
+			} else {
+				const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+				mark::sprite::info info;
+				info.image = m_grabbed->thumbnail();
+				info.pos = m_mousepos;
+				info.size = size;
+				context.sprites[100].emplace_back(info);
+			}
 		}
 
 		// display tooltips
-		const auto relative = (m_mousepos - pos()) / 16.0;
-		const auto module_pos = mark::round(relative);
 		const auto pick_pos = mark::floor(relative);
 		if (!m_grabbed) {
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {

@@ -16,7 +16,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
 	const auto pos = this->pos();
 
-	auto attached = parent().get_attached(*this);
+	auto attached = parent().attached(*this);
 	for (auto& module : attached) {
 		auto& module_heat = module.get().m_cur_heat;
 		if (module_heat - m_cur_heat > 1.f) {
@@ -112,7 +112,7 @@ auto mark::module::base::collide(const mark::segment_t& ray) ->
 }
 
 auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark::module::base>> {
-	return parent().get_attached(*this);
+	return parent().attached(*this);
 }
 
 auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
