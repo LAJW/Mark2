@@ -62,9 +62,9 @@ namespace {
 		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& left,
 		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right) -> bool {
 		return left.first.x < right.second.x
-			&& left.second.x < right.first.x
+			&& left.second.x > right.first.x
 			&& left.first.y < right.second.y
-			&& left.second.y < right.first.y;
+			&& left.second.y > right.first.y;
 	}
 }
 
