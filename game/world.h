@@ -64,7 +64,7 @@ namespace mark {
 		// If damageable is null - terrain was hit
 		// If nothing was hit - position is [ NAN, NAN ]
 		auto collide(const mark::segment_t&) ->
-			std::pair<mark::idamageable*, mark::vector<double>>;
+			std::pair<mark::idamageable*, std::optional<mark::vector<double>>>;
 		auto collide(mark::vector<double> center, float radius) ->
 			std::vector<std::reference_wrapper<mark::idamageable>>;
 		mark::map m_map;

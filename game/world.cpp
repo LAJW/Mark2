@@ -254,7 +254,7 @@ auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
 }
 
 auto mark::world::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable *, mark::vector<double>> {
+	std::pair<mark::idamageable *, std::optional<mark::vector<double>>> {
 	auto maybe_min = m_map.collide(ray);
 	double min_length = maybe_min
 		? mark::length(ray.first - maybe_min.value())
@@ -271,7 +271,7 @@ auto mark::world::collide(const mark::segment_t& ray) ->
 			}
 		}
 	}
-	return { out, maybe_min.value_or(mark::vector<double>(NAN, NAN)) };
+	return { out, maybe_min };
 }
 
 auto mark::world::collide(mark::vector<double> center, float radius) ->
@@ -279,35 +279,30 @@ auto mark::world::collide(mark::vector<double> center, float radius) ->
 
 	std::vector<std::reference_wrapper<mark::idamageable>> out;
 	for (auto& unit : m_units) {
-		auto tmp = unit->collide(center, radius);
-		std::copy(
-			tmp.begin(),
-			tmp.end(),
-			std::back_inserter(out)
-		);
+		const auto tmp = unit->collide(center, radius);
+		std::copy(tmp.begin(), tmp.end(), std::back_inserter(out));
 	}
 	return out;
 }
 
 auto mark::world::damage(mark::world::damage_info& info) -> std::pair<mark::vector<double>, bool> {
 	assert(info.context);
-	const auto collision = this->collide(info.segment);
-	if (!std::isnan(collision.second.x)) {
+	const auto [ damageable, maybe_pos ] = this->collide(info.segment);
+	if (maybe_pos) {
+		const auto pos = maybe_pos.value();
 		auto dead = false;
-		if (collision.first) {
-			if (collision.first->damage(info.damage) && info.piercing == 1) {
-				dead = true;
-			}
-		} else {
+		if (damageable && damageable->damage(info.damage)
+			&& info.piercing == 1
+			|| !damageable) {
 			dead = true;
 		}
 		if (info.aoe_radius >= 0.f) {
-			auto damageables = this->collide(collision.second, info.aoe_radius);
-			for (auto damageable : damageables) {
+			const auto damageables = this->collide(pos, info.aoe_radius);
+			for (const auto damageable : damageables) {
 				damageable.get().damage(info.damage);
 			}
 		}
-		return { collision.second, dead };
+		return { pos, dead };
 	}
 	return { { NAN, NAN }, false };
 }
