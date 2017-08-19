@@ -26,13 +26,15 @@ namespace mark {
 			static constexpr const char* type_name = "unit_modular";
 			static constexpr unsigned max_size = 40;
 
-			struct bound_status {
+			struct binding {
 				std::shared_ptr<const mark::resource::image> thumbnail;
 				uint16_t total = 0;
 				uint16_t ready = 0;
 				float cooldown = 0.f;
 			};
-		public:
+			constexpr static const size_t binding_count = 11;
+			using bindings_t = std::array<binding, binding_count>;
+
 			modular(mark::world& world, const YAML::Node&);
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 			void command(const mark::command& command) override;
@@ -67,7 +69,7 @@ namespace mark {
 			auto lookat() const noexcept -> mark::vector<double>;
 			// bind module at position to command
 			void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
-			auto bound_status() const -> std::array<bound_status, 11>;
+			auto bindings() const -> bindings_t;
 			void serialize(YAML::Emitter&) const;
 			// get module at position. Returns null if out of bounds or no module present.
 			auto at(mark::vector<int8_t> pos) noexcept -> mark::module::base*;

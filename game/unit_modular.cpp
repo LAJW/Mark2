@@ -572,9 +572,8 @@ void mark::unit::modular::toggle_bind(enum class mark::command::type command, ma
 	}
 }
 
-auto mark::unit::modular::bound_status() const ->
-	std::array<struct mark::unit::modular::bound_status, 11> {
-	std::array<struct mark::unit::modular::bound_status, 11> out;
+auto mark::unit::modular::bindings() const -> modular::bindings_t {
+	modular::bindings_t out;
 	for (const auto& binding : m_bindings) {
 		uint8_t slot;
 		if (binding.first == mark::command::type::shoot) {

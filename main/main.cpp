@@ -5,6 +5,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#include "algorithm.h"
 #include "command.h"
 #include "keymap.h"
 #include "renderer.h"
@@ -81,20 +82,20 @@ namespace mark {
 					const auto ship = std::dynamic_pointer_cast<mark::unit::modular>(world->target());
 					if (ship) {
 						const auto grid = resource_manager.image("grid-background.png");
-						const auto list = ship->bound_status();
+						const auto bindings = ship->bindings();
 						const auto resolution = m_window.getSize();
 						const auto icon_size = 64.0;
-						for (uint8_t i = 0; i < list.size(); i++) {
+						for (const auto i : mark::enumerate(bindings.size())) {
+							const auto& binding = bindings[i];
 							const auto di = static_cast<double>(i);
-							const auto& status = list[i];
 							mark::sprite::info sprite;
-							sprite.image = status.thumbnail;
+							sprite.image = binding.thumbnail;
 							sprite.size = icon_size;
 							sprite.pos = world->camera() + mark::vector<double>(
-								di * icon_size - icon_size * list.size() / 2,
+								di * icon_size - icon_size * bindings.size() / 2,
 								resolution.y / 2 - icon_size
 								);
-							if (status.thumbnail) {
+							if (binding.thumbnail) {
 								context.sprites[101].emplace_back(sprite);
 							}
 							sprite.image = grid;
@@ -114,7 +115,7 @@ namespace mark {
 							}
 							{
 								std::ostringstream os;
-								os << status.total;
+								os << binding.total;
 								mark::print(
 									world->image_font,
 									context.sprites[102],
