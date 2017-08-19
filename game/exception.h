@@ -10,34 +10,6 @@ namespace mark {
 			bad_pos,
 			occupied
 		};
-
-		// Terminates the program if error wasn't checked/obtained
-		// Should become an alias for code in the final build
-		class guard {
-		public:
-			guard(enum class code error_code) :
-				m_error_code(error_code) { }
-			auto get() const noexcept -> enum class code {
-				m_checked = true;
-				return m_error_code;
-			}
-			~guard() {
-				if (!m_checked) {
-					std::terminate();
-				}
-			}
-		private:
-			enum class code m_error_code = code::success;
-			mutable bool m_checked = false;
-		};
-
-		inline bool operator==(const error::guard& guard, error::code other) noexcept {
-			return guard.get() == other;
-		}
-
-		inline bool operator!=(const error::guard& guard, error::code other) noexcept {
-			return guard.get() != other;
-		}
 	}
 
 	class exception : public std::runtime_error {

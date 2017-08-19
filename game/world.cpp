@@ -60,7 +60,7 @@ auto create_ship(mark::resource::manager& resource_manager, mark::world& world, 
 	vessel->attach(core, { -1, -1 });
 	auto cargo1 = std::make_unique<mark::module::cargo>(resource_manager);
 	std::unique_ptr<mark::module::base> shield_generator = std::make_unique<mark::module::shield_generator>(resource_manager);
-	cargo1->drop({ 0, 0 }, shield_generator) == mark::error::code::success;
+	(void)cargo1->drop({ 0, 0 }, shield_generator);
 	vessel->attach(to_base(std::move(cargo1)), { -1, 1 });
 	vessel->attach(to_base(std::make_unique<mark::module::cargo>(resource_manager)), { -1, -3 });
 	vessel->attach(to_base(std::make_unique<mark::module::shield_generator>(resource_manager)), { 1, -1 });

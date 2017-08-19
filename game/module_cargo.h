@@ -19,7 +19,7 @@ namespace mark {
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;
-			error::guard drop(mark::vector<int> pos, std::unique_ptr<mark::module::base>& module);
+			[[nodiscard]] error::code drop(mark::vector<int> pos, std::unique_ptr<mark::module::base>& module);
 			auto module(mark::vector<int> pos) -> mark::module::base*;
 			auto module(mark::vector<int> pos) const->const mark::module::base*;
 			auto pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base>;
@@ -29,7 +29,7 @@ namespace mark {
 			auto describe() const -> std::string;
 			void on_death(mark::tick_context& context);
 			// try to push element to the container
-			mark::error::guard push(std::unique_ptr<mark::module::base>& module);
+			[[nodiscard]] mark::error::code push(std::unique_ptr<mark::module::base>& module);
 			void serialize(YAML::Emitter&) const override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_im_body;

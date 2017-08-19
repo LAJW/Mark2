@@ -68,7 +68,7 @@ namespace {
 	}
 }
 
-mark::error::guard mark::module::cargo::drop(
+mark::error::code mark::module::cargo::drop(
 	mark::vector<int> spos,
 	std::unique_ptr<mark::module::base>& incoming) {
 
@@ -191,7 +191,7 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 	}
 }
 
-mark::error::guard mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
+mark::error::code mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
 	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
 		mark::vector<int> drop_pos(i % 16, i / 16);
 		if (this->drop(drop_pos, module) == mark::error::code::success) {
