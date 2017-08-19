@@ -76,10 +76,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML-2.4.2_shared\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\x64\Debug;C:\Lib\yaml-cpp\build\Debug;C:\Lib\SFML-2.4.2_shared\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\x64\Debug;C:\Lib\yaml-cpp\build\Debug;C:\Lib\SFML\bin\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>game.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;opengl32.lib;libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -110,13 +110,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML-2.4.2_shared\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\x64\Release;C:\Lib\yaml-cpp\build\Release;C:\Lib\SFML-2.4.2_shared\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\x64\Release;C:\Lib\yaml-cpp\build\Release;C:\Lib\SFML\bin\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>game.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;sfml-graphics.lib;opengl32.lib;libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
