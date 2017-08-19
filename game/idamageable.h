@@ -5,10 +5,11 @@ namespace mark {
 	class idamageable {
 	public:
 		struct info {
-			// pointer to a set used to store damaged objects
-			// do not dereference pointers stored here, they're only there to ignore damaged objects
-			// cannot be null upon invoking damage()
-			// idamageable upon taking damage should store itself here
+			// List of pointers to a set used to store damaged objects
+			// Do not dereference pointers stored here, they're only there
+			// to ignore damaged objects. Cannot be null upon invoking
+			// damage(). idamageable upon taking damage should store itself
+			// here
 			std::unordered_set<idamageable*>* damaged = nullptr;
 			mark::vector<double> pos;
 			float physical = 0.f;
@@ -20,9 +21,9 @@ namespace mark {
 			size_t team = 0;
 			bool pierce = false;
 		};
-		// try to damage object, return damaged object on success
-		// if no object has been damaged, return empty vector
+		// try to damage object
+		// Stores damaged object pointers in info.damaged
 		// returns true if something has been damaged
-		virtual bool damage(const idamageable::info& attr) { return false; };
+		virtual bool damage(const idamageable::info& info) { return false; };
 	};
 }
