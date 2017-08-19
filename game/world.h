@@ -50,7 +50,8 @@ namespace mark {
 			size_t piercing = 1;
 			float aoe_radius = 0.f;
 		};
-		auto damage(mark::world::damage_info&) -> std::pair<mark::vector<double>, bool>;
+		auto damage(mark::world::damage_info&) ->
+			std::pair<std::optional<mark::vector<double>>, bool>;
 		// go to the next map
 		void next();
 		void serialize(YAML::Emitter& out) const override;

@@ -48,11 +48,11 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 			info.damage.damaged = &damaged;
 			info.damage.physical = 100.f * static_cast<float>(context.dt);
 			info.damage.team = parent().team();
-			const auto collision = world.damage(info);
-			if (collision.second) {
+			const auto [ maybe_pos, died ] = world.damage(info);
+			if (died) {
 				mark::tick_context::spray_info spray;
 				spray.image = m_im_ray;
-				spray.pos = collision.first;
+				spray.pos = maybe_pos.value();
 				spray.velocity(25.f, 50.f);
 				spray.lifespan(1.f);
 				spray.diameter(8.f);
