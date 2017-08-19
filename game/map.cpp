@@ -293,7 +293,7 @@ auto mark::map::can_find() const -> bool {
 	return m_find_count <= 5;
 }
 
-auto mark::map::collide(mark::segment_t segment_) const -> mark::vector<double> {
+auto mark::map::collide(mark::segment_t segment_) const -> std::optional<mark::vector<double>> {
 	const auto direction = mark::normalize(segment_.second - segment_.first);
 	constexpr const auto a = mark::map::tile_size / 2.0;
 	// floating point error margin for comparing segments
@@ -333,7 +333,7 @@ auto mark::map::collide(mark::segment_t segment_) const -> mark::vector<double> 
 		}
 		prev = cur;
 	}
-	return { NAN, NAN };
+	return { };
 }
 
 void mark::map::serialize(YAML::Emitter& out) const {

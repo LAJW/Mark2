@@ -32,8 +32,7 @@ namespace mark {
 		// Can find be called in this tick (limit find count per frame)
 		auto can_find() const -> bool;
 
-		// collide world with a line segment return NAN/NAN if there was no collision
-		auto collide(mark::segment_t) const -> mark::vector<double>;
+		auto collide(mark::segment_t) const -> std::optional<mark::vector<double>>;
 
 		void serialize(YAML::Emitter&) const override;
 

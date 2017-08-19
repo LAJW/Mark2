@@ -7,6 +7,7 @@
 #include <functional>
 #include <math.h>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <unordered_map>

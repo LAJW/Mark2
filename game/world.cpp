@@ -255,24 +255,23 @@ auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
 
 auto mark::world::collide(const mark::segment_t& ray) ->
 	std::pair<mark::idamageable *, mark::vector<double>> {
-	auto min = m_map.collide(ray);
-	double min_length = !std::isnan(min.x)
-		? mark::length(ray.first - min)
+	auto maybe_min = m_map.collide(ray);
+	double min_length = maybe_min
+		? mark::length(ray.first - maybe_min.value())
 		: INFINITY;
-	mark::idamageable* damageable = nullptr;
+	mark::idamageable* out = nullptr;
 	for (auto& unit : m_units) {
-		auto result = unit->collide(ray);
-		if (result.first) {
-			const auto length = mark::length(ray.first - result.second);
+		auto [ damageable, pos ] = unit->collide(ray);
+		if (damageable) {
+			const auto length = mark::length(ray.first - pos);
 			if (length < min_length) {
 				min_length = length;
-				min = result.second;
-				damageable = result.first;
+				maybe_min = pos;
+				out = damageable;
 			}
 		}
 	}
-	return { damageable, min };
-
+	return { out, maybe_min.value_or(mark::vector<double>(NAN, NAN)) };
 }
 
 auto mark::world::collide(mark::vector<double> center, float radius) ->
