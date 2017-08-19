@@ -45,8 +45,6 @@ namespace mark {
 				std::vector<std::reference_wrapper<mark::module::base>>;
 			auto attached(const mark::module::base&) const ->
 				std::vector<std::reference_wrapper<const mark::module::base>>;
-			// deprecated
-			auto get_core()->mark::module::core&;
 			auto core() -> mark::module::core&;
 			auto core() const -> const mark::module::core&;
 

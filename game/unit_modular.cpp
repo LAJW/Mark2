@@ -402,13 +402,6 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 	return nullptr;
 }
 
-auto mark::unit::modular::get_core() -> mark::module::core& {
-	if (m_core) {
-		return *m_core;
-	} else {
-		throw mark::user_error("NO_CORE");
-	}
-}
 
 auto mark::unit::modular::core() -> mark::module::core& {
 	if (m_core) {
