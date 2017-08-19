@@ -248,6 +248,9 @@
     <ClInclude Include="algorithm.h">
       <Filter>General</Filter>
     </ClInclude>
+    <ClInclude Include="ihas_bindings.h">
+      <Filter>General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

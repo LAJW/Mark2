@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "unit_base.h"
 #include "command.h"
+#include "ihas_bindings.h"
 
 namespace mark {
 
@@ -18,22 +19,15 @@ namespace mark {
 	class world;
 
 	namespace unit {
-		class modular final : public base {
+		class modular final:
+			public base,
+			public ihas_bindings {
 		public:
 			using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 			using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
 
 			static constexpr const char* type_name = "unit_modular";
 			static constexpr unsigned max_size = 40;
-
-			struct binding {
-				std::shared_ptr<const mark::resource::image> thumbnail;
-				uint16_t total = 0;
-				uint16_t ready = 0;
-				float cooldown = 0.f;
-			};
-			constexpr static const size_t binding_count = 11;
-			using bindings_t = std::array<binding, binding_count>;
 
 			modular(mark::world& world, const YAML::Node&);
 			modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);

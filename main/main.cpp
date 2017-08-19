@@ -79,10 +79,10 @@ namespace mark {
 					const auto resolution = mark::vector<double>(m_window.getSize());
 					world->tick(context, resolution);
 
-					const auto ship = std::dynamic_pointer_cast<mark::unit::modular>(world->target());
-					if (ship) {
+					const auto unit_with_bindings = std::dynamic_pointer_cast<mark::ihas_bindings>(world->target());
+					if (unit_with_bindings) {
 						const auto grid = resource_manager.image("grid-background.png");
-						const auto bindings = ship->bindings();
+						const auto bindings = unit_with_bindings->bindings();
 						const auto resolution = m_window.getSize();
 						const auto icon_size = 64.0;
 						for (const auto i : mark::enumerate(bindings.size())) {

@@ -198,6 +198,7 @@
     <ClInclude Include="curve.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="idamageable.h" />
+    <ClInclude Include="ihas_bindings.h" />
     <ClInclude Include="iserializable.h" />
     <ClInclude Include="keymap.h" />
     <ClInclude Include="lfo.h" />

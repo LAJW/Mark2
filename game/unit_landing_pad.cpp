@@ -244,8 +244,7 @@ void mark::unit::landing_pad::serialize(YAML::Emitter& out) const {
 	out << BeginMap;
 	out << Key << "type" << Value << mark::unit::landing_pad::type_name;
 	this->serialize_base(out);
-	const auto ship = m_ship.lock();
-	if (ship) {
+	if (const auto ship = m_ship.lock()) {
 		out << Key << "ship_id" << Value << ship->id();
 	}
 	if (m_grabbed) {
@@ -262,4 +261,12 @@ void mark::unit::landing_pad::resolve_ref(
 		const auto ship_id = node["ship_id"].as<uint64_t>();
 		m_ship = std::dynamic_pointer_cast<mark::unit::modular>(units.at(ship_id).lock());
 	}
+}
+
+auto mark::unit::landing_pad::bindings() const ->
+	mark::unit::modular::bindings_t {
+
+	const auto ship = m_ship.lock();
+	assert(ship != nullptr);
+	return ship->bindings();
 }

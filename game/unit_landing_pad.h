@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include "ihas_bindings.h"
 #include "unit_base.h"
+#include "unit_modular.h"
 
 namespace mark {
 	namespace resource {
@@ -11,8 +13,9 @@ namespace mark {
 		class base;
 	}
 	namespace unit {
-		class modular;
-		class landing_pad final : public mark::unit::base {
+		class landing_pad final:
+			public mark::unit::base,
+			public ihas_bindings {
 		public:
 			static constexpr const char* type_name = "unit_landing_pad";
 
@@ -28,6 +31,7 @@ namespace mark {
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			void serialize(YAML::Emitter&) const override;
 			void resolve_ref(const YAML::Node&, const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) override;
+			auto bindings() const -> ihas_bindings::bindings_t override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::weak_ptr<mark::unit::modular> m_ship;
