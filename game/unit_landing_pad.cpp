@@ -31,7 +31,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 				info.image = image;
 				info.pos = pos() + mark::vector<double>(x, y) * 32.0;
 				info.size = 32.f;
-				context.sprites[100].emplace_back(info);
+				context.sprites[1].emplace_back(info);
 			}
 		}
 		double top = 0.0;
