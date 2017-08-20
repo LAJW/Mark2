@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "algorithm.h"
 #include "unit_landing_pad.h"
 #include "world.h"
 #include "sprite.h"
@@ -24,13 +25,18 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 	context.sprites[0].emplace_back(info);
 	const auto image = m_world.resource_manager().image("grid-background.png");
 	auto ship = m_ship.lock();
+	const auto surface = mark::enumerate<mark::vector<int>>({ -20, -20 }, { 20, 20 });
 	if (ship) {
-		for (int x = -10; x < 10; x++) {
-			for (int y = -10; y < 10; y++) {
+		const auto relative = (m_mousepos - pos()) / double(mark::module::size);
+		const auto module_pos = mark::round(relative);
+		if (m_grabbed) {
+			for (const auto offset : surface) {
 				mark::sprite::info info;
 				info.image = image;
-				info.pos = pos() + mark::vector<double>(x, y) * 32.0;
-				info.size = 32.f;
+				info.pos = this->pos() + mark::vector<double>(offset) * 16.0 - mark::vector<double>(8.0, 8.0);
+				info.size = 16.f;
+				const auto alpha = std::max(1.0 - mark::length(info.pos - m_mousepos) / 320.0, 0.0) * 255.0;
+				info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
 				context.sprites[1].emplace_back(info);
 			}
 		}
@@ -41,8 +47,6 @@ void mark::unit::landing_pad::tick(mark::tick_context& context) {
 			cargo.render_contents(pos, context);
 			top += cargo.interior_size().y * 16.0 + 32.0;
 		}
-		const auto relative = (m_mousepos - pos()) / 16.0;
-		const auto module_pos = mark::round(relative);
 		if (m_grabbed) {
 			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 				const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
