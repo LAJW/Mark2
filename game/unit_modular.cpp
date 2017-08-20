@@ -358,48 +358,43 @@ auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base* {
 	return this->at(mark::vector<int8_t>(pos));
 }
 
-// vector erase, don't preserve element order
-template<typename vector_t, typename iterator_t>
-auto drop(vector_t& vector, iterator_t it) {
-	auto owner = std::move(*it);
-	std::swap(*it, vector.back());
-	vector.pop_back();
-	return std::move(owner);
-}
-
 auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 	std::unique_ptr<mark::module::base> {
 	const auto pos = mark::vector<int8_t>(pos_);
-
-	// Remove module from grid
-	if (const auto module_ptr = this->at(pos)) {
-		auto& module = *module_ptr;
-		const auto module_pos = vector<int8_t>(module.grid_pos());
-		const auto module_size = mark::vector<int8_t>(module.size());
-		for (const auto i : enumerate(module_size)) {
-			this->p_at(module_pos + i) = nullptr;
-		}
-		try {
-			// Check if module is essential
-			for (const auto neighbour : module.neighbours()) {
-				if (!this->p_connected_to_core(neighbour)) {
-					throw mark::exception("MODULE_ESSENTIAL");
-				}
-			}
-			this->unbind(module);
-			const auto module_it = std::find_if(
-				m_modules.begin(), m_modules.end(), [=](const auto& ptr) {
-				return ptr.get() == module_ptr;
-			});
-			return std::move(drop(m_modules, module_it));
-		} catch (const std::exception&) {
-			// Roll back in case of bad alloc or module being essential
-			for (const auto i : enumerate(module_size)) {
-				this->p_at(module_pos + i) = module_ptr;
-			}
-		}
+	
+	const auto module_ptr = this->at(pos);
+	if (!module_ptr) {
+		return nullptr;
 	}
-	return nullptr;
+	auto& module = *module_ptr;
+	if (!module.detachable()) {
+		return nullptr;
+	}
+	const auto module_pos = vector<int8_t>(module.grid_pos());
+	const auto module_size = mark::vector<int8_t>(module.size());
+	// remove module from the grid
+	const auto surface = enumerate(module_pos, module_pos + module_size);
+	for (const auto grid_pos : surface) {
+		this->p_at(grid_pos) = nullptr;
+	}
+	const auto neighbours = this->attached(module);
+	const auto disconnected = std::find_if(
+		neighbours.begin(), neighbours.end(),
+		[this](const auto& neighbour) {
+		return !this->p_connected_to_core(neighbour.get());
+	});
+	if (disconnected != neighbours.end()) {
+		for (const auto grid_pos : surface) {
+			this->p_at(grid_pos) = module_ptr;
+		}
+		return nullptr;
+	}
+	this->unbind(module);
+	const auto module_it = std::find_if(
+		m_modules.begin(), m_modules.end(), [=](const auto& ptr) {
+		return ptr.get() == module_ptr;
+	});
+	return std::move(mark::drop(m_modules, module_it));
 }
 
 

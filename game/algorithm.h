@@ -128,4 +128,13 @@ namespace mark {
 		const auto end = std::end(container);
 		return std::find_if(begin, end, pred) != end;
 	}
+
+	// vector erase, don't preserve element order
+	template<typename vector_t, typename iterator_t>
+	auto drop(vector_t& vector, iterator_t it) {
+		auto owner = std::move(*it);
+		std::swap(*it, vector.back());
+		vector.pop_back();
+		return std::move(owner);
+	}
 }
