@@ -5,12 +5,12 @@
 #include "model_shield.h"
 
 mark::model::shield::shield(
-	mark::resource::manager& resource_manager,
+	mark::resource::manager& rm,
 	float radius):
 	m_adsr(0, 255, 0.1f, 1),
-	m_lfo(1.f, 0.f),
-	m_image_reflection(resource_manager.image("shield-reaction.png")),
-	m_image_shield(resource_manager.image("shield.png")),
+	m_lfo(1.f, rm.random(0.f, 1.f)),
+	m_image_reflection(rm.image("shield-reaction.png")),
+	m_image_shield(rm.image("shield.png")),
 	m_radius(radius) { }
 
 void mark::model::shield::tick(
