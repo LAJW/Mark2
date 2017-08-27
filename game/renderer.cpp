@@ -41,12 +41,18 @@ mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res) {
 	m_bump_mapping.loadFromFile("bump_mapping.glsl", sf::Shader::Fragment);
 }
 
-void mark::renderer::render(
-	const mark::tick_context& context,
-	mark::vector<double> camera,
-	mark::vector<double> resolution,
-	sf::RenderWindow& window) {
 
+struct render_info {
+	mark::vector<double> camera;
+	mark::vector<double> resolution;
+	std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
+	std::map<int, std::vector<mark::sprite>> sprites;
+	std::map<int, std::vector<mark::sprite>> normals;
+};
+
+sf::Sprite mark::renderer::render(const render_info& info) {
+	const auto camera = info.camera;
+	const auto resolution = info.resolution;
 	const auto shadow_res = m_vbo->getSize().x;
 
 	if (mark::vector<double>(m_buffer->getSize()) != resolution) {
@@ -73,13 +79,13 @@ void mark::renderer::render(
 	m_occlusion_map->clear();
 	m_normal_map->clear({ 0x7E, 0x7E, 0xFF, 0xFF }); // normal flat surface
 
-	const auto& sprites = context.sprites;
-	const auto& normals = context.normals;
+	const auto& sprites = info.sprites;
+	const auto& normals = info.normals;
 
 	std::vector<sf::Glsl::Vec2> lights_pos;
 	std::vector<sf::Glsl::Vec4> lights_color;
 
-	for (const auto& pair : context.lights) {
+	for (const auto& pair : info.lights) {
 		const auto pos = pair.first - camera;
 		const auto color = pair.second;
 		if (pos.x >= -resolution.x / 2.0 - 160.0 && pos.x <= resolution.x / 2.0 + 160.0
@@ -135,6 +141,5 @@ void mark::renderer::render(
 	m_buffer2->draw(shadows, &m_shadows_shader);
 	m_buffer2->draw(sf::Sprite(m_ui_layer->getTexture()));
 	m_buffer2->display();
-	window.draw(sf::Sprite(m_buffer2->getTexture()));
-	window.display();
+	return sf::Sprite(m_buffer2->getTexture());
 }

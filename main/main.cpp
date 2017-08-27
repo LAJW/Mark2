@@ -128,7 +128,14 @@ namespace mark {
 							}
 						}
 					}
-					renderer.render(context, world->camera(), resolution, m_window);
+					mark::renderer::render_info info;
+					info.camera = world->camera();
+					info.resolution = resolution;
+					info.lights = std::move(context.lights);
+					info.sprites = std::move(context.sprites);
+					info.normals = std::move(context.normals);
+					m_window.draw(renderer.render(info));
+					m_window.display();
 				}
 			}
 

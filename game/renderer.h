@@ -4,15 +4,20 @@
 
 namespace mark {
 	struct tick_context;
+	class sprite;
 
 	class renderer {
 	public:
 		renderer(mark::vector<unsigned> res, unsigned shadow_res);
-		void render(
-			const mark::tick_context& context,
-			mark::vector<double> camera,
-			mark::vector<double> resolution,
-			sf::RenderWindow& window);
+
+		struct render_info {
+			mark::vector<double> camera;
+			mark::vector<double> resolution;
+			std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
+			std::map<int, std::vector<mark::sprite>> sprites;
+			std::map<int, std::vector<mark::sprite>> normals;
+		};
+		sf::Sprite render(const render_info& info);
 	private:
 		std::unique_ptr<sf::RenderTexture> m_buffer;
 		std::unique_ptr<sf::RenderTexture> m_buffer2;
