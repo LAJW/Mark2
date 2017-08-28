@@ -4,6 +4,10 @@
 #include "particle.h"
 #include "resource_manager.h"
 
+namespace sf {
+	class Sprite;
+}
+
 namespace mark {
 	namespace unit {
 		class base;
@@ -13,6 +17,7 @@ namespace mark {
 		double dt;
 		std::map<int, std::vector<mark::sprite>> sprites;
 		std::map<int, std::vector<mark::sprite>> normals;
+		std::map<int, std::vector<mark::sprite>> ui_sprites;
 		std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
 		std::vector<std::shared_ptr<mark::unit::base>> units;
 		std::vector<mark::particle> particles;
@@ -66,7 +71,6 @@ namespace mark {
 		void render(const spray_info&);
 	private:
 		mark::resource::manager& m_resource_manager;
-
 	};
 	void print(std::shared_ptr<const mark::resource::image> font, std::vector<mark::sprite>& out, mark::vector<double> pos, mark::vector<double> box, float size, sf::Color color, std::string text);
 }

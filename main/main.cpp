@@ -32,30 +32,47 @@ void ui(
 	mark::vector<double> camera,
 	mark::vector<double> resolution)
 {
+	{
+		mark::sprite::info bg_sprite;
+		bg_sprite.image = rm.image("hotbar-background.png");
+		bg_sprite.pos.x = resolution.x / 2. - 23. - 64. * 5.5;
+		bg_sprite.pos.y = resolution.y - 85;
+		bg_sprite.frame = std::numeric_limits<size_t>::max();
+		context.ui_sprites[0].emplace_back(bg_sprite);
+	}
+	{
+		mark::sprite::info bg_sprite;
+		bg_sprite.image = rm.image("hotbar-overlay.png");
+		bg_sprite.pos.x = resolution.x / 2. - 64. * 5.5;
+		bg_sprite.pos.y = resolution.y - 64;
+		bg_sprite.frame = std::numeric_limits<size_t>::max();
+		context.ui_sprites[2].emplace_back(bg_sprite);
+	}
+
 	const auto grid = rm.image("grid-background.png");
 	const auto bindings = unit_with_bindings->bindings();
 	const auto icon_size = 64.0;
 	for (const auto i : mark::enumerate(bindings.size())) {
 		const auto& binding = bindings[i];
 		const auto di = static_cast<double>(i);
-		mark::sprite::info sprite;
-		sprite.image = binding.thumbnail;
-		sprite.size = icon_size;
-		sprite.pos = camera + mark::vector<double>(
-			di * icon_size - icon_size * bindings.size() / 2,
-			resolution.y / 2 - icon_size);
+		const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
+		const auto y = resolution.y - 64;;
 		if (binding.thumbnail) {
-			context.sprites[101].emplace_back(sprite);
+			mark::sprite::info sprite;
+			sprite.image = binding.thumbnail;
+			sprite.pos.x = x;
+			sprite.pos.y = y;
+			sprite.image = binding.thumbnail;
+			sprite.size = 64.f;
+			context.ui_sprites[1].emplace_back(sprite);
 		}
-		sprite.image = grid;
-		context.sprites[100].emplace_back(sprite);
 		{
 			std::ostringstream os;
 			os << static_cast<int>(i);
 			mark::print(
 				rm.image("font.png"),
-				context.sprites[102],
-				sprite.pos + mark::vector<double>(-24.f, 7.f),
+				context.ui_sprites[1],
+				mark::vector<double>(x + 32.f, y + 8.f),
 				{ 300 - 14.f, 300 - 14.f },
 				14.f,
 				sf::Color::White,
@@ -67,8 +84,8 @@ void ui(
 			os << binding.total;
 			mark::print(
 				rm.image("font.png"),
-				context.sprites[102],
-				sprite.pos + mark::vector<double>(16.f, 7.f),
+				context.ui_sprites[1],
+				mark::vector<double>(x + 32.f, y + 32.f),
 				{ 300 - 14.f, 300 - 14.f },
 				14.f,
 				sf::Color::White,
@@ -97,6 +114,7 @@ mark::renderer::render_info tick(
 	info.resolution = resolution;
 	info.lights = std::move(context.lights);
 	info.sprites = std::move(context.sprites);
+	info.ui_sprites = std::move(context.ui_sprites);
 	info.normals = std::move(context.normals);
 	return info;
 }

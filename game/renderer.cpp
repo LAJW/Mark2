@@ -4,25 +4,66 @@
 #include "resource_image.h"
 
 namespace {
-	void static render(const mark::sprite& sprite, const mark::vector<double>& camera, sf::RenderTexture& buffer, mark::vector<double> resolution) {
-		sf::Sprite tmp;
-		// HACK: Thumbnails not deserialized
-		if (&sprite.image()) {
-			const auto texture_size = static_cast<float>(sprite.image().size().y);
-			const auto scale = sprite.size() / texture_size;
-			tmp.setTexture(sprite.image().texture());
-			tmp.setTextureRect({ static_cast<int>(texture_size) * static_cast<int>(sprite.frame()), 0, static_cast<int>(texture_size), static_cast<int>(texture_size) });
-			tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
-			tmp.scale(scale, scale);
-			tmp.rotate(sprite.rotation());
-			tmp.setColor(sprite.color());
-			tmp.move(static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0), static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
-			buffer.draw(tmp);
-		}
+
+// Render sprite using world coordinates
+void render(
+	const mark::sprite& sprite,
+	const mark::vector<double>& camera,
+	sf::RenderTexture& buffer,
+	mark::vector<double> resolution)
+{
+	sf::Sprite tmp;
+	// HACK: Thumbnails not deserialized
+	if (&sprite.image()) {
+		const auto texture_size = static_cast<float>(sprite.image().size().y);
+		const auto scale = sprite.size() / texture_size;
+		tmp.setTexture(sprite.image().texture());
+		tmp.setTextureRect({
+			static_cast<int>(texture_size) * static_cast<int>(sprite.frame()),
+			0,
+			static_cast<int>(texture_size),
+			static_cast<int>(texture_size) });
+		tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
+		tmp.scale(scale, scale);
+		tmp.rotate(sprite.rotation());
+		tmp.setColor(sprite.color());
+		tmp.move(
+			static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0),
+			static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
+		buffer.draw(tmp);
 	}
 }
 
-mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res) {
+// Render sprite using absolute coordinates
+void render_ui(const mark::sprite sprite, sf::RenderTexture& buffer)
+{
+	sf::Sprite tmp;
+	// HACK: Thumbnails not deserialized
+	if (&sprite.image()) {
+		tmp.setTexture(sprite.image().texture());
+		tmp.setColor(sprite.color());
+		if (sprite.frame() != std::numeric_limits<size_t>::max()) {
+			const auto texture_size = sprite.image().size().y;
+			tmp.setTextureRect({
+				static_cast<int>(texture_size)
+				* static_cast<int>(sprite.frame()),
+				0,
+				static_cast<int>(texture_size),
+				static_cast<int>(texture_size) });
+			const auto scale = sprite.size() / texture_size;
+			tmp.scale(scale, scale);
+		}
+		tmp.setPosition(
+			static_cast<float>(sprite.x()),
+			static_cast<float>(sprite.y()));
+		buffer.draw(tmp);
+	}
+}
+
+} // anonymous namespace
+
+mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res)
+{
 	m_buffer = std::make_unique<sf::RenderTexture>();
 	m_buffer->create(res.x, res.y);
 	m_buffer2 = std::make_unique<sf::RenderTexture>();
@@ -41,16 +82,8 @@ mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res) {
 	m_bump_mapping.loadFromFile("bump_mapping.glsl", sf::Shader::Fragment);
 }
 
-
-struct render_info {
-	mark::vector<double> camera;
-	mark::vector<double> resolution;
-	std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
-	std::map<int, std::vector<mark::sprite>> sprites;
-	std::map<int, std::vector<mark::sprite>> normals;
-};
-
-sf::Sprite mark::renderer::render(const render_info& info) {
+sf::Sprite mark::renderer::render(const render_info& info)
+{
 	const auto camera = info.camera;
 	const auto resolution = info.resolution;
 	const auto shadow_res = m_vbo->getSize().x;
@@ -79,8 +112,6 @@ sf::Sprite mark::renderer::render(const render_info& info) {
 	m_occlusion_map->clear();
 	m_normal_map->clear({ 0x7E, 0x7E, 0xFF, 0xFF }); // normal flat surface
 
-	const auto& sprites = info.sprites;
-	const auto& normals = info.normals;
 
 	std::vector<sf::Glsl::Vec2> lights_pos;
 	std::vector<sf::Glsl::Vec4> lights_color;
@@ -99,7 +130,7 @@ sf::Sprite mark::renderer::render(const render_info& info) {
 		static_cast<size_t>(64)
 	);
 
-	for (const auto& layer : sprites) {
+	for (const auto& layer : info.sprites) {
 		if (layer.first < 0) {
 			for (const auto& sprite : layer.second) {
 				::render(sprite, camera, *m_occlusion_map, resolution);
@@ -114,8 +145,13 @@ sf::Sprite mark::renderer::render(const render_info& info) {
 			}
 		}
 	}
+	for (const auto& layer : info.ui_sprites) {
+		for (const auto& sprite : layer.second) {
+			::render_ui(sprite, *m_ui_layer);
+		}
+	}
 
-	for (const auto& layer : normals) {
+	for (const auto& layer : info.normals) {
 		for (const auto& sprite : layer.second) {
 			::render(sprite, camera, *m_normal_map, resolution);
 		}
@@ -135,7 +171,7 @@ sf::Sprite mark::renderer::render(const render_info& info) {
 	m_buffer2->draw(sf::Sprite(m_vbo->getTexture()));
 	sf::Sprite shadows(m_vbo->getTexture());
 	shadows.setScale({ static_cast<float>(resolution.x) / static_cast<float>(shadow_res), static_cast<float>(resolution.y / 1.f) });;
-	// m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
+	m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
 	m_shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
 	m_shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
 	m_buffer2->draw(shadows, &m_shadows_shader);
