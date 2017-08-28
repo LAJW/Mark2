@@ -43,8 +43,7 @@ void ui(
 		sprite.size = icon_size;
 		sprite.pos = camera + mark::vector<double>(
 			di * icon_size - icon_size * bindings.size() / 2,
-			resolution.y / 2 - icon_size
-			);
+			resolution.y / 2 - icon_size);
 		if (binding.thumbnail) {
 			context.sprites[101].emplace_back(sprite);
 		}
@@ -79,13 +78,17 @@ void ui(
 	}
 }
 
-mark::renderer::render_info tick(double dt, mark::resource::manager& rm, mark::world& world, mark::vector<double> resolution)
+mark::renderer::render_info tick(
+	double dt,
+	mark::resource::manager& rm,
+	mark::world& world,
+	mark::vector<double> resolution)
 {
 	mark::tick_context context(rm);
 	context.dt = dt;
 	world.tick(context, resolution);
-	const auto unit_with_bindings = std::dynamic_pointer_cast<mark::ihas_bindings>(world.target());
-	if (unit_with_bindings) {
+	if (const auto unit_with_bindings =
+			std::dynamic_pointer_cast<mark::ihas_bindings>(world.target())) {
 		ui(context, rm, unit_with_bindings, world.camera(), resolution);
 	}
 
@@ -144,12 +147,18 @@ void event_loop(
 	auto last = std::chrono::system_clock::now();
 	while (m_window.isOpen()) {
 		const auto now = std::chrono::system_clock::now();
-		const auto dt = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(now - last).count()) / 1000000.0;
+		const auto dt = static_cast<double>(
+			std::chrono::duration_cast<std::chrono::microseconds>(now - last)
+				.count())
+			/ 1000000.0;
 
 		sf::Event event;
 		while (m_window.pollEvent(event)) {
 			if (event.type == sf::Event::Resized) {
-				m_window.setView(sf::View(sf::FloatRect(0, 0, static_cast<float>(event.size.width), static_cast<float>(event.size.height))));
+				const auto width = static_cast<float>(event.size.width);
+				const auto height = static_cast<float>(event.size.height);
+				const auto view = sf::View(sf::FloatRect(0, 0, width, height));
+				m_window.setView(view);
 			} if (event.type == sf::Event::Closed) {
 				m_window.close();
 			} else {
