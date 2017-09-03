@@ -12,8 +12,7 @@
 #include "exception.h"
 
 mark::unit::landing_pad::landing_pad(
-	mark::world& world,
-	mark::vector<double> pos)
+	mark::world& world, mark::vector<double> pos)
 	: mark::unit::base(world, pos)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 

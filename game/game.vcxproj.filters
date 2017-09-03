@@ -109,6 +109,9 @@
     <ClCompile Include="curve.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="ui.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -249,6 +252,9 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="ihas_bindings.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
