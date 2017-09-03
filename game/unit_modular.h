@@ -36,7 +36,7 @@ namespace mark {
 			// Throws mark::exception if object cannot be attached
 			// Doesn't destroy passed in module on error
 			void attach(std::unique_ptr<module::base>& module, mark::vector<int> pos);
-			auto can_attach(const std::unique_ptr<module::base>& module, mark::vector<int> pos) const -> bool;
+			auto can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
 			auto attached(const mark::module::base&) ->
 				std::vector<std::reference_wrapper<mark::module::base>>;
 			auto attached(const mark::module::base&) const ->
@@ -51,7 +51,10 @@ namespace mark {
 			inline auto world() -> mark::world& { return m_world; }
 			auto invincible() const -> bool override;
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
-			auto containers()->std::vector<std::reference_wrapper<mark::module::cargo>>;
+			auto containers() ->
+				std::vector<std::reference_wrapper<mark::module::cargo>>;
+			auto containers() const ->
+				std::vector<std::reference_wrapper<const mark::module::cargo>>;
 			auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 			auto module(mark::vector<int> pos) const -> const mark::module::base*;
 			auto module(mark::vector<int> pos)->mark::module::base*;

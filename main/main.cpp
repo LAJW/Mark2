@@ -16,6 +16,9 @@
 #include "unit_modular.h"
 #include "vector.h"
 #include "world.h"
+#include "unit_landing_pad.h"
+#include "unit_modular.h"
+#include "module_cargo.h"
 
 
 extern "C" {
@@ -26,12 +29,16 @@ extern "C" {
 }
 
 void ui(
+	const mark::world& world,
 	mark::tick_context& context,
 	mark::resource::manager& rm,
 	std::shared_ptr<mark::ihas_bindings> unit_with_bindings,
 	mark::vector<double> camera,
-	mark::vector<double> resolution)
+	mark::vector<double> resolution,
+	mark::vector<double> mouse_pos_)
 {
+	const auto mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
+	// Display Hotbar
 	{
 		mark::sprite::info bg_sprite;
 		bg_sprite.image = rm.image("hotbar-background.png");
@@ -93,20 +100,139 @@ void ui(
 			);
 		}
 	}
+	// Display landing pad UI
+	const auto surface = mark::enumerate<mark::vector<int>>(
+		{ -20, -20 },
+		{ 20, 20 });
+	if (const auto landing_pad
+		= std::dynamic_pointer_cast<const mark::unit::landing_pad>(
+			world.target())) {
+		if (const auto ship = landing_pad->ship()) {
+			const auto relative = (mouse_pos - landing_pad->pos()) / double(mark::module::size);
+			const auto module_pos = mark::round(relative);
+			if (landing_pad->grabbed()) {
+				for (const auto offset : surface) {
+					mark::sprite::info info;
+					info.image = grid;
+					info.pos = landing_pad->pos() + mark::vector<double>(offset) * 16.0 - mark::vector<double>(8.0, 8.0);
+					info.size = 16.f;
+					const auto alpha = std::max(1.0 - mark::length(info.pos - mouse_pos) / 320.0, 0.0) * 255.0;
+					info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
+					context.sprites[1].emplace_back(info);
+				}
+			}
+			double top = 0.0;
+			for (auto& cargo_ref : ship->containers()) {
+				auto& cargo = cargo_ref.get();
+				auto pos = mark::vector<double>(landing_pad->pos().x + 320.0, landing_pad->pos().y - 320.0 + top);
+				cargo.render_contents(pos, context);
+				top += cargo.interior_size().y * 16.0 + 32.0;
+			}
+			if (const auto grabbed = landing_pad->grabbed()) {
+				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+					const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * 16.f;
+					const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
+					const auto color = ship->can_attach(*grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
+					mark::sprite::info info;
+					info.image = grabbed->thumbnail();
+					info.pos = mark::vector<double>(module_pos * 16) + landing_pad->pos();
+					info.size = size;
+					info.color = color;
+					context.sprites[100].emplace_back(info);
+				} else {
+					const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * 16.f;
+					mark::sprite::info info;
+					info.image = grabbed->thumbnail();
+					info.pos = mouse_pos;
+					info.size = size;
+					context.sprites[100].emplace_back(info);
+				}
+			}
+
+			// Display tooltips
+			const auto pick_pos = mark::floor(relative);
+			if (!landing_pad->grabbed()) {
+				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+					// ship
+
+					const auto module = ship->module(pick_pos);
+					if (module) {
+						const auto description = module->describe();
+						const auto module_pos = module->pos();
+						const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
+						const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+
+						mark::sprite::info info;
+						info.image = rm.image("wall.png");
+						info.pos = tooltip_pos + mark::vector<double>(150, 150),
+						info.size = 300.f;
+						context.sprites[100].emplace_back(info);
+
+						mark::print(
+							rm.image("font.png"),
+							context.sprites[100],
+							tooltip_pos + mark::vector<double>(7.f, 7.f),
+							{ 300 - 14.f, 300 - 14.f },
+							14.f,
+							sf::Color::White,
+							description
+						);
+					}
+				} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
+					double top = 0.0;
+					for (auto& cargo_ref : ship->containers()) {
+						auto& cargo = cargo_ref.get();
+						const auto size = cargo.interior_size();
+						const auto relative = mouse_pos - landing_pad->pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
+						if (relative.y >= 0 && relative.y < size.y * 16) {
+							const auto pick_pos = mark::floor(relative / 16.0);
+							const auto module = cargo.module(pick_pos);
+							if (module) {
+								const auto description = module->describe();
+								const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
+								const auto tooltip_pos = mouse_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+
+								mark::sprite::info info;
+								info.image = rm.image("wall.png");
+								info.pos = tooltip_pos + mark::vector<double>(150, 150),
+								info.size = 300.f;
+								context.sprites[100].emplace_back(info);
+
+								mark::print(
+									rm.image("font.png"),
+									context.sprites[100],
+									tooltip_pos + mark::vector<double>(7.f, 7.f),
+									{ 300 - 14.f, 300 - 14.f },
+									14.f,
+									sf::Color::White,
+									description
+								);
+							}
+							break;
+						}
+						top += size.y * 16.0 + 32.0;
+					}
+				}
+			}
+
+		}
+	}
 }
 
 mark::renderer::render_info tick(
 	double dt,
 	mark::resource::manager& rm,
 	mark::world& world,
-	mark::vector<double> resolution)
+	mark::vector<double> resolution,
+	mark::vector<double> mouse_pos)
 {
 	mark::tick_context context(rm);
 	context.dt = dt;
 	world.tick(context, resolution);
 	if (const auto unit_with_bindings =
 			std::dynamic_pointer_cast<mark::ihas_bindings>(world.target())) {
-		ui(context, rm, unit_with_bindings, world.camera(), resolution);
+		ui(world, context, rm, unit_with_bindings, world.camera(),
+			resolution, mouse_pos);
 	}
 
 	mark::renderer::render_info info;
@@ -233,7 +359,7 @@ int mark::main(std::vector<std::string> args)
 			guide.pos = target;
 			world->command(guide);
 			mark::tick_context context(rm);
-			return tick(info.dt, rm, *world, window_res);
+			return tick(info.dt, rm, *world, window_res, mouse_pos);
 		};
 		event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
 		save_world(*world, "state.yml");

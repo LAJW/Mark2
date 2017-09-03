@@ -25,13 +25,20 @@ namespace mark {
 			auto dead() const -> bool override { return false; };
 			auto invincible() const -> bool override { return true; };
 			void dock(mark::unit::modular* ship);
-			void activate(const std::shared_ptr<mark::unit::base>& by) override;
+			void activate(
+				const std::shared_ptr<mark::unit::base>& by)
+				override;
 			void command(const mark::command& command) override;
 			auto collide(const mark::segment_t&) ->
 				std::pair<mark::idamageable*, mark::vector<double>> override;
 			void serialize(YAML::Emitter&) const override;
-			void resolve_ref(const YAML::Node&, const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) override;
+			void resolve_ref(
+				const YAML::Node&,
+				const std::unordered_map<uint64_t,
+					std::weak_ptr<mark::unit::base>>& units) override;
 			auto bindings() const -> ihas_bindings::bindings_t override;
+			auto ship() const -> std::shared_ptr<const mark::unit::modular>;
+			auto grabbed() const noexcept -> const mark::module::base*;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::weak_ptr<mark::unit::modular> m_ship;

@@ -324,19 +324,18 @@ void mark::unit::modular::p_attach(
 }
 
 auto mark::unit::modular::can_attach(
-	const std::unique_ptr<module::base>& module,
-	mark::vector<int> pos_) const -> bool {
+	const mark::module::base& module,
+	mark::vector<int> pos_) const
+	-> bool
+{
 	const auto module_pos = mark::vector<int8_t>(pos_);
-	if (!module) {
-		return false;
-	}
-	for (const auto i : mark::enumerate(mark::vector<int8_t>(module->size()))) {
+	for (const auto i : mark::enumerate(mark::vector<int8_t>(module.size()))) {
 		if (this->p_at(module_pos + i)) {
 			return false;
 		}
 	}
 	// establish core, check if core already present
-	auto core = dynamic_cast<mark::module::core*>(module.get());
+	auto core = dynamic_cast<const mark::module::core*>(&module);
 	if (core) {
 		if (m_core) {
 			return false;
@@ -345,7 +344,7 @@ auto mark::unit::modular::can_attach(
 	return !::attached<const mark::module::base>(
 		*this,
 		mark::vector<int8_t>(module_pos),
-		mark::vector<int8_t>(module->size())).empty();
+		mark::vector<int8_t>(module.size())).empty();
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos) const ->
@@ -762,7 +761,8 @@ auto mark::unit::modular::invincible() const -> bool {
 	return false;
 }
 
-void mark::unit::modular::activate(const std::shared_ptr<mark::unit::base>& by) {
+void mark::unit::modular::activate(
+	const std::shared_ptr<mark::unit::base>& by) {
 	m_world.target(this->shared_from_this());
 }
 
@@ -770,8 +770,20 @@ auto mark::unit::modular::containers() ->
 	std::vector<std::reference_wrapper<mark::module::cargo>> {
 	std::vector<std::reference_wrapper<mark::module::cargo>> out;
 	for (auto& module : m_modules) {
-		auto cargo = dynamic_cast<mark::module::cargo*>(module.get());
-		if (cargo) {
+		if (const auto cargo =
+			dynamic_cast<mark::module::cargo*>(module.get())) {
+			out.push_back(*cargo);
+		}
+	}
+	return out;
+}
+
+auto mark::unit::modular::containers() const ->
+	std::vector<std::reference_wrapper<const mark::module::cargo>> {
+	std::vector<std::reference_wrapper<const mark::module::cargo>> out;
+	for (auto& module : m_modules) {
+		if (const auto cargo =
+			dynamic_cast<mark::module::cargo*>(module.get())) {
 			out.push_back(*cargo);
 		}
 	}

@@ -10,15 +10,58 @@
 #include <sstream>
 #include "algorithm.h"
 
-mark::module::cargo::cargo(mark::resource::manager& resource_manager):
-	mark::module::base({ 4, 2 }, resource_manager.image("cargo.png")),
-	m_im_body(resource_manager.image("cargo.png")),
-	m_im_light(resource_manager.image("glare.png")),
-	m_lfo(0.5f, resource_manager.random(0.f, 6.f)),
-	m_modules(64) {
+mark::module::cargo::cargo(mark::resource::manager& resource_manager)
+	: mark::module::base({ 4, 2 }, resource_manager.image("cargo.png"))
+	, m_grid_bg(resource_manager.image("grid-background.png"))
+	, m_im_body(resource_manager.image("cargo.png"))
+	, m_im_light(resource_manager.image("glare.png"))
+	, m_lfo(0.5f, resource_manager.random(0.f, 6.f))
+	, m_modules(64) { }
+
+// Serialize / Deserialize
+
+mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node)
+	: mark::module::base(rm, node)
+	, m_im_body(rm.image("cargo.png"))
+	, m_grid_bg(rm.image("grid-background.png"))
+	, m_im_light(rm.image("glare.png"))
+	, m_lfo(0.5f, rm.random(0.f, 6.f))
+	, m_modules(64)
+{
+	for (const auto& slot_node : node["contents"]) {
+		const auto slot = slot_node["slot"].as<size_t>();
+		auto module = mark::module::deserialize(rm, slot_node["item"]);
+		m_modules[slot] = std::move(module);
+	}
 }
 
-void mark::module::cargo::tick(mark::tick_context& context) {
+
+void mark::module::cargo::serialize(YAML::Emitter& out) const
+{
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << type_name;
+
+	this->serialize_base(out);
+
+	out << Key << "contents" << Value << BeginSeq;
+	for (size_t i = 0, size = m_modules.size(); i < size; i++) {
+		const auto& module = m_modules[i];
+		if (module) {
+			out << BeginMap;
+			out << Key << "slot" << Value << i;
+			out << Key << "item" << Value;
+			module->serialize(out);
+			out << EndMap;
+		}
+	}
+	out << EndSeq;
+
+	out << EndMap;
+}
+
+void mark::module::cargo::tick(mark::tick_context& context)
+{
 	this->mark::module::base::tick(context);
 	m_lfo.tick(context.dt);
 	auto pos = this->pos();
@@ -53,25 +96,29 @@ void mark::module::cargo::tick(mark::tick_context& context) {
 	}
 }
 
-auto mark::module::cargo::modules() -> std::vector<std::unique_ptr<mark::module::base>>& {
-	return m_modules;
-}
+auto mark::module::cargo::modules() ->
+	std::vector<std::unique_ptr<mark::module::base>>&
+{ return m_modules; }
 
 namespace {
-	auto overlaps(
-		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& left,
-		const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right) -> bool {
-		return left.first.x < right.second.x
-			&& left.second.x > right.first.x
-			&& left.first.y < right.second.y
-			&& left.second.y > right.first.y;
-	}
+
+auto overlaps(
+	const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& left,
+	const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right)
+	-> bool {
+	return left.first.x < right.second.x
+		&& left.second.x > right.first.x
+		&& left.first.y < right.second.y
+		&& left.second.y > right.first.y;
 }
 
-mark::error::code mark::module::cargo::drop(
-	mark::vector<int> spos,
-	std::unique_ptr<mark::module::base>& incoming) {
+}
 
+auto mark::module::cargo::drop(
+	mark::vector<int> spos,
+	std::unique_ptr<mark::module::base>& incoming)
+	-> mark::error::code
+{
 	// Check if fits inside the container
 	const auto cargo_size = mark::vector<size_t>(16, m_modules.size() / 16);
 	if (spos.x < 0 || spos.y < 0
@@ -97,11 +144,15 @@ mark::error::code mark::module::cargo::drop(
 	return mark::error::code::success;
 }
 
-auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*{
-	return const_cast<mark::module::base*>(static_cast<const mark::module::cargo*>(this)->module(pos));
+auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*
+{
+	return const_cast<mark::module::base*>(
+		static_cast<const mark::module::cargo*>(this)->module(pos));
 }
 
-auto mark::module::cargo::module(mark::vector<int> i_pos) const -> const mark::module::base* {
+auto mark::module::cargo::module(mark::vector<int> i_pos) const ->
+	const mark::module::base*
+ {
 	if (i_pos.x < 0 || i_pos.y < 0) {
 		return false;
 	}
@@ -120,7 +171,9 @@ auto mark::module::cargo::module(mark::vector<int> i_pos) const -> const mark::m
 	return nullptr;
 }
 
-auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base> {
+auto mark::module::cargo::pick(mark::vector<int> pos) ->
+	std::unique_ptr<mark::module::base>
+{
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
@@ -139,19 +192,24 @@ auto mark::module::cargo::pick(mark::vector<int> pos) -> std::unique_ptr<mark::m
 	return nullptr;
 }
 
-void mark::module::cargo::render_contents(mark::vector<double> pos_in, mark::tick_context& context) {
-	const auto image = parent().world().resource_manager().image("grid-background.png");
+void mark::module::cargo::render_contents(
+	mark::vector<double> pos_in,
+	mark::tick_context& context) const
+{
 	const auto size = this->interior_size();
 	for (const auto point : mark::enumerate(size)) {
 		const auto slot_pos = pos_in + mark::vector<double>(point * 16);
 		mark::sprite::info info;
-		info.image = image;
+		info.image = m_grid_bg;
 		info.pos = slot_pos;
 		context.sprites[100].emplace_back(info);
-		const auto& module = m_modules[point.x + point.y * 16].get();
-		if (module) {
-			const auto module_pos = slot_pos + mark::vector<double>(module->size()) * 16.0 / 2.0 - mark::vector<double>(8, 8);
-			const auto size = static_cast<float>(std::max(module->size().x, module->size().y)) * 16.f;
+		if (const auto& module = m_modules[point.x + point.y * 16].get()) {
+			const auto module_pos = slot_pos
+				+ mark::vector<double>(module->size()) * 16.0 / 2.0
+				- mark::vector<double>(8, 8);
+			const auto size = static_cast<float>(std::max(
+				module->size().x,
+				module->size().y)) * 16.f;
 			mark::sprite::info info;
 			info.image = module->thumbnail();
 			info.pos = module_pos;
@@ -186,12 +244,17 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 	mark::module::base::on_death(context);
 	for (auto& module : m_modules) {
 		if (module) {
-			context.units.push_back(std::make_shared<mark::unit::bucket>(parent().world(), pos(), std::move(module)));
+			context.units.push_back(std::make_shared<mark::unit::bucket>(
+				parent().world(),
+				pos(),
+				std::move(module)));
 		}
 	}
 }
 
-mark::error::code mark::module::cargo::push(std::unique_ptr<mark::module::base>& module) {
+mark::error::code mark::module::cargo::push(
+	std::unique_ptr<mark::module::base>& module)
+{
 	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
 		mark::vector<int> drop_pos(i % 16, i / 16);
 		if (this->drop(drop_pos, module) == mark::error::code::success) {
@@ -199,41 +262,4 @@ mark::error::code mark::module::cargo::push(std::unique_ptr<mark::module::base>&
 		}
 	}
 	return mark::error::code::occupied;
-}
-
-mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
-	m_im_body(rm.image("cargo.png")),
-	m_im_light(rm.image("glare.png")),
-	m_lfo(0.5f, rm.random(0.f, 6.f)),
-	m_modules(64) {
-	for (const auto& slot_node : node["contents"]) {
-		const auto slot = slot_node["slot"].as<size_t>();
-		auto module = mark::module::deserialize(rm, slot_node["item"]);
-		m_modules[slot] = std::move(module);
-	}
-}
-
-
-void mark::module::cargo::serialize(YAML::Emitter& out) const {
-	using namespace YAML;
-	out << BeginMap;
-	out << Key << "type" << Value << type_name;
-
-	this->serialize_base(out);
-
-	out << Key << "contents" << Value << BeginSeq;
-	for (size_t i = 0, size = m_modules.size(); i < size; i++) {
-		const auto& module = m_modules[i];
-		if (module) {
-			out << BeginMap;
-			out << Key << "slot" << Value << i;
-			out << Key << "item" << Value;
-			module->serialize(out);
-			out << EndMap;
-		}
-	}
-	out << EndSeq;
-
-	out << EndMap;
 }

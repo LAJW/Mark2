@@ -23,7 +23,9 @@ namespace mark {
 			auto module(mark::vector<int> pos) -> mark::module::base*;
 			auto module(mark::vector<int> pos) const->const mark::module::base*;
 			auto pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base>;
-			void render_contents(mark::vector<double> pos, mark::tick_context& context);
+			void render_contents(
+				mark::vector<double> pos,
+				mark::tick_context& context) const;
 			auto interior_size() const -> mark::vector<int>; // size of the contents of the cargo hold in modular units
 			auto detachable() const -> bool override;
 			auto describe() const -> std::string;
@@ -32,6 +34,7 @@ namespace mark {
 			[[nodiscard]] mark::error::code push(std::unique_ptr<mark::module::base>& module);
 			void serialize(YAML::Emitter&) const override;
 		private:
+			std::shared_ptr<const mark::resource::image> m_grid_bg;
 			std::shared_ptr<const mark::resource::image> m_im_body;
 			std::shared_ptr<const mark::resource::image> m_im_light;
 			mark::lfo m_lfo;
