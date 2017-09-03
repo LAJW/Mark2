@@ -73,5 +73,11 @@ namespace mark {
 		mark::resource::manager& m_resource_manager;
 	};
 	void print(
-		std::shared_ptr<const mark::resource::image> font, std::vector<mark::sprite>& out, mark::vector<double> pos, mark::vector<double> box, float size, sf::Color color, std::string text);
+		std::shared_ptr<const mark::resource::image> font,
+		std::vector<mark::sprite>& out,
+		mark::vector<double> pos,
+		mark::vector<double> box,
+		float size,
+		sf::Color color,
+		std::string text);
 }

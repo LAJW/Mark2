@@ -28,6 +28,7 @@ extern "C" {
 
 mark::renderer::render_info tick(
 	double dt,
+	mark::ui& ui,
 	mark::resource::manager& rm,
 	mark::world& world,
 	mark::vector<double> resolution,
@@ -36,7 +37,6 @@ mark::renderer::render_info tick(
 	mark::tick_context context(rm);
 	context.dt = dt;
 	world.tick(context, resolution);
-	mark::ui ui(rm);
 	ui.tick(world, context, rm, resolution, mouse_pos);
 
 	mark::renderer::render_info info;
@@ -140,6 +140,7 @@ int mark::main(std::vector<std::string> args)
 {
 	try {
 		mark::resource::manager_impl rm;
+		mark::ui ui(rm);
 		const auto keymap = mark::keymap("options.yml");
 		auto world = load_or_create_world("state.yml", rm);
 		const auto on_event = [&](const on_event_info& info) {
@@ -151,6 +152,7 @@ int mark::main(std::vector<std::string> args)
 			if (command.type == mark::command::type::reset) {
 				world = std::make_unique<mark::world>(rm);
 			} else {
+				ui.command(*world, command);
 				world->command(command);
 			}
 		};
@@ -163,7 +165,7 @@ int mark::main(std::vector<std::string> args)
 			guide.pos = target;
 			world->command(guide);
 			mark::tick_context context(rm);
-			return tick(info.dt, rm, *world, window_res, mouse_pos);
+			return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
 		};
 		event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
 		save_world(*world, "state.yml");

@@ -6,8 +6,12 @@ namespace resource {
 	class image;
 	class manager;
 }
+namespace module {
+	class base;
+}
 struct tick_context;
 class world;
+class command;
 
 class ui final {
 public:
@@ -19,6 +23,7 @@ public:
 		mark::resource::manager& rm,
 		mark::vector<double> resolution,
 		mark::vector<double> mouse_pos_);
+	void command(world& world, const mark::command& command);
 
 private:
 	const std::shared_ptr<const mark::resource::image> m_font;
@@ -26,6 +31,7 @@ private:
 	const std::shared_ptr<const mark::resource::image> m_grid_bg;
 	const std::shared_ptr<const mark::resource::image> m_hotbar_bg;
 	const std::shared_ptr<const mark::resource::image> m_hotbar_overlay;
+	std::unique_ptr<mark::module::base> m_grabbed;
 };
 }
 

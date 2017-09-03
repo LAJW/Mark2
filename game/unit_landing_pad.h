@@ -37,12 +37,11 @@ namespace mark {
 				const std::unordered_map<uint64_t,
 					std::weak_ptr<mark::unit::base>>& units) override;
 			auto bindings() const -> ihas_bindings::bindings_t override;
+			auto ship() -> std::shared_ptr<mark::unit::modular>;
 			auto ship() const -> std::shared_ptr<const mark::unit::modular>;
-			auto grabbed() const noexcept -> const mark::module::base*;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::weak_ptr<mark::unit::modular> m_ship;
-			std::unique_ptr<mark::module::base> m_grabbed;
 			mark::vector<double> m_mousepos;
 		};
 	}
