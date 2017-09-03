@@ -49,9 +49,8 @@ void mark::ui::tick(
 	if (const auto unit
 		= std::dynamic_pointer_cast<const mark::ihas_bindings>(world.target())) {
 		const auto icon_size = 64.0;
-		const auto bindings = unit->bindings();
-		for (const auto i : mark::enumerate(bindings.size())) {
-			const auto& binding = bindings[i];
+		for (const auto pair : mark::enumerate(unit->bindings())) {
+			const auto [i, binding] = pair;
 			const auto di = static_cast<double>(i);
 			const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
 			const auto y = resolution.y - 64;;
