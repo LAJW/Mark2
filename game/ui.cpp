@@ -210,7 +210,27 @@ void mark::ui::container_ui(
 	for (auto& cargo_ref : ship.containers()) {
 		auto& cargo = cargo_ref.get();
 		auto pos = mark::vector<double>(landing_pad.pos().x + 320.0, landing_pad.pos().y - 320.0 + top);
-		cargo.render_contents(pos, context);
+		const auto size = cargo.interior_size();
+		for (const auto point : mark::enumerate(size)) {
+			const auto slot_pos = pos + mark::vector<double>(point * 16);
+			mark::sprite::info info;
+			info.image = m_grid_bg;
+			info.pos = slot_pos;
+			context.sprites[100].emplace_back(info);
+			if (const auto& module = cargo.modules()[point.x + point.y * 16]) {
+				const auto module_pos = slot_pos
+					+ mark::vector<double>(module->size()) * 16.0 / 2.0
+					- mark::vector<double>(8, 8);
+				const auto size = static_cast<float>(std::max(
+					module->size().x,
+					module->size().y)) * 16.f;
+				mark::sprite::info info;
+				info.image = module->thumbnail();
+				info.pos = module_pos;
+				info.size = size;
+				context.sprites[100].emplace_back(info);
+			}
+		}
 		top += cargo.interior_size().y * 16.0 + 32.0;
 	}
 	if (m_grabbed) {

@@ -100,6 +100,10 @@ auto mark::module::cargo::modules() ->
 	std::vector<std::unique_ptr<mark::module::base>>&
 { return m_modules; }
 
+auto mark::module::cargo::modules() const ->
+	const std::vector<std::unique_ptr<mark::module::base>>&
+{ return m_modules; }
+
 namespace {
 
 auto overlaps(
@@ -190,33 +194,6 @@ auto mark::module::cargo::pick(mark::vector<int> pos) ->
 		}
 	}
 	return nullptr;
-}
-
-void mark::module::cargo::render_contents(
-	mark::vector<double> pos_in,
-	mark::tick_context& context) const
-{
-	const auto size = this->interior_size();
-	for (const auto point : mark::enumerate(size)) {
-		const auto slot_pos = pos_in + mark::vector<double>(point * 16);
-		mark::sprite::info info;
-		info.image = m_grid_bg;
-		info.pos = slot_pos;
-		context.sprites[100].emplace_back(info);
-		if (const auto& module = m_modules[point.x + point.y * 16].get()) {
-			const auto module_pos = slot_pos
-				+ mark::vector<double>(module->size()) * 16.0 / 2.0
-				- mark::vector<double>(8, 8);
-			const auto size = static_cast<float>(std::max(
-				module->size().x,
-				module->size().y)) * 16.f;
-			mark::sprite::info info;
-			info.image = module->thumbnail();
-			info.pos = module_pos;
-			info.size = size;
-			context.sprites[100].emplace_back(info);
-		}
-	}
 }
 
 auto mark::module::cargo::interior_size() const -> mark::vector<int> {

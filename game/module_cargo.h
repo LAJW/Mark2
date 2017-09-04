@@ -19,13 +19,11 @@ namespace mark {
 			cargo(mark::resource::manager& manager);
 			virtual void tick(mark::tick_context& context) override;
 			auto modules() -> std::vector<std::unique_ptr<mark::module::base>>&;
+			auto modules() const -> const std::vector<std::unique_ptr<mark::module::base>>&;
 			[[nodiscard]] error::code drop(mark::vector<int> pos, std::unique_ptr<mark::module::base>& module);
 			auto module(mark::vector<int> pos) -> mark::module::base*;
 			auto module(mark::vector<int> pos) const->const mark::module::base*;
 			auto pick(mark::vector<int> pos) -> std::unique_ptr<mark::module::base>;
-			void render_contents(
-				mark::vector<double> pos,
-				mark::tick_context& context) const;
 			auto interior_size() const -> mark::vector<int>; // size of the contents of the cargo hold in modular units
 			auto detachable() const -> bool override;
 			auto describe() const -> std::string;
