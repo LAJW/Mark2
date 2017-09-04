@@ -153,21 +153,7 @@ void mark::ui::tick(
 						const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 						const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
-						mark::sprite::info info;
-						info.image = m_tooltip_bg;
-						info.pos = tooltip_pos + mark::vector<double>(150, 150),
-						info.size = 300.f;
-						context.sprites[100].emplace_back(info);
-
-						mark::print(
-							m_font,
-							context.sprites[100],
-							tooltip_pos + mark::vector<double>(7.f, 7.f),
-							{ 300 - 14.f, 300 - 14.f },
-							14.f,
-							sf::Color::White,
-							description
-						);
+						this->tooltip(context, description, tooltip_pos);
 					}
 				} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
 					double top = 0.0;
@@ -183,21 +169,7 @@ void mark::ui::tick(
 								const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
 								const auto tooltip_pos = mouse_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
-								mark::sprite::info info;
-								info.image = m_tooltip_bg;
-								info.pos = tooltip_pos + mark::vector<double>(150, 150),
-								info.size = 300.f;
-								context.sprites[100].emplace_back(info);
-
-								mark::print(
-									m_font,
-									context.sprites[100],
-									tooltip_pos + mark::vector<double>(7.f, 7.f),
-									{ 300 - 14.f, 300 - 14.f },
-									14.f,
-									sf::Color::White,
-									description
-								);
+								this->tooltip(context, description, tooltip_pos);
 							}
 							break;
 						}
@@ -209,7 +181,7 @@ void mark::ui::tick(
 	}
 }
 
-void mark::ui::command(world& world, const mark::command & command)
+void mark::ui::command(world& world, const mark::command &command)
 {
 	if (auto landing_pad
 		= std::dynamic_pointer_cast<mark::unit::landing_pad>(
@@ -265,4 +237,27 @@ void mark::ui::command(world& world, const mark::command & command)
 			}
 		}
 	}
+}
+
+void mark::ui::tooltip(
+	tick_context& context,
+	const std::string& text,
+	mark::vector<double> pos)
+{
+	mark::sprite::info info;
+	info.image = m_tooltip_bg;
+	info.pos = pos + mark::vector<double>(150, 150),
+	info.size = 300.f;
+	context.sprites[100].emplace_back(info);
+
+	mark::print(
+		m_font,
+		context.sprites[100],
+		pos + mark::vector<double>(7.f, 7.f),
+		{ 300 - 14.f, 300 - 14.f },
+		14.f,
+		sf::Color::White,
+		text
+	);
+
 }

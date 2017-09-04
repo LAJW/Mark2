@@ -24,8 +24,14 @@ public:
 		mark::vector<double> resolution,
 		mark::vector<double> mouse_pos_);
 	void command(world& world, const mark::command& command);
-
 private:
+	void tooltip(
+		mark::tick_context&,
+		const std::string& text,
+		mark::vector<double> pos);
+	std::string m_tooltip_text;
+	mark::vector<double> m_tooltip_pso;
+
 	const std::shared_ptr<const mark::resource::image> m_font;
 	const std::shared_ptr<const mark::resource::image> m_tooltip_bg;
 	const std::shared_ptr<const mark::resource::image> m_grid_bg;
