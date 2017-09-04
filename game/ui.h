@@ -3,11 +3,15 @@
 
 namespace mark {
 namespace resource {
-	class image;
-	class manager;
+class image;
+class manager;
 }
 namespace module {
-	class base;
+class base;
+}
+namespace unit {
+class landing_pad;
+class modular;
 }
 struct tick_context;
 class world;
@@ -29,6 +33,14 @@ private:
 		mark::tick_context&,
 		const std::string& text,
 		mark::vector<double> pos);
+	void container_ui(
+		const mark::world& world,
+		mark::tick_context& context,
+		mark::vector<double> resolution,
+		mark::vector<double> mouse_pos,
+		const mark::unit::landing_pad& landing_pad,
+		const mark::unit::modular& ship);
+
 	std::string m_tooltip_text;
 	mark::vector<double> m_tooltip_pso;
 

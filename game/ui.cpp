@@ -45,7 +45,6 @@ void mark::ui::tick(
 		context.ui_sprites[2].emplace_back(bg_sprite);
 	}
 
-	const auto grid = m_grid_bg;
 	if (const auto unit
 		= std::dynamic_pointer_cast<const mark::ihas_bindings>(world.target())) {
 		const auto icon_size = 64.0;
@@ -92,91 +91,12 @@ void mark::ui::tick(
 		}
 	}
 	// Display landing pad UI
-	const auto surface = mark::enumerate<mark::vector<int>>(
-		{ -20, -20 },
-		{ 20, 20 });
 	if (const auto landing_pad
 		= std::dynamic_pointer_cast<const mark::unit::landing_pad>(
 			world.target())) {
 		if (const auto ship = landing_pad->ship()) {
-			const auto relative = (mouse_pos - landing_pad->pos()) / double(mark::module::size);
-			const auto module_pos = mark::round(relative);
-			if (m_grabbed) {
-				for (const auto offset : surface) {
-					mark::sprite::info info;
-					info.image = grid;
-					info.pos = landing_pad->pos() + mark::vector<double>(offset) * 16.0 - mark::vector<double>(8.0, 8.0);
-					info.size = 16.f;
-					const auto alpha = std::max(1.0 - mark::length(info.pos - mouse_pos) / 320.0, 0.0) * 255.0;
-					info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
-					context.sprites[1].emplace_back(info);
-				}
-			}
-			double top = 0.0;
-			for (auto& cargo_ref : ship->containers()) {
-				auto& cargo = cargo_ref.get();
-				auto pos = mark::vector<double>(landing_pad->pos().x + 320.0, landing_pad->pos().y - 320.0 + top);
-				cargo.render_contents(pos, context);
-				top += cargo.interior_size().y * 16.0 + 32.0;
-			}
-			if (m_grabbed) {
-				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-					const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-					const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
-					const auto color = ship->can_attach(*m_grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
-					mark::sprite::info info;
-					info.image = m_grabbed->thumbnail();
-					info.pos = mark::vector<double>(module_pos * 16) + landing_pad->pos();
-					info.size = size;
-					info.color = color;
-					context.sprites[100].emplace_back(info);
-				} else {
-					const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
-					mark::sprite::info info;
-					info.image = m_grabbed->thumbnail();
-					info.pos = mouse_pos;
-					info.size = size;
-					context.sprites[100].emplace_back(info);
-				}
-			}
-
-			// Display tooltips
-			const auto pick_pos = mark::floor(relative);
-			if (!m_grabbed) {
-				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-					// ship
-
-					const auto module = ship->module(pick_pos);
-					if (module) {
-						const auto description = module->describe();
-						const auto module_pos = module->pos();
-						const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
-						const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
-
-						this->tooltip(context, description, tooltip_pos);
-					}
-				} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
-					double top = 0.0;
-					for (auto& cargo_ref : ship->containers()) {
-						auto& cargo = cargo_ref.get();
-						const auto size = cargo.interior_size();
-						const auto relative = mouse_pos - landing_pad->pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
-						if (relative.y >= 0 && relative.y < size.y * 16) {
-							const auto pick_pos = mark::floor(relative / 16.0);
-							const auto module = cargo.module(pick_pos);
-							if (module) {
-								const auto description = module->describe();
-								const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
-								const auto tooltip_pos = mouse_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
-
-								this->tooltip(context, description, tooltip_pos);
-							}
-							break;
-						}
-						top += size.y * 16.0 + 32.0;
-					}
-				}
-			}
+			this->container_ui(
+				world, context, resolution, mouse_pos, *landing_pad, *ship);
 		}
 	}
 }
@@ -260,4 +180,97 @@ void mark::ui::tooltip(
 		text
 	);
 
+}
+
+void mark::ui::container_ui(
+	const mark::world& world,
+	mark::tick_context& context,
+	mark::vector<double> resolution,
+	mark::vector<double> mouse_pos,
+	const mark::unit::landing_pad& landing_pad,
+	const mark::unit::modular& ship)
+{
+	const auto surface = mark::enumerate<mark::vector<int>>(
+		{ -20, -20 },
+		{ 20, 20 });
+	const auto relative = (mouse_pos - landing_pad.pos()) / double(mark::module::size);
+	const auto module_pos = mark::round(relative);
+	if (m_grabbed) {
+		for (const auto offset : surface) {
+			mark::sprite::info info;
+			info.image = m_grid_bg;
+			info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 - mark::vector<double>(8.0, 8.0);
+			info.size = 16.f;
+			const auto alpha = std::max(1.0 - mark::length(info.pos - mouse_pos) / 320.0, 0.0) * 255.0;
+			info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
+			context.sprites[1].emplace_back(info);
+		}
+	}
+	double top = 0.0;
+	for (auto& cargo_ref : ship.containers()) {
+		auto& cargo = cargo_ref.get();
+		auto pos = mark::vector<double>(landing_pad.pos().x + 320.0, landing_pad.pos().y - 320.0 + top);
+		cargo.render_contents(pos, context);
+		top += cargo.interior_size().y * 16.0 + 32.0;
+	}
+	if (m_grabbed) {
+		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+			const auto size = static_cast<float>(std::max(
+				m_grabbed->size().x,
+				m_grabbed->size().y)) * 16.f;
+			const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
+			const auto color = ship.can_attach(*m_grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
+			mark::sprite::info info;
+			info.image = m_grabbed->thumbnail();
+			info.pos = mark::vector<double>(module_pos * 16) + landing_pad.pos();
+			info.size = size;
+			info.color = color;
+			context.sprites[100].emplace_back(info);
+		} else {
+			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+			mark::sprite::info info;
+			info.image = m_grabbed->thumbnail();
+			info.pos = mouse_pos;
+			info.size = size;
+			context.sprites[100].emplace_back(info);
+		}
+	}
+
+	// Display tooltips
+	const auto pick_pos = mark::floor(relative);
+	if (!m_grabbed) {
+		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+			// ship
+
+			const auto module = ship.module(pick_pos);
+			if (module) {
+				const auto description = module->describe();
+				const auto module_pos = module->pos();
+				const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
+				const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+
+				this->tooltip(context, description, tooltip_pos);
+			}
+		} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
+			double top = 0.0;
+			for (auto& cargo_ref : ship.containers()) {
+				auto& cargo = cargo_ref.get();
+				const auto size = cargo.interior_size();
+				const auto relative = mouse_pos - landing_pad.pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
+				if (relative.y >= 0 && relative.y < size.y * 16) {
+					const auto pick_pos = mark::floor(relative / 16.0);
+					const auto module = cargo.module(pick_pos);
+					if (module) {
+						const auto description = module->describe();
+						const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
+						const auto tooltip_pos = mouse_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+
+						this->tooltip(context, description, tooltip_pos);
+					}
+					break;
+				}
+				top += size.y * 16.0 + 32.0;
+			}
+		}
+	}
 }
