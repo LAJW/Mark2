@@ -214,7 +214,7 @@ void mark::ui::container_ui(
 	const mark::unit::landing_pad& landing_pad,
 	const mark::unit::modular& ship)
 {
-	const auto surface = mark::enumerate<mark::vector<int>>(
+	const auto surface = mark::range<mark::vector<int>>(
 		{ -20, -20 },
 		{ 20, 20 });
 	const auto relative = (mouse_pos - landing_pad.pos()) / double(mark::module::size);
@@ -235,7 +235,7 @@ void mark::ui::container_ui(
 		auto& cargo = cargo_ref.get();
 		auto pos = mark::vector<double>(resolution.x - 320.0, top);
 		const auto size = cargo.interior_size();
-		for (const auto point : mark::enumerate(size)) {
+		for (const auto point : mark::range(size)) {
 			const auto slot_pos = pos + mark::vector<double>(point * 16);
 			mark::sprite::info info;
 			info.image = m_grid_bg;

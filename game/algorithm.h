@@ -4,15 +4,15 @@
 
 namespace mark {
 
-// Vector/Area enumerator
+// Vector/Area range_t
 // TODO: Type static assert to check whether T is specialization of mark::vector
 template<typename T, typename = void>
-class enumerator {
+class range_t {
 public:
 	class iterator:
 		public std::iterator<std::bidirectional_iterator_tag, T, void> {
 	public:
-		iterator(const mark::enumerator<T>& area, T i):
+		iterator(const mark::range_t<T>& area, T i):
 			m_area(area),
 			m_i(i) {}
 		iterator& operator++() noexcept {
@@ -42,13 +42,13 @@ public:
 			return m_i;
 		}
 	private:
-		const mark::enumerator<T>& m_area;
+		const mark::range_t<T>& m_area;
 		T m_i = 0;
 	};
 	using const_iterator = iterator;
-	enumerator(const T& bottom_right):
-		enumerator({ 0, 0 }, bottom_right) { }
-	enumerator(const T& top_left, const T& bottom_right):
+	range_t(const T& bottom_right):
+		range_t({ 0, 0 }, bottom_right) { }
+	range_t(const T& top_left, const T& bottom_right):
 		top_left(top_left),
 		bottom_right(bottom_right) {
 	}
@@ -64,10 +64,7 @@ public:
 
 // Container Enumerator
 template<typename T>
-class enumerator<T,
-	std::void_t<
-		decltype(std::begin(T())),
-		decltype(std::end(T()))>> final
+class enumerator final
 {
 private:
 	template<typename value_t, typename iterator_t>
@@ -124,9 +121,9 @@ private:
 	T& m_container;
 };
 
-// Integer range enumerator
+// Integer range range_t
 template<typename T>
-class enumerator<T, std::enable_if_t<std::is_arithmetic_v<T>>> {
+class range_t<T, std::enable_if_t<std::is_arithmetic_v<T>>> {
 public:
 	class iterator:
 		public std::iterator<std::bidirectional_iterator_tag, T, void> {
@@ -153,10 +150,10 @@ public:
 		T m_value;
 	};
 	using const_iterator = iterator;
-	enumerator(T end):
+	range_t(T end):
 		m_begin(0),
 		m_end(end) { }
-	enumerator(T begin, T end):
+	range_t(T begin, T end):
 		m_begin(begin),
 		m_end(end) { }
 	iterator begin() const noexcept {
@@ -171,19 +168,13 @@ private:
 };
 
 template<typename T> 
-auto enumerate(const T& min, const T& max) {
-	return mark::enumerator<T>(min, max);
+auto range(const T& min, const T& max) {
+	return mark::range_t<T>(min, max);
 }
 
-template<typename T,
-	typename = std::void_t<decltype(mark::vector<double>(T()))>>
-auto enumerate(const T& max) {
-	return mark::enumerator<T>(max);
-}
-
-template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
-auto enumerate(const T& max) {
-	return mark::enumerator<T>(max);
+template<typename T>
+auto range(const T& max) {
+	return mark::range_t<T>(max);
 }
 
 template<typename T> 

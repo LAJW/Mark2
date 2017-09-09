@@ -231,7 +231,7 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 mark::error::code mark::module::cargo::push(
 	std::unique_ptr<mark::module::base>& module)
 {
-	for (const auto i : enumerate(static_cast<int>(m_modules.size()))) {
+	for (const auto i : range(static_cast<int>(m_modules.size()))) {
 		const auto drop_pos = modulo_vector(i, 16);
 		if (this->drop(drop_pos, module) == mark::error::code::success) {
 			return mark::error::code::success;

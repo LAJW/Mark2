@@ -43,22 +43,22 @@ namespace {
 			}
 		};
 		// right
-		for (const auto i : mark::enumerate(size.y)) {
+		for (const auto i : mark::range(size.y)) {
 			auto module_ptr = modular.at({ pos.x + size.x, pos.y + i });
 			out_insert(module_ptr);
 		}
 		// bottom
-		for (const auto i : mark::enumerate(size.x)) {
+		for (const auto i : mark::range(size.x)) {
 			auto module_ptr = modular.at({ pos.x + i, pos.y + size.y });
 			out_insert(module_ptr);
 		}
 		// left
-		for (const auto i : mark::enumerate(size.y)) {
+		for (const auto i : mark::range(size.y)) {
 			auto module_ptr = modular.at({ pos.x - 1, pos.y + i });
 			out_insert(module_ptr);
 		}
 		// top
-		for (const auto i : mark::enumerate(size.x)) {
+		for (const auto i : mark::range(size.x)) {
 			auto module_ptr = modular.at({ pos.x + i, pos.y - 1 });
 			out_insert(module_ptr);
 		}
@@ -168,7 +168,7 @@ auto mark::unit::modular::p_connected_to_core(const mark::module::base& module) 
 		}
 
 		// TODO Replace with int8_t, and remove vector casts
-		// TODO Replace with enumerate
+		// TODO Replace with range
 		for (int i = 1; i < 8; i += 2) {
 			auto neighbour_pos = current->pos + mark::vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
 			const auto traversable = neighbour_pos.x > 0
@@ -267,7 +267,7 @@ void mark::unit::modular::attach(
 	if (!module) {
 		throw mark::exception("NULL_MODULE");
 	}
-	for (const auto i : mark::enumerate(mark::vector<int8_t>(module->size()))) {
+	for (const auto i : mark::range(mark::vector<int8_t>(module->size()))) {
 		if (this->p_at(module_pos + i)) {
 			throw mark::user_error("MODULE_OVERLAP");
 		}
@@ -288,7 +288,7 @@ void mark::unit::modular::attach(
 		module->m_parent = nullptr;
 		throw mark::user_error("NO_NEIGHBOURS");
 	}
-	for (const auto i : mark::enumerate(module->size())) {
+	for (const auto i : mark::range(module->size())) {
 		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
 	}
 	m_modules.emplace_back(std::move(module));
@@ -301,7 +301,7 @@ void mark::unit::modular::p_attach(
 	if (!module) {
 		throw mark::exception("NULL_MODULE");
 	}
-	for (const auto i : mark::enumerate(mark::vector<int8_t>(module->size()))) {
+	for (const auto i : mark::range(mark::vector<int8_t>(module->size()))) {
 		if (this->p_at(module_pos + i)) {
 			throw mark::user_error("MODULE_OVERLAP");
 		}
@@ -317,7 +317,7 @@ void mark::unit::modular::p_attach(
 	}
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
-	for (const auto i : mark::enumerate(module->size())) {
+	for (const auto i : mark::range(module->size())) {
 		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
 	}
 	m_modules.emplace_back(std::move(module));
@@ -329,7 +329,7 @@ auto mark::unit::modular::can_attach(
 	-> bool
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
-	for (const auto i : mark::enumerate(mark::vector<int8_t>(module.size()))) {
+	for (const auto i : mark::range(mark::vector<int8_t>(module.size()))) {
 		if (this->p_at(module_pos + i)) {
 			return false;
 		}
@@ -372,7 +372,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 	const auto module_pos = vector<int8_t>(module.grid_pos());
 	const auto module_size = mark::vector<int8_t>(module.size());
 	// remove module from the grid
-	const auto surface = enumerate(module_pos, module_pos + module_size);
+	const auto surface = range(module_pos, module_pos + module_size);
 	for (const auto grid_pos : surface) {
 		this->p_at(grid_pos) = nullptr;
 	}
@@ -690,7 +690,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			this->unbind(*module);
 			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
 			const auto module_size = mark::vector<int8_t>(module->size());
-			for (const auto i : mark::enumerate(module_size)) {
+			for (const auto i : mark::range(module_size)) {
 				this->p_at(module_pos + i) = nullptr;
 			}
 		});
@@ -707,7 +707,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			this->unbind(*module);
 			const auto module_pos = mark::vector<int8_t>(module->grid_pos());
 			const auto module_size = mark::vector<int8_t>(module->size());
-			for (const auto i : mark::enumerate(module_size)) {
+			for (const auto i : mark::range(module_size)) {
 				this->p_at(module_pos + i) = nullptr;
 			}
 		});

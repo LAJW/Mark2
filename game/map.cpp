@@ -73,7 +73,7 @@ auto mark::map::traversable(
 	if (uradius > 1) {
 		const auto radius = static_cast<int>(uradius);
 		const auto offset = mark::vector<int>(radius, radius);
-		for (const auto i : mark::enumerate(-offset, offset)) {
+		for (const auto i : mark::range(-offset, offset)) {
 			if (mark::length(i) <= radius) {
 				const auto tile = this->get(i_pos + i);
 				if (tile == terrain_type::null
@@ -104,7 +104,7 @@ void mark::map::tick(
 	const auto tl = mark::vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
 	const auto br = mark::vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
 	const auto floor = m_rm.get().image("ice-16.png");
-	for (const auto pos : mark::enumerate(tl, br)) {
+	for (const auto pos : mark::range(tl, br)) {
 		const auto ctl = this->get(pos - mark::vector<int>(1, 1));
 		const auto cbl = this->get(pos - mark::vector<int>(1, 0));
 		const auto ctr = this->get(pos - mark::vector<int>(0, 1));
