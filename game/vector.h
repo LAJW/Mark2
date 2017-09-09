@@ -32,6 +32,11 @@ namespace mark {
 	auto atan(const mark::vector<T>& vector) {
 		return std::atan2(vector.y, vector.x) / static_cast<float>(M_PI) * 180.f;
 	}
+	// convert [i, width] into vector
+	template<typename T>
+	auto modulo_vector(T i, T width) {
+		return mark::vector<T>(i % width, i / width);
+	}
 	template<typename T>
 	T sgn(T val) {
 		if (val > 0) {

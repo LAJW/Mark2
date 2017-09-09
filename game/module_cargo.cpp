@@ -155,18 +155,17 @@ auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*
 		static_cast<const mark::module::cargo*>(this)->module(pos));
 }
 
-auto mark::module::cargo::module(mark::vector<int> i_pos) const ->
-	const mark::module::base*
+auto mark::module::cargo::module(mark::vector<int> i_pos) const
+	-> const mark::module::base*
  {
 	if (i_pos.x < 0 || i_pos.y < 0) {
-		return false;
+		return nullptr;
 	}
-	const auto pos = mark::vector<unsigned>(i_pos);
-	for (unsigned i = 0; i < m_modules.size(); i++) {
-		const mark::vector<unsigned> module_pos(i % 16, i / 16);
-		auto& slot = m_modules[i];
-		if (slot) {
-			const auto border = module_pos + mark::vector<unsigned>(slot->size());
+	const auto pos = vector<unsigned>(i_pos);
+	for (const auto pair : enumerate(m_modules)) {
+		const auto module_pos = modulo_vector(pair.first, 16LLU);
+		if (const auto& slot = pair.second) {
+			const auto border = module_pos + vector<size_t>(slot->size());
 			if (pos.x + pos.x >= module_pos.x && pos.x < border.x
 				&& pos.y + pos.y >= module_pos.y && pos.y < border.y) {
 				return slot.get();
@@ -182,9 +181,9 @@ auto mark::module::cargo::pick(mark::vector<int> pos) ->
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
-	for (const auto pair : mark::enumerate(m_modules)) {
+	for (const auto pair : enumerate(m_modules)) {
 		const auto i = static_cast<int>(pair.first);
-		const mark::vector<int> module_pos(i % 16, i / 16);
+		const auto module_pos = modulo_vector(i, 16);
 		if (auto& module = pair.second) {
 			const auto border = module_pos + mark::vector<int>(module->size());
 			if (pos.x >= module_pos.x && pos.x < border.x
@@ -232,8 +231,8 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 mark::error::code mark::module::cargo::push(
 	std::unique_ptr<mark::module::base>& module)
 {
-	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
-		mark::vector<int> drop_pos(i % 16, i / 16);
+	for (const auto i : enumerate(static_cast<int>(m_modules.size()))) {
+		const auto drop_pos = modulo_vector(i, 16);
 		if (this->drop(drop_pos, module) == mark::error::code::success) {
 			return mark::error::code::success;
 		}
