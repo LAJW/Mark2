@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="algorithm.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="unit_modular.cpp" />
     <ClCompile Include="vector_test.cpp" />

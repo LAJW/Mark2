@@ -133,8 +133,9 @@ auto mark::module::cargo::drop(
 	// Check if doesn't overlap with any of the existing modules
 	const auto incoming_pos = mark::vector<unsigned>(spos);
 	const auto incoming_border = incoming_pos + incoming->size();
-	for (const auto i : enumerate(static_cast<unsigned>(m_modules.size()))) {
-		if (const auto& module = m_modules[i]) {
+	for (const auto pair : enumerate(m_modules)) {
+		if (const auto& module = pair.second) {
+			const auto i = static_cast<unsigned>(pair.first);
 			const auto module_pos = mark::vector<unsigned>(i % 16, i / 16);
 			const auto module_border = module_pos + module->size();
 			if (overlaps(
@@ -181,11 +182,10 @@ auto mark::module::cargo::pick(mark::vector<int> pos) ->
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
-	for (const auto i : mark::enumerate(m_modules.size())) {
-		const auto si = static_cast<int>(i);
-		const mark::vector<int> module_pos(si % 16, si / 16);
-		auto& module = m_modules[i];
-		if (module) {
+	for (const auto pair : mark::enumerate(m_modules)) {
+		const auto i = static_cast<int>(pair.first);
+		const mark::vector<int> module_pos(i % 16, i / 16);
+		if (auto& module = pair.second) {
 			const auto border = module_pos + mark::vector<int>(module->size());
 			if (pos.x >= module_pos.x && pos.x < border.x
 				&& pos.y >= module_pos.y && pos.y < border.y) {

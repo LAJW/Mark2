@@ -69,8 +69,7 @@ class enumerator<T,
 		decltype(std::begin(T())),
 		decltype(std::end(T()))>> final
 {
-public:
-
+private:
 	template<typename value_t, typename iterator_t>
 	class iterator_impl final:
 		public std::iterator<
@@ -78,7 +77,7 @@ public:
 			std::pair<typename T::size_type, value_t&>,
 			void> {
 	public:
-		iterator_impl(iterator_t it, typename T::size_type i)
+		iterator_impl(iterator_t it, typename T::size_type i) noexcept
 			:m_it(it), m_i(i) { }
 		auto& operator++() noexcept
 		{
@@ -86,8 +85,12 @@ public:
 			++m_i;
 			return *this;
 		}
+		auto operator*() noexcept
+			-> std::pair<typename T::size_type, value_t&>
+		{ return { m_i, *m_it }; }
 		auto operator*() const noexcept
-		{ return std::make_pair(m_i, *m_it); }
+			-> std::pair<typename T::size_type, const value_t&>
+		{ return { m_i, *m_it }; }
 		auto operator==(const iterator_impl& other) const noexcept
 		{ return m_it == other.m_it; }
 		auto operator!=(const iterator_impl& other) const noexcept
@@ -96,22 +99,27 @@ public:
 		iterator_t m_it;
 		typename T::size_type m_i;
 	};
+public:
+	using iterator = iterator_impl<
+		decltype(*T().begin()),
+		decltype(T().begin())>;
+	using const_iterator = iterator_impl<
+		decltype(*T().begin()),
+		decltype(T().cbegin())>;
 
-	using iterator = iterator_impl<typename T::value_type, typename T::iterator>;
-	using iterator_const = iterator_impl<typename const T::value_type, typename T::const_iterator>;
-	enumerator(T container) : m_container(container) { }
-	auto begin() -> iterator
-	{ return iterator(std::begin(m_container), 0); }
-	auto begin() const -> iterator
-	{ return const_iterator(std::cbegin(m_container), 0); }
-	auto cbegin() const -> iterator
-	{ return const_iterator(std::cbegin(m_container), 0); }
-	auto end() -> iterator
-	{ return iterator(std::end(m_container), m_container.size()); }
-	auto end() const -> iterator
-	{ return const_iterator(std::cend(m_container), m_container.size()); }
-	auto cend() const -> iterator
-	{ return const_iterator(std::cend(m_container), m_container.size()); }
+	enumerator(T& container) : m_container(container) { }
+	auto begin() noexcept -> iterator
+	{ return { m_container.begin(), 0 }; }
+	auto begin() const noexcept -> const_iterator
+	{ return { m_container.cbegin(), 0 }; }
+	auto cbegin() const noexcept -> const_iterator
+	{ return { m_container.cbegin(), 0}; }
+	auto end() noexcept -> iterator
+	{ return { m_container.end(), m_container.size() }; }
+	auto end() const noexcept -> const_iterator
+	{ return { m_container.cend(), m_container.size() }; }
+	auto cend() const noexcept -> const_iterator
+	{ return { m_container.cend(), m_container.size() }; }
 private:
 	T& m_container;
 };
@@ -167,8 +175,19 @@ auto enumerate(const T& min, const T& max) {
 	return mark::enumerator<T>(min, max);
 }
 
-template<typename T> 
+template<typename T,
+	typename = std::void_t<decltype(mark::vector<double>(T()))>>
 auto enumerate(const T& max) {
+	return mark::enumerator<T>(max);
+}
+
+template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+auto enumerate(const T& max) {
+	return mark::enumerator<T>(max);
+}
+
+template<typename T> 
+auto enumerate(T& max) {
 	return mark::enumerator<T>(max);
 }
 
