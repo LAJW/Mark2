@@ -28,7 +28,7 @@ extern "C" {
 
 mark::renderer::render_info tick(
 	double dt,
-	mark::ui& ui,
+	mark::ui::ui& ui,
 	mark::resource::manager& rm,
 	mark::world& world,
 	mark::vector<double> resolution,
@@ -140,13 +140,17 @@ int mark::main(std::vector<std::string> args)
 {
 	try {
 		mark::resource::manager_impl rm;
-		mark::ui ui(rm);
+		mark::ui::ui ui(rm);
 		const auto keymap = mark::keymap("options.yml");
 		auto world = load_or_create_world("state.yml", rm);
 		const auto on_event = [&](const on_event_info& info) {
 			const auto mouse_pos = info.mouse_pos;
 			const auto window_res = info.window_res;
 			const auto target = world->camera() + mouse_pos - window_res / 2.;
+			if (info.event.mouseButton.button == sf::Mouse::Button::Left
+				&& info.event.type == sf::Event::MouseButtonPressed) {
+				ui.click(mark::vector<int>(info.mouse_pos));
+			}
 			auto command = keymap.translate(info.event);
 			command.pos = target;
 			if (command.type == mark::command::type::reset) {

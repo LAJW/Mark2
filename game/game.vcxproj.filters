@@ -109,8 +109,17 @@
     <ClCompile Include="curve.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="ui_button.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_window.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_event.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="ui.cpp">
-      <Filter>General</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +134,9 @@
     </Filter>
     <Filter Include="Unit">
       <UniqueIdentifier>{d9a7fe68-c8fd-4fbe-a549-887729308338}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{13dd2180-9e17-4798-a9c8-3ed0eb7fbec5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -254,8 +266,20 @@
     <ClInclude Include="ihas_bindings.h">
       <Filter>General</Filter>
     </ClInclude>
+    <ClInclude Include="ui_node.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_window.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_button.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_event.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="ui.h">
-      <Filter>General</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

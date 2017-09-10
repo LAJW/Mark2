@@ -17,6 +17,8 @@ struct tick_context;
 class world;
 class command;
 
+namespace ui {
+class window;
 class ui final {
 public:
 	explicit ui(mark::resource::manager& rm);
@@ -28,6 +30,7 @@ public:
 		mark::vector<double> resolution,
 		mark::vector<double> mouse_pos_);
 	void command(world& world, const mark::command& command);
+	bool click(mark::vector<int> screen_pos);
 private:
 	void tooltip(
 		mark::tick_context&,
@@ -55,6 +58,10 @@ private:
 	const std::shared_ptr<const mark::resource::image> m_hotbar_bg;
 	const std::shared_ptr<const mark::resource::image> m_hotbar_overlay;
 	std::unique_ptr<mark::module::base> m_grabbed;
+
+	std::vector<std::unique_ptr<window>> m_windows;
 };
+
+}
 }
 

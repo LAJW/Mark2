@@ -9,23 +9,42 @@
 #include "unit_modular.h"
 #include "world.h"
 #include "ihas_bindings.h"
+#include "ui_window.h"
+#include "ui_button.h"
 
-mark::ui::ui(mark::resource::manager& rm)
+mark::ui::ui::ui(mark::resource::manager& rm)
 	: m_font(rm.image("font.png"))
 	, m_tooltip_bg(rm.image("floor.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_hotbar_bg(rm.image("hotbar-background.png"))
-	, m_hotbar_overlay(rm.image("hotbar-overlay.png")) { }
+	, m_hotbar_overlay(rm.image("hotbar-overlay.png"))
+{
+	m_windows.push_back(std::make_unique<window>());
+	mark::ui::button::info info;
+	info.parent = m_windows.back().get();
+	info.rm = &rm;
+	info.size = { 64, 64 };
+	info.pos = { 32, 32 };
+	auto button_ptr = std::make_unique<mark::ui::button>(info);
+	auto& button = *button_ptr;
+	button.on_click.insert([](const event& event) {
+		printf("Button clicked");
+	});
+	m_windows.back()->insert(std::move(button_ptr));
+}
 
-mark::ui::~ui() = default;
+mark::ui::ui::~ui() = default;
 
-void mark::ui::tick(
+void mark::ui::ui::tick(
 	const mark::world& world,
 	mark::tick_context& context,
 	mark::resource::manager& rm,
 	mark::vector<double> resolution,
 	mark::vector<double> mouse_pos_)
 {
+	for (const auto& window : m_windows) {
+		window->tick(context);
+	}
 	const auto mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 	// Display Hotbar
 	{
@@ -101,7 +120,21 @@ void mark::ui::tick(
 	}
 }
 
-void mark::ui::command(world& world, const mark::command &command)
+bool mark::ui::ui::click(mark::vector<int> screen_pos)
+{
+	mark::ui::event event;
+	event.absolute_cursor = screen_pos;
+	event.cursor = screen_pos;
+	for (const auto& window : m_windows) {
+		const auto handled = window->click(event);
+		if (handled) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void mark::ui::ui::command(world& world, const mark::command &command)
 {
 	if (auto landing_pad
 		= std::dynamic_pointer_cast<mark::unit::landing_pad>(
@@ -159,7 +192,7 @@ void mark::ui::command(world& world, const mark::command &command)
 	}
 }
 
-void mark::ui::tooltip(
+void mark::ui::ui::tooltip(
 	tick_context& context,
 	const std::string& text,
 	mark::vector<double> screen_pos)
@@ -182,7 +215,7 @@ void mark::ui::tooltip(
 
 }
 
-void mark::ui::world_tooltip(
+void mark::ui::ui::world_tooltip(
 	tick_context& context,
 	const std::string& text,
 	mark::vector<double> pos)
@@ -205,7 +238,7 @@ void mark::ui::world_tooltip(
 
 }
 
-void mark::ui::container_ui(
+void mark::ui::ui::container_ui(
 	const mark::world& world,
 	mark::tick_context& context,
 	mark::vector<double> resolution,

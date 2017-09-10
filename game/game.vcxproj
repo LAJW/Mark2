@@ -177,6 +177,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ui.cpp" />
+    <ClCompile Include="ui_button.cpp" />
+    <ClCompile Include="ui_event.cpp" />
+    <ClCompile Include="ui_window.cpp" />
     <ClCompile Include="unit_base.cpp" />
     <ClCompile Include="unit_bucket.cpp" />
     <ClCompile Include="unit_gate.cpp" />
@@ -225,6 +228,10 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tick_context.h" />
     <ClInclude Include="ui.h" />
+    <ClInclude Include="ui_button.h" />
+    <ClInclude Include="ui_event.h" />
+    <ClInclude Include="ui_node.h" />
+    <ClInclude Include="ui_window.h" />
     <ClInclude Include="unit_base.h" />
     <ClInclude Include="unit_bucket.h" />
     <ClInclude Include="unit_gate.h" />
