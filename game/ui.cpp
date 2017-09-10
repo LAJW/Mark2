@@ -382,7 +382,8 @@ void mark::ui::ui::show_ship_editor(mark::unit::modular& modular)
 				mark::ui::button::info info;
 				info.parent = &window;
 				info.size = module.size() * 15U;
-				info.pos = { pos.x * 16, pos.y * 16 + top };
+				const vector<int> button_pos(pos.x * 16, pos.y * 16 + top);
+				info.pos = button_pos;
 				info.image = module.thumbnail();
 				auto button_ptr = std::make_unique<mark::ui::button>(info);
 				auto& button = *button_ptr;
@@ -390,11 +391,15 @@ void mark::ui::ui::show_ship_editor(mark::unit::modular& modular)
 					[container, pos, this, &window, &button](const event& event) {
 					m_grabbed = container.get().pick(pos);
 					window.remove(button);
-					container.get().detachable();;
+					container.get().detachable();
 					return true;
 				});
-				button.on_hover.insert([this, &module](const event& event) {
-					this->tooltip(event.absolute_cursor, module.describe());
+				const auto length = static_cast<int>(module.size().x) * 16;
+				button.on_hover.insert(
+					[this, &module, button_pos, length](const event& event) {
+					this->tooltip(
+						{ button_pos.x + length, button_pos.y },
+						module.describe());
 					return true;
 				});
 				window.insert(std::move(button_ptr));
