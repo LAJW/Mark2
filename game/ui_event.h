@@ -16,7 +16,6 @@ struct event final {
 class callback_group {
 public:
 	void insert(std::function<bool(const event&)> callback);
-	void insert(std::function<void(const event&)> callback);
 	// Returns true if event was handled
 	bool dispatch(const event&) const;
 	bool operator()(const event&) const;

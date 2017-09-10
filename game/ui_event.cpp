@@ -6,14 +6,6 @@ void mark::ui::callback_group::insert(std::function<bool(const event&)> callback
 	m_callbacks.push_back(callback);
 }
 
-void mark::ui::callback_group::insert(std::function<void(const event&)> callback)
-{
-	m_callbacks.push_back([callback](auto& event) {
-		callback(event);
-		return false;
-	});
-}
-
 bool mark::ui::callback_group::dispatch(const event& event) const
 {
 	for (const auto& callback : m_callbacks) {

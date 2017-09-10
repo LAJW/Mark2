@@ -17,7 +17,7 @@ class button final : public node {
 public:
 	struct info {
 		// Resource manager
-		resource::manager* rm = nullptr;
+		std::shared_ptr<const resource::image> image = nullptr;
 		// Parent window
 		const window* parent = nullptr;
 		// Position of top left corner relative to the parent element
@@ -29,8 +29,11 @@ public:
 	button(const info&);
 	void tick(mark::tick_context&) override;
 
-	bool click(const event&);
+	bool click(const event&) override;
 	callback_group on_click;
+
+	bool hover(const event&) override;
+	callback_group on_hover;
 
 	auto pos() const noexcept -> mark::vector<int> override;
 private:

@@ -14,8 +14,8 @@ class landing_pad;
 class modular;
 }
 struct tick_context;
-class world;
 class command;
+class world;
 
 namespace ui {
 class window;
@@ -24,13 +24,17 @@ public:
 	explicit ui(mark::resource::manager& rm);
 	~ui();
 	void tick(
-		const mark::world& world,
+		mark::world& world,
 		mark::tick_context& context,
 		mark::resource::manager& rm,
 		mark::vector<double> resolution,
 		mark::vector<double> mouse_pos_);
 	void command(world& world, const mark::command& command);
 	bool click(mark::vector<int> screen_pos);
+	bool hover(mark::vector<int> screen_pos);
+	void show_ship_editor(mark::unit::modular&);
+	void hide_ship_editor();
+	void tooltip(mark::vector<int> pos, const std::string& text);
 private:
 	void tooltip(
 		mark::tick_context&,
@@ -60,6 +64,8 @@ private:
 	std::unique_ptr<mark::module::base> m_grabbed;
 
 	std::vector<std::unique_ptr<window>> m_windows;
+
+	mark::resource::manager& m_rm;
 };
 
 }

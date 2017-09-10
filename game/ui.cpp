@@ -18,25 +18,12 @@ mark::ui::ui::ui(mark::resource::manager& rm)
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_hotbar_bg(rm.image("hotbar-background.png"))
 	, m_hotbar_overlay(rm.image("hotbar-overlay.png"))
-{
-	m_windows.push_back(std::make_unique<window>());
-	mark::ui::button::info info;
-	info.parent = m_windows.back().get();
-	info.rm = &rm;
-	info.size = { 64, 64 };
-	info.pos = { 32, 32 };
-	auto button_ptr = std::make_unique<mark::ui::button>(info);
-	auto& button = *button_ptr;
-	button.on_click.insert([](const event& event) {
-		printf("Button clicked");
-	});
-	m_windows.back()->insert(std::move(button_ptr));
-}
+	, m_rm(rm) { }
 
 mark::ui::ui::~ui() = default;
 
 void mark::ui::ui::tick(
-	const mark::world& world,
+	mark::world& world,
 	mark::tick_context& context,
 	mark::resource::manager& rm,
 	mark::vector<double> resolution,
@@ -110,13 +97,21 @@ void mark::ui::ui::tick(
 		}
 	}
 	// Display landing pad UI
-	if (const auto landing_pad
-		= std::dynamic_pointer_cast<const mark::unit::landing_pad>(
+	if (auto landing_pad
+		= std::dynamic_pointer_cast<mark::unit::landing_pad>(
 			world.target())) {
-		if (const auto ship = landing_pad->ship()) {
+		if (auto& ship = landing_pad->ship()) {
 			this->container_ui(
 				world, context, resolution, mouse_pos_, mouse_pos, *landing_pad, *ship);
+			if (m_windows.empty()) {
+				this->show_ship_editor(*ship);
+			}
 		}
+	} else {
+		this->hide_ship_editor();
+	}
+	if (!m_tooltip_text.empty()) {
+		this->tooltip(context, m_tooltip_text, m_tooltip_pso);
 	}
 }
 
@@ -131,6 +126,21 @@ bool mark::ui::ui::click(mark::vector<int> screen_pos)
 			return true;
 		}
 	}
+	return false;
+}
+
+bool mark::ui::ui::hover(mark::vector<int> screen_pos)
+{
+	mark::ui::event event;
+	event.absolute_cursor = screen_pos;
+	event.cursor = screen_pos;
+	for (const auto& window : m_windows) {
+		const auto handled = window->hover(event);
+		if (handled) {
+			return true;
+		}
+	}
+	m_tooltip_text = "";
 	return false;
 }
 
@@ -348,7 +358,6 @@ void mark::ui::ui::container_ui(
 							+ mark::vector<double>(pick_pos) * double(mark::module::size)
 							- mark::vector<double>(300, 0);
 
-
 						this->tooltip(context, module->describe(), tooltip_pos);
 					}
 					break;
@@ -357,4 +366,52 @@ void mark::ui::ui::container_ui(
 			}
 		}
 	}
+}
+
+void mark::ui::ui::show_ship_editor(mark::unit::modular& modular)
+{
+	auto window_ptr = std::make_unique<mark::ui::window>();
+	auto& window = *window_ptr;
+	int top = 0;
+	for (auto& container : modular.containers()) {
+		const auto interior_size = container.get().interior_size();
+		for (const auto& pos : range(interior_size)) {
+			auto& module_ptr = container.get().modules()[pos.x + pos.y * 16];
+			if (module_ptr) {
+				auto& module = *module_ptr;
+				mark::ui::button::info info;
+				info.parent = &window;
+				info.size = module.size() * 15U;
+				info.pos = { pos.x * 16, pos.y * 16 + top };
+				info.image = module.thumbnail();
+				auto button_ptr = std::make_unique<mark::ui::button>(info);
+				auto& button = *button_ptr;
+				button.on_click.insert(
+					[container, pos, this, &window, &button](const event& event) {
+					m_grabbed = container.get().pick(pos);
+					window.remove(button);
+					container.get().detachable();;
+					return true;
+				});
+				button.on_hover.insert([this, &module](const event& event) {
+					this->tooltip(event.absolute_cursor, module.describe());
+					return true;
+				});
+				window.insert(std::move(button_ptr));
+			}
+		}
+		top += 24 * interior_size.y;
+	}
+	m_windows.push_back(std::move(window_ptr));
+}
+
+void mark::ui::ui::hide_ship_editor()
+{
+	m_windows.clear();
+}
+
+void mark::ui::ui::tooltip(mark::vector<int> pos, const std::string& str)
+{
+	m_tooltip_text = str;
+	m_tooltip_pso = mark::vector<double>(pos);
 }

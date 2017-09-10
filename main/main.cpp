@@ -169,6 +169,7 @@ int mark::main(std::vector<std::string> args)
 			guide.pos = target;
 			world->command(guide);
 			mark::tick_context context(rm);
+			ui.hover(mark::vector<int>(info.mouse_pos));
 			return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
 		};
 		event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
