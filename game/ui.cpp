@@ -164,28 +164,6 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 					} else {
 						m_grabbed = ship->detach(pick_pos);
 					}
-				} else if (std::abs(relative.y) < 320.0 && relative.x < 320.0 + 16.0 * 16.0) {
-					// cargo drag&drop
-					double top = 0.0;
-					for (auto& cargo_ref : ship->containers()) {
-						auto& cargo = cargo_ref.get();
-						const auto size = cargo.interior_size();
-						const auto relative = command.pos - landing_pad->pos() + mark::vector<double>(-320 + 8, -top + 320 + 8);
-						if (relative.y >= 0 && relative.y < size.y * 16) {
-							if (m_grabbed) {
-								const auto drop_pos = mark::round(relative / 16.0 - mark::vector<double>(m_grabbed->size()) / 2.0);
-								if (cargo.drop(drop_pos, m_grabbed)
-									== mark::error::code::success) {
-									break;
-								}
-							} else {
-								const auto pick_pos = mark::floor(relative / 16.0);
-								m_grabbed = cargo.pick(pick_pos);
-							}
-							break;
-						}
-						top += size.y * 16.0 + 32.0;
-					}
 				}
 			}
 		} else if (!command.release) {
@@ -272,37 +250,6 @@ void mark::ui::ui::container_ui(
 			info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
 			context.sprites[1].emplace_back(info);
 		}
-	}
-	double top = 0.0;
-	for (auto& cargo_ref : ship.containers()) {
-		auto& cargo = cargo_ref.get();
-		auto pos = mark::vector<double>(resolution.x - 320.0, top);
-		const auto size = cargo.interior_size();
-		for (const auto point : mark::range(size)) {
-			const auto slot_pos = pos + mark::vector<double>(point * 16);
-			mark::sprite::info info;
-			info.image = m_grid_bg;
-			info.pos = slot_pos;
-			context.ui_sprites[0].emplace_back(info);
-			if (const auto& module = cargo.modules()[point.x + point.y * 16]) {
-				const auto module_size = mark::vector<double>(module->size()) * double(mark::module::size);
-				const auto module_pos = slot_pos
-					- mark::vector<double>(
-						0,
-						(module_size.x - module_size.y) / 2.);
-				const auto size = static_cast<float>(std::max(
-					module->size().x,
-					module->size().y)) * 16.f;
-				mark::sprite::info info;
-				info.image = module->thumbnail();
-				info.pos = module_pos;
-				info.size = size;
-				context.ui_sprites[0].emplace_back(info);
-			}
-		}
-		top += cargo.interior_size().y * 16.0 + 32.0;
-	}
-	if (m_grabbed) {
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			const auto size = static_cast<float>(std::max(
 				m_grabbed->size().x,
@@ -339,30 +286,6 @@ void mark::ui::ui::container_ui(
 				const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
 				this->world_tooltip(context, description, tooltip_pos);
-			}
-		} else if (screen_pos.x > resolution.x - 320.0) {
-			double top = 0.0;
-			for (auto& cargo_ref : ship.containers()) {
-				auto& cargo = cargo_ref.get();
-				const auto size = cargo.interior_size();
-				const auto relative = screen_pos -
-					mark::vector<double>(resolution.x - 320.0, top);
-				if (relative.y >= 0 && relative.y < size.y * 16) {
-					const auto pick_pos = mark::floor(relative / 16.0);
-					if (const auto module = cargo.module(pick_pos)) {
-						const auto module_size =
-							mark::vector<double>(module->size())
-							* static_cast<double>(mark::module::size);
-						const auto tooltip_pos =
-							mark::vector<double>(resolution.x - 320.0, top)
-							+ mark::vector<double>(pick_pos) * double(mark::module::size)
-							- mark::vector<double>(300, 0);
-
-						this->tooltip(context, module->describe(), tooltip_pos);
-					}
-					break;
-				}
-				top += size.y * 16.0 + 32.0;
 			}
 		}
 	}
