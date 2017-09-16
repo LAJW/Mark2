@@ -11,6 +11,7 @@ class image;
 };
 
 namespace module {
+class base;
 class cargo;
 }
 
@@ -29,6 +30,11 @@ public:
 	};
 	container(const info& info);
 	void tick(mark::tick_context&) override;
+	bool click(const event& event) override;
+private:
+	void attach(mark::vector<int> pos, mark::module::base&);
+	ui& m_ui;
+	mark::module::cargo& m_container;
 };
 
 } }
