@@ -6,9 +6,9 @@ namespace mark {
 namespace ui {
 
 struct event;
-class window final : public node {
+class window : public node {
 public:
-	window()=default;
+	window(mark::vector<int> pos = { 0, 0 });
 	void insert(std::unique_ptr<node> node);
 	void remove(node& node);
 	auto pos() const noexcept -> vector<int> override;

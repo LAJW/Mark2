@@ -121,6 +121,9 @@
     <ClCompile Include="ui.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="ui_container.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -279,6 +282,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="ui.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_container.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

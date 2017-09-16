@@ -178,6 +178,7 @@
     </ClCompile>
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="ui_button.cpp" />
+    <ClCompile Include="ui_container.cpp" />
     <ClCompile Include="ui_event.cpp" />
     <ClCompile Include="ui_window.cpp" />
     <ClCompile Include="unit_base.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="adsr.h" />
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="command.h" />
+    <ClInclude Include="ui_container.h" />
     <ClInclude Include="cooldown.h" />
     <ClInclude Include="curve.h" />
     <ClInclude Include="exception.h" />

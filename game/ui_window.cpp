@@ -2,6 +2,9 @@
 #include "ui_window.h"
 #include "algorithm.h"
 
+mark::ui::window::window(mark::vector<int> pos)
+	: m_pos(pos) { }
+
 void mark::ui::window::insert(std::unique_ptr<node> node)
 {
 	m_nodes.push_back(std::move(node));

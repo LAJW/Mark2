@@ -35,7 +35,6 @@ public:
 	void show_ship_editor(mark::unit::modular&);
 	void hide_ship_editor();
 	void tooltip(mark::vector<int> pos, const std::string& text);
-private:
 	void tooltip(
 		mark::tick_context&,
 		const std::string& text,
@@ -44,6 +43,9 @@ private:
 		mark::tick_context&,
 		const std::string& text,
 		mark::vector<double> pos);
+
+	std::unique_ptr<mark::module::base> grabbed;
+private:
 	void container_ui(
 		const mark::world& world,
 		mark::tick_context& context,
@@ -61,8 +63,9 @@ private:
 	const std::shared_ptr<const mark::resource::image> m_grid_bg;
 	const std::shared_ptr<const mark::resource::image> m_hotbar_bg;
 	const std::shared_ptr<const mark::resource::image> m_hotbar_overlay;
-	std::unique_ptr<mark::module::base> m_grabbed;
 
+	// Used to detect container change
+	size_t m_container_count = 0;
 	std::vector<std::unique_ptr<window>> m_windows;
 
 	mark::resource::manager& m_rm;

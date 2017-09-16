@@ -11,6 +11,7 @@
 #include "ihas_bindings.h"
 #include "ui_window.h"
 #include "ui_button.h"
+#include "ui_container.h"
 
 mark::ui::ui::ui(mark::resource::manager& rm)
 	: m_font(rm.image("font.png"))
@@ -102,8 +103,11 @@ void mark::ui::ui::tick(
 			world.target())) {
 		if (auto& ship = landing_pad->ship()) {
 			this->container_ui(
-				world, context, resolution, mouse_pos_, mouse_pos, *landing_pad, *ship);
-			if (m_windows.empty()) {
+				world, context, resolution, mouse_pos_, mouse_pos,
+				*landing_pad, *ship);
+			if (m_windows.empty()
+				|| ship->containers().size() != m_container_count) {
+				m_container_count = ship->containers().size();
 				this->show_ship_editor(*ship);
 			}
 		}
@@ -156,13 +160,13 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				const auto pick_pos = mark::floor(relative);
 				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 					// ship drag&drop
-					if (m_grabbed) {
-						const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
+					if (grabbed) {
+						const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
 						try {
-							ship->attach(m_grabbed, drop_pos);
+							ship->attach(grabbed, drop_pos);
 						} catch (const mark::exception&) { /* no-op */ }
 					} else {
-						m_grabbed = ship->detach(pick_pos);
+						grabbed = ship->detach(pick_pos);
 					}
 				}
 			}
@@ -240,7 +244,7 @@ void mark::ui::ui::container_ui(
 		{ 20, 20 });
 	const auto relative = (mouse_pos - landing_pad.pos()) / double(mark::module::size);
 	const auto module_pos = mark::round(relative);
-	if (m_grabbed) {
+	if (grabbed) {
 		for (const auto offset : surface) {
 			mark::sprite::info info;
 			info.image = m_grid_bg;
@@ -252,20 +256,20 @@ void mark::ui::ui::container_ui(
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			const auto size = static_cast<float>(std::max(
-				m_grabbed->size().x,
-				m_grabbed->size().y)) * 16.f;
-			const auto drop_pos = module_pos - mark::vector<int>(m_grabbed->size()) / 2; // module's top-left corner
-			const auto color = ship.can_attach(*m_grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
+				grabbed->size().x,
+				grabbed->size().y)) * 16.f;
+			const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
+			const auto color = ship.can_attach(*grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
 			mark::sprite::info info;
-			info.image = m_grabbed->thumbnail();
+			info.image = grabbed->thumbnail();
 			info.pos = mark::vector<double>(module_pos * 16) + landing_pad.pos();
 			info.size = size;
 			info.color = color;
 			context.sprites[100].emplace_back(info);
 		} else {
-			const auto size = static_cast<float>(std::max(m_grabbed->size().x, m_grabbed->size().y)) * 16.f;
+			const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * 16.f;
 			mark::sprite::info info;
-			info.image = m_grabbed->thumbnail();
+			info.image = grabbed->thumbnail();
 			info.pos = mouse_pos;
 			info.size = size;
 			context.sprites[100].emplace_back(info);
@@ -274,7 +278,7 @@ void mark::ui::ui::container_ui(
 
 	// Display tooltips
 	const auto pick_pos = mark::floor(relative);
-	if (!m_grabbed) {
+	if (!grabbed) {
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			// ship
 
@@ -297,38 +301,13 @@ void mark::ui::ui::show_ship_editor(mark::unit::modular& modular)
 	auto& window = *window_ptr;
 	int top = 0;
 	for (auto& container : modular.containers()) {
-		const auto interior_size = container.get().interior_size();
-		for (const auto& pos : range(interior_size)) {
-			auto& module_ptr = container.get().modules()[pos.x + pos.y * 16];
-			if (module_ptr) {
-				auto& module = *module_ptr;
-				mark::ui::button::info info;
-				info.parent = &window;
-				info.size = module.size() * 15U;
-				const vector<int> button_pos(pos.x * 16, pos.y * 16 + top);
-				info.pos = button_pos;
-				info.image = module.thumbnail();
-				auto button_ptr = std::make_unique<mark::ui::button>(info);
-				auto& button = *button_ptr;
-				button.on_click.insert(
-					[container, pos, this, &window, &button](const event& event) {
-					m_grabbed = container.get().pick(pos);
-					window.remove(button);
-					container.get().detachable();
-					return true;
-				});
-				const auto length = static_cast<int>(module.size().x) * 16;
-				button.on_hover.insert(
-					[this, &module, button_pos, length](const event& event) {
-					this->tooltip(
-						{ button_pos.x + length, button_pos.y },
-						module.describe());
-					return true;
-				});
-				window.insert(std::move(button_ptr));
-			}
-		}
-		top += 24 * interior_size.y;
+		mark::ui::container::info info;
+		info.rm = &m_rm;
+		info.container = &container.get();
+		info.pos = { 0, top };
+		info.ui = this;
+		window.insert(std::make_unique<mark::ui::container>(info));
+		top += 24 * container.get().interior_size().y;
 	}
 	m_windows.push_back(std::move(window_ptr));
 }
