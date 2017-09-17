@@ -44,12 +44,15 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_max_health = info.max_health;
 }
 
-static std::optional<mark::vector<double>> target(
-	const std::pair<
-		std::weak_ptr<mark::unit::base>, mark::vector<double>>& pair) {
+
+static auto target(
+	const mark::vector<double>& turret_pos,
+	const std::pair<std::weak_ptr<mark::unit::base>, mark::vector<double>>& pair)
+	-> std::optional<mark::vector<double>> 
+{
 	const auto&[unit_wk, offset] = pair;
 	if (const auto unit = unit_wk.lock()) {
-		if (!unit->dead()) {
+		if (!unit->dead() && mark::length(unit->pos() - turret_pos) < 1000.) {
 			if (const auto modular
 				= std::dynamic_pointer_cast<mark::unit::modular>(unit)) {
 				if (modular->module(mark::round(offset / 16.))) {
@@ -69,7 +72,8 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	auto pos = this->pos();
 
 	std::optional<vector<double>> queued_target;
-	while (!m_queue.empty() && !(queued_target = ::target(m_queue.front()))) {
+	while (!m_queue.empty()
+		&& !(queued_target = ::target(this->pos(), m_queue.front()))) {
 		m_queue.pop_front();
 	}
 	if (queued_target) {
