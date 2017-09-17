@@ -4,6 +4,7 @@
 #include "adsr.h"
 #include "module_base.h"
 #include "curve.h"
+#include "module_iturret.h"
 
 namespace mark {
 	namespace resource {
@@ -11,7 +12,7 @@ namespace mark {
 		class image;
 	}
 	namespace module {
-		class turret : public mark::module::base {
+		class turret : public mark::module::base_turret {
 		public:
 			static constexpr const char* type_name = "module_turret";
 
@@ -74,9 +75,6 @@ namespace mark {
 			turret(mark::resource::manager&, const YAML::Node&);
 			turret(mark::module::turret::info&);
 			virtual void tick(mark::tick_context& context) override;
-			void target(mark::vector<double> pos) override;
-			void shoot(mark::vector<double> pos, bool release) override;
-			void queue(mark::vector<double> pos, bool release) override;
 			auto describe() const->std::string;
 			void serialize(YAML::Emitter&) const override;
 		private:
@@ -108,12 +106,6 @@ namespace mark {
 			float            m_seek_radius = 500.f;
 			float            m_range = 2000.f;
 			size_t           m_piercing = 1;
-			mark::vector<double> m_target;
-			bool             m_shoot = false;
-			std::deque<
-				std::pair<
-					std::weak_ptr<mark::unit::base>,
-					vector<double>>> m_queue;
 		};
 	}
 }

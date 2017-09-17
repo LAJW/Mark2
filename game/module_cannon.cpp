@@ -7,7 +7,7 @@
 #include "particle.h"
 
 mark::module::cannon::cannon(mark::resource::manager& resource_manager):
-	mark::module::base({ 4, 2 }, resource_manager.image("cannon.png")),
+	mark::module::base_turret({ 4, 2 }, resource_manager.image("cannon.png")),
 	m_model(resource_manager.image("cannon.png")),
 	m_im_ray(resource_manager.image("ray.png")) {
 
@@ -27,6 +27,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		this->heat_color()));
 	auto& world = parent().world();
 	mark::tick_context::bar_info bar;
+	this->tick_ai();
 	if (m_angular_velocity == 0.f) {
 		m_rotation = rotation;
 	} else {
@@ -76,15 +77,6 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	}
 }
 
-void mark::module::cannon::target(mark::vector<double> pos) {
-	m_target = pos;
-}
-
-void mark::module::cannon::shoot(mark::vector<double> pos, bool release) {
-	m_target = pos;
-	m_shoot = !release;
-}
-
 std::string mark::module::cannon::describe() const {
 	return "Laser Cannon\n"
 		"DPS: 60\n";
@@ -93,7 +85,7 @@ std::string mark::module::cannon::describe() const {
 // Serialize / Deserialize
 
 mark::module::cannon::cannon(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+	mark::module::base_turret(rm, node),
 	m_model(rm.image("cannon.png")),
 	m_im_ray(rm.image("ray.png")) { }
 
@@ -102,6 +94,10 @@ void mark::module::cannon::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
+	out << Key << "target" << Value << BeginMap;
+	out << Key << "x" << m_target.x;
+	out << Key << "y" << m_target.y;
+	out << EndMap;
 	this->serialize_base(out);
 	out << EndMap;
 }

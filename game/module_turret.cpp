@@ -13,7 +13,7 @@
 #include "exception.h"
 
 mark::module::turret::turret(mark::module::turret::info& info):
-	base(mark::vector<unsigned>(info.size),
+	base_turret(mark::vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png")),
 	m_im_base(info.resource_manager->image("turret-base.png")),
 	m_im_cannon(info.resource_manager->image("turret-cannon.png")),
@@ -45,40 +45,12 @@ mark::module::turret::turret(mark::module::turret::info& info):
 }
 
 
-static auto target(
-	const mark::vector<double>& turret_pos,
-	const std::pair<std::weak_ptr<mark::unit::base>, mark::vector<double>>& pair)
-	-> std::optional<mark::vector<double>> 
-{
-	const auto&[unit_wk, offset] = pair;
-	if (const auto unit = unit_wk.lock()) {
-		if (!unit->dead() && mark::length(unit->pos() - turret_pos) < 1000.) {
-			if (const auto modular
-				= std::dynamic_pointer_cast<mark::unit::modular>(unit)) {
-				if (modular->module(mark::round(offset / 16.))) {
-					return unit->pos() + offset;
-				}
-			} else {
-				return { unit->pos() };
-			}
-		}
-	}
-	return { };
-}
-
 void mark::module::turret::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
 	m_adsr.tick(context.dt);
 	auto pos = this->pos();
 
-	std::optional<vector<double>> queued_target;
-	while (!m_queue.empty()
-		&& !(queued_target = ::target(this->pos(), m_queue.front()))) {
-		m_queue.pop_front();
-	}
-	if (queued_target) {
-		m_target = *queued_target;
-	}
+	this->tick_ai();
 
 	if (m_angular_velocity == 0.f) {
 		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
@@ -92,12 +64,12 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	}
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (m_shoot || !m_queue.empty()) {
+	} else if (m_shoot) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
 		mark::unit::projectile::info info;
 		info.world = &parent().world();
-		if (m_guided && m_queue.empty()) {
+		if (m_guided && !this->queued()) {
 			info.guide = std::dynamic_pointer_cast<mark::unit::modular>(
 				parent().shared_from_this());
 		}
@@ -143,34 +115,6 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	}
 }
 
-void mark::module::turret::target(mark::vector<double> pos) {
-	m_target = pos;
-}
-
-void mark::module::turret::shoot(mark::vector<double> pos, bool release) {
-	m_target = pos;
-	m_shoot = !release;
-	m_queue.clear();
-}
-
-void mark::module::turret::queue(mark::vector<double> pos, bool release) {
-	auto unit = parent().world().find_one(
-		pos, 100.f, [this](const unit::base& unit) {
-		return !unit.dead() && !unit.invincible()
-			&& unit.team() != parent().team();
-	});
-	if (unit) {
-		if (const auto modular
-			= std::dynamic_pointer_cast<unit::modular>(unit)) {
-			const auto rel = mark::rotate(pos - unit->pos(), modular->rotation());
-			m_queue.push_back({ unit, rel });
-		}
-		else {
-			m_queue.push_back({ unit, vector<double>() });
-		}
-	}
-}
-
 auto mark::module::turret::describe() const -> std::string {
 	std::ostringstream os;
 	os << "Turret" << std::endl;
@@ -194,7 +138,7 @@ auto mark::module::turret::describe() const -> std::string {
 }
 
 mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+	mark::module::base_turret(rm, node),
 	m_im_base(rm.image("turret-base.png")),
 	m_im_cannon(rm.image("turret-cannon.png")),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
@@ -218,8 +162,7 @@ mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node
 	m_aoe_radius(node["aoe_radius"].as<float>()),
 	m_seek_radius(node["seek_radius"].as<float>()),
 	m_range(node["range"].as<float>()),
-	m_piercing(node["piercing"].as<size_t>()),
-	m_target(node["target"]["x"].as<double>(), node["target"]["y"].as<double>()) { }
+	m_piercing(node["piercing"].as<size_t>()) { }
 
 void mark::module::turret::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
