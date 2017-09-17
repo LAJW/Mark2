@@ -129,59 +129,65 @@ void event_loop(
 			m_window.display();
 		}
 	}
-
 }
 
 namespace mark {
-	int main(std::vector<std::string> args);
+	void main(std::vector<std::string> args);
 }
 
-int mark::main(std::vector<std::string> args)
+void mark::main(std::vector<std::string> args)
 {
+	mark::resource::manager_impl rm;
+	mark::ui::ui ui(rm);
+	const auto keymap = mark::keymap("options.yml");
+	auto world = load_or_create_world("state.yml", rm);
+	bool shift_pressed = false;
+	const auto on_event = [&](const on_event_info& info) {
+		if ((info.event.type == sf::Event::EventType::KeyPressed
+				|| info.event.type == sf::Event::EventType::KeyReleased)
+			&& info.event.key.code == sf::Keyboard::LShift) {
+			shift_pressed = info.event.type == sf::Event::EventType::KeyPressed;
+		}
+		const auto mouse_pos = info.mouse_pos;
+		const auto window_res = info.window_res;
+		const auto target = world->camera() + mouse_pos - window_res / 2.;
+		if (info.event.mouseButton.button == sf::Mouse::Button::Left
+			&& info.event.type == sf::Event::MouseButtonPressed) {
+			ui.click(mark::vector<int>(info.mouse_pos));
+		}
+		auto command = keymap.translate(info.event);
+		command.pos = target;
+		command.shift = shift_pressed;
+		if (command.type == mark::command::type::reset) {
+			world = std::make_unique<mark::world>(rm);
+		} else {
+			ui.command(*world, command);
+			world->command(command);
+		}
+	};
+	const auto on_tick = [&](const on_tick_info& info) {
+		const auto mouse_pos = info.mouse_pos;
+		const auto window_res = info.window_res;
+		const auto target = world->camera() + mouse_pos - window_res / 2.;
+		mark::command guide;
+		guide.type = mark::command::type::guide;
+		guide.pos = target;
+		world->command(guide);
+		mark::tick_context context(rm);
+		ui.hover(mark::vector<int>(info.mouse_pos));
+		return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
+	};
+	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
+	save_world(*world, "state.yml");
+}
+
+int main(const int argc, const char* argv[]) {
 	try {
-		mark::resource::manager_impl rm;
-		mark::ui::ui ui(rm);
-		const auto keymap = mark::keymap("options.yml");
-		auto world = load_or_create_world("state.yml", rm);
-		const auto on_event = [&](const on_event_info& info) {
-			const auto mouse_pos = info.mouse_pos;
-			const auto window_res = info.window_res;
-			const auto target = world->camera() + mouse_pos - window_res / 2.;
-			if (info.event.mouseButton.button == sf::Mouse::Button::Left
-				&& info.event.type == sf::Event::MouseButtonPressed) {
-				ui.click(mark::vector<int>(info.mouse_pos));
-			}
-			auto command = keymap.translate(info.event);
-			command.pos = target;
-			if (command.type == mark::command::type::reset) {
-				world = std::make_unique<mark::world>(rm);
-			} else {
-				ui.command(*world, command);
-				world->command(command);
-			}
-		};
-		const auto on_tick = [&](const on_tick_info& info) {
-			const auto mouse_pos = info.mouse_pos;
-			const auto window_res = info.window_res;
-			const auto target = world->camera() + mouse_pos - window_res / 2.;
-			mark::command guide;
-			guide.type = mark::command::type::guide;
-			guide.pos = target;
-			world->command(guide);
-			mark::tick_context context(rm);
-			ui.hover(mark::vector<int>(info.mouse_pos));
-			return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
-		};
-		event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
-		save_world(*world, "state.yml");
+		mark::main({ argv, argv + argc });
 		return 0;
 	} catch (std::exception& error) {
 		std::cout << "ERROR: " << error.what() << std::endl;
 		std::cin.get();
 		return 1;
 	}
-}
-
-int main(const int argc, const char* argv[]) {
-	return mark::main({ argv, argv + argc });
 }

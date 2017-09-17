@@ -24,6 +24,7 @@ namespace mark {
 			reset
 		} type;
 		mark::vector<double> pos;
-		bool release;
+		bool release = false;
+		bool shift = false;
 	};
 }

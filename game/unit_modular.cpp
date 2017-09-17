@@ -438,10 +438,15 @@ void mark::unit::modular::command(const mark::command& command) {
 		if (pad) {
 			pad->activate(this->shared_from_this());
 		}
-	} else {
+	} else if (command.shift == false) {
 		auto bindings = m_bindings.equal_range(command.type);
 		std::for_each(bindings.first, bindings.second, [&command](auto module) {
 			module.second.get().shoot(command.pos, command.release);
+		});
+	} else {
+		auto bindings = m_bindings.equal_range(command.type);
+		std::for_each(bindings.first, bindings.second, [&command](auto module) {
+			module.second.get().queue(command.pos, command.release);
 		});
 	}
 }

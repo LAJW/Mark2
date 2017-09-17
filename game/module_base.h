@@ -63,8 +63,11 @@ namespace mark {
 			// Target/look at specific position in the world
 			virtual void target(mark::vector<double> pos) { /* no op */ }
 
-			// Start shooting at
+			// Select target to shoot at
 			virtual void shoot(mark::vector<double> pos, bool release) { /* no op */ }
+
+			// Add target to shooting queue
+			virtual void queue(mark::vector<double> pos, bool release) { /* no op */ }
 
 			// Find collision point, return pointer to damaged module
 			virtual auto collide(const mark::segment_t&) ->

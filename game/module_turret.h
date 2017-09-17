@@ -1,4 +1,5 @@
 #pragma once
+#include <deque>
 #include "stdafx.h"
 #include "adsr.h"
 #include "module_base.h"
@@ -75,6 +76,7 @@ namespace mark {
 			virtual void tick(mark::tick_context& context) override;
 			void target(mark::vector<double> pos) override;
 			void shoot(mark::vector<double> pos, bool release) override;
+			void queue(mark::vector<double> pos, bool release) override;
 			auto describe() const->std::string;
 			void serialize(YAML::Emitter&) const override;
 		private:
@@ -108,6 +110,10 @@ namespace mark {
 			size_t           m_piercing = 1;
 			mark::vector<double> m_target;
 			bool             m_shoot = false;
+			std::deque<
+				std::pair<
+					std::weak_ptr<mark::unit::base>,
+					vector<double>>> m_queue;
 		};
 	}
 }

@@ -80,7 +80,8 @@ namespace {
 	}
 
 	static auto event_to_command(
-		const std::unordered_map<std::pair<uint8_t, uint8_t>, enum class mark::command::type>& dict,
+		const std::unordered_map<std::pair<uint8_t, uint8_t>,
+		enum class mark::command::type>& dict,
 		const sf::Event& event) {
 
 		mark::command command;

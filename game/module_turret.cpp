@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include <sstream>
+#include <optional>
+#include <utility>
 #include "module_turret.h"
 #include "resource_manager.h"
 #include "resource_image.h"
@@ -36,15 +38,44 @@ mark::module::turret::turret(mark::module::turret::info& info):
 	m_aoe_radius(info.aoe_radius),
 	m_seek_radius(info.seek_radius),
 	m_range(info.range),
-	m_piercing(info.piercing) {
+	m_piercing(info.piercing)
+{
 	m_cur_health = info.cur_health;
 	m_max_health = info.max_health;
+}
+
+static std::optional<mark::vector<double>> target(
+	const std::pair<
+		std::weak_ptr<mark::unit::base>, mark::vector<double>>& pair) {
+	const auto&[unit_wk, offset] = pair;
+	if (const auto unit = unit_wk.lock()) {
+		if (!unit->dead()) {
+			if (const auto modular
+				= std::dynamic_pointer_cast<mark::unit::modular>(unit)) {
+				if (modular->module(mark::round(offset / 16.))) {
+					return unit->pos() + offset;
+				}
+			} else {
+				return { unit->pos() };
+			}
+		}
+	}
+	return { };
 }
 
 void mark::module::turret::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
 	m_adsr.tick(context.dt);
 	auto pos = this->pos();
+
+	std::optional<vector<double>> queued_target;
+	while (!m_queue.empty() && !(queued_target = ::target(m_queue.front()))) {
+		m_queue.pop_front();
+	}
+	if (queued_target) {
+		m_target = *queued_target;
+	}
+
 	if (m_angular_velocity == 0.f) {
 		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
 			m_rotation = (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
@@ -52,22 +83,25 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			m_rotation = (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
 		}
 	} else {
-		// TODO Respect angular velocity here
-		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
+		m_rotation = mark::turn(
+			m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (m_shoot) {
+	} else if (m_shoot || !m_queue.empty()) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
 		mark::unit::projectile::info info;
 		info.world = &parent().world();
-		if (m_guided) {
-			info.guide = std::dynamic_pointer_cast<mark::unit::modular>(parent().shared_from_this());
+		if (m_guided && m_queue.empty()) {
+			info.guide = std::dynamic_pointer_cast<mark::unit::modular>(
+				parent().shared_from_this());
 		}
 		for (int i = 0; i < m_projectile_count; i++) {
 			info.pos = pos;
-			const auto heat_angle = m_cone * m_cone_curve(m_cur_heat / 100.f) * context.random(-1.f, 1.f);
+			const auto heat_angle = m_cone
+				* m_cone_curve(m_cur_heat / 100.f)
+				* context.random(-1.f, 1.f);
 			float cur_angle = 0.f;
 			if (m_projectile_count != 1) {
 				cur_angle = (static_cast<float>(i) / static_cast<float>(m_projectile_count - 1) - 0.5f) * m_cone;
@@ -112,6 +146,25 @@ void mark::module::turret::target(mark::vector<double> pos) {
 void mark::module::turret::shoot(mark::vector<double> pos, bool release) {
 	m_target = pos;
 	m_shoot = !release;
+	m_queue.clear();
+}
+
+void mark::module::turret::queue(mark::vector<double> pos, bool release) {
+	auto unit = parent().world().find_one(
+		pos, 100.f, [this](const unit::base& unit) {
+		return !unit.dead() && !unit.invincible()
+			&& unit.team() != parent().team();
+	});
+	if (unit) {
+		if (const auto modular
+			= std::dynamic_pointer_cast<unit::modular>(unit)) {
+			const auto rel = mark::rotate(pos - unit->pos(), modular->rotation());
+			m_queue.push_back({ unit, rel });
+		}
+		else {
+			m_queue.push_back({ unit, vector<double>() });
+		}
+	}
 }
 
 auto mark::module::turret::describe() const -> std::string {
