@@ -77,7 +77,9 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			info.pos = pos;
 			const auto heat_angle = m_cone
 				* m_cone_curve(m_cur_heat / 100.f)
-				* context.random(-1.f, 1.f);
+				* (m_angular_velocity != 0.f && m_cone_curve==mark::curve::flat)
+					? context.random(-1.f, 1.f)
+					: 0.f;
 			float cur_angle = 0.f;
 			if (m_projectile_count != 1) {
 				cur_angle = (static_cast<float>(i) / static_cast<float>(m_projectile_count - 1) - 0.5f) * m_cone;
