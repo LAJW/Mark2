@@ -29,8 +29,7 @@ auto target(
 				if (modular->module(mark::round(offset / 16.))) {
 					return unit->pos() + offset;
 				}
-			}
-			else {
+			} else {
 				return { unit->pos() };
 			}
 		}

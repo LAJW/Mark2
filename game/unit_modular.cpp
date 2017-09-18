@@ -18,52 +18,56 @@
 // MODULAR
 
 namespace {
-	// temporary refactor helper
-	auto to_new(mark::vector<int8_t> pos) -> mark::vector<uint8_t> {
-		const auto hs = static_cast<int8_t>(mark::unit::modular::max_size / 2);
-		return {
-			static_cast<uint8_t>(hs + pos.x),
-			static_cast<uint8_t>(hs + pos.y)
-		};
-	}
 
-	struct Node {
-		mark::vector<int8_t> pos;
-		int f = 0; // distance from starting + distance from ending (h)
-		Node* parent = nullptr;
+// temporary refactor helper
+auto to_new(mark::vector<int8_t> pos) -> mark::vector<uint8_t>
+{
+	const auto hs = static_cast<int8_t>(mark::unit::modular::max_size / 2);
+	return {
+		static_cast<uint8_t>(hs + pos.x),
+		static_cast<uint8_t>(hs + pos.y)
 	};
+}
 
-	// Shared implementation of the modular::attached() function
-	template <typename module_t, typename modular_t>
-	static auto attached(modular_t& modular, mark::vector<int8_t> pos, mark::vector<int8_t> size) {
-		std::vector<std::reference_wrapper<module_t>> out;
-		auto out_insert = [&out](module_t* module_ptr) {
-			if (module_ptr && (out.empty() || &out.back().get() != module_ptr)) {
-				out.push_back(*module_ptr);
-			}
-		};
-		// right
-		for (const auto i : mark::range(size.y)) {
-			auto module_ptr = modular.at({ pos.x + size.x, pos.y + i });
-			out_insert(module_ptr);
+struct Node {
+	mark::vector<int8_t> pos;
+	int f = 0; // distance from starting + distance from ending (h)
+	Node* parent = nullptr;
+};
+
+// Shared implementation of the modular::attached() function
+template <typename module_t, typename modular_t>
+static auto attached(
+	modular_t& modular, mark::vector<int8_t> pos, mark::vector<int8_t> size)
+{
+	std::vector<std::reference_wrapper<module_t>> out;
+	auto out_insert = [&out](module_t* module_ptr) {
+		if (module_ptr && (out.empty() || &out.back().get() != module_ptr)) {
+			out.push_back(*module_ptr);
 		}
-		// bottom
-		for (const auto i : mark::range(size.x)) {
-			auto module_ptr = modular.at({ pos.x + i, pos.y + size.y });
-			out_insert(module_ptr);
-		}
-		// left
-		for (const auto i : mark::range(size.y)) {
-			auto module_ptr = modular.at({ pos.x - 1, pos.y + i });
-			out_insert(module_ptr);
-		}
-		// top
-		for (const auto i : mark::range(size.x)) {
-			auto module_ptr = modular.at({ pos.x + i, pos.y - 1 });
-			out_insert(module_ptr);
-		}
-		return out;
+	};
+	// right
+	for (const auto i : mark::range(size.y)) {
+		auto module_ptr = modular.at({ pos.x + size.x, pos.y + i });
+		out_insert(module_ptr);
 	}
+	// bottom
+	for (const auto i : mark::range(size.x)) {
+		auto module_ptr = modular.at({ pos.x + i, pos.y + size.y });
+		out_insert(module_ptr);
+	}
+	// left
+	for (const auto i : mark::range(size.y)) {
+		auto module_ptr = modular.at({ pos.x - 1, pos.y + i });
+		out_insert(module_ptr);
+	}
+	// top
+	for (const auto i : mark::range(size.x)) {
+		auto module_ptr = modular.at({ pos.x + i, pos.y - 1 });
+		out_insert(module_ptr);
+	}
+	return out;
+}
 }
 
 
@@ -86,15 +90,16 @@ void mark::unit::modular::tick_modules(mark::tick_context& context) {
 }
 
 void mark::unit::modular::tick_movement(
-	double dt,
-	const mark::module::modifiers& mods) {
-
+	double dt, const mark::module::modifiers& mods)
+{
 	double speed = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
 	const auto radius = 75.f;
 	mark::vector<double> step;
 	if (mark::length(m_moveto - pos()) > speed * dt) {
 		if (team() == 1
-			|| (m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - m_moveto) < radius)
+			|| (m_path_age <= 0.f
+				|| m_path_cache.size() > 0
+					&& mark::length(m_path_cache.back() - m_moveto) < radius)
 				&& m_world.map().can_find()) {
 			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
 			m_path_age = 1.f;
@@ -112,12 +117,14 @@ void mark::unit::modular::tick_movement(
 	} else {
 		step = m_moveto - pos();
 	}
-	// TODO - intersect radius with terrain, stick to the wall, follow x/y axis
+	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
 	if (m_world.map().traversable(pos() + step, radius)) {
 		pos() += step;
-	} else if (m_world.map().traversable(pos() + mark::vector<double>(step.x, 0), radius)) {
+	} else if (m_world.map().traversable(
+			pos() + mark::vector<double>(step.x, 0), radius)) {
 		pos() += mark::vector<double>(step.x, 0);
-	} else if (m_world.map().traversable(pos() + mark::vector<double>(0, step.y), radius)) {
+	} else if (m_world.map().traversable(
+			pos() + mark::vector<double>(0, step.y), radius)) {
 		pos() += mark::vector<double>(0, step.y);
 	}
 	if (m_lookat != pos()) {
@@ -142,12 +149,16 @@ void mark::unit::modular::tick_ai() {
 	}
 }
 
-auto mark::unit::modular::p_connected_to_core(const mark::module::base& module) const -> bool {
+auto mark::unit::modular::p_connected_to_core(
+	const mark::module::base& module) const -> bool
+{
 	const auto size = static_cast<int8_t>(std::sqrt(m_grid.size()));
 	const auto hs = int8_t(size / 2);
-	const auto start = mark::vector<int8_t>(module.grid_pos()) + mark::vector<int8_t>(hs, hs);
+	const auto start = vector<int8_t>(module.grid_pos())
+		+ vector<int8_t>(hs, hs);
 	const auto end = mark::vector<int8_t>(size, size) / int8_t(2);
-	std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
+	std::vector<Node> open = {
+		Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
 	std::vector<std::unique_ptr<Node>> closed;
 
 	while (!open.empty()) {
@@ -170,7 +181,8 @@ auto mark::unit::modular::p_connected_to_core(const mark::module::base& module) 
 		// TODO Replace with int8_t, and remove vector casts
 		// TODO Replace with range
 		for (int i = 1; i < 8; i += 2) {
-			auto neighbour_pos = current->pos + mark::vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
+			auto neighbour_pos = current->pos
+				+ vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
 			const auto traversable = neighbour_pos.x > 0
 				&& neighbour_pos.y > 0 && neighbour_pos.x < size
 				&& neighbour_pos.y < size
@@ -397,7 +409,8 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 }
 
 
-auto mark::unit::modular::core() -> mark::module::core& {
+auto mark::unit::modular::core() -> mark::module::core&
+{
 	if (m_core) {
 		return *m_core;
 	} else {
@@ -405,7 +418,8 @@ auto mark::unit::modular::core() -> mark::module::core& {
 	}
 }
 
-auto mark::unit::modular::core() const -> const mark::module::core& {
+auto mark::unit::modular::core() const -> const mark::module::core&
+{
 	if (m_core) {
 		return *m_core;
 	} else {
@@ -413,7 +427,8 @@ auto mark::unit::modular::core() const -> const mark::module::core& {
 	}
 }
 
-void mark::unit::modular::command(const mark::command& command) {
+void mark::unit::modular::command(const mark::command& command)
+{
 	if (command.type == mark::command::type::move) {
 		m_moveto = command.pos;
 		m_move = !command.release;
@@ -427,7 +442,8 @@ void mark::unit::modular::command(const mark::command& command) {
 		}
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
-	} else if (command.type == mark::command::type::activate && !command.release) {
+	} else if (command.type == mark::command::type::activate
+		&& !command.release) {
 		auto pad = m_world.find_one(
 			pos(),
 			150.0,
@@ -476,8 +492,9 @@ bool mark::unit::modular::damage(const mark::idamageable::info& attr) {
 	return false;
 }
 
-auto mark::unit::modular::collide(const mark::segment_t& ray) ->
-std::pair<mark::idamageable *, mark::vector<double>> {
+auto mark::unit::modular::collide(const mark::segment_t& ray)
+	-> std::pair<mark::idamageable *, mark::vector<double>>
+{
 	auto min = mark::vector<double>(NAN, NAN);
 	double min_length = INFINITY;
 	mark::idamageable* damageable = nullptr;
@@ -496,7 +513,8 @@ std::pair<mark::idamageable *, mark::vector<double>> {
 	// check if module is under the shield
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
 	for (auto& module : m_modules) {
-		const auto shield = dynamic_cast<mark::module::shield_generator*>(module.get());
+		const auto shield
+			= dynamic_cast<mark::module::shield_generator*>(module.get());
 		if (shield && shield->shield() > 0.f) {
 			shields.push_back(*shield);
 		}
@@ -511,13 +529,15 @@ std::pair<mark::idamageable *, mark::vector<double>> {
 	return { damageable, min };
 }
 
-auto mark::unit::modular::collide(mark::vector<double> center, float radius) ->
-std::vector<std::reference_wrapper<mark::idamageable>> {
+auto mark::unit::modular::collide(mark::vector<double> center, float radius)
+	-> std::vector<std::reference_wrapper<mark::idamageable>>
+{
 	std::unordered_set<mark::idamageable*> out;
 	// get shields
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
 	for (auto& module : m_modules) {
-		const auto shield = dynamic_cast<mark::module::shield_generator*>(module.get());
+		const auto shield
+			= dynamic_cast<mark::module::shield_generator*>(module.get());
 		if (shield && shield->shield() >= 0.f) {
 			shields.push_back(*shield);
 		}
@@ -548,11 +568,14 @@ std::vector<std::reference_wrapper<mark::idamageable>> {
 	return tmp;
 }
 
-auto mark::unit::modular::lookat() const noexcept -> mark::vector<double> {
+auto mark::unit::modular::lookat() const noexcept -> mark::vector<double>
+{
 	return m_lookat;
 }
 
-void mark::unit::modular::toggle_bind(enum class mark::command::type command, mark::vector<int> pos) {
+void mark::unit::modular::toggle_bind(
+	enum class mark::command::type command, mark::vector<int> pos)
+{
 	if (const auto module_ptr = this->at(mark::vector<int8_t>(pos))) {
 		auto& module = *module_ptr;
 		const auto bindings = m_bindings.equal_range(command);
@@ -591,18 +614,19 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t {
 
 // Serializer / Deserializer
 
-mark::unit::modular::modular(mark::world& world, const YAML::Node& node):
-	mark::unit::base(world, node),
-	m_moveto(node["moveto"].as<mark::vector<double>>()),
-	m_lookat(node["lookat"].as<mark::vector<double>>()),
-	m_ai(node["ai"].as<bool>()),
-	m_move(node["move"].as<bool>()) {
-
+mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
+	: mark::unit::base(world, node)
+	, m_moveto(node["moveto"].as<mark::vector<double>>())
+	, m_lookat(node["lookat"].as<mark::vector<double>>())
+	, m_ai(node["ai"].as<bool>())
+	, m_move(node["move"].as<bool>())
+{
 	std::unordered_map<uint64_t, std::reference_wrapper<mark::module::base>> id_map;
 	for (const auto& module_node : node["modules"]) {
 		const auto pos = module_node["grid_pos"].as<mark::vector<int>>();
 		const auto id = module_node["id"].as<uint64_t>();
-		auto module = mark::module::deserialize(world.resource_manager(), module_node);
+		auto module = mark::module::deserialize(
+			world.resource_manager(), module_node);
 		this->p_attach(std::move(module), pos);
 		id_map.insert({ id, *m_modules.back() });
 	}
