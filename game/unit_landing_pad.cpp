@@ -72,10 +72,14 @@ void mark::unit::landing_pad::activate(
 		mark::command move;
 		move.type = mark::command::type::move;
 		move.pos = pos();
+		move.release = true;
+		move.shift = false;
 		modular->command(move);
 		mark::command look;
 		look.type = mark::command::type::guide;
 		look.pos = pos() + mark::vector<double>(1, 0);
+		look.release = false;
+		look.shift = false;
 		modular->command(look);
 	}
 }
