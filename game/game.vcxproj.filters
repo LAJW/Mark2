@@ -124,7 +124,7 @@
     <ClCompile Include="ui_container.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="module_iturret.cpp">
+    <ClCompile Include="module_base_turret.cpp">
       <Filter>Module</Filter>
     </ClCompile>
   </ItemGroup>
@@ -290,7 +290,7 @@
     <ClInclude Include="ui_container.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="module_iturret.h">
+    <ClInclude Include="module_base_turret.h">
       <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include "adsr.h"
 #include "module_base.h"
 #include "curve.h"
-#include "module_iturret.h"
+#include "module_base_turret.h"
 
 namespace mark {
 	namespace resource {

@@ -3,7 +3,7 @@
 #include "cooldown.h"
 #include "model_animated.h"
 #include "module_base.h"
-#include "module_iturret.h"
+#include "module_base_turret.h"
 #include "resource_image.h"
 
 namespace mark {
