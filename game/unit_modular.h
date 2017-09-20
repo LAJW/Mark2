@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "unit_base.h"
+#include "unit_damageable.h"
 #include "command.h"
 #include "ihas_bindings.h"
 
@@ -20,8 +20,8 @@ class world;
 
 namespace unit {
 class modular final:
-	public base,
-	public ihas_bindings {
+	public mark::unit::damageable,
+	public mark::ihas_bindings {
 public:
 	using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 	using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
@@ -49,7 +49,6 @@ public:
 	auto dead() const -> bool override;
 	void on_death(mark::tick_context& context) override;
 	inline auto world() -> mark::world& { return m_world; }
-	auto invincible() const -> bool override;
 	void activate(const std::shared_ptr<mark::unit::base>& by) override;
 	auto containers() ->
 		std::vector<std::reference_wrapper<mark::module::cargo>>;

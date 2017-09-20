@@ -293,6 +293,9 @@
     <ClInclude Include="module_base_turret.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="unit_damageable.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

@@ -59,19 +59,6 @@ auto mark::unit::bucket::dead() const -> bool {
 	return m_module == nullptr;
 }
 
-auto mark::unit::bucket::damage(const mark::idamageable::info& attr) -> bool {
-	return false;
-}
-
-auto mark::unit::bucket::invincible() const -> bool {
-	return true;
-}
-
-auto mark::unit::bucket::collide(const mark::segment_t &) ->
-	std::pair<mark::idamageable *, mark::vector<double>> {
-	return { nullptr, { NAN, NAN } };
-}
-
 auto mark::unit::bucket::release() -> std::unique_ptr<mark::module::base> {
 	return std::move(m_module);
 }

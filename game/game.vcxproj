@@ -200,6 +200,7 @@
     <ClInclude Include="adsr.h" />
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="command.h" />
+    <ClInclude Include="unit_damageable.h" />
     <ClInclude Include="module_base_turret.h" />
     <ClInclude Include="ui_container.h" />
     <ClInclude Include="cooldown.h" />

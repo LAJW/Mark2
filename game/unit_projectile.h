@@ -34,9 +34,6 @@ namespace mark {
 			projectile(const projectile::info&);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
-			auto invincible() const -> bool override;
-			auto collide(const mark::segment_t&) ->
-				std::pair<mark::idamageable*, mark::vector<double>> override;
 			void serialize(YAML::Emitter&) const override;
 			void resolve_ref(
 				const YAML::Node&,

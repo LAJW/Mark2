@@ -72,7 +72,8 @@ void mark::module::base_turret::queue(mark::vector<double> pos, bool release)
 {
 	auto unit = parent().world().find_one(
 		pos, 100.f, [this](const unit::base& unit) {
-		return !unit.dead() && !unit.invincible()
+		return !unit.dead()
+			&& dynamic_cast<const idamageable*>(&unit)
 			&& unit.team() != parent().team();
 	});
 	if (unit) {

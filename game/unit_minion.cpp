@@ -7,7 +7,7 @@
 #include "unit_projectile.h"
 
 mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
-	mark::unit::base(world, pos),
+	mark::unit::damageable(world, pos),
 	m_model(world.resource_manager().image("mark1.png")),
 	m_gun_cooldown(0.5f),
 	m_model_shield(world.resource_manager(), 116.f),
@@ -91,10 +91,6 @@ auto mark::unit::minion::damage(const mark::idamageable::info& attr) -> bool {
 		return true;
 	}
 	return false;
-}
-
-auto mark::unit::minion::invincible() const -> bool {
-	return m_health < 0;
 }
 
 auto mark::unit::minion::collide(const mark::segment_t& ray) ->

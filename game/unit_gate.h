@@ -20,11 +20,8 @@ namespace mark {
 			gate(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override { return false; };
-			auto invincible() const -> bool override { return true; };
 			void activate(const std::shared_ptr<mark::unit::base>& by) override;
 			void serialize(YAML::Emitter&) const override;
-			auto collide(const mark::segment_t&) ->
-				std::pair<mark::idamageable*, mark::vector<double>> override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image;
 		};

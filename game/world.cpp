@@ -18,6 +18,7 @@
 #include "module_flamethrower.h"
 #include "module_engine.h"
 #include "unit_gate.h"
+#include "unit_damageable.h"
 
 auto make_turret(mark::resource::manager& resource_manager) {
 	mark::module::turret::info info;
@@ -260,15 +261,19 @@ auto mark::world::collide(const mark::segment_t& ray) ->
 		? mark::length(ray.first - maybe_min.value())
 		: INFINITY;
 	mark::idamageable* out = nullptr;
-	for (auto& unit : m_units) {
-		auto [ damageable, pos ] = unit->collide(ray);
-		if (damageable) {
-			const auto length = mark::length(ray.first - pos);
-			if (length < min_length) {
-				min_length = length;
-				maybe_min = pos;
-				out = damageable;
+	for (auto& unit_ : m_units) {
+		if (const auto unit
+			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {
+			auto[damageable, pos] = unit->collide(ray);;
+			if (damageable) {
+				const auto length = mark::length(ray.first - pos);
+				if (length < min_length) {
+					min_length = length;
+					maybe_min = pos;
+					out = damageable;
+				}
 			}
+
 		}
 	}
 	return { out, maybe_min };
@@ -278,9 +283,12 @@ auto mark::world::collide(mark::vector<double> center, float radius) ->
 	std::vector<std::reference_wrapper<mark::idamageable>> {
 
 	std::vector<std::reference_wrapper<mark::idamageable>> out;
-	for (auto& unit : m_units) {
-		const auto tmp = unit->collide(center, radius);
-		std::copy(tmp.begin(), tmp.end(), std::back_inserter(out));
+	for (auto& unit_ : m_units) {
+		if (const auto unit
+			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {
+			const auto tmp = unit->collide(center, radius);
+			std::copy(tmp.begin(), tmp.end(), std::back_inserter(out));
+		}
 	}
 	return out;
 }

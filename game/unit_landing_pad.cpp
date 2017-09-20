@@ -96,10 +96,6 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 	}
 }
 
-auto mark::unit::landing_pad::collide(const mark::segment_t &) ->
-	std::pair<mark::idamageable *, mark::vector<double>>
-{ return { nullptr, { NAN, NAN } }; }
-
 void mark::unit::landing_pad::resolve_ref(
 	const YAML::Node& node,
 	const std::unordered_map<uint64_t,

@@ -76,7 +76,7 @@ mark::unit::modular::modular(
 	mark::world& world,
 	mark::vector<double> pos,
 	float rotation):
-	mark::unit::base(world, pos),
+	mark::unit::damageable(world, pos),
 	m_rotation(rotation) {}
 
 void mark::unit::modular::tick_modules(mark::tick_context& context) {
@@ -138,7 +138,8 @@ void mark::unit::modular::tick_ai() {
 		pos(),
 		1000.f,
 		[this](const auto& unit) {
-		return unit.team() != this->team() && !unit.invincible();
+		return unit.team() != this->team()
+			&& dynamic_cast<const idamageable*>(&unit);
 	});
 	if (enemy) {
 		m_moveto = enemy->pos();
@@ -615,7 +616,7 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t {
 // Serializer / Deserializer
 
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
-	: mark::unit::base(world, node)
+	: mark::unit::damageable(world, node)
 	, m_moveto(node["moveto"].as<mark::vector<double>>())
 	, m_lookat(node["lookat"].as<mark::vector<double>>())
 	, m_ai(node["ai"].as<bool>())
@@ -784,10 +785,6 @@ void mark::unit::modular::unbind(const mark::module::base& module) {
 			m_bindings.erase(cur);
 		}
 	}
-}
-
-auto mark::unit::modular::invincible() const -> bool {
-	return false;
 }
 
 void mark::unit::modular::activate(

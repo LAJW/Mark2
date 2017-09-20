@@ -53,7 +53,8 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			pos(),
 			m_seek_radius,
 			[this](const mark::unit::base& unit) {
-			return unit.team() != this->team() && !unit.invincible();
+			return unit.team() != this->team()
+				&& dynamic_cast<const idamageable*>(&unit);
 		});
 		if (target) {
 			m_rotation = mark::turn(target->pos() - pos(), m_rotation, turn_speed, dt);
@@ -137,15 +138,6 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 
 auto mark::unit::projectile::dead() const -> bool {
 	return m_dead;
-}
-
-auto mark::unit::projectile::invincible() const -> bool {
-	return true;
-}
-
-auto mark::unit::projectile::collide(const mark::segment_t&) ->
-	std::pair<mark::idamageable *, mark::vector<double>> {
-	return { nullptr, { NAN, NAN } };
 }
 
 // Serializer / Deserializer

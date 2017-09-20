@@ -44,7 +44,3 @@ void mark::unit::gate::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
-
-auto mark::unit::gate::collide(const mark::segment_t &) -> std::pair<mark::idamageable *, mark::vector<double>> {
-	return { };
-}
