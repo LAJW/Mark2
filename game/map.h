@@ -11,18 +11,23 @@ namespace mark {
 	class world;
 	struct tick_context;
 
-	class map final : public mark::iserializable {
+	class map final {
 	public:
 		static constexpr const double tile_size = 32.0;
 
-		static mark::map make_cavern(mark::resource::manager& resource_manager);
-		static mark::map make_square(mark::resource::manager& resource_manager);
+		static mark::map make_cavern(mark::resource::manager&);
+		static mark::map make_square(mark::resource::manager&);
 
 		map(mark::resource::manager&, const YAML::Node&);
 
-		auto traversable(mark::vector<double> pos, double radius = 0.0) const -> bool;
+		auto traversable(
+			mark::vector<double> pos,
+			double radius = 0.0) const -> bool;
 
-		void tick(mark::vector<double> top_left, mark::vector<double> bottom_right, mark::tick_context& context);
+		void tick(
+			mark::vector<double> top_left,
+			mark::vector<double> bottom_right,
+			mark::tick_context& context);
 
 		auto find_path(
 			mark::vector<double> start,
@@ -32,9 +37,10 @@ namespace mark {
 		// Can find be called in this tick (limit find count per frame)
 		auto can_find() const -> bool;
 
-		auto collide(mark::segment_t) const -> std::optional<mark::vector<double>>;
+		auto collide(mark::segment_t) const
+			-> std::optional<mark::vector<double>>;
 
-		void serialize(YAML::Emitter&) const override;
+		void serialize(YAML::Emitter&) const;
 
 	private:
 		enum class terrain_type {
@@ -50,14 +56,17 @@ namespace mark {
 		static terrain_type deserialize_terrain_type(const std::string&);
 
 		map(mark::resource::manager&, mark::vector<size_t> size);
-		auto mark::map::traversable(const mark::vector<int> i_pos, const size_t radius) const -> bool;
+		auto mark::map::traversable(
+			const mark::vector<int> i_pos, const size_t radius) const -> bool;
 
 		auto size() const noexcept -> const mark::vector<size_t>&;
 		auto get(mark::vector<int> pos) const noexcept -> terrain_type;
 		auto get_variant(mark::vector<int> pos) const noexcept -> unsigned;
 		void set(mark::vector<int> pos, terrain_type) noexcept;
-		auto world_to_map(mark::vector<double>) const noexcept->mark::vector<int>;
-		auto map_to_world(mark::vector<int>) const noexcept->mark::vector<double>;
+		auto world_to_map(mark::vector<double>) const noexcept
+			-> mark::vector<int>;
+		auto map_to_world(mark::vector<int>) const noexcept
+			-> mark::vector<double>;
 
 		std::reference_wrapper<mark::resource::manager> m_rm;
 		std::vector<terrain_type> m_terrain;
