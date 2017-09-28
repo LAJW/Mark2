@@ -8,6 +8,7 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "exception.h"
+#include <iostream>
 
 // Make specific types of maps
 
@@ -196,48 +197,93 @@ void mark::map::set(mark::vector<int> pos, terrain_type type) noexcept {
 	}
 }
 
-struct Node {
-	mark::vector<int> pos;
-	int f = 0; // distance from starting + distance from ending (h)
-	Node* parent = nullptr;
-};
+static auto make_directions()
+{
+	std::array<mark::vector<int>, 8> out;
+	for (int i = 0, j = 0; i < 9; ++i) {
+		if (i != 4) {
+			out[j] = mark::vector<int>(i % 3 - 1, i / 3 - 1);
+			++j;
+		}
+	}
+	return out;
+}
 
-auto mark::map::find_path(
-	const mark::vector<double> world_start,
-	mark::vector<double> world_end,
-	const double radius) const -> std::vector<mark::vector<double>> {
-	const auto map_radius = static_cast<int>(std::ceil(radius / mark::map::tile_size));
-	// if end is not traversable, find nearest traversable point, and update world end
-	if (!this->traversable(world_end, radius)) {
-		for (int r = 0; r < 100; r++) {
-			for (int d = 0; d < 8; d++) {
-				const auto direction = mark::rotate(
-					mark::vector<double>(r * mark::map::tile_size, 0.0),
-					static_cast<double>(d * 45));
-				if (traversable(world_end + direction, radius)) {
-					world_end = world_end + direction;
-					goto end;
+const auto directions = make_directions();
+
+auto nearest_traversable(
+	const mark::map& map, const mark::vector<int>& pos, const size_t radius)
+	-> mark::vector<int>
+{
+	if (!map.traversable(pos, radius)) {
+		for (int i = 0; i < 100; i++) {
+			for (const auto neighbour : directions) {
+				const auto cur = neighbour * i + pos;
+				if (map.traversable(cur, radius)) {
+					return cur;
 				}
 			}
 		}
-	end:;
 	}
-	// check if path is reachable directly
-	bool straight_exists = true;
-	const auto dir = mark::normalize(world_end - world_start);
-	const auto dist = mark::length(world_end - world_start);
-	for (double i = 0.0; i <= dist; i += tile_size / 2.f) {
-		if (!this->traversable(dir * i + world_start, radius)) {
-			straight_exists = false;
-			break;
+	return pos;
+}
+
+static auto straight_exists(
+	const mark::map& map,
+	const mark::vector<double>& start,
+	const mark::vector<double>& end,
+	const double radius)
+{
+	const auto diff = end - start;
+	const auto dir = mark::normalize(diff);
+	const auto dist = mark::length(diff);
+	for (double i = 0.0; i <= dist; i += mark::map::tile_size / 2.f) {
+		if (!map.traversable(dir * i + start, radius)) {
+			return false;
 		}
 	}
-	if (straight_exists) {
+	return true;
+}
+
+static bool has_one(
+	const std::vector<std::unique_ptr<mark::map::Node>>& nodes,
+	mark::vector<int> pos)
+{
+	return nodes.end() != std::find_if(
+		nodes.begin(), nodes.end(),
+		[&pos](const auto& node) {
+		return node->pos == pos;
+	});
+}
+
+static auto find_one(
+	std::vector<mark::map::Node>& nodes, const mark::vector<int>& pos)
+	-> mark::map::Node*
+{
+	auto node_it = std::find_if(
+		nodes.begin(), nodes.end(), [&pos](const auto& node) {
+			return pos == node.pos;
+	});
+	return node_it == nodes.end()
+		? nullptr
+		: &(*node_it);
+}
+
+auto mark::map::find_path(
+	const vector<double> world_start,
+	const vector<double> world_end,
+	const double radius) const
+	-> std::vector<vector<double>>
+{
+	if (straight_exists(*this, world_start, world_end, radius)) {
 		return { world_end };
 	}
+	const auto map_radius = static_cast<int>(std::ceil(radius / mark::map::tile_size));
+	const auto end = ::nearest_traversable(*this, world_to_map(world_end), map_radius);
 	const auto start = world_to_map(world_start);
-	const auto end = world_to_map(world_end);
-	std::vector<Node> open = { Node{ start, static_cast<int>(mark::length(end - start)), nullptr } };
+	std::vector<Node> open = {
+		Node{ start, static_cast<int>(mark::length(end - start)), nullptr }
+	};
 	std::vector<std::unique_ptr<Node>> closed;
 
 	m_find_count++;
@@ -249,12 +295,12 @@ auto mark::map::find_path(
 			}
 		}
 		closed.push_back(std::make_unique<Node>(*min_it));
-		auto& current = closed.back();
+		auto& current = *closed.back();
 		open.erase(min_it);
 
-		if (current->pos == end) {
+		if (current.pos == end) {
 			std::vector<mark::vector<double>> out;
-			auto node = current.get();
+			auto node = &current;
 			while (node) {
 				out.push_back(map_to_world(node->pos));
 				node = node->parent;
@@ -262,31 +308,23 @@ auto mark::map::find_path(
 			return out;
 		}
 
-		for (int i = 0; i < 9; i++) {
-			if (i == 4) {
+		for (const auto direction : directions) {
+			auto neighbour_pos = current.pos + direction;
+			if (!this->traversable(neighbour_pos, map_radius)
+				|| has_one(closed, neighbour_pos)) {
 				continue;
 			}
-			auto neighbour_pos = current->pos + mark::vector<int>{ i % 3 - 1, i / 3 - 1 };
-			const auto traversable = this->traversable(neighbour_pos, map_radius);
-			const auto isClosed = closed.end() != std::find_if(closed.begin(), closed.end(), [&neighbour_pos](std::unique_ptr<Node>& node) {
-				return node->pos == neighbour_pos;
-			});
-			if (!traversable || isClosed) {
-				continue;
-			}
-			auto neighbour_it = std::find_if(open.begin(), open.end(), [&neighbour_pos](const Node& node) {
-				return neighbour_pos == node.pos;
-			});
-			const auto f = current->f + (i % 2 ? 10 : 14);
-			if (neighbour_it == open.end()) {
-				open.push_back({ neighbour_pos, f, current.get() });
-			} else if (neighbour_it->f > f) {
-				neighbour_it->f = f;
-				neighbour_it->parent = current.get();
+			const auto neighbour = find_one(open, neighbour_pos);
+			const auto f = current.f + (direction.x && direction.y ? 14 : 10);
+			if (!neighbour) {
+				open.push_back({ neighbour_pos, f, &current });
+			} else if (neighbour->f > f) {
+				neighbour->f = f;
+				neighbour->parent = &current;
 			}
 		}
 	}
-	return std::vector<mark::vector<double>>();
+	return { vector<double>() };
 }
 
 auto mark::map::can_find() const -> bool {
