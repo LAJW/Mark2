@@ -100,7 +100,8 @@ void mark::unit::modular::tick_movement(
 			|| (m_path_age <= 0.f
 				|| m_path_cache.size() > 0
 					&& mark::length(m_path_cache.back() - m_moveto) < radius)
-				&& m_world.map().can_find()) {
+				&& m_world.map().can_find()
+				&& !m_world.resource_manager().random(0, 2)) {
 			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
 			m_path_age = 1.f;
 		} else {
@@ -116,6 +117,19 @@ void mark::unit::modular::tick_movement(
 		}
 	} else {
 		step = m_moveto - pos();
+	}
+	if (m_ai) {
+		const auto allies = world().find(
+			pos(), radius * 2, [this](const auto& unit) {
+			return unit.team() == this->team()
+				&& dynamic_cast<const modular*>(&unit);
+		});
+		for (const auto& ally : allies) {
+			if (mark::length(pos() + step - ally->pos())
+				< mark::length(pos() - ally->pos())) {
+				step = { 0, 0 };
+			}
+		}
 	}
 	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
 	if (m_world.map().traversable(pos() + step, radius)) {
