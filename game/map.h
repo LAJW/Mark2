@@ -31,8 +31,8 @@ public:
 		mark::tick_context& context);
 
 	auto find_path(
-		mark::vector<double> start,
-		mark::vector<double> end,
+		const mark::vector<double>& start,
+		const mark::vector<double>& end,
 		double radius = 0.0) const->std::vector<mark::vector<double>>;
 
 	// Can find be called in this tick (limit find count per frame)
@@ -43,11 +43,14 @@ public:
 
 	void serialize(YAML::Emitter&) const;
 
+	// Not a part of the public interface
 	struct Node {
 		mark::vector<int> pos;
 		int f = 0; // distance from starting + distance from ending (h)
 		Node* parent = nullptr;
 	};
+	auto map_to_world(mark::vector<int>) const noexcept
+		-> mark::vector<double>;
 private:
 	enum class terrain_type {
 		null,
@@ -69,8 +72,6 @@ private:
 	void set(mark::vector<int> pos, terrain_type) noexcept;
 	auto world_to_map(mark::vector<double>) const noexcept
 		-> mark::vector<int>;
-	auto map_to_world(mark::vector<int>) const noexcept
-		-> mark::vector<double>;
 
 	std::reference_wrapper<mark::resource::manager> m_rm;
 	std::vector<terrain_type> m_terrain;
