@@ -108,8 +108,8 @@ void mark::unit::modular::tick_movement(
 		}
 		const auto dir = mark::normalize(m_moveto - pos());
 
-		if (m_path_cache.size() > 3) {
-			const auto first = m_path_cache[m_path_cache.size() - 3];
+		if (m_path_cache.size() > 1) {
+			const auto first = m_path_cache[m_path_cache.size() - 2];
 			step = mark::normalize(first - pos()) * speed * dt;
 		} else {
 			step = mark::normalize(m_moveto - pos()) * speed * dt;

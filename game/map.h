@@ -47,7 +47,7 @@ public:
 	struct Node {
 		mark::vector<int> pos;
 		int f = 0; // distance from starting + distance from ending (h)
-		Node* parent = nullptr;
+		const Node* parent = nullptr;
 	};
 	auto map_to_world(mark::vector<int>) const noexcept
 		-> mark::vector<double>;

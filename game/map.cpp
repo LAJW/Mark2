@@ -283,6 +283,141 @@ static auto make_path(
 	return out;
 }
 
+// Jump Point Search Functions - Beginning
+
+static auto is_diagonal(const mark::vector<int>& direction)
+{
+	return direction.x != 0 && direction.y != 0;
+}
+
+static auto turn_left(const mark::vector<int>& direction)
+	-> mark::vector<int>
+{
+	return { -direction.y, direction.x };
+}
+
+static auto turn_right(const mark::vector<int>& direction)
+	-> mark::vector<int>
+{
+	return { direction.y, -direction.x };
+}
+
+static auto has_forced_neighbours(
+	const mark::map& map,
+	const mark::vector<int>& next,
+	const mark::vector<int>& direction,
+	const int radius) -> bool
+{
+	if (!is_diagonal(direction)) {
+		const auto p1 = !map.traversable(next + turn_left(direction), radius);
+		const auto p2 = map.traversable(next + turn_left(direction) + direction, radius);
+		const auto p3 = !map.traversable(next + turn_right(direction), radius);
+		const auto p4 = map.traversable(next + turn_right(direction) + direction, radius);
+	}
+	return
+		!is_diagonal(direction)
+		&& (!map.traversable(next + turn_left(direction), radius)
+			&& map.traversable(next + turn_left(direction) + direction, radius)
+			|| !map.traversable(next + turn_right(direction), radius)
+			&& map.traversable(next + turn_right(direction) + direction, radius));
+}
+
+static auto make_direction(const Node& node) -> mark::vector<int>
+{
+	if (node.parent) {
+		auto direction = node.pos - node.parent->pos;
+		direction.x = mark::sgn(direction.x);
+		direction.y = mark::sgn(direction.y);
+		return direction;
+	} else {
+		return { 0, 0 };
+	}
+}
+
+static auto pruned_neighbours(
+	const mark::map& map, const Node& node, const int radius)
+	-> std::vector<mark::vector<int>>
+{
+	std::vector<mark::vector<int>> out;
+	const auto direction = make_direction(node);
+	if (direction.x == 0 && direction.y == 0) {
+		for (const auto& direction : directions) {
+			if (map.traversable(direction + node.pos), radius) {
+				out.push_back(direction + node.pos);
+			}
+		}
+	} else if (is_diagonal(direction)) {
+		const auto right = node.pos + mark::vector<int>(direction.x, 0);
+		if (map.traversable(right, radius), radius) {
+			out.push_back(right);
+		}
+		const auto top = node.pos + mark::vector<int>(0, direction.y);
+		if (map.traversable(top, radius), radius) {
+			out.push_back(top);
+		}
+		const auto edge = node.pos + direction;
+		if (map.traversable(edge, radius), radius) {
+			out.push_back(edge);
+		}
+	} else if (map.traversable(node.pos + direction), radius) {
+		out.push_back(node.pos + direction);
+		if (!map.traversable(node.pos + turn_left(direction), radius)
+			&& map.traversable(node.pos + turn_left(direction) + direction), radius) {
+			out.push_back(node.pos + turn_left(direction) + direction);
+		}
+		if (!map.traversable(node.pos + turn_right(direction), radius)
+			&& map.traversable(node.pos + turn_right(direction) + direction), radius) {
+			out.push_back(node.pos + turn_right(direction) + direction);
+		}
+	}
+	return out;
+}
+
+static auto jump(
+	const mark::map& map,
+	const mark::vector<int>& cur,
+	const mark::vector<int>& direction,
+	const mark::vector<int>& end,
+	const int radius) -> std::optional<mark::vector<int>>
+{
+	const auto next = cur + direction;
+	if (!map.traversable(next, radius)) {
+		return { };
+	} else if (next == end) {
+		return next;
+	} else if (has_forced_neighbours(map, next, direction, radius)) {
+		return next;
+	} else if (is_diagonal(direction)) {
+		if (jump(map, next, { direction.x, 0 }, end, radius)
+			|| jump(map, next, { 0, direction.y }, end, radius)) {
+			return next;
+		}
+	}
+	return jump(map, next, direction, end, radius);
+}
+
+static auto identify_successors(
+	const mark::map& map,
+	const Node& cur,
+	const mark::vector<int>& end,
+	const int radius) -> std::vector<Node>
+{
+	std::vector<Node> successors;
+	for (const auto& neighbour : pruned_neighbours(map, cur, radius)) {
+		const auto pos = jump(map, cur.pos, neighbour - cur.pos, end, radius);
+		if (pos) {
+			Node node;
+			node.parent = &cur;
+			node.pos = *pos;
+			node.f = cur.f + static_cast<int>(mark::length(*pos - cur.pos));
+			successors.push_back(node);
+		}
+	}
+	return successors;
+}
+
+// Jump Point Search Functions - End
+
 static auto find_path(
 	const mark::map& map, const mark::vector<int> &end, const int radius,
 	std::vector<Node> open,
@@ -305,21 +440,20 @@ static auto find_path(
 		return make_path(map, &current);
 	}
 
+	const auto successors = identify_successors(map, current, end, radius);
 	open = std::accumulate(
-		directions.begin(), directions.end(), std::move(open),
-		[&](auto& open, const auto& direction) {
-		auto neighbour_pos = current.pos + direction;
-		if (!map.traversable(neighbour_pos, radius)
-			|| has_one(closed, neighbour_pos)) {
+		successors.begin(), successors.end(), std::move(open),
+		[&](auto& open, const auto& successor) {
+		auto neighbour_pos = successor.pos;
+		if (has_one(closed, neighbour_pos)) {
 			return open;
 		}
 		const auto neighbour = find_one(open, neighbour_pos);
-		const auto f = current.f + (direction.x && direction.y ? 14 : 10);
 		if (!neighbour) {
-			open.push_back({ neighbour_pos, f, &current });
-		} else if (neighbour->f > f) {
-			neighbour->f = f;
-			neighbour->parent = &current;
+			open.push_back(successor);
+		} else if (neighbour->f > successor.f) {
+			neighbour->f = successor.f;
+			neighbour->parent = successor.parent;
 		}
 		return open;
 	});
