@@ -3,9 +3,9 @@
 #include "resource_manager.h"
 #include "tick_context.h"
 
-mark::module::engine::engine(mark::resource::manager& manager):
-	m_image_base(manager.image("engine.png")),
-	mark::module::base({ 4, 2 }, manager.image("engine.png")) { }
+mark::module::engine::engine(mark::resource::manager& manager)
+	: m_image_base(manager.image("engine.png"))
+	, mark::module::base({ 4, 2 }, manager.image("engine.png")) { }
 
 void mark::module::engine::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
@@ -47,4 +47,7 @@ void mark::module::engine::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
+
+auto mark::module::engine::reserved() const noexcept -> reserved_type
+{ return reserved_type::back; }
 

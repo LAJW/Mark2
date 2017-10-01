@@ -5,9 +5,12 @@
 #include "world.h"
 #include "resource_image.h"
 
-mark::module::base::base(mark::vector<unsigned> size, const std::shared_ptr<const mark::resource::image>& thumbnail):
-	m_size(size),
-	m_thumbnail(thumbnail) {
+mark::module::base::base(
+	mark::vector<unsigned> size,
+	const std::shared_ptr<const mark::resource::image>& thumbnail)
+	: m_size(size)
+	, m_thumbnail(thumbnail)
+{
 	assert(size.x <= mark::module::max_dimension);
 	assert(size.y <= mark::module::max_dimension);
 }
@@ -158,6 +161,9 @@ auto mark::module::base::global_modifiers() const->mark::module::modifiers
 {
 	return mark::module::modifiers();
 }
+
+auto mark::module::base::reserved() const noexcept -> reserved_type
+{ return reserved_type::none; }
 
 auto mark::module::base::parent() const -> const mark::unit::modular& {
 	if (m_parent) {

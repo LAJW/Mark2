@@ -19,6 +19,7 @@ namespace mark {
 			auto global_modifiers() const->mark::module::modifiers override;
 			void shoot(mark::vector<double> pos, bool release) override;
 			void serialize(YAML::Emitter&) const override;
+			auto reserved() const noexcept -> reserved_type override;
 		private:
 			std::shared_ptr<const mark::resource::image> m_image_base;
 			bool m_active = false;

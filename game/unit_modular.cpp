@@ -201,7 +201,7 @@ auto mark::unit::modular::p_connected_to_core(
 			const auto traversable = neighbour_pos.x > 0
 				&& neighbour_pos.y > 0 && neighbour_pos.x < size
 				&& neighbour_pos.y < size
-				&& m_grid[neighbour_pos.y * size + neighbour_pos.x];
+				&& m_grid[neighbour_pos.y * size + neighbour_pos.x].first;
 			const auto isClosed = closed.end() != std::find_if(
 				closed.begin(),
 				closed.end(),
@@ -229,28 +229,33 @@ auto mark::unit::modular::p_connected_to_core(
 	return false;
 }
 
-auto mark::unit::modular::p_at(mark::vector<int8_t> pos) noexcept ->
-	mark::module::base*& {
-	return p_grid(to_new(pos));
-}
+auto mark::unit::modular::p_at(mark::vector<int8_t> pos) noexcept
+	-> mark::module::base*&
+{ return p_grid(to_new(pos)).first; }
 
-auto mark::unit::modular::p_at(mark::vector<int8_t> pos) const noexcept ->
-	const mark::module::base* {
-	return p_grid(to_new(pos));
-}
+auto mark::unit::modular::p_at(mark::vector<int8_t> pos) const noexcept
+	-> const mark::module::base*
+{ return p_grid(to_new(pos)).first; }
 
-auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) noexcept ->
-	mark::module::base*& {
-	return m_grid[pos.x + pos.y * max_size];
-}
+auto mark::unit::modular::p_reserved(mark::vector<int8_t> pos) noexcept
+	-> bool&
+{ return p_grid(to_new(pos)).second; }
 
-auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) const noexcept ->
-	const mark::module::base* {
-	return m_grid[pos.x + pos.y * max_size];
-}
+auto mark::unit::modular::p_reserved(mark::vector<int8_t> pos) const noexcept
+	-> bool
+{ return p_grid(to_new(pos)).second; }
+
+auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) noexcept
+	-> std::pair<mark::module::base*, bool>&
+{ return m_grid[pos.x + pos.y * max_size]; }
+
+auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) const noexcept
+	-> const std::pair<mark::module::base*, bool>&
+{ return m_grid[pos.x + pos.y * max_size]; }
 
 
-auto mark::unit::modular::modifiers() const -> mark::module::modifiers {
+auto mark::unit::modular::modifiers() const -> mark::module::modifiers
+{
 	mark::module::modifiers mods;
 	for (auto& module : m_modules) {
 		const auto cur_mod = module->global_modifiers();
@@ -259,7 +264,8 @@ auto mark::unit::modular::modifiers() const -> mark::module::modifiers {
 	return mods;
 }
 
-void mark::unit::modular::tick(mark::tick_context& context) {
+void mark::unit::modular::tick(mark::tick_context& context)
+{
 	const auto modifiers = this->modifiers();
 	this->tick_modules(context);
 	if (!m_ai) {
@@ -271,16 +277,18 @@ void mark::unit::modular::tick(mark::tick_context& context) {
 	}
 }
 
-auto mark::unit::modular::attached(const mark::module::base& module) ->
-std::vector<std::reference_wrapper<mark::module::base>> {
+auto mark::unit::modular::attached(const mark::module::base& module)
+	-> std::vector<std::reference_wrapper<mark::module::base>>
+{
 	return ::attached<mark::module::base>(
 		*this,
 		mark::vector<int8_t>(module.grid_pos()),
 		mark::vector<int8_t>(module.size()));
 }
 
-auto mark::unit::modular::attached(const mark::module::base& module) const ->
-std::vector<std::reference_wrapper<const mark::module::base>> {
+auto mark::unit::modular::attached(const mark::module::base& module) const
+	-> std::vector<std::reference_wrapper<const mark::module::base>>
+{
 	return ::attached<const mark::module::base>(
 		*this,
 		mark::vector<int8_t>(module.grid_pos()),
@@ -289,14 +297,24 @@ std::vector<std::reference_wrapper<const mark::module::base>> {
 
 void mark::unit::modular::attach(
 	std::unique_ptr<mark::module::base>& module,
-	mark::vector<int> pos_) {
+	mark::vector<int> pos_)
+{
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	if (!module) {
 		throw mark::exception("NULL_MODULE");
 	}
 	for (const auto i : mark::range(mark::vector<int8_t>(module->size()))) {
-		if (this->p_at(module_pos + i)) {
+		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {
 			throw mark::user_error("MODULE_OVERLAP");
+		}
+	}
+	if (module->reserved() == module::reserved_type::back) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ -static_cast<int>(max_size / 2), module_pos.y },
+		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
+			if (this->p_at(mark::vector<int8_t>(i))) {
+				throw mark::user_error("MODULE_OVERLAP");
+			}
 		}
 	}
 	// establish core, check if core already present
@@ -317,6 +335,13 @@ void mark::unit::modular::attach(
 	}
 	for (const auto i : mark::range(module->size())) {
 		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
+	}
+	if (module->reserved() == module::reserved_type::back) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ -static_cast<int>(max_size / 2), module_pos.y },
+		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = true;
+		}
 	}
 	m_modules.emplace_back(std::move(module));
 }
@@ -347,6 +372,13 @@ void mark::unit::modular::p_attach(
 	for (const auto i : mark::range(module->size())) {
 		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
 	}
+	if (module->reserved() == module::reserved_type::back) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ -static_cast<int>(max_size / 2), module_pos.y },
+		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = true;
+		}
+	}
 	m_modules.emplace_back(std::move(module));
 }
 
@@ -357,7 +389,7 @@ auto mark::unit::modular::can_attach(
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	for (const auto i : mark::range(mark::vector<int8_t>(module.size()))) {
-		if (this->p_at(module_pos + i)) {
+		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {
 			return false;
 		}
 	}
@@ -366,6 +398,15 @@ auto mark::unit::modular::can_attach(
 	if (core) {
 		if (m_core) {
 			return false;
+		}
+	}
+	if (module.reserved() == module::reserved_type::back) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ -static_cast<int>(max_size / 2), module_pos.y },
+		{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
+			if (this->p_at(mark::vector<int8_t>(i))) {
+				return false;
+			}
 		}
 	}
 	return !::attached<const mark::module::base>(
@@ -414,6 +455,13 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 			this->p_at(grid_pos) = module_ptr;
 		}
 		return nullptr;
+	}
+	if (module.reserved() == module::reserved_type::back) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ -static_cast<int>(max_size / 2), module_pos.y },
+		{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = false;
+		}
 	}
 	this->unbind(module);
 	const auto module_it = std::find_if(

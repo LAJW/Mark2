@@ -87,13 +87,15 @@ private:
 	// get pointer in reference to the center of the grid
 	auto p_at(mark::vector<int8_t> pos) noexcept -> mark::module::base*&;
 	auto p_at(mark::vector<int8_t> pos) const noexcept -> const mark::module::base*;
+	auto p_reserved(mark::vector<int8_t> pos) noexcept -> bool&;
+	auto p_reserved(mark::vector<int8_t> pos) const noexcept -> bool;
 	// get pointer in reference to the top left corner of the grid
-	auto p_grid(mark::vector<uint8_t> pos) noexcept -> mark::module::base*&;
-	auto p_grid(mark::vector<uint8_t> pos) const noexcept -> const mark::module::base*;
-
+	auto p_grid(mark::vector<uint8_t> pos) noexcept -> std::pair<mark::module::base*, bool>&;
+	auto p_grid(mark::vector<uint8_t> pos) const noexcept -> const std::pair<mark::module::base*, bool>&;
 
 	std::vector<std::unique_ptr<mark::module::base>> m_modules;
-	std::array<mark::module::base*, max_size * max_size> m_grid = { nullptr };
+	std::array<std::pair<mark::module::base*, bool>, max_size * max_size>
+		m_grid = { std::pair<mark::module::base*, bool>(nullptr, false) };
 	mark::module::core* m_core = nullptr;
 	float m_rotation = 0.f;
 	mark::vector<double> m_moveto;
