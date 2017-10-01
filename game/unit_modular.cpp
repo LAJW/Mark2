@@ -675,14 +675,14 @@ void mark::unit::modular::toggle_bind(
 {
 	if (const auto module_ptr = this->at(mark::vector<int8_t>(pos))) {
 		auto& module = *module_ptr;
+		if (module.passive()) {
+			return;
+		}
 		const auto bindings = m_bindings.equal_range(command);
 		const auto binding = std::find_if(
-			bindings.first,
-			bindings.second,
-			[&module](auto pair) {
-				return &module == &pair.second.get();
-			}
-		);
+			bindings.first, bindings.second, [&module](auto pair) {
+			return &module == &pair.second.get();
+		});
 		if (binding == bindings.second) {
 			m_bindings.insert({ command, module });
 		} else {

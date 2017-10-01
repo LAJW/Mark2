@@ -60,6 +60,9 @@ void mark::module::cargo::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
+auto mark::module::cargo::passive() const noexcept -> bool
+{ return true; }
+
 void mark::module::cargo::tick(mark::tick_context& context)
 {
 	this->mark::module::base::tick(context);

@@ -93,3 +93,6 @@ void mark::module::shield_generator::serialize(YAML::Emitter& out) const {
 	out << Key << "max_shield" << Value << m_max_shield;
 	out << EndMap;
 }
+
+auto mark::module::shield_generator::passive() const noexcept -> bool
+{ return true; }

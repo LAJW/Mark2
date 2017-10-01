@@ -51,3 +51,6 @@ void mark::module::engine::serialize(YAML::Emitter& out) const {
 auto mark::module::engine::reserved() const noexcept -> reserved_type
 { return reserved_type::back; }
 
+auto mark::module::engine::passive() const noexcept -> bool
+{ return false; }
+

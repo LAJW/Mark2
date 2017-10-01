@@ -101,3 +101,6 @@ void mark::module::cannon::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
+
+auto mark::module::cannon::passive() const noexcept -> bool
+{ return false; }

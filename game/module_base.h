@@ -101,7 +101,12 @@ public:
 	// get modifiers for parent modular ship
 	virtual auto global_modifiers() const -> mark::module::modifiers;
 
+	// Specifies whether space around the module should be reserved
+	// For example behind engines and in front of locked turrets
 	virtual auto reserved() const noexcept -> reserved_type;
+
+	// Specifiy whether module has no abilities
+	virtual auto passive() const noexcept -> bool = 0;
 
 protected:
 	base(mark::resource::manager&, const YAML::Node&);

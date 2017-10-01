@@ -204,3 +204,6 @@ void mark::module::turret::serialize(YAML::Emitter& out) const {
 
 	out << EndMap;
 }
+
+auto mark::module::turret::passive() const noexcept -> bool
+{ return false; }

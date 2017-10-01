@@ -21,6 +21,7 @@ public:
 	auto energy_ratio() const -> float override;
 	void serialize(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
+	auto passive() const noexcept -> bool override;
 private:
 	std::shared_ptr<const mark::resource::image> m_image_base;
 	bool m_shoot = false;

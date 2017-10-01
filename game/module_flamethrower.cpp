@@ -84,3 +84,6 @@ void mark::module::flamethrower::serialize(YAML::Emitter& out) const {
 
 auto mark::module::flamethrower::reserved() const noexcept -> reserved_type
 { return reserved_type::front; }
+
+auto mark::module::flamethrower::passive() const noexcept -> bool
+{ return false; }

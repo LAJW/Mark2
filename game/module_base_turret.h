@@ -13,6 +13,7 @@ public:
 	void target(mark::vector<double> pos) override;
 	void shoot(mark::vector<double> pos, bool release) override;
 	void queue(mark::vector<double> pos, bool release) override;
+	auto passive() const noexcept -> bool override;
 protected:
 	void tick_ai();
 	// Returns true if there are objects still to be destroyed before

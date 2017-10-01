@@ -41,3 +41,6 @@ void mark::module::core::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
+
+auto mark::module::core::passive() const noexcept -> bool
+{ return true; }

@@ -61,3 +61,6 @@ void mark::module::battery::serialize(YAML::Emitter& out) const {
 	out << Key << "cur_energy" << Value << m_cur_energy;
 	out << EndMap;
 }
+
+auto mark::module::battery::passive() const noexcept -> bool
+{ return true; }

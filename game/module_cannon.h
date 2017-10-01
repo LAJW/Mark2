@@ -20,6 +20,7 @@ public:
 	void tick(mark::tick_context& context) override;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
+	auto passive() const noexcept -> bool override;
 private:
 	mark::model::animated m_model;
 	std::shared_ptr<const mark::resource::image> m_im_ray;

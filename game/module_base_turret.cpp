@@ -88,3 +88,6 @@ void mark::module::base_turret::queue(mark::vector<double> pos, bool release)
 	}
 }
 
+auto mark::module::base_turret::passive() const noexcept -> bool
+{ return false; }
+

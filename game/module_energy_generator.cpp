@@ -60,3 +60,6 @@ void mark::module::energy_generator::serialize(YAML::Emitter& out) const {
 	out << Key << "energy_regen" << Value << m_energy_regen;
 	out << EndMap;
 }
+
+auto mark::module::energy_generator::passive() const noexcept -> bool
+{ return true; }
