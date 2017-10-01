@@ -316,6 +316,14 @@ void mark::unit::modular::attach(
 				throw mark::user_error("MODULE_OVERLAP");
 			}
 		}
+	} else if (module->reserved() == module::reserved_type::front) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ module_pos.x + static_cast<int>(module->size().x), module_pos.y },
+		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module->size().y) })) {
+			if (this->p_at(mark::vector<int8_t>(i))) {
+				throw mark::user_error("MODULE_OVERLAP");
+			}
+		}
 	}
 	// establish core, check if core already present
 	auto core = dynamic_cast<mark::module::core*>(module.get());
@@ -340,6 +348,12 @@ void mark::unit::modular::attach(
 		for (const auto i : mark::range<mark::vector<int>>(
 		{ -static_cast<int>(max_size / 2), module_pos.y },
 		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = true;
+		}
+	} else if (module->reserved() == module::reserved_type::front) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ module_pos.x + static_cast<int>(module->size().x), module_pos.y },
+		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module->size().y) })) {
 			this->p_reserved(mark::vector<int8_t>(i)) = true;
 		}
 	}
@@ -378,6 +392,12 @@ void mark::unit::modular::p_attach(
 		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
 			this->p_reserved(mark::vector<int8_t>(i)) = true;
 		}
+	} else if (module->reserved() == module::reserved_type::front) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ module_pos.x + static_cast<int>(module->size().x), module_pos.y },
+		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module->size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = true;
+		}
 	}
 	m_modules.emplace_back(std::move(module));
 }
@@ -393,7 +413,7 @@ auto mark::unit::modular::can_attach(
 			return false;
 		}
 	}
-	// establish core, check if core already present
+	// Establish core, check if core already present
 	auto core = dynamic_cast<const mark::module::core*>(&module);
 	if (core) {
 		if (m_core) {
@@ -404,6 +424,14 @@ auto mark::unit::modular::can_attach(
 		for (const auto i : mark::range<mark::vector<int>>(
 		{ -static_cast<int>(max_size / 2), module_pos.y },
 		{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
+			if (this->p_at(mark::vector<int8_t>(i))) {
+				return false;
+			}
+		}
+	} else if (module.reserved() == module::reserved_type::front) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ module_pos.x + static_cast<int>(module.size().x), module_pos.y },
+		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module.size().y) })) {
 			if (this->p_at(mark::vector<int8_t>(i))) {
 				return false;
 			}
@@ -460,6 +488,12 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 		for (const auto i : mark::range<mark::vector<int>>(
 		{ -static_cast<int>(max_size / 2), module_pos.y },
 		{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
+			this->p_reserved(mark::vector<int8_t>(i)) = false;
+		}
+	} else if (module.reserved() == module::reserved_type::front) {
+		for (const auto i : mark::range<mark::vector<int>>(
+		{ module_pos.x + module_size.x, module_pos.y },
+		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module.size().y) })) {
 			this->p_reserved(mark::vector<int8_t>(i)) = false;
 		}
 	}

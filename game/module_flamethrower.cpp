@@ -81,3 +81,6 @@ void mark::module::flamethrower::serialize(YAML::Emitter& out) const {
 	this->serialize_base(out);
 	out << EndMap;
 }
+
+auto mark::module::flamethrower::reserved() const noexcept -> reserved_type
+{ return reserved_type::front; }
