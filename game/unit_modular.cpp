@@ -300,86 +300,22 @@ void mark::unit::modular::attach(
 	mark::vector<int> pos_)
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
-	if (!module) {
-		throw mark::exception("NULL_MODULE");
+	if (!module || !can_attach(*module, pos_)) {
+		throw mark::user_error("");
 	}
-	for (const auto i : mark::range(mark::vector<int8_t>(module->size()))) {
-		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {
-			throw mark::user_error("MODULE_OVERLAP");
-		}
-	}
-	if (module->reserved() == module::reserved_type::back) {
-		for (const auto i : mark::range<mark::vector<int>>(
-		{ -static_cast<int>(max_size / 2), module_pos.y },
-		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
-			if (this->p_at(mark::vector<int8_t>(i))) {
-				throw mark::user_error("MODULE_OVERLAP");
-			}
-		}
-	} else if (module->reserved() == module::reserved_type::front) {
-		for (const auto i : mark::range<mark::vector<int>>(
-		{ module_pos.x + static_cast<int>(module->size().x), module_pos.y },
-		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module->size().y) })) {
-			if (this->p_at(mark::vector<int8_t>(i))) {
-				throw mark::user_error("MODULE_OVERLAP");
-			}
-		}
-	}
-	// establish core, check if core already present
-	auto core = dynamic_cast<mark::module::core*>(module.get());
-	if (core) {
-		if (m_core) {
-			throw mark::user_error("TWO_CORES");
-		} else {
-			m_core = core;
-		}
-	}
-	module->m_grid_pos = module_pos;
-	module->m_parent = this;
-	// check if has neighbours
-	if (!core && module->neighbours().empty()) {
-		module->m_parent = nullptr;
-		throw mark::user_error("NO_NEIGHBOURS");
-	}
-	for (const auto i : mark::range(module->size())) {
-		this->p_at(module_pos + mark::vector<int8_t>(i)) = module.get();
-	}
-	if (module->reserved() == module::reserved_type::back) {
-		for (const auto i : mark::range<mark::vector<int>>(
-		{ -static_cast<int>(max_size / 2), module_pos.y },
-		{ module_pos.x, module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_reserved(mark::vector<int8_t>(i)) = true;
-		}
-	} else if (module->reserved() == module::reserved_type::front) {
-		for (const auto i : mark::range<mark::vector<int>>(
-		{ module_pos.x + static_cast<int>(module->size().x), module_pos.y },
-		{ static_cast<int>(max_size / 2), module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_reserved(mark::vector<int8_t>(i)) = true;
-		}
-	}
-	m_modules.emplace_back(std::move(module));
+	p_attach(std::move(module), pos_);
 }
 
 void mark::unit::modular::p_attach(
 	std::unique_ptr<mark::module::base> module,
 	mark::vector<int> pos_) {
 	const auto module_pos = mark::vector<int8_t>(pos_);
-	if (!module) {
-		throw mark::exception("NULL_MODULE");
-	}
-	for (const auto i : mark::range(mark::vector<int8_t>(module->size()))) {
-		if (this->p_at(module_pos + i)) {
-			throw mark::user_error("MODULE_OVERLAP");
-		}
+	if (!module || !p_can_attach(*module, pos_)) {
+		throw mark::user_error("");
 	}
 	// establish core, check if core already present
-	auto core = dynamic_cast<mark::module::core*>(module.get());
-	if (core) {
-		if (m_core) {
-			throw mark::user_error("TWO_CORES");
-		} else {
-			m_core = core;
-		}
+	if (auto core = dynamic_cast<mark::module::core*>(module.get())) {
+		m_core = core;
 	}
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
@@ -407,6 +343,18 @@ auto mark::unit::modular::can_attach(
 	mark::vector<int> pos_) const
 	-> bool
 {
+	return p_can_attach(module, pos_)
+		&& !::attached<const mark::module::base>(
+			*this,
+			mark::vector<int8_t>(pos_),
+			mark::vector<int8_t>(module.size())).empty();
+}
+
+auto mark::unit::modular::p_can_attach(
+	const mark::module::base& module,
+	mark::vector<int> pos_) const
+	-> bool
+{
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	for (const auto i : mark::range(mark::vector<int8_t>(module.size()))) {
 		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {
@@ -414,11 +362,8 @@ auto mark::unit::modular::can_attach(
 		}
 	}
 	// Establish core, check if core already present
-	auto core = dynamic_cast<const mark::module::core*>(&module);
-	if (core) {
-		if (m_core) {
-			return false;
-		}
+	if (dynamic_cast<const mark::module::core*>(&module) && m_core) {
+		return false;
 	}
 	if (module.reserved() == module::reserved_type::back) {
 		for (const auto i : mark::range<mark::vector<int>>(
@@ -437,10 +382,7 @@ auto mark::unit::modular::can_attach(
 			}
 		}
 	}
-	return !::attached<const mark::module::base>(
-		*this,
-		mark::vector<int8_t>(module_pos),
-		mark::vector<int8_t>(module.size())).empty();
+	return true;
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos) const ->
@@ -666,9 +608,7 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius)
 }
 
 auto mark::unit::modular::lookat() const noexcept -> mark::vector<double>
-{
-	return m_lookat;
-}
+{ return m_lookat; }
 
 void mark::unit::modular::toggle_bind(
 	enum class mark::command::type command, mark::vector<int> pos)

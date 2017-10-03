@@ -73,8 +73,10 @@ public:
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
 private:
-	// attach without performing integrity check
+	// Attach without checking structure of the ship
 	void p_attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
+	// Check whether module can be attached without checking structure of the ship
+	auto p_can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
 	void remove_dead(mark::tick_context&);
 	void pick_up(mark::tick_context&);
 	// Remove module from module bindings
