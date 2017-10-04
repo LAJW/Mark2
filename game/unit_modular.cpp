@@ -353,10 +353,11 @@ auto mark::unit::modular::can_attach(
 	-> bool
 {
 	return p_can_attach(module, pos_)
-		&& !::attached<const mark::module::base>(
-			*this,
-			mark::vector<int8_t>(pos_),
-			mark::vector<int8_t>(module.size())).empty();
+		&& (m_modules.empty()
+			|| !::attached<const mark::module::base>(
+				*this,
+				mark::vector<int8_t>(pos_),
+				mark::vector<int8_t>(module.size())).empty());
 }
 
 auto mark::unit::modular::p_can_attach(
