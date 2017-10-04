@@ -13,25 +13,22 @@ void render(
 	mark::vector<double> resolution)
 {
 	sf::Sprite tmp;
-	// HACK: Thumbnails not deserialized
-	if (&sprite.image()) {
-		const auto texture_size = static_cast<float>(sprite.image().size().y);
-		const auto scale = sprite.size() / texture_size;
-		tmp.setTexture(sprite.image().texture());
-		tmp.setTextureRect({
-			static_cast<int>(texture_size) * static_cast<int>(sprite.frame()),
-			0,
-			static_cast<int>(texture_size),
-			static_cast<int>(texture_size) });
-		tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
-		tmp.scale(scale, scale);
-		tmp.rotate(sprite.rotation());
-		tmp.setColor(sprite.color());
-		tmp.move(
-			static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0),
-			static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
-		buffer.draw(tmp);
-	}
+	const auto texture_size = static_cast<float>(sprite.image().size().y);
+	const auto scale = sprite.size() / texture_size;
+	tmp.setTexture(sprite.image().texture());
+	tmp.setTextureRect({
+		static_cast<int>(texture_size) * static_cast<int>(sprite.frame()),
+		0,
+		static_cast<int>(texture_size),
+		static_cast<int>(texture_size) });
+	tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
+	tmp.scale(scale, scale);
+	tmp.rotate(sprite.rotation());
+	tmp.setColor(sprite.color());
+	tmp.move(
+		static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0),
+		static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
+	buffer.draw(tmp);
 }
 
 // Render sprite using absolute coordinates
