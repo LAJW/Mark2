@@ -20,10 +20,9 @@ public:
 
 	map(mark::resource::manager&, const YAML::Node&);
 
-	auto traversable(
-		mark::vector<double> pos, double radius = 0.0) const -> bool;
+	auto traversable(const vector<double>& pos, double radius) const -> bool;
 	auto mark::map::traversable(
-		const mark::vector<int> i_pos, const size_t radius = 0) const -> bool;
+		const vector<int>& i_pos, const size_t radius) const -> bool;
 
 	void tick(
 		mark::vector<double> top_left,

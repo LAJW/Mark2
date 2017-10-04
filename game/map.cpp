@@ -64,14 +64,14 @@ auto mark::map::map_to_world(mark::vector<int> pos) const noexcept ->
 }
 
 auto mark::map::traversable(
-	const mark::vector<double> pos,
+	const mark::vector<double>& pos,
 	const double radius_) const -> bool {
 	const auto radius = size_t(std::ceil(radius_ / mark::map::tile_size));
 	return this->traversable(this->world_to_map(pos), radius);
 }
 
 auto mark::map::traversable(
-	const mark::vector<int> i_pos,
+	const mark::vector<int>& i_pos,
 	const size_t uradius) const -> bool {
 	if (uradius > 1) {
 		const auto radius = static_cast<int>(uradius);
@@ -342,31 +342,31 @@ static auto pruned_neighbours(
 	const auto direction = make_direction(node);
 	if (direction.x == 0 && direction.y == 0) {
 		for (const auto& direction : directions) {
-			if (map.traversable(direction + node.pos), radius) {
+			if (map.traversable(direction + node.pos, radius)) {
 				out.push_back(direction + node.pos);
 			}
 		}
 	} else if (is_diagonal(direction)) {
 		const auto right = node.pos + mark::vector<int>(direction.x, 0);
-		if (map.traversable(right, radius), radius) {
+		if (map.traversable(right, radius)) {
 			out.push_back(right);
 		}
 		const auto top = node.pos + mark::vector<int>(0, direction.y);
-		if (map.traversable(top, radius), radius) {
+		if (map.traversable(top, radius)) {
 			out.push_back(top);
 		}
 		const auto edge = node.pos + direction;
-		if (map.traversable(edge, radius), radius) {
+		if (map.traversable(edge, radius)) {
 			out.push_back(edge);
 		}
-	} else if (map.traversable(node.pos + direction), radius) {
+	} else if (map.traversable(node.pos + direction, radius)) {
 		out.push_back(node.pos + direction);
 		if (!map.traversable(node.pos + turn_left(direction), radius)
-			&& map.traversable(node.pos + turn_left(direction) + direction), radius) {
+			&& map.traversable(node.pos + turn_left(direction) + direction, radius)) {
 			out.push_back(node.pos + turn_left(direction) + direction);
 		}
 		if (!map.traversable(node.pos + turn_right(direction), radius)
-			&& map.traversable(node.pos + turn_right(direction) + direction), radius) {
+			&& map.traversable(node.pos + turn_right(direction) + direction, radius)) {
 			out.push_back(node.pos + turn_right(direction) + direction);
 		}
 	}
