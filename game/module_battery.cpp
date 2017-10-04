@@ -22,8 +22,8 @@ void mark::module::battery::tick(mark::tick_context& context) {
 
 	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
-			&& module.get().energy_ratio() > this->energy_ratio()) {
-			m_cur_energy += module.get().harvest_energy();
+			&& module.first.get().energy_ratio() > this->energy_ratio()) {
+			m_cur_energy += module.first.get().harvest_energy();
 		}
 	}
 }

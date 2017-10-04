@@ -36,14 +36,22 @@ struct Node {
 };
 
 // Shared implementation of the modular::attached() function
+// Returns list of references to modules and counts, where count is the
+// number of blocks touching the modules
 template <typename module_t, typename modular_t>
 static auto attached(
-	modular_t& modular, mark::vector<int8_t> pos, mark::vector<int8_t> size)
+	modular_t& modular,
+	mark::vector<int8_t> pos,
+	mark::vector<int8_t> size)
 {
-	std::vector<std::reference_wrapper<module_t>> out;
+	std::vector<std::pair<std::reference_wrapper<module_t>, unsigned>> out;
 	auto out_insert = [&out](module_t* module_ptr) {
-		if (module_ptr && (out.empty() || &out.back().get() != module_ptr)) {
-			out.push_back(*module_ptr);
+		if (module_ptr) {
+			if (out.empty() || &out.back().first.get() != module_ptr) {
+				out.push_back({ *module_ptr, 1U });
+			} else {
+				++out.back().second;
+			}
 		}
 	};
 	// right
@@ -68,6 +76,7 @@ static auto attached(
 	}
 	return out;
 }
+
 }
 
 
@@ -278,7 +287,7 @@ void mark::unit::modular::tick(mark::tick_context& context)
 }
 
 auto mark::unit::modular::attached(const mark::module::base& module)
-	-> std::vector<std::reference_wrapper<mark::module::base>>
+	-> std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>
 {
 	return ::attached<mark::module::base>(
 		*this,
@@ -287,7 +296,7 @@ auto mark::unit::modular::attached(const mark::module::base& module)
 }
 
 auto mark::unit::modular::attached(const mark::module::base& module) const
-	-> std::vector<std::reference_wrapper<const mark::module::base>>
+	-> std::vector<std::pair<std::reference_wrapper<const mark::module::base>, unsigned>>
 {
 	return ::attached<const mark::module::base>(
 		*this,
@@ -418,7 +427,7 @@ auto mark::unit::modular::detach(mark::vector<int> pos_) ->
 	const auto disconnected = std::find_if(
 		neighbours.begin(), neighbours.end(),
 		[this](const auto& neighbour) {
-		return !this->p_connected_to_core(neighbour.get());
+		return !this->p_connected_to_core(neighbour.first.get());
 	});
 	if (disconnected != neighbours.end()) {
 		for (const auto grid_pos : surface) {

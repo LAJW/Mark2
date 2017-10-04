@@ -87,7 +87,7 @@ public:
 	virtual auto energy_ratio() const -> float { return 0.f; }
 
 	// Neighbour modules
-	auto neighbours()->std::vector<std::reference_wrapper<mark::module::base>>;
+	auto neighbours() -> std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>;
 
 	// Position on the grid
 	auto grid_pos() const noexcept -> mark::vector<int>;

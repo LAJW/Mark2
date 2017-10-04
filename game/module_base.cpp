@@ -5,6 +5,9 @@
 #include "world.h"
 #include "resource_image.h"
 
+constexpr const auto HEAT_TRANSFER_RATE = 15.f;
+constexpr const auto HEAT_LOSS_RATE = 2.f;
+
 mark::module::base::base(
 	mark::vector<unsigned> size,
 	const std::shared_ptr<const mark::resource::image>& thumbnail)
@@ -20,11 +23,16 @@ void mark::module::base::tick(mark::tick_context & context) {
 	const auto pos = this->pos();
 
 	auto attached = parent().attached(*this);
-	for (auto& module : attached) {
+	const auto total_surface = 2 * (m_size.x + m_size.y);
+	for (auto& pair : attached) {
+		const auto&[module, surface] = pair;
 		auto& module_heat = module.get().m_cur_heat;
-		if (module_heat - m_cur_heat > 1.f) {
-			m_cur_heat += 0.5f;
-			module_heat -= 0.5f;
+		const auto delta_heat
+			= static_cast<float>(surface) / static_cast<float>(total_surface)
+				* static_cast<float>(context.dt) * HEAT_TRANSFER_RATE;
+		if (module_heat - m_cur_heat > delta_heat) {
+			m_cur_heat += delta_heat;
+			module_heat -= delta_heat;
 		} else if (module_heat > m_cur_heat) {
 			const auto avg_heat = (module_heat + m_cur_heat) / 2.f;
 			m_cur_heat = avg_heat;
@@ -32,7 +40,9 @@ void mark::module::base::tick(mark::tick_context & context) {
 		}
 	}
 	if (m_cur_heat >= 0.f) {
-		m_cur_heat = std::max(m_cur_heat - 2.f * static_cast<float>(context.dt), 0.f);
+		m_cur_heat = std::max(
+			m_cur_heat - HEAT_LOSS_RATE * static_cast<float>(context.dt),
+			0.f);
 	}
 	if (!this->parent().landed()) {
 		if (health_percentage <= 0.5f) {
@@ -114,7 +124,8 @@ auto mark::module::base::collide(const mark::segment_t& ray) ->
 	}
 }
 
-auto mark::module::base::neighbours() -> std::vector<std::reference_wrapper<mark::module::base>> {
+auto mark::module::base::neighbours()
+	-> std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>> {
 	return parent().attached(*this);
 }
 

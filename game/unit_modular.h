@@ -38,9 +38,9 @@ public:
 	void attach(std::unique_ptr<module::base>& module, mark::vector<int> pos);
 	auto can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
 	auto attached(const mark::module::base&) ->
-		std::vector<std::reference_wrapper<mark::module::base>>;
+		std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>;
 	auto attached(const mark::module::base&) const ->
-		std::vector<std::reference_wrapper<const mark::module::base>>;
+		std::vector<std::pair<std::reference_wrapper<const mark::module::base>, unsigned>>;
 	auto core() -> mark::module::core&;
 	auto core() const -> const mark::module::core&;
 
