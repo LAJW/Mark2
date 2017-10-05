@@ -248,10 +248,14 @@ void mark::ui::ui::container_ui(
 		for (const auto offset : surface) {
 			mark::sprite::info info;
 			info.image = m_grid_bg;
-			info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 - mark::vector<double>(8.0, 8.0);
+			info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 + mark::vector<double>(8.0, 8.0);
 			info.size = 16.f;
 			const auto alpha = std::max(1.0 - mark::length(info.pos - mouse_pos) / 320.0, 0.0) * 255.0;
-			info.color = sf::Color(255, 255, 255, static_cast<uint8_t>(alpha));
+			if (ship.p_reserved(vector<int8_t>(offset.x, offset.y))) {
+				info.color = sf::Color(255, 0, 0, static_cast<uint8_t>(alpha));
+			} else {
+				info.color = sf::Color(0, 255, 255, static_cast<uint8_t>(alpha));
+			}
 			context.sprites[1].emplace_back(info);
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {

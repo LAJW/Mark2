@@ -72,6 +72,7 @@ public:
 	auto at(mark::vector<int8_t> pos) const noexcept-> const mark::module::base*;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
+	auto p_reserved(mark::vector<int8_t> pos) const noexcept -> bool;
 private:
 	// Attach without checking structure of the ship
 	void p_attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
@@ -90,7 +91,6 @@ private:
 	auto p_at(mark::vector<int8_t> pos) noexcept -> mark::module::base*&;
 	auto p_at(mark::vector<int8_t> pos) const noexcept -> const mark::module::base*;
 	auto p_reserved(mark::vector<int8_t> pos) noexcept -> bool&;
-	auto p_reserved(mark::vector<int8_t> pos) const noexcept -> bool;
 	// get pointer in reference to the top left corner of the grid
 	auto p_grid(mark::vector<uint8_t> pos) noexcept -> std::pair<mark::module::base*, bool>&;
 	auto p_grid(mark::vector<uint8_t> pos) const noexcept -> const std::pair<mark::module::base*, bool>&;
