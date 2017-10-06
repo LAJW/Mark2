@@ -5,11 +5,14 @@
 #include "ui_button.h"
 #include "ui.h"
 #include "ui_event.h"
+#include "resource_manager.h"
+#include "tick_context.h"
 
 mark::ui::container::container(const info& info)
 	: window(info.pos)
 	, m_ui(*info.ui)
 	, m_container(*info.container)
+	, m_cargo_bg(info.rm->image("cargo-background.png"))
 {
 	auto& ui = *info.ui;
 	auto& container = *info.container;
@@ -25,6 +28,13 @@ mark::ui::container::container(const info& info)
 
 void mark::ui::container::tick(mark::tick_context& context)
 {
+	mark::sprite::info sprite;
+	sprite.image = m_cargo_bg;
+	sprite.pos = vector<double>(this->pos());
+	sprite.size = 64.f;
+	sprite.frame = std::numeric_limits<size_t>::max();
+	sprite.color = { 255, 255, 255, 200 };
+	context.ui_sprites[-1].push_back(sprite);
 	this->window::tick(context);
 }
 

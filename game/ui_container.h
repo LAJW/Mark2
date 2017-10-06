@@ -33,6 +33,7 @@ public:
 	bool click(const event& event) override;
 private:
 	void attach(mark::vector<int> pos, mark::module::base&);
+	std::shared_ptr<const mark::resource::image> m_cargo_bg;
 	ui& m_ui;
 	mark::module::cargo& m_container;
 };
