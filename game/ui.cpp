@@ -108,6 +108,7 @@ void mark::ui::ui::tick(
 			if (m_windows.empty()
 				|| ship->containers().size() != m_container_count) {
 				m_container_count = ship->containers().size();
+				this->hide_ship_editor();
 				this->show_ship_editor(*ship);
 			}
 		}
