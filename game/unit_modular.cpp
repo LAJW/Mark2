@@ -383,6 +383,10 @@ auto mark::unit::modular::p_can_attach(
 	mark::vector<int> pos_) const
 	-> bool
 {
+	if (!(pos_.x >= -19 && pos_.x + static_cast<int>(module.size().x) < 19
+		&& pos_.y >= -19 && pos_.y + static_cast<int>(module.size().y) < 19)) {
+		return false;
+	}
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	for (const auto i : mark::range(mark::vector<int8_t>(module.size()))) {
 		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {

@@ -231,6 +231,29 @@ void mark::ui::ui::world_tooltip(
 
 }
 
+static std::vector<bool> make_available_map(
+	const mark::module::base& module,
+	const mark::unit::modular& ship)
+{
+	const auto surface = mark::range<mark::vector<int>>(
+		{ -20, -20 },
+		{ 20, 20 });
+	std::vector<bool> available(40 * 40, false);
+	for (const auto top_left : surface) {
+		if (ship.can_attach(module, mark::vector<int>(top_left))) {
+			for (const auto relative : mark::range(module.size())) {
+				const auto pos = top_left
+					+ mark::vector<int>(20, 20)
+					+ mark::vector<int>(relative);
+				if (pos.x < 40 && pos.y < 40) {
+					available[pos.x + pos.y * 40] = true;
+				}
+			}
+		}
+	}
+	return available;
+}
+
 void mark::ui::ui::container_ui(
 	const mark::world& world,
 	mark::tick_context& context,
@@ -246,18 +269,16 @@ void mark::ui::ui::container_ui(
 	const auto relative = (mouse_pos - landing_pad.pos()) / double(mark::module::size);
 	const auto module_pos = mark::round(relative);
 	if (grabbed) {
+		const auto available = make_available_map(*grabbed, ship);
 		for (const auto offset : surface) {
-			mark::sprite::info info;
-			info.image = m_grid_bg;
-			info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 + mark::vector<double>(8.0, 8.0);
-			info.size = 16.f;
-			const auto alpha = std::max(1.0 - mark::length(info.pos - mouse_pos) / 320.0, 0.0) * 255.0;
-			if (ship.p_reserved(vector<int8_t>(offset.x, offset.y))) {
-				info.color = sf::Color(255, 0, 0, static_cast<uint8_t>(alpha));
-			} else {
-				info.color = sf::Color(0, 255, 255, static_cast<uint8_t>(alpha));
+			if (available[offset.x + 20 + (offset.y + 20) * 40]) {
+				mark::sprite::info info;
+				info.image = m_grid_bg;
+				info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 + mark::vector<double>(8.0, 8.0);
+				info.size = 16.f;
+				info.color = sf::Color(0, 255, 255, 255);
+				context.sprites[1].emplace_back(info);
 			}
-			context.sprites[1].emplace_back(info);
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			const auto size = static_cast<float>(std::max(
