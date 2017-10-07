@@ -63,8 +63,15 @@ void mark::map::calculate_traversable()
 {
 	for (const auto pos : range(m_size)) {
 		auto& arr = m_traversable[pos.x + pos.y * m_size.x];
+		bool traversable = true;
 		for (const auto radius : range<size_t>(0, 20)) {
-			arr[radius] = p_traversable(vector<int>(pos), radius);
+			// Avoid checking if block is traversable by an entity with that
+			// radius, if it's known that it's not traversable by an entity
+			// with smaller radius
+			if (traversable) {
+				traversable = p_traversable(vector<int>(pos), radius);
+			}
+			arr[radius] = traversable;
 		}
 	}
 }
