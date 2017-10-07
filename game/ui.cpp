@@ -162,7 +162,9 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 					// ship drag&drop
 					if (grabbed) {
-						const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
+						// module's top-left corner
+						const auto drop_pos = module_pos
+							- mark::vector<int>(grabbed->size()) / 2;
 						try {
 							ship->attach(grabbed, drop_pos);
 						} catch (const mark::exception&) { /* no-op */ }

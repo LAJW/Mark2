@@ -117,18 +117,18 @@ void mark::unit::modular::tick_movement(
 	const auto distance = mark::length(m_moveto - pos());
 	if (distance > m_velocity * dt) {
 		const auto acceleration = 500.0;
-		if (start_breaking(distance, m_velocity, acceleration)
+		if (start_breaking(distance - map::tile_size, m_velocity, acceleration)
 			|| m_velocity > max_velocity) {
 			m_velocity = std::max(0., m_velocity - acceleration * dt);
 		} else {
 			m_velocity = std::min(max_velocity, m_velocity + acceleration * dt);
 		}
-		if (team() == 1
-			|| (m_path_age <= 0.f
+		if (team() != 1
+			&& (m_path_age <= 0.f
 				|| m_path_cache.size() > 0
 					&& mark::length(m_path_cache.back() - m_moveto) < radius)
-				&& m_world.map().can_find()
-				&& !m_world.resource_manager().random(0, 2)) {
+			&& m_world.map().can_find()
+			&& !m_world.resource_manager().random(0, 2)) {
 			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
 			m_path_age = 1.f;
 		} else {
@@ -136,14 +136,20 @@ void mark::unit::modular::tick_movement(
 		}
 		const auto dir = mark::normalize(m_moveto - pos());
 
-		if (m_path_cache.size() > 1) {
-			const auto first = m_path_cache[m_path_cache.size() - 2];
-			step = mark::normalize(first - pos()) * m_velocity * dt;
+		while (!m_path_cache.empty()
+			&& mark::length(m_path_cache.back() - pos())
+				<= static_cast<double>(map::tile_size)) {
+			m_path_cache.pop_back();
+		}
+		if (m_path_cache.empty()) {
+			step = vector<double>();
+			m_velocity = 0.;
 		} else {
-			step = mark::normalize(m_moveto - pos()) * m_velocity * dt;
+			step = mark::normalize(m_path_cache.back() - pos()) * m_velocity * dt;
 		}
 	} else {
 		step = m_moveto - pos();
+		m_velocity = 0.0;
 	}
 	if (m_ai) {
 		const auto allies = world().find(
@@ -399,8 +405,8 @@ auto mark::unit::modular::p_can_attach(
 	}
 	if (module.reserved() == module::reserved_type::back) {
 		for (const auto i : mark::range<mark::vector<int>>(
-		{ -static_cast<int>(max_size / 2), module_pos.y },
-		{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
+			{ -static_cast<int>(max_size / 2), module_pos.y },
+			{ module_pos.x, module_pos.y + static_cast<int>(module.size().y) })) {
 			if (this->p_at(mark::vector<int8_t>(i))) {
 				return false;
 			}
@@ -500,8 +506,13 @@ auto mark::unit::modular::core() const -> const mark::module::core&
 
 void mark::unit::modular::command(const mark::command& command)
 {
+	const auto radius = 75.f;
 	if (command.type == mark::command::type::move) {
 		m_moveto = command.pos;
+		m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
+		if (!m_path_cache.empty()) {
+			m_moveto = m_path_cache.front();
+		}
 		m_move = !command.release;
 	} else if (command.type == mark::command::type::guide) {
 		m_lookat = command.pos;
@@ -510,6 +521,10 @@ void mark::unit::modular::command(const mark::command& command)
 		}
 		if (m_move) {
 			m_moveto = m_lookat;
+			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
+			if (!m_path_cache.empty()) {
+				m_moveto = m_path_cache.front();
+			}
 		}
 	} else if (command.type == mark::command::type::ai) {
 		m_ai = true;
