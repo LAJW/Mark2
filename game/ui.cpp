@@ -151,26 +151,24 @@ bool mark::ui::ui::hover(mark::vector<int> screen_pos)
 
 void mark::ui::ui::command(world& world, const mark::command &command)
 {
-	if (auto landing_pad
-		= std::dynamic_pointer_cast<mark::unit::landing_pad>(
-			world.target())) {
+	auto landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(world.target());
+	auto ship = landing_pad->ship();
+	if (landing_pad && ship) {
 		if (command.type == mark::command::type::move && !command.release) {
-			if (auto ship = landing_pad->ship()) {
-				const auto relative = (command.pos - landing_pad->pos()) / 16.0;
-				const auto module_pos = mark::round(relative);
-				const auto pick_pos = mark::floor(relative);
-				if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-					// ship drag&drop
-					if (grabbed) {
-						// module's top-left corner
-						const auto drop_pos = module_pos
-							- mark::vector<int>(grabbed->size()) / 2;
-						try {
-							ship->attach(grabbed, drop_pos);
-						} catch (const mark::exception&) { /* no-op */ }
-					} else {
-						grabbed = ship->detach(pick_pos);
-					}
+			const auto relative = (command.pos - landing_pad->pos()) / 16.0;
+			const auto module_pos = mark::round(relative);
+			const auto pick_pos = mark::floor(relative);
+			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+				// ship drag&drop
+				if (grabbed) {
+					// module's top-left corner
+					const auto drop_pos = module_pos
+						- mark::vector<int>(grabbed->size()) / 2;
+					try {
+						ship->attach(grabbed, drop_pos);
+					} catch (const mark::exception&) { /* no-op */ }
+				} else {
+					grabbed = ship->detach(pick_pos);
 				}
 			}
 		} else if (!command.release) {
