@@ -98,13 +98,31 @@ void mark::unit::modular::tick_modules(mark::tick_context& context) {
 	}
 }
 
+static auto start_breaking(
+	const double length,
+	const double velocity,
+	const double acceleration) -> bool
+{
+	const auto v = velocity, a = acceleration;
+	const auto s = std::pow(v, 2.0) / a - 0.5 * std::pow(v, 3.) / std::pow(a, 2.);
+	return length <= s;
+}
+
 void mark::unit::modular::tick_movement(
 	double dt, const mark::module::modifiers& mods)
 {
-	double speed = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
+	double max_velocity = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
 	const auto radius = 75.f;
 	mark::vector<double> step;
-	if (mark::length(m_moveto - pos()) > speed * dt) {
+	const auto distance = mark::length(m_moveto - pos());
+	if (distance > m_velocity * dt) {
+		const auto acceleration = 500.0;
+		if (start_breaking(distance, m_velocity, acceleration)
+			|| m_velocity > max_velocity) {
+			m_velocity = std::max(0., m_velocity - acceleration * dt);
+		} else {
+			m_velocity = std::min(max_velocity, m_velocity + acceleration * dt);
+		}
 		if (team() == 1
 			|| (m_path_age <= 0.f
 				|| m_path_cache.size() > 0
@@ -120,9 +138,9 @@ void mark::unit::modular::tick_movement(
 
 		if (m_path_cache.size() > 1) {
 			const auto first = m_path_cache[m_path_cache.size() - 2];
-			step = mark::normalize(first - pos()) * speed * dt;
+			step = mark::normalize(first - pos()) * m_velocity * dt;
 		} else {
-			step = mark::normalize(m_moveto - pos()) * speed * dt;
+			step = mark::normalize(m_moveto - pos()) * m_velocity * dt;
 		}
 	} else {
 		step = m_moveto - pos();

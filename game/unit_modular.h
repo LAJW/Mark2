@@ -107,6 +107,7 @@ private:
 	std::unordered_multimap<enum class mark::command::type, std::reference_wrapper<mark::module::base>> m_bindings;
 	std::vector<mark::vector<double>> m_path_cache; // path cache
 	float m_path_age = 0.f;
+	double m_velocity = 0;
 };
 }
 }
