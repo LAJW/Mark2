@@ -51,6 +51,9 @@ public:
 	auto map_to_world(mark::vector<int>) const noexcept
 		-> mark::vector<double>;
 private:
+	auto mark::map::p_traversable(
+		const vector<int>& i_pos, const size_t radius) const -> bool;
+
 	enum class terrain_type {
 		null,
 		abyss,
@@ -71,9 +74,11 @@ private:
 	void set(mark::vector<int> pos, terrain_type) noexcept;
 	auto world_to_map(mark::vector<double>) const noexcept
 		-> mark::vector<int>;
+	void calculate_traversable();
 
 	std::reference_wrapper<mark::resource::manager> m_rm;
 	std::vector<terrain_type> m_terrain;
+	std::vector<std::array<bool, 20>> m_traversable;
 	std::vector<unsigned> m_variant;
 	mark::vector<size_t> m_size;
 	mutable unsigned m_find_count = 0;

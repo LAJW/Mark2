@@ -36,6 +36,7 @@ mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
 		}
 		point += direction * length;
 	}
+	map.calculate_traversable();
 	return map;
 }
 
@@ -46,6 +47,7 @@ mark::map mark::map::make_square(mark::resource::manager& resource_manager) {
 			map.set({ x, y }, mark::map::terrain_type::floor_1);
 		}
 	}
+	map.calculate_traversable();
 	return map;
 }
 
@@ -55,6 +57,16 @@ auto mark::map::world_to_map(mark::vector<double> pos) const noexcept ->
 	mark::vector<int> {
 	return mark::round(pos / mark::map::tile_size)
 		+ mark::vector<int>(this->size() / size_t(2));
+}
+
+void mark::map::calculate_traversable()
+{
+	for (const auto pos : range(m_size)) {
+		auto& arr = m_traversable[pos.x + pos.y * m_size.x];
+		for (const auto radius : range<size_t>(0, 20)) {
+			arr[radius] = p_traversable(vector<int>(pos), radius);
+		}
+	}
 }
 
 auto mark::map::map_to_world(mark::vector<int> pos) const noexcept ->
@@ -71,6 +83,14 @@ auto mark::map::traversable(
 }
 
 auto mark::map::traversable(
+	const mark::vector<int>& pos,
+	const size_t radius) const -> bool
+{
+	return pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y
+		&& radius < 20 && m_traversable[pos.x + m_size.x * pos.y][radius];
+}
+
+auto mark::map::p_traversable(
 	const mark::vector<int>& i_pos,
 	const size_t uradius) const -> bool {
 	if (uradius > 1) {
@@ -167,7 +187,8 @@ mark::map::map(mark::resource::manager& rm, mark::vector<size_t> size):
 	m_rm(rm),
 	m_size(size),
 	m_terrain(size.x * size.y),
-	m_variant(size.x * size.y) {
+	m_variant(size.x * size.y),
+	m_traversable(size.x * size.y) {
 	for (auto& variant : m_variant) {
 		variant = rm.random<unsigned>(0, 2);
 	}
@@ -552,4 +573,5 @@ mark::map::map(
 		m_terrain[i] = deserialize_terrain_type(cell.as<std::string>());
 		i++;
 	}
+	this->calculate_traversable();
 }
