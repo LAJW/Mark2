@@ -35,7 +35,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_shoot) {
-		std::unordered_set<mark::idamageable*> damaged;
+		std::unordered_set<interface::damageable*> damaged;
 		for (int i = 1; i < 200; i++) {
 			const auto cur_len = mark::module::size * static_cast<double>(i);
 			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), m_rotation);

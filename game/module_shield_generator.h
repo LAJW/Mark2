@@ -19,10 +19,10 @@ public:
 	shield_generator(mark::resource::manager&, const YAML::Node&);
 	shield_generator(mark::resource::manager& resource_manager);
 	void tick(mark::tick_context& context) override;
-	bool damage(const mark::idamageable::info&) override;
+	bool damage(const interface::damageable::info&) override;
 	auto describe() const->std::string;
 	virtual auto collide(const mark::segment_t&) ->
-		std::pair<mark::idamageable*, mark::vector<double>> override;
+		std::pair<interface::damageable*, mark::vector<double>> override;
 	auto shield() const noexcept -> float;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

@@ -19,7 +19,7 @@ namespace mark {
 			std::shared_ptr<mark::unit::base>;
 
 		class base:
-			public mark::iserializable,
+			public mark::interface::serializable,
 			public std::enable_shared_from_this<mark::unit::base> {
 		public:
 			virtual void tick(mark::tick_context& context) = 0;

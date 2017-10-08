@@ -15,7 +15,7 @@ namespace mark {
 	namespace unit {
 		class landing_pad final:
 			public mark::unit::base,
-			public ihas_bindings {
+			public interface::has_bindings {
 		public:
 			static constexpr const char* type_name = "unit_landing_pad";
 
@@ -33,7 +33,7 @@ namespace mark {
 				const YAML::Node&,
 				const std::unordered_map<uint64_t,
 					std::weak_ptr<mark::unit::base>>& units) override;
-			auto bindings() const -> ihas_bindings::bindings_t override;
+			auto bindings() const -> interface::has_bindings::bindings_t override;
 			auto ship() -> std::shared_ptr<mark::unit::modular>;
 			auto ship() const -> std::shared_ptr<const mark::unit::modular>;
 		private:

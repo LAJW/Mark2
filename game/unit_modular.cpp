@@ -186,7 +186,7 @@ void mark::unit::modular::tick_ai() {
 		1000.f,
 		[this](const auto& unit) {
 		return unit.team() != this->team()
-			&& dynamic_cast<const idamageable*>(&unit);
+			&& dynamic_cast<const interface::damageable*>(&unit);
 	});
 	if (enemy) {
 		m_moveto = enemy->pos();
@@ -568,7 +568,7 @@ void mark::unit::modular::on_death(mark::tick_context& context) {
 	}
 }
 
-bool mark::unit::modular::damage(const mark::idamageable::info& attr) {
+bool mark::unit::modular::damage(const interface::damageable::info& attr) {
 	for (auto& module : m_modules) {
 		if (module->damage(attr)) {
 			attr.damaged->insert(this);
@@ -579,11 +579,11 @@ bool mark::unit::modular::damage(const mark::idamageable::info& attr) {
 }
 
 auto mark::unit::modular::collide(const mark::segment_t& ray)
-	-> std::pair<mark::idamageable *, mark::vector<double>>
+	-> std::pair<interface::damageable*, mark::vector<double>>
 {
 	auto min = mark::vector<double>(NAN, NAN);
 	double min_length = INFINITY;
-	mark::idamageable* damageable = nullptr;
+	interface::damageable* damageable = nullptr;
 	for (auto& module : m_modules) {
 		auto result = module->collide(ray);
 		if (result.first) {
@@ -616,9 +616,9 @@ auto mark::unit::modular::collide(const mark::segment_t& ray)
 }
 
 auto mark::unit::modular::collide(mark::vector<double> center, float radius)
-	-> std::vector<std::reference_wrapper<mark::idamageable>>
+	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
-	std::unordered_set<mark::idamageable*> out;
+	std::unordered_set<interface::damageable*> out;
 	// get shields
 	std::vector<std::reference_wrapper<mark::module::shield_generator>> shields;
 	for (auto& module : m_modules) {
@@ -644,7 +644,7 @@ auto mark::unit::modular::collide(mark::vector<double> center, float radius)
 		}
 	outer_continue:;
 	}
-	std::vector<std::reference_wrapper<mark::idamageable>> tmp;
+	std::vector<std::reference_wrapper<interface::damageable>> tmp;
 	std::transform(
 		out.begin(),
 		out.end(),

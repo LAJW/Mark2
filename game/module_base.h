@@ -40,8 +40,8 @@ enum class reserved_type {
 };
 
 class base:
-	public idamageable,
-	public iserializable {
+	public interface::damageable,
+	public interface::serializable {
 public:
 	static constexpr auto max_heat = 100.f;
 	friend mark::unit::modular;
@@ -75,7 +75,7 @@ public:
 
 	// Find collision point, return pointer to damaged module
 	virtual auto collide(const mark::segment_t&) ->
-		std::pair<mark::idamageable*, mark::vector<double>>;
+		std::pair<mark::interface::damageable*, mark::vector<double>>;
 
 	// UI text describing module's properties
 	virtual auto describe() const -> std::string = 0;
@@ -93,7 +93,7 @@ public:
 	auto grid_pos() const noexcept -> mark::vector<int>;
 
 	// Default damage handling
-	auto damage(const mark::idamageable::info& attr) -> bool override;
+	auto damage(const mark::interface::damageable::info& attr) -> bool override;
 
 	// called on module's death
 	virtual void on_death(mark::tick_context& context);

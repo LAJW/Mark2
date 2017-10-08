@@ -144,6 +144,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{13dd2180-9e17-4798-a9c8-3ed0eb7fbec5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{0163e2b2-0d29-46b0-a507-53a146106f70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adsr.h">
@@ -162,9 +165,6 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="exception.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="idamageable.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="lfo.h">
@@ -192,9 +192,6 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="resource_image.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="iserializable.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="resource_manager.h">
@@ -269,9 +266,6 @@
     <ClInclude Include="algorithm.h">
       <Filter>General</Filter>
     </ClInclude>
-    <ClInclude Include="ihas_bindings.h">
-      <Filter>General</Filter>
-    </ClInclude>
     <ClInclude Include="ui_node.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -295,6 +289,15 @@
     </ClInclude>
     <ClInclude Include="unit_damageable.h">
       <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="iserializable.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ihas_bindings.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="idamageable.h">
+      <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

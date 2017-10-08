@@ -41,7 +41,7 @@ void mark::module::shield_generator::tick(mark::tick_context& context) {
 	context.render(shield_bar);
 }
 
-bool mark::module::shield_generator::damage(const mark::idamageable::info& attr) {
+bool mark::module::shield_generator::damage(const interface::damageable::info& attr) {
 	if (attr.damaged->find(this) == attr.damaged->end() && attr.team != parent().team()) {
 		if (m_cur_shield > 0.f) {
 			attr.damaged->insert(this);
@@ -66,7 +66,7 @@ auto mark::module::shield_generator::describe() const -> std::string {
 }
 
 auto mark::module::shield_generator::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable*, mark::vector<double>> {
+	std::pair<interface::damageable*, mark::vector<double>> {
 	if (m_cur_shield > 0.f) {
 		const auto shield_size = 64.f;
 		const auto intersection = mark::intersect(ray, pos(), shield_size);

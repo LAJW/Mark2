@@ -87,7 +87,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 }
 
 auto mark::module::base::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable*, mark::vector<double>> {
+	std::pair<interface::damageable*, mark::vector<double>> {
 	const auto size = this->size();
 	// half width
 	const auto hw = static_cast<double>(size.x) / 2.0 * mark::module::size;
@@ -133,7 +133,7 @@ auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
 	return mark::vector<int>(m_grid_pos);
 }
 
-bool mark::module::base::damage(const mark::idamageable::info & attr) {
+bool mark::module::base::damage(const interface::damageable::info& attr) {
 	if (attr.team != parent().team() && m_cur_health > 0
 		&& attr.damaged->find(this) == attr.damaged->end()) {
 		auto& rm = parent().world().resource_manager();

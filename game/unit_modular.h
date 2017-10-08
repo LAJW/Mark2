@@ -21,7 +21,7 @@ class world;
 namespace unit {
 class modular final:
 	public mark::unit::damageable,
-	public mark::ihas_bindings {
+	public interface::has_bindings {
 public:
 	using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
 	using const_find_result = std::vector<std::reference_wrapper<const mark::module::base>>;
@@ -57,11 +57,11 @@ public:
 	auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 	auto module(mark::vector<int> pos) const -> const mark::module::base*;
 	auto module(mark::vector<int> pos)->mark::module::base*;
-	auto damage(const mark::idamageable::info&) -> bool override;
+	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const mark::segment_t&) ->
-		std::pair<mark::idamageable*, mark::vector<double>> override;
+		std::pair<interface::damageable*, mark::vector<double>> override;
 	auto collide(mark::vector<double> center, float radius) ->
-		std::vector<std::reference_wrapper<mark::idamageable>> override;
+		std::vector<std::reference_wrapper<interface::damageable>> override;
 	auto lookat() const noexcept -> mark::vector<double>;
 	// bind module at position to command
 	void toggle_bind(enum class mark::command::type, mark::vector<int> pos);

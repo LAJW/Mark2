@@ -42,7 +42,7 @@ namespace mark {
 			projectile(const projectile::info&, bool);
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;
-			std::unordered_set<mark::idamageable*> m_damaged;
+			std::unordered_set<interface::damageable*> m_damaged;
 			std::weak_ptr<const mark::unit::modular> m_guide;
 			float m_rotation;
 			float m_velocity;

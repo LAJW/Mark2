@@ -17,11 +17,11 @@ namespace mark {
 			minion(mark::world& world, mark::vector<double> pos);
 			void tick(mark::tick_context& context) override;
 			auto dead() const -> bool override;
-			auto damage(const mark::idamageable::info&) -> bool override;
+			auto damage(const interface::damageable::info&) -> bool override;
 			auto collide(const mark::segment_t&) ->
-				std::pair<mark::idamageable*, mark::vector<double>> override;
+				std::pair<interface::damageable*, mark::vector<double>> override;
 			auto collide(mark::vector<double> center, float radius) ->
-				std::vector<std::reference_wrapper<mark::idamageable>> override;
+				std::vector<std::reference_wrapper<interface::damageable>> override;
 			void on_death(mark::tick_context& context) override;
 		private:
 			mark::model::animated m_model;

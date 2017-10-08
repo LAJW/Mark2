@@ -54,7 +54,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			m_seek_radius,
 			[this](const mark::unit::base& unit) {
 			return unit.team() != this->team()
-				&& dynamic_cast<const idamageable*>(&unit);
+				&& dynamic_cast<const interface::damageable*> (&unit);
 		});
 		if (target) {
 			m_rotation = mark::turn(target->pos() - pos(), m_rotation, turn_speed, dt);

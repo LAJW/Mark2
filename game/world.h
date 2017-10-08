@@ -24,7 +24,7 @@ namespace mark {
 	namespace terrain {
 		class base;
 	}
-	class world : public mark::iserializable {
+	class world : public interface::serializable {
 	public:
 		world(mark::resource::manager& resource_manager, bool empty = false);
 		world(mark::resource::manager&, const YAML::Node&);
@@ -44,7 +44,7 @@ namespace mark {
 		auto target() -> std::shared_ptr<mark::unit::base>;
 		auto target() const->std::shared_ptr<const mark::unit::base>;
 		struct damage_info {
-			mark::idamageable::info damage;
+			interface::damageable::info damage;
 			mark::tick_context* context = nullptr;
 			mark::segment_t segment;
 			size_t piercing = 1;
@@ -65,9 +65,9 @@ namespace mark {
 		// If damageable is null - terrain was hit
 		// If nothing was hit - position is [ NAN, NAN ]
 		auto collide(const mark::segment_t&) ->
-			std::pair<mark::idamageable*, std::optional<mark::vector<double>>>;
+			std::pair<interface::damageable*, std::optional<mark::vector<double>>>;
 		auto collide(mark::vector<double> center, float radius) ->
-			std::vector<std::reference_wrapper<mark::idamageable>>;
+			std::vector<std::reference_wrapper<interface::damageable>>;
 		mark::map m_map;
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
 		mark::resource::manager& m_resource_manager;

@@ -6,12 +6,14 @@
 namespace mark {
 namespace unit {
 
-class damageable : public mark::unit::base, public mark::idamageable {
+class damageable:
+	public mark::unit::base,
+	public interface::damageable {
 public:
 	virtual auto collide(const mark::segment_t&) ->
-		std::pair<mark::idamageable*, mark::vector<double>> = 0;
+		std::pair<interface::damageable*, mark::vector<double>> = 0;
 	virtual auto collide(mark::vector<double> center, float radius) ->
-		std::vector<std::reference_wrapper<mark::idamageable>> = 0;
+		std::vector<std::reference_wrapper<interface::damageable>> = 0;
 protected:
 	template<typename...Args>
 	inline damageable(Args&&... args)

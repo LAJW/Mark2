@@ -255,12 +255,12 @@ auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
 }
 
 auto mark::world::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable *, std::optional<mark::vector<double>>> {
+	std::pair<interface::damageable *, std::optional<mark::vector<double>>> {
 	auto maybe_min = m_map.collide(ray);
 	double min_length = maybe_min
 		? mark::length(ray.first - maybe_min.value())
 		: INFINITY;
-	mark::idamageable* out = nullptr;
+	interface::damageable* out = nullptr;
 	for (auto& unit_ : m_units) {
 		if (const auto unit
 			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {
@@ -280,9 +280,9 @@ auto mark::world::collide(const mark::segment_t& ray) ->
 }
 
 auto mark::world::collide(mark::vector<double> center, float radius) ->
-	std::vector<std::reference_wrapper<mark::idamageable>> {
+	std::vector<std::reference_wrapper<interface::damageable>> {
 
-	std::vector<std::reference_wrapper<mark::idamageable>> out;
+	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit_ : m_units) {
 		if (const auto unit
 			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {

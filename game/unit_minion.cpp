@@ -82,7 +82,7 @@ auto mark::unit::minion::dead() const -> bool {
 	return m_dead;
 }
 
-auto mark::unit::minion::damage(const mark::idamageable::info& attr) -> bool {
+auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool {
 	if (m_health >= 0 && attr.team != this->team()
 		&& attr.damaged->find(this) == attr.damaged->end()) {
 		m_model_shield.trigger(attr.pos);
@@ -94,7 +94,7 @@ auto mark::unit::minion::damage(const mark::idamageable::info& attr) -> bool {
 }
 
 auto mark::unit::minion::collide(const mark::segment_t& ray) ->
-	std::pair<mark::idamageable *, mark::vector<double>> {
+	std::pair<interface::damageable *, mark::vector<double>> {
 
 	const auto ship_radius = 58.f;
 	const auto intersection = mark::intersect(ray, pos(), ship_radius);
@@ -106,8 +106,8 @@ auto mark::unit::minion::collide(const mark::segment_t& ray) ->
 }
 
 auto mark::unit::minion::collide(mark::vector<double> center, float radius) ->
-	std::vector<std::reference_wrapper<mark::idamageable>> {
-	std::vector<std::reference_wrapper<mark::idamageable>> out;
+	std::vector<std::reference_wrapper<interface::damageable>> {
+	std::vector<std::reference_wrapper<interface::damageable>> out;
 	const auto ship_radius = 58.f;
 	if (mark::length(pos() - center) <= ship_radius + radius) {
 		return { *this };

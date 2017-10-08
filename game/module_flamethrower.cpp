@@ -35,7 +35,7 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 		info.count = 4;
 		context.render(info);
 
-		std::unordered_set<mark::idamageable*> damaged;
+		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(300, 0), i + parent().rotation());
 			mark::world::damage_info info;
