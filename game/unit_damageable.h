@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "unit_base.h"
-#include "idamageable.h"
+#include "interface_damageable.h"
 
 namespace mark {
 namespace unit {

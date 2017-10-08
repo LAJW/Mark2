@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "ihas_bindings.h"
+#include "interface_has_bindings.h"
 #include "unit_base.h"
 #include "unit_modular.h"
 

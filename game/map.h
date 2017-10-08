@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "iserializable.h"
+#include "interface_serializable.h"
 #include "vector.h"
 
 namespace mark {

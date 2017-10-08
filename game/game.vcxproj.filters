@@ -290,13 +290,13 @@
     <ClInclude Include="unit_damageable.h">
       <Filter>Unit</Filter>
     </ClInclude>
-    <ClInclude Include="iserializable.h">
+    <ClInclude Include="interface_damageable.h">
       <Filter>Interface</Filter>
     </ClInclude>
-    <ClInclude Include="ihas_bindings.h">
+    <ClInclude Include="interface_has_bindings.h">
       <Filter>Interface</Filter>
     </ClInclude>
-    <ClInclude Include="idamageable.h">
+    <ClInclude Include="interface_serializable.h">
       <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>

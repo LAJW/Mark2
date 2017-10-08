@@ -1,8 +1,8 @@
 #pragma once
 #include "stdafx.h"
-#include "iserializable.h"
+#include "interface_serializable.h"
+#include "interface_damageable.h"
 #include "property.h"
-#include "idamageable.h"
 
 namespace mark {
 

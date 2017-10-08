@@ -8,7 +8,7 @@
 #include "unit_landing_pad.h"
 #include "unit_modular.h"
 #include "world.h"
-#include "ihas_bindings.h"
+#include "interface_has_bindings.h"
 #include "ui_window.h"
 #include "ui_button.h"
 #include "ui_container.h"

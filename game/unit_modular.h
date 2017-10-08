@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "unit_damageable.h"
 #include "command.h"
-#include "ihas_bindings.h"
+#include "interface_has_bindings.h"
 
 namespace mark {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
-#include "idamageable.h"
-#include "iserializable.h"
+#include "interface_damageable.h"
+#include "interface_serializable.h"
 #include "lfo.h"
 #include "unit_modular.h"
 
