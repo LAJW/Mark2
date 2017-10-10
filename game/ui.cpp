@@ -169,9 +169,7 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				// module's top-left corner
 				const auto drop_pos = module_pos
 					- mark::vector<int>(grabbed->size()) / 2;
-				try {
-					ship->attach(grabbed, drop_pos);
-				} catch (const mark::exception&) { /* no-op */ }
+				(void)ship->attach(drop_pos, grabbed);
 			} else {
 				grabbed = ship->detach(pick_pos);
 			}
@@ -244,7 +242,7 @@ static std::vector<bool> make_available_map(
 		{ 20, 20 });
 	std::vector<bool> available(40 * 40, false);
 	for (const auto top_left : surface) {
-		if (ship.can_attach(module, mark::vector<int>(top_left))) {
+		if (ship.can_attach(top_left, module)) {
 			for (const auto relative : mark::range(module.size())) {
 				const auto pos = top_left
 					+ mark::vector<int>(20, 20)
@@ -289,7 +287,7 @@ void mark::ui::ui::container_ui(
 				grabbed->size().x,
 				grabbed->size().y)) * 16.f;
 			const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
-			const auto color = ship.can_attach(*grabbed, drop_pos) ? sf::Color::Green : sf::Color::Red;
+			const auto color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green : sf::Color::Red;
 			mark::sprite::info info;
 			info.image = grabbed->thumbnail();
 			info.pos = mark::vector<double>(module_pos * 16) + landing_pad.pos();

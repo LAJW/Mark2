@@ -48,7 +48,7 @@ bool mark::ui::container::click(const event& event)
 		const vector<double> relative_pos(event.cursor - this->pos());
 		const auto pos = round(relative_pos / 16.) - module_size / 2;
 		if (mark::error::code::success ==
-			m_container.drop(pos, std::move(m_ui.grabbed))) {
+			m_container.attach(pos, m_ui.grabbed)) {
 			this->attach(pos, module);
 			return true;
 		}
@@ -71,7 +71,7 @@ void mark::ui::container::attach(
 	button.on_click.insert(
 		[pos, this, &button](const event& event) {
 		if (!m_ui.grabbed) {
-			m_ui.grabbed = std::move(m_container.pick(pos));
+			m_ui.grabbed = m_container.detach(pos);
 			this->remove(button);
 			m_container.detachable();
 		}

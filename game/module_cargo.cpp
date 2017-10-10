@@ -121,21 +121,31 @@ auto overlaps(
 
 }
 
-auto mark::module::cargo::drop(
-	mark::vector<int> spos,
-	std::unique_ptr<mark::module::base>& incoming)
+auto mark::module::cargo::attach(
+	const mark::vector<int>& pos,
+	std::unique_ptr<mark::module::base>& module)
 	-> mark::error::code
+{
+	if (!this->can_attach(pos, *module)) {
+		return error::code::bad_pos;
+	}
+	m_modules[pos.y * 16 + pos.x] = std::move(module);
+	return mark::error::code::success;
+}
+
+auto mark::module::cargo::can_attach(
+	const vector<int>& pos, const module::base & module) const -> bool
 {
 	// Check if fits inside the container
 	const auto cargo_size = mark::vector<size_t>(16, m_modules.size() / 16);
-	if (spos.x < 0 || spos.y < 0
-		|| spos.x + incoming->size().x > cargo_size.x
-		|| spos.y + incoming->size().y > cargo_size.y) {
-		return mark::error::code::bad_pos;
+	if (pos.x < 0 || pos.y < 0
+		|| pos.x + module.size().x > cargo_size.x
+		|| pos.y + module.size().y > cargo_size.y) {
+		return false;
 	}
 	// Check if doesn't overlap with any of the existing modules
-	const auto incoming_pos = mark::vector<unsigned>(spos);
-	const auto incoming_border = incoming_pos + incoming->size();
+	const auto incoming_pos = mark::vector<unsigned>(pos);
+	const auto incoming_border = incoming_pos + module.size();
 	for (const auto pair : enumerate(m_modules)) {
 		if (const auto& module = pair.second) {
 			const auto i = static_cast<unsigned>(pair.first);
@@ -144,21 +154,20 @@ auto mark::module::cargo::drop(
 			if (overlaps(
 				{ incoming_pos, incoming_border },
 				{ module_pos, module_border })) {
-				return mark::error::code::occupied;
+				return false;
 			}
 		}
 	}
-	m_modules[incoming_pos.y * 16 + incoming_pos.x] = std::move(incoming);
-	return mark::error::code::success;
+	return true;
 }
 
-auto mark::module::cargo::module(mark::vector<int> pos) -> mark::module::base*
+auto mark::module::cargo::at(const mark::vector<int>& pos) -> mark::module::base*
 {
 	return const_cast<mark::module::base*>(
-		static_cast<const mark::module::cargo*>(this)->module(pos));
+		static_cast<const mark::module::cargo*>(this)->at(pos));
 }
 
-auto mark::module::cargo::module(mark::vector<int> i_pos) const
+auto mark::module::cargo::at(const mark::vector<int>& i_pos) const
 	-> const mark::module::base*
  {
 	if (i_pos.x < 0 || i_pos.y < 0) {
@@ -178,7 +187,7 @@ auto mark::module::cargo::module(mark::vector<int> i_pos) const
 	return nullptr;
 }
 
-auto mark::module::cargo::pick(mark::vector<int> pos) ->
+auto mark::module::cargo::detach(const mark::vector<int>& pos) ->
 	std::unique_ptr<mark::module::base>
 {
 	if (pos.x < 0 && pos.y < 0) {
@@ -236,7 +245,7 @@ mark::error::code mark::module::cargo::push(
 {
 	for (const auto i : range(static_cast<int>(m_modules.size()))) {
 		const auto drop_pos = modulo_vector(i, 16);
-		if (this->drop(drop_pos, module) == mark::error::code::success) {
+		if (this->attach(drop_pos, module) == mark::error::code::success) {
 			return mark::error::code::success;
 		}
 	}

@@ -299,6 +299,9 @@
     <ClInclude Include="interface_serializable.h">
       <Filter>Interface</Filter>
     </ClInclude>
+    <ClInclude Include="interface_container.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

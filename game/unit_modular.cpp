@@ -328,23 +328,25 @@ auto mark::unit::modular::attached(const mark::module::base& module) const
 		mark::vector<int8_t>(module.size()));
 }
 
-void mark::unit::modular::attach(
-	std::unique_ptr<mark::module::base>& module,
-	mark::vector<int> pos_)
+auto mark::unit::modular::attach(
+	const vector<int>& pos_,
+	std::unique_ptr<mark::module::base>& module)
+	-> mark::error::code 
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
-	if (!module || !can_attach(*module, pos_)) {
-		throw mark::user_error("");
+	if (!module || !can_attach(pos_, *module)) {
+		return error::code::bad_pos;
 	}
-	p_attach(std::move(module), pos_);
+	return p_attach(pos_, module);
 }
 
-void mark::unit::modular::p_attach(
-	std::unique_ptr<mark::module::base> module,
-	mark::vector<int> pos_) {
+auto mark::unit::modular::p_attach(
+	const vector<int>& pos_,
+	std::unique_ptr<mark::module::base>& module) -> error::code
+{
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	if (!module || !p_can_attach(*module, pos_)) {
-		throw mark::user_error("");
+		return error::code::bad_pos;
 	}
 	// establish core, check if core already present
 	if (auto core = dynamic_cast<mark::module::core*>(module.get())) {
@@ -369,11 +371,12 @@ void mark::unit::modular::p_attach(
 		}
 	}
 	m_modules.emplace_back(std::move(module));
+	return error::code::success;
 }
 
 auto mark::unit::modular::can_attach(
-	const mark::module::base& module,
-	mark::vector<int> pos_) const
+	const vector<int>& pos_,
+	const mark::module::base& module) const
 	-> bool
 {
 	return p_can_attach(module, pos_)
@@ -425,17 +428,16 @@ auto mark::unit::modular::p_can_attach(
 
 auto mark::unit::modular::module(mark::vector<int> pos) const ->
 	const mark::module::base* {
-	return this->at(mark::vector<int8_t>(pos));
+	return this->at(pos);
 }
 
 auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base* {
 	const auto cthis = static_cast<const mark::unit::modular*>(this);
-	return this->at(mark::vector<int8_t>(pos));
+	return this->at(pos);
 }
 
-auto mark::unit::modular::detach(mark::vector<int> pos_) ->
+auto mark::unit::modular::detach(const vector<int>& pos) ->
 	std::unique_ptr<mark::module::base> {
-	const auto pos = mark::vector<int8_t>(pos_);
 	
 	const auto module_ptr = this->at(pos);
 	if (!module_ptr) {
@@ -660,7 +662,7 @@ auto mark::unit::modular::lookat() const noexcept -> mark::vector<double>
 void mark::unit::modular::toggle_bind(
 	enum class mark::command::type command, mark::vector<int> pos)
 {
-	if (const auto module_ptr = this->at(mark::vector<int8_t>(pos))) {
+	if (const auto module_ptr = this->at(pos)) {
 		auto& module = *module_ptr;
 		if (module.passive()) {
 			return;
@@ -711,7 +713,9 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 		const auto id = module_node["id"].as<uint64_t>();
 		auto module = mark::module::deserialize(
 			world.resource_manager(), module_node);
-		this->p_attach(std::move(module), pos);
+		if (this->p_attach(pos, std::move(module)) != error::code::success) {
+			throw mark::exception("BAD_MODULE_POS");
+		}
 		id_map.insert({ id, *m_modules.back() });
 	}
 	for (const auto& binding_node : node["bindings"]) {
@@ -765,16 +769,16 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(mark::vector<int8_t> pos) noexcept ->
+auto mark::unit::modular::at(const vector<int>& pos) noexcept ->
 	mark::module::base* {
 	return const_cast<module::base*>(static_cast<const modular*>(this)->at(pos));
 }
 
-auto mark::unit::modular::at(mark::vector<int8_t> pos) const noexcept ->
+auto mark::unit::modular::at(const vector<int>& pos) const noexcept ->
 	const mark::module::base* {
 	const auto hs = static_cast<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(pos);
+		return this->p_at(vector<int8_t>(pos));
 	} else {
 		return nullptr;
 	}

@@ -3,6 +3,7 @@
 #include "unit_damageable.h"
 #include "command.h"
 #include "interface_has_bindings.h"
+#include "interface_container.h"
 
 namespace mark {
 
@@ -20,7 +21,8 @@ class world;
 
 namespace unit {
 class modular final:
-	public mark::unit::damageable,
+	public unit::damageable,
+	public interface::container,
 	public interface::has_bindings {
 public:
 	using find_result = std::vector<std::reference_wrapper<mark::module::base>>;
@@ -32,11 +34,20 @@ public:
 	modular(mark::world& world, const YAML::Node&);
 	modular(mark::world& world, mark::vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 	void command(const mark::command& command) override;
-	// Attaches module to the modular
-	// Throws mark::exception if object cannot be attached
-	// Doesn't destroy passed in module on error
-	void attach(std::unique_ptr<module::base>& module, mark::vector<int> pos);
-	auto can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
+	[[nodiscard]] auto attach(
+		const vector<int>& pos, std::unique_ptr<module::base>& module)
+		-> error::code override;
+	auto can_attach(
+		const vector<int>& pos, const module::base& module) const
+		-> bool override;
+	auto at(const vector<int>& pos) noexcept
+		-> mark::module::base* override;
+	auto at(const vector<int>& pos) const noexcept
+		-> const mark::module::base* override;
+	auto detach(const vector<int>& pos)
+		-> std::unique_ptr<mark::module::base> override;
+
+	// TODO: Rename to neighbour_of
 	auto attached(const mark::module::base&) ->
 		std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>;
 	auto attached(const mark::module::base&) const ->
@@ -54,7 +65,6 @@ public:
 		std::vector<std::reference_wrapper<mark::module::cargo>>;
 	auto containers() const ->
 		std::vector<std::reference_wrapper<const mark::module::cargo>>;
-	auto detach(mark::vector<int> pos)->std::unique_ptr<mark::module::base>;
 	auto module(mark::vector<int> pos) const -> const mark::module::base*;
 	auto module(mark::vector<int> pos)->mark::module::base*;
 	auto damage(const interface::damageable::info&) -> bool override;
@@ -67,15 +77,13 @@ public:
 	void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 	auto bindings() const -> bindings_t;
 	void serialize(YAML::Emitter&) const;
-	// get module at position. Returns null if out of bounds or no module present.
-	auto at(mark::vector<int8_t> pos) noexcept -> mark::module::base*;
-	auto at(mark::vector<int8_t> pos) const noexcept-> const mark::module::base*;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
 	auto p_reserved(mark::vector<int8_t> pos) const noexcept -> bool;
 private:
 	// Attach without checking structure of the ship
-	void p_attach(std::unique_ptr<module::base> module, mark::vector<int> pos);
+	[[nodiscard]] auto p_attach(
+		const vector<int>& pos, std::unique_ptr<module::base>& module) -> error::code;
 	// Check whether module can be attached without checking structure of the ship
 	auto p_can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
 	void remove_dead(mark::tick_context&);
