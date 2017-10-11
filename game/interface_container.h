@@ -19,6 +19,7 @@ public:
 		-> module::base* = 0;
 	virtual auto detach(const vector<int>& pos)
 		-> std::unique_ptr<module::base> = 0;
+	virtual auto can_detach(const vector<int>& pos) const -> bool = 0;
 protected:
 	~container() = default;
 };

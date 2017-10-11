@@ -46,6 +46,7 @@ public:
 		-> const mark::module::base* override;
 	auto detach(const vector<int>& pos)
 		-> std::unique_ptr<mark::module::base> override;
+	auto can_detach(const vector<int>& pos) const -> bool override;
 
 	// TODO: Rename to neighbour_of
 	auto attached(const mark::module::base&) ->
@@ -94,7 +95,10 @@ private:
 	void tick_modules(mark::tick_context& context);
 	void tick_movement(double dt, const mark::module::modifiers& mods);
 	void tick_ai();
-	auto p_connected_to_core(const mark::module::base&) const -> bool;
+	auto p_connected_to_core(
+		const module::base&,
+		const vector<int>& excluded_pos,
+		const vector<unsigned>& excluded_size) const -> bool;
 	// get pointer in reference to the center of the grid
 	auto p_at(mark::vector<int8_t> pos) noexcept -> mark::module::base*&;
 	auto p_at(mark::vector<int8_t> pos) const noexcept -> const mark::module::base*;
