@@ -159,7 +159,11 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 	if (!ship) {
 		return;
 	}
-	if (command.type == mark::command::type::move && !command.release) {
+	if (command.type == mark::command::type::shoot && !command.release) {
+		if (grabbed && grabbed_prev_parent) {
+			(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
+		}
+	} else if (command.type == mark::command::type::move && !command.release) {
 		const auto relative = (command.pos - landing_pad->pos()) / 16.0;
 		const auto module_pos = mark::round(relative);
 		const auto pick_pos = mark::floor(relative);
@@ -172,6 +176,10 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				(void)ship->attach(drop_pos, grabbed);
 			} else {
 				grabbed = ship->detach(pick_pos);
+				if (grabbed) {
+					grabbed_prev_pos = grabbed->grid_pos();
+					grabbed_prev_parent = ship.get();
+				}
 			}
 		}
 	} else if (!command.release) {

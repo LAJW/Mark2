@@ -2,6 +2,9 @@
 #include "stdafx.h"
 
 namespace mark {
+namespace interface{
+class container;
+}
 namespace resource {
 class image;
 class manager;
@@ -44,7 +47,9 @@ public:
 		const std::string& text,
 		mark::vector<double> pos);
 
-	std::unique_ptr<mark::module::base> grabbed;
+	std::unique_ptr<module::base> grabbed;
+	vector<int> grabbed_prev_pos;
+	interface::container* grabbed_prev_parent = nullptr;
 private:
 	void container_ui(
 		const mark::world& world,

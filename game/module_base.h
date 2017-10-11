@@ -39,12 +39,15 @@ enum class reserved_type {
 	back
 };
 
+class cargo;
+
 class base:
 	public interface::damageable,
 	public interface::serializable {
 public:
 	static constexpr auto max_heat = 100.f;
 	friend mark::unit::modular;
+	friend mark::module::cargo;
 	virtual ~base() = default;
 
 	virtual void tick(mark::tick_context& context);

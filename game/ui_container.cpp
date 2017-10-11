@@ -72,6 +72,10 @@ void mark::ui::container::attach(
 		[pos, this, &button](const event& event) {
 		if (!m_ui.grabbed) {
 			m_ui.grabbed = m_container.detach(pos);
+			if (m_ui.grabbed) {
+				m_ui.grabbed_prev_parent = &m_container;
+				m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
+			}
 			this->remove(button);
 			m_container.detachable();
 		}

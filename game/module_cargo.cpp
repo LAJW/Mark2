@@ -129,6 +129,7 @@ auto mark::module::cargo::attach(
 	if (!this->can_attach(pos, *module)) {
 		return error::code::bad_pos;
 	}
+	module->m_grid_pos = vector<int8_t>(pos);
 	m_modules[pos.y * 16 + pos.x] = std::move(module);
 	return mark::error::code::success;
 }
