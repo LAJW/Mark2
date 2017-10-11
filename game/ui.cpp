@@ -310,7 +310,7 @@ void mark::ui::ui::container_ui(
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			// ship
 
-			const auto module = ship.module(pick_pos);
+			const auto module = ship.at(pick_pos);
 			if (module) {
 				const auto description = module->describe();
 				const auto module_pos = module->pos();

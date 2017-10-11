@@ -53,8 +53,6 @@ public:
 		std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>;
 	auto attached(const mark::module::base&) const ->
 		std::vector<std::pair<std::reference_wrapper<const mark::module::base>, unsigned>>;
-	auto core() -> mark::module::core&;
-	auto core() const -> const mark::module::core&;
 
 	void tick(mark::tick_context& context) override;
 	inline auto rotation() const { return m_rotation; }
@@ -66,8 +64,6 @@ public:
 		std::vector<std::reference_wrapper<mark::module::cargo>>;
 	auto containers() const ->
 		std::vector<std::reference_wrapper<const mark::module::cargo>>;
-	auto module(mark::vector<int> pos) const -> const mark::module::base*;
-	auto module(mark::vector<int> pos)->mark::module::base*;
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const mark::segment_t&) ->
 		std::pair<interface::damageable*, mark::vector<double>> override;

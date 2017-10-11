@@ -432,16 +432,6 @@ auto mark::unit::modular::p_can_attach(
 	return true;
 }
 
-auto mark::unit::modular::module(mark::vector<int> pos) const ->
-	const mark::module::base* {
-	return this->at(pos);
-}
-
-auto mark::unit::modular::module(mark::vector<int> pos)->mark::module::base* {
-	const auto cthis = static_cast<const mark::unit::modular*>(this);
-	return this->at(pos);
-}
-
 auto mark::unit::modular::detach(const vector<int>& pos) ->
 	std::unique_ptr<mark::module::base>
 {
@@ -497,24 +487,6 @@ auto mark::unit::modular::can_detach(const vector<int>& pos) const -> bool
 	});
 }
 
-
-auto mark::unit::modular::core() -> mark::module::core&
-{
-	if (m_core) {
-		return *m_core;
-	} else {
-		throw mark::user_error("NO_CORE");
-	}
-}
-
-auto mark::unit::modular::core() const -> const mark::module::core&
-{
-	if (m_core) {
-		return *m_core;
-	} else {
-		throw mark::user_error("NO_CORE");
-	}
-}
 
 void mark::unit::modular::command(const mark::command& command)
 {

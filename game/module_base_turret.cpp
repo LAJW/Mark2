@@ -26,7 +26,7 @@ auto target(
 		if (!unit->dead() && mark::length(unit->pos() - turret_pos) < 1000.) {
 			if (const auto modular
 				= std::dynamic_pointer_cast<mark::unit::modular>(unit)) {
-				if (modular->module(mark::round(offset / 16.))) {
+				if (modular->at(mark::round(offset / 16.))) {
 					return unit->pos() + offset;
 				}
 			} else {
