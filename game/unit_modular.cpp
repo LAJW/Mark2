@@ -117,7 +117,7 @@ void mark::unit::modular::tick_movement(
 	const auto distance = mark::length(m_moveto - pos());
 	if (distance > m_velocity * dt) {
 		const auto acceleration = 500.0;
-		if (start_breaking(distance - map::tile_size, m_velocity, acceleration)
+		if (start_breaking(distance, m_velocity, acceleration)
 			|| m_velocity > max_velocity) {
 			m_velocity = std::max(0., m_velocity - acceleration * dt);
 		} else {
@@ -125,8 +125,8 @@ void mark::unit::modular::tick_movement(
 		}
 		if (team() != 1
 			&& (m_path_age <= 0.f
-				|| m_path_cache.size() > 0
-					&& mark::length(m_path_cache.back() - m_moveto) < radius)
+				|| !m_path_cache.empty()
+					&& mark::length(m_path_cache.front() - m_moveto) < radius)
 			&& m_world.map().can_find()
 			&& !m_world.resource_manager().random(0, 2)) {
 			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
@@ -134,19 +134,14 @@ void mark::unit::modular::tick_movement(
 		} else {
 			m_path_age -= static_cast<float>(dt);
 		}
-		const auto dir = mark::normalize(m_moveto - pos());
 
-		while (!m_path_cache.empty()
-			&& mark::length(m_path_cache.back() - pos())
-				<= static_cast<double>(map::tile_size)) {
+		while (!m_path_cache.empty() && length(m_path_cache.back() - pos()) <= map::tile_size) {
 			m_path_cache.pop_back();
 		}
-		if (m_path_cache.empty()) {
-			step = vector<double>();
-			m_velocity = 0.;
-		} else {
-			step = mark::normalize(m_path_cache.back() - pos()) * m_velocity * dt;
-		}
+		const auto dir = m_path_cache.empty()
+			? mark::normalize(m_moveto - pos())
+			: mark::normalize(m_path_cache.back() - pos());
+		step = dir * m_velocity * dt;
 	} else {
 		step = m_moveto - pos();
 		m_velocity = 0.0;
@@ -494,7 +489,8 @@ void mark::unit::modular::command(const mark::command& command)
 	if (command.type == mark::command::type::move) {
 		m_moveto = command.pos;
 		m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
-		if (!m_path_cache.empty()) {
+		if (!m_path_cache.empty()
+			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 			m_moveto = m_path_cache.front();
 		}
 		m_move = !command.release;
@@ -506,7 +502,8 @@ void mark::unit::modular::command(const mark::command& command)
 		if (m_move) {
 			m_moveto = m_lookat;
 			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
-			if (!m_path_cache.empty()) {
+			if (!m_path_cache.empty()
+				&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 				m_moveto = m_path_cache.front();
 			}
 		}
