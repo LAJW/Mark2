@@ -161,7 +161,7 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 	if (!ship) {
 		return;
 	}
-	if (command.type == mark::command::type::shoot && !command.release) {
+	if (command.type == mark::command::type::shoot && !command.release && grabbed) {
 		this->release();
 	} else if (command.type == mark::command::type::move && !command.release) {
 		const auto relative = (command.pos - landing_pad->pos()) / 16.0;
