@@ -158,6 +158,9 @@ void mark::main(std::vector<std::string> args)
 		auto command = keymap.translate(info.event);
 		command.pos = target;
 		command.shift = shift_pressed;
+		if (command.type == mark::command::type::activate) {
+			ui.release();
+		}
 		if (command.type == mark::command::type::reset) {
 			world = std::make_unique<mark::world>(rm);
 		} else {
