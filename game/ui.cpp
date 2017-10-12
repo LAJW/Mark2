@@ -162,10 +162,7 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 		return;
 	}
 	if (command.type == mark::command::type::shoot && !command.release) {
-		if (grabbed && grabbed_prev_parent) {
-			(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
-			m_redraw_ui = true;
-		}
+		this->release();
 	} else if (command.type == mark::command::type::move && !command.release) {
 		const auto relative = (command.pos - landing_pad->pos()) / 16.0;
 		const auto module_pos = mark::round(relative);
@@ -265,6 +262,14 @@ static std::vector<bool> make_available_map(
 		}
 	}
 	return available;
+}
+
+void mark::ui::ui::release()
+{
+	if (grabbed && grabbed_prev_parent) {
+		(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
+		m_redraw_ui = true;
+	}
 }
 
 void mark::ui::ui::container_ui(

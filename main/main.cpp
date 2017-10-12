@@ -178,6 +178,7 @@ void mark::main(std::vector<std::string> args)
 		return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
 	};
 	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
+	ui.release();
 	save_world(*world, "state.yml");
 }
 

@@ -50,6 +50,8 @@ public:
 	std::unique_ptr<module::base> grabbed;
 	vector<int> grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
+	// Release module held by UI
+	void release();
 private:
 	void container_ui(
 		const mark::world& world,
