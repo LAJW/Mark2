@@ -307,7 +307,7 @@ void mark::unit::modular::tick(mark::tick_context& context)
 {
 	const auto modifiers = this->modifiers();
 	this->tick_modules(context);
-	if (!m_ai) {
+	if (!m_ai && m_world.target().get() == this) {
 		this->pick_up(context);
 	}
 	this->tick_movement(context.dt, modifiers);
