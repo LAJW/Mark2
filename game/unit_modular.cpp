@@ -659,6 +659,20 @@ void mark::unit::modular::toggle_bind(
 	}
 }
 
+auto mark::unit::modular::binding(mark::vector<int> pos) const
+	-> std::vector<enum class mark::command::type>
+{
+	std::vector<enum class mark::command::type> out;
+	if (const auto module = this->at(pos)) {
+		for (const auto& pair : m_bindings) {
+			if (module == &pair.second.get()) {
+				out.push_back(pair.first);
+			}
+		}
+	}
+	return out;
+}
+
 auto mark::unit::modular::bindings() const -> modular::bindings_t {
 	modular::bindings_t out;
 	for (const auto& binding : m_bindings) {

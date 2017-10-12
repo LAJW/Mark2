@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "command.h"
 
 namespace mark {
 namespace interface{
@@ -50,6 +51,7 @@ public:
 	std::unique_ptr<module::base> grabbed;
 	vector<int> grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
+	std::vector<enum class command::type> grabbed_bind;
 	// Release module held by UI
 	void release();
 private:

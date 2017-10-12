@@ -174,11 +174,18 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				const auto drop_pos = module_pos
 					- mark::vector<int>(grabbed->size()) / 2;
 				(void)ship->attach(drop_pos, grabbed);
+				for (const auto& bind : this->grabbed_bind) {
+					ship->toggle_bind(bind, drop_pos);
+				}
+				grabbed_bind.clear();
 			} else {
+				grabbed_bind = ship->binding(pick_pos);
 				grabbed = ship->detach(pick_pos);
 				if (grabbed) {
 					grabbed_prev_pos = grabbed->grid_pos();
 					grabbed_prev_parent = ship.get();
+				} else {
+					grabbed_bind.clear();
 				}
 			}
 		}
@@ -268,6 +275,12 @@ void mark::ui::ui::release()
 {
 	if (grabbed && grabbed_prev_parent) {
 		(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
+		if (const auto ship = dynamic_cast<mark::unit::modular*>(grabbed_prev_parent)) {
+			for (const auto& bind : this->grabbed_bind) {
+				ship->toggle_bind(bind, grabbed_prev_pos);
+			}
+		}
+		grabbed_bind.clear();
 		m_redraw_ui = true;
 	}
 }

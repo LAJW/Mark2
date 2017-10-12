@@ -73,6 +73,9 @@ public:
 	// bind module at position to command
 	void toggle_bind(enum class mark::command::type, mark::vector<int> pos);
 	auto bindings() const -> bindings_t;
+	// Get vector of commands controlling this module
+	auto binding(mark::vector<int> pos) const
+		-> std::vector<enum class mark::command::type>;
 	void serialize(YAML::Emitter&) const;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
