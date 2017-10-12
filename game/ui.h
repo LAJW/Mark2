@@ -74,6 +74,7 @@ private:
 	std::vector<std::unique_ptr<window>> m_windows;
 
 	mark::resource::manager& m_rm;
+	bool m_redraw_ui = false;
 };
 
 }

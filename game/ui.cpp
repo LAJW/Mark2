@@ -106,7 +106,9 @@ void mark::ui::ui::tick(
 				world, context, resolution, mouse_pos_, mouse_pos,
 				*landing_pad, *ship);
 			if (m_windows.empty()
-				|| ship->containers().size() != m_container_count) {
+				|| ship->containers().size() != m_container_count
+				|| m_redraw_ui) {
+				m_redraw_ui = false;
 				m_container_count = ship->containers().size();
 				this->hide_ship_editor();
 				this->show_ship_editor(*ship);
@@ -162,6 +164,7 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 	if (command.type == mark::command::type::shoot && !command.release) {
 		if (grabbed && grabbed_prev_parent) {
 			(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
+			m_redraw_ui = true;
 		}
 	} else if (command.type == mark::command::type::move && !command.release) {
 		const auto relative = (command.pos - landing_pad->pos()) / 16.0;
