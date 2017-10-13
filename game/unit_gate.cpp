@@ -13,7 +13,7 @@ mark::unit::gate::gate(mark::world& world, mark::vector<double> pos):
 }
 
 void mark::unit::gate::tick(mark::tick_context& context) {
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image;
 	info.pos = pos();
 	info.size = 320.f;

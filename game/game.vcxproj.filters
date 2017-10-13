@@ -28,9 +28,6 @@
     <ClCompile Include="resource_manager.cpp">
       <Filter>General</Filter>
     </ClCompile>
-    <ClCompile Include="sprite.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
     <ClCompile Include="tick_context.cpp">
       <Filter>General</Filter>
     </ClCompile>

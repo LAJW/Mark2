@@ -11,7 +11,7 @@ void mark::module::engine::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
 	const auto pos = this->pos();
 
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image_base;
 	info.pos = pos;
 	info.size = mark::module::size * 4.f;

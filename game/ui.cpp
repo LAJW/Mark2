@@ -36,7 +36,7 @@ void mark::ui::ui::tick(
 	const auto mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 	// Display Hotbar
 	{
-		mark::sprite::info bg_sprite;
+		mark::sprite bg_sprite;
 		bg_sprite.image = m_hotbar_bg;
 		bg_sprite.pos.x = resolution.x / 2. - 23. - 64. * 5.5;
 		bg_sprite.pos.y = resolution.y - 85;
@@ -44,7 +44,7 @@ void mark::ui::ui::tick(
 		context.ui_sprites[0].emplace_back(bg_sprite);
 	}
 	{
-		mark::sprite::info bg_sprite;
+		mark::sprite bg_sprite;
 		bg_sprite.image = m_hotbar_overlay;
 		bg_sprite.pos.x = resolution.x / 2. - 64. * 5.5;
 		bg_sprite.pos.y = resolution.y - 64;
@@ -61,7 +61,7 @@ void mark::ui::ui::tick(
 			const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
 			const auto y = resolution.y - 64;;
 			if (binding.thumbnail) {
-				mark::sprite::info sprite;
+				mark::sprite sprite;
 				sprite.image = binding.thumbnail;
 				sprite.pos.x = x;
 				sprite.pos.y = y;
@@ -207,7 +207,7 @@ void mark::ui::ui::tooltip(
 	const std::string& text,
 	mark::vector<double> screen_pos)
 {
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_tooltip_bg;
 	info.pos = screen_pos;
 	info.size = 300.f;
@@ -230,7 +230,7 @@ void mark::ui::ui::world_tooltip(
 	const std::string& text,
 	mark::vector<double> pos)
 {
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_tooltip_bg;
 	info.pos = pos + mark::vector<double>(150, 150),
 	info.size = 300.f;
@@ -303,7 +303,7 @@ void mark::ui::ui::container_ui(
 		const auto available = make_available_map(*grabbed, ship);
 		for (const auto offset : surface) {
 			if (available[offset.x + 20 + (offset.y + 20) * 40]) {
-				mark::sprite::info info;
+				mark::sprite info;
 				info.image = m_grid_bg;
 				info.pos = landing_pad.pos() + mark::vector<double>(offset) * 16.0 + mark::vector<double>(8.0, 8.0);
 				info.size = 16.f;
@@ -317,7 +317,7 @@ void mark::ui::ui::container_ui(
 				grabbed->size().y)) * 16.f;
 			const auto drop_pos = module_pos - mark::vector<int>(grabbed->size()) / 2; // module's top-left corner
 			const auto color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green : sf::Color::Red;
-			mark::sprite::info info;
+			mark::sprite info;
 			info.image = grabbed->thumbnail();
 			info.pos = mark::vector<double>(module_pos * 16) + landing_pad.pos();
 			info.size = size;
@@ -325,7 +325,7 @@ void mark::ui::ui::container_ui(
 			context.sprites[100].emplace_back(info);
 		} else {
 			const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * 16.f;
-			mark::sprite::info info;
+			mark::sprite info;
 			info.image = grabbed->thumbnail();
 			info.pos = mouse_pos;
 			info.size = size;

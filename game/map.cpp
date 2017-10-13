@@ -144,7 +144,7 @@ void mark::map::tick(
 			| ((cbl == terrain_type::floor_1) & 1) << 1
 			| ((ctr == terrain_type::floor_1) & 1) << 2
 			| ((cbr == terrain_type::floor_1) & 1) << 3;
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = floor;
 		info.frame = frame + get_variant(pos) * 16;
 		info.size = mark::map::tile_size;

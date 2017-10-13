@@ -98,7 +98,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	}
 	const auto heat_color = this->heat_color();
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_im_cannon;
 		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
 		info.size = 32.f;
@@ -107,7 +107,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		context.sprites[2].emplace_back(info);
 	}
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_im_base;
 		info.pos = pos;
 		info.size = 32.f;

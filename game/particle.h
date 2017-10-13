@@ -9,7 +9,7 @@ namespace mark {
 	namespace resource {
 		class image;
 	}
-	class sprite;
+	struct sprite;
 	class particle {
 	public:
 		struct info {

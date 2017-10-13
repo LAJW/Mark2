@@ -6,7 +6,7 @@
 
 namespace mark {
 
-	class sprite;
+	struct sprite;
 	class world;
 	class command;
 	struct tick_context;

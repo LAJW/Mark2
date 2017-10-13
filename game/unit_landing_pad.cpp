@@ -40,7 +40,7 @@ void mark::unit::landing_pad::serialize(YAML::Emitter& out) const
 
 void mark::unit::landing_pad::tick(mark::tick_context& context)
 {
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image;
 	info.pos = pos();
 	info.size = 320.f;

@@ -35,7 +35,7 @@ void mark::ui::button::tick(mark::tick_context& context)
 
 void mark::ui::button::render(mark::tick_context& context)
 {
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image;
 	const auto pos = vector<double>(this->pos());
 	info.pos = pos - mark::vector<double>(0, (m_size.x - m_size.y) / 2.);

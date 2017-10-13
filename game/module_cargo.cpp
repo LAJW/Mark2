@@ -71,7 +71,7 @@ void mark::module::cargo::tick(mark::tick_context& context)
 	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
 	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_im_body;
 		info.pos = pos;
 		info.size = 64.f;
@@ -80,7 +80,7 @@ void mark::module::cargo::tick(mark::tick_context& context)
 		context.sprites[2].emplace_back(info);
 	}
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 32.f;
@@ -89,7 +89,7 @@ void mark::module::cargo::tick(mark::tick_context& context)
 		context.sprites[4].emplace_back(info);
 	}
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 16.f;

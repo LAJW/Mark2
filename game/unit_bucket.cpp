@@ -48,7 +48,7 @@ void mark::unit::bucket::tick(mark::tick_context& context) {
 			this->pos(pos() + ds);
 		}
 	}
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_module->thumbnail();
 	info.pos = pos();
 	info.size = size;

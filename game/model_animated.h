@@ -2,7 +2,7 @@
 #include "stdafx.h"
 
 namespace mark {
-	class sprite;
+	struct sprite;
 	namespace resource {
 		class manager;
 		class image;

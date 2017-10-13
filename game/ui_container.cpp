@@ -28,7 +28,7 @@ mark::ui::container::container(const info& info)
 
 void mark::ui::container::tick(mark::tick_context& context)
 {
-	mark::sprite::info sprite;
+	mark::sprite sprite;
 	sprite.image = m_cargo_bg;
 	sprite.pos = vector<double>(this->pos());
 	sprite.size = 64.f;

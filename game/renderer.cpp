@@ -13,21 +13,21 @@ void render(
 	mark::vector<double> resolution)
 {
 	sf::Sprite tmp;
-	const auto texture_size = static_cast<float>(sprite.image().size().y);
-	const auto scale = sprite.size() / texture_size;
-	tmp.setTexture(sprite.image().texture());
+	const auto texture_size = static_cast<float>(sprite.image->size().y);
+	const auto scale = sprite.size / texture_size;
+	tmp.setTexture(sprite.image->texture());
 	tmp.setTextureRect({
-		static_cast<int>(texture_size) * static_cast<int>(sprite.frame()),
+		static_cast<int>(texture_size) * static_cast<int>(sprite.frame),
 		0,
 		static_cast<int>(texture_size),
 		static_cast<int>(texture_size) });
 	tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
 	tmp.scale(scale, scale);
-	tmp.rotate(sprite.rotation());
-	tmp.setColor(sprite.color());
+	tmp.rotate(sprite.rotation);
+	tmp.setColor(sprite.color);
 	tmp.move(
-		static_cast<float>(sprite.x() - camera.x + resolution.x / 2.0),
-		static_cast<float>(sprite.y() - camera.y + resolution.y / 2.0));
+		static_cast<float>(sprite.pos.x - camera.x + resolution.x / 2.0),
+		static_cast<float>(sprite.pos.y - camera.y + resolution.y / 2.0));
 	buffer.draw(tmp);
 }
 
@@ -36,23 +36,23 @@ void render_ui(const mark::sprite sprite, sf::RenderTexture& buffer)
 {
 	sf::Sprite tmp;
 	// HACK: Thumbnails not deserialized
-	if (&sprite.image()) {
-		tmp.setTexture(sprite.image().texture());
-		tmp.setColor(sprite.color());
-		if (sprite.frame() != std::numeric_limits<size_t>::max()) {
-			const auto texture_size = sprite.image().size().y;
+	if (&sprite.image) {
+		tmp.setTexture(sprite.image->texture());
+		tmp.setColor(sprite.color);
+		if (sprite.frame != std::numeric_limits<size_t>::max()) {
+			const auto texture_size = sprite.image->size().y;
 			tmp.setTextureRect({
 				static_cast<int>(texture_size)
-				* static_cast<int>(sprite.frame()),
+				* static_cast<int>(sprite.frame),
 				0,
 				static_cast<int>(texture_size),
 				static_cast<int>(texture_size) });
-			const auto scale = sprite.size() / texture_size;
+			const auto scale = sprite.size / texture_size;
 			tmp.scale(scale, scale);
 		}
 		tmp.setPosition(
-			static_cast<float>(sprite.x()),
-			static_cast<float>(sprite.y()));
+			static_cast<float>(sprite.pos.x),
+			static_cast<float>(sprite.pos.y));
 		buffer.draw(tmp);
 	}
 }

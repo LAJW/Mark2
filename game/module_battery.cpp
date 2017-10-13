@@ -11,7 +11,7 @@ mark::module::battery::battery(mark::resource::manager& manager) :
 
 void mark::module::battery::tick(mark::tick_context& context) {
 	this->mark::module::base::tick(context);
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image_base;
 	info.pos = this->pos();
 	info.size = mark::module::size * 2.f;

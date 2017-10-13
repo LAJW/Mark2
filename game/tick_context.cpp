@@ -57,7 +57,7 @@ void mark::print(
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			mark::sprite::info args;
+			mark::sprite args;
 			args.image = font;
 			args.pos = pos + offset + mark::vector<double>(0, offset_y(ch));
 			args.size = size;
@@ -106,7 +106,7 @@ void mark::tick_context::render(const bar_info & info) {
 		uint8_t frame = 0;
 		// render gray background
 		if (i >= edge) {
-			mark::sprite::info args;
+			mark::sprite args;
 			args.image = image;
 			args.pos = pos + mark::vector<double>(offset_x, 0);
 			args.size = 8.f;
@@ -134,7 +134,7 @@ void mark::tick_context::render(const bar_info & info) {
 					frame = 0;
 				}
 			}
-			mark::sprite::info args;
+			mark::sprite args;
 			args.image = image;
 			args.pos = pos + mark::vector<double>(offset_x, 0);
 			args.size = 8.f;

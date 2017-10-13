@@ -7,7 +7,7 @@ namespace mark {
 namespace resource {
 	class manager;
 }
-class sprite;
+struct sprite;
 class world;
 struct tick_context;
 

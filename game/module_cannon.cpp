@@ -65,7 +65,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				break;
 			}
 			{
-				mark::sprite::info info;
+				mark::sprite info;
 				info.image = m_im_ray;
 				info.pos = cur;
 				info.size = mark::module::size;

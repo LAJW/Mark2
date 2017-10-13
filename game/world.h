@@ -12,7 +12,7 @@ namespace sf {
 }
 
 namespace mark {
-	class sprite;
+	struct sprite;
 	class command;
 	struct tick_context;
 	namespace resource {

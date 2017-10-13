@@ -14,7 +14,7 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 	const auto pos = this->pos();
 
 	{
-		mark::sprite::info info;
+		mark::sprite info;
 		info.image = m_image_base;
 		info.pos = pos;
 		info.size = mark::module::size * 2.f;

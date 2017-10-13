@@ -42,7 +42,7 @@ void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& s
 	} else {
 		color = sf::Color::White;
 	}
-	mark::sprite::info info;
+	mark::sprite info;
 	info.image = m_image;
 	info.pos = m_pos;
 	info.size = m_size;

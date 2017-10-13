@@ -76,7 +76,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);
 		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
-		mark::sprite::info stun_sprite;
+		mark::sprite stun_sprite;
 		stun_sprite.image = parent().world().image_stun;
 		stun_sprite.pos = pos;
 		stun_sprite.rotation = m_stun_lfo * 360.f;

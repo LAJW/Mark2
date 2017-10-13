@@ -23,7 +23,7 @@ void mark::model::shield::tick(
 	const auto reflection_opacity = static_cast<uint8_t>(m_adsr.get());
 	const auto rotation = static_cast<float>(mark::atan(m_trigger_pos - pos));
 
-	mark::sprite::info args;
+	mark::sprite args;
 	args.image = m_image_shield;
 	args.pos = pos;
 	args.size = m_radius;

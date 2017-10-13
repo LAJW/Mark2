@@ -14,7 +14,7 @@ namespace resource {
 class image;
 class manager;
 }
-class sprite;
+struct sprite;
 
 namespace module {
 // grid size - width/height of an 1x1 module
