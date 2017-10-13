@@ -51,35 +51,36 @@ public:
 	auto map_to_world(mark::vector<int>) const noexcept
 		-> mark::vector<double>;
 private:
+	struct terrain {
+		enum class type {
+			null,
+			abyss,
+			floor_1,
+			floor_2,
+			floor_3,
+			wall
+		} type = type::null;
+		std::array<bool, 20> traversable;
+		unsigned variant = 0;
+	};
 	auto mark::map::p_traversable(
 		const vector<int>& i_pos, const size_t radius) const -> bool;
 
-	enum class terrain_type {
-		null,
-		abyss,
-		floor_1,
-		floor_2,
-		floor_3,
-		wall
-	};
-
-	static std::string serialize_terrain_type(terrain_type);
-	static terrain_type deserialize_terrain_type(const std::string&);
+	static std::string serialize_terrain_type(enum class terrain::type);
+	static enum class terrain::type deserialize_terrain_type(const std::string&);
 
 	map(mark::resource::manager&, mark::vector<size_t> size);
 
 	auto size() const noexcept -> const mark::vector<size_t>&;
-	auto get(mark::vector<int> pos) const noexcept -> terrain_type;
+	auto get(mark::vector<int> pos) const noexcept -> enum class terrain::type;
 	auto get_variant(mark::vector<int> pos) const noexcept -> unsigned;
-	void set(mark::vector<int> pos, terrain_type) noexcept;
+	void set(mark::vector<int> pos, enum class terrain::type) noexcept;
 	auto world_to_map(mark::vector<double>) const noexcept
 		-> mark::vector<int>;
 	void calculate_traversable();
 
+	std::vector<terrain> m_terrain;
 	std::reference_wrapper<mark::resource::manager> m_rm;
-	std::vector<terrain_type> m_terrain;
-	std::vector<std::array<bool, 20>> m_traversable;
-	std::vector<unsigned> m_variant;
 	mark::vector<size_t> m_size;
 	mutable unsigned m_find_count = 0;
 };
