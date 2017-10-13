@@ -22,6 +22,7 @@ protected:
 
 	mark::vector<double> m_target;
 	bool m_shoot = false;
+	void serialize_base(YAML::Emitter&) const;
 private:
 	std::deque<
 		std::pair<

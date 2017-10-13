@@ -58,6 +58,16 @@ bool mark::module::base_turret::queued()
 	return !m_queue.empty();
 }
 
+void mark::module::base_turret::serialize_base(YAML::Emitter& out) const
+{
+	using namespace YAML;
+	base::serialize_base(out);
+	out << Key << "target" << Value << BeginMap;
+	out << Key << "x" << m_target.x;
+	out << Key << "y" << m_target.y;
+	out << EndMap;
+}
+
 void mark::module::base_turret::target(mark::vector<double> pos)
 { m_target = pos; }
 

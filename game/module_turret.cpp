@@ -197,11 +197,6 @@ void mark::module::turret::serialize(YAML::Emitter& out) const {
 	out << Key << "range" << Value << m_range;
 	out << Key << "piercing" << Value << m_piercing;
 
-	out << Key << "target" << Value << BeginMap;
-	out << Key << "x" << m_target.x;
-	out << Key << "y" << m_target.y;
-	out << EndMap;
-
 	out << EndMap;
 }
 
