@@ -208,9 +208,6 @@ auto mark::module::cargo::detach(const mark::vector<int>& pos) ->
 	return nullptr;
 }
 
-auto mark::module::cargo::can_detach(const vector<int>& pos) const -> bool
-{ return true; }
-
 auto mark::module::cargo::interior_size() const -> mark::vector<int> {
 	auto size_v = static_cast<int>(m_modules.size());
 	return mark::vector<int>(16, size_v / 16);

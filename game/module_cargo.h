@@ -33,8 +33,6 @@ public:
 		-> const module::base* override;
 	auto detach(const vector<int>& pos)
 		-> std::unique_ptr<module::base> override;
-	auto can_detach(const vector<int>& pos) const -> bool override;
-
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(tick_context& context) override;

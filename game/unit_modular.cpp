@@ -193,9 +193,7 @@ void mark::unit::modular::tick_ai() {
 }
 
 auto mark::unit::modular::p_connected_to_core(
-	const mark::module::base& module,
-	const vector<int>& exclude_pos,
-	const vector<unsigned> & exclude_size) const -> bool
+	const mark::module::base& module) const -> bool
 {
 	const auto size = static_cast<int8_t>(std::sqrt(m_grid.size()));
 	const auto hs = int8_t(size / 2);
@@ -231,11 +229,7 @@ auto mark::unit::modular::p_connected_to_core(
 			const auto traversable = neighbour_pos.x > 0
 				&& neighbour_pos.y > 0 && neighbour_pos.x < size
 				&& neighbour_pos.y < size
-				&& m_grid[neighbour_pos.y * size + neighbour_pos.x].first
-				&& !(neighbour_pos.x >= exclude_pos.x
-					&& neighbour_pos.x < exclude_pos.x + (int)exclude_size.x
-					&& neighbour_pos.y >= exclude_pos.y
-					&& neighbour_pos.y < exclude_pos.y + (int)exclude_size.y);
+				&& m_grid[neighbour_pos.y * size + neighbour_pos.x].first;
 			const auto isClosed = closed.end() != std::find_if(
 				closed.begin(),
 				closed.end(),
@@ -428,19 +422,34 @@ auto mark::unit::modular::p_can_attach(
 }
 
 auto mark::unit::modular::detach(const vector<int>& pos) ->
-	std::unique_ptr<mark::module::base>
-{
+	std::unique_ptr<mark::module::base> {
+	
 	const auto module_ptr = this->at(pos);
-	if (!can_detach(pos)) {
+	if (!module_ptr) {
 		return nullptr;
 	}
 	auto& module = *module_ptr;
+	if (!module.detachable()) {
+		return nullptr;
+	}
 	const auto module_pos = vector<int8_t>(module.grid_pos());
 	const auto module_size = mark::vector<int8_t>(module.size());
 	// remove module from the grid
 	const auto surface = range(module_pos, module_pos + module_size);
 	for (const auto grid_pos : surface) {
 		this->p_at(grid_pos) = nullptr;
+	}
+	const auto neighbours = this->attached(module);
+	const auto disconnected = std::find_if(
+		neighbours.begin(), neighbours.end(),
+		[this](const auto& neighbour) {
+		return !this->p_connected_to_core(neighbour.first.get());
+	});
+	if (disconnected != neighbours.end()) {
+		for (const auto grid_pos : surface) {
+			this->p_at(grid_pos) = module_ptr;
+		}
+		return nullptr;
 	}
 	if (module.reserved() == module::reserved_type::back) {
 		for (const auto i : mark::range<mark::vector<int>>(
@@ -461,25 +470,6 @@ auto mark::unit::modular::detach(const vector<int>& pos) ->
 		return ptr.get() == module_ptr;
 	});
 	return std::move(mark::drop(m_modules, module_it));
-}
-
-auto mark::unit::modular::can_detach(const vector<int>& pos) const -> bool
-{
-	const auto module_ptr = this->at(pos);
-	if (!module_ptr) {
-		return false;
-	}
-	auto& module = *module_ptr;
-	if (!module.detachable()) {
-		return false;
-	}
-	const auto neighbours = this->attached(module);
-	return neighbours.end() == std::find_if(
-		neighbours.begin(), neighbours.end(),
-		[this, &module](const auto& neighbour) {
-		return !this->p_connected_to_core(
-			neighbour.first.get(), module.grid_pos(), module.size());
-	});
 }
 
 
@@ -808,7 +798,7 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 			m_modules.begin(),
 			first_dead_it,
 			[this](const auto& module) {
-				return this->p_connected_to_core(*module, { 0, 0 }, { 0, 0 });
+				return this->p_connected_to_core(*module);
 		});
 		std::for_each(
 			first_detached_it,
