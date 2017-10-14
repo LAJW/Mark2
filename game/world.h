@@ -72,7 +72,10 @@ namespace mark {
 		std::vector<std::shared_ptr<mark::unit::base>> m_units;
 		mark::resource::manager& m_resource_manager;
 		std::weak_ptr<mark::unit::base> m_camera_target;
-		mark::vector<double> m_camera;
+		vector<double> m_camera;
+		double m_camera_velocity = 0.;
+		vector<double> m_prev_target_pos;
+		double m_a = 0.;
 		std::vector<mark::particle> m_particles;
 	};
 }

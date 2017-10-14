@@ -145,14 +145,16 @@ auto mark::world::resource_manager() -> mark::resource::manager& {
 	return m_resource_manager;
 }
 
-void mark::world::tick(mark::tick_context& context, mark::vector<double> screen_size) {
+void mark::world::tick(
+	mark::tick_context& context, mark::vector<double> screen_size)
+{
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
 	}
-	m_map.tick(
-		m_camera - screen_size / 2.0 - mark::vector<double>(64, 64),
-		m_camera + screen_size / 2.0 + mark::vector<double>(64, 64),
-		context);
+	const auto camera = vmap(m_camera, std::round);
+	const auto offset = screen_size / 2.0
+		+ mark::vector<double>(map::tile_size, map::tile_size) * 2.;
+	m_map.tick(camera - offset, camera + offset, context);
 
 	for (auto& unit : m_units) {
 		// ticking can damage other units and they may become dead in the process
@@ -196,9 +198,28 @@ void mark::world::tick(mark::tick_context& context, mark::vector<double> screen_
 		);
 	}
 
-	const auto camera_target = m_camera_target.lock();
-	if (camera_target) {
-		m_camera = m_camera + (camera_target->pos() - m_camera) * 2.0 * context.dt;
+	if (const auto camera_target = m_camera_target.lock()) {
+		constexpr const auto T = .5;
+		const auto target_pos = camera_target->pos();
+		const auto diff = target_pos - m_camera;
+		const auto dist = length(diff);
+		if (target_pos != m_prev_target_pos) {
+			m_prev_target_pos = target_pos;
+			m_a = 2. * dist / T / T;
+			m_camera_velocity = m_a * T;
+		}
+		if (dist != 0.) {
+			const auto dir = diff / dist;
+			m_camera_velocity -= m_a * context.dt;
+			if (m_camera_velocity * context.dt < dist
+				&& m_camera_velocity > 0) {
+				m_camera += m_camera_velocity * dir * context.dt;
+			} else {
+				m_camera = target_pos;
+				m_camera_velocity = 0.;
+				m_a = 0;
+			}
+		}
 	}
 }
 
