@@ -576,7 +576,7 @@ mark::map::map(
 	}
 	m_terrain = { m_size.x * m_size.y, terrain() };
 	size_t i = 0;
-	for (const auto cell : node["data"]) {
+	for (const auto& cell : node["data"]) {
 		m_terrain[i].type = deserialize_terrain_type(cell.as<std::string>());
 		m_terrain[i].variant = resource_manager.random(0, 2);
 		i++;
