@@ -11,11 +11,12 @@ namespace interface {
 
 class has_bindings {
 public:
-	struct binding {
+	struct binding final {
 		std::shared_ptr<const mark::resource::image> thumbnail;
 		uint16_t total = 0;
 		uint16_t ready = 0;
 		float cooldown = 0.f;
+		std::vector<vector<int>> positions;
 	};
 	constexpr static const size_t binding_count = 11;
 	using bindings_t = std::array<binding, binding_count>;

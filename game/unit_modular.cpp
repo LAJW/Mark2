@@ -666,17 +666,19 @@ auto mark::unit::modular::binding(mark::vector<int> pos) const
 auto mark::unit::modular::bindings() const -> modular::bindings_t {
 	modular::bindings_t out;
 	for (const auto& binding : m_bindings) {
+		const auto&[command, module] = binding;
 		uint8_t slot;
-		if (binding.first == mark::command::type::shoot) {
+		if (command == mark::command::type::shoot) {
 			slot = 0;
-		} else if (binding.first == mark::command::type::ability_0) {
+		} else if (command == mark::command::type::ability_0) {
 			slot = 10;
 		} else {
-			slot = static_cast<uint8_t>(binding.first) -
+			slot = static_cast<uint8_t>(command) -
 				static_cast<uint8_t>(mark::command::type::ability_1) + 1;
 		}
 		out[slot].total++;
-		out[slot].thumbnail = binding.second.get().thumbnail();
+		out[slot].thumbnail = module.get().thumbnail();
+		out[slot].positions.push_back(module.get().grid_pos());
 	}
 	return out;
 }

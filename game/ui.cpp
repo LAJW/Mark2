@@ -30,6 +30,8 @@ void mark::ui::ui::tick(
 	mark::vector<double> resolution,
 	mark::vector<double> mouse_pos_)
 {
+	const auto image_circle = rm.image("circle.png");
+	const auto image_ray = rm.image("ray.png");
 	for (const auto& window : m_windows) {
 		window->tick(context);
 	}
@@ -55,11 +57,45 @@ void mark::ui::ui::tick(
 	if (const auto unit
 		= std::dynamic_pointer_cast<const interface::has_bindings>(world.target())) {
 		const auto icon_size = 64.0;
-		for (const auto pair : mark::enumerate(unit->bindings())) {
-			const auto [i, binding] = pair;
+		const auto bindings = unit->bindings();
+		for (size_t i = 0; i < bindings.size(); ++i) {
+			const auto binding = bindings[i];
+			// const auto&[i, binding] = pair;
 			const auto di = static_cast<double>(i);
 			const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
 			const auto y = resolution.y - 64;;
+
+			// Highlight bindings
+			const auto center = resolution / 2.0;
+			if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
+				for (const auto& pos : binding.positions) {
+					const auto module_pos = center + vector<double>(pos * 16);
+					const auto module_size = vector<int>(32, 32);
+					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64.
+						&& y <= mouse_pos_.y && mouse_pos_.y < y + 64.)
+						&& !(module_pos.x <= mouse_pos_.x && mouse_pos_.x < module_pos.x + module_size.x
+							&& module_pos.y <= mouse_pos_.y && mouse_pos_.y < module_pos.y + module_size.y))
+						continue;
+					sprite sprite;
+					const auto module_pos_ = module_pos + vector<double>(8, 8);
+					sprite.pos = module_pos_;
+					sprite.image = image_circle;
+					sprite.frame = std::numeric_limits<size_t>::max();
+					context.ui_sprites[1].push_back(sprite);
+					const auto diff = vector<double>(x + 32, y + 32) - module_pos_;
+					const auto dir = normalize(diff);
+					const auto dist = length(diff);
+					for (auto i = 0.; i < dist; i += 16.) {
+						mark::sprite sprite;
+						sprite.pos = module_pos_ + dir * i + vector<double>(16, 16);
+						sprite.image = image_ray;
+						sprite.frame = std::numeric_limits<size_t>::max();
+						sprite.rotation = atan(dir);
+						context.ui_sprites[1].push_back(sprite);
+					}
+				}
+			}
+
 			if (binding.thumbnail) {
 				mark::sprite sprite;
 				sprite.image = binding.thumbnail;

@@ -36,25 +36,24 @@ void render_ui(const mark::sprite sprite, sf::RenderTexture& buffer)
 {
 	sf::Sprite tmp;
 	// HACK: Thumbnails not deserialized
-	if (&sprite.image) {
-		tmp.setTexture(sprite.image->texture());
-		tmp.setColor(sprite.color);
-		if (sprite.frame != std::numeric_limits<size_t>::max()) {
-			const auto texture_size = sprite.image->size().y;
-			tmp.setTextureRect({
-				static_cast<int>(texture_size)
-				* static_cast<int>(sprite.frame),
-				0,
-				static_cast<int>(texture_size),
-				static_cast<int>(texture_size) });
-			const auto scale = sprite.size / texture_size;
-			tmp.scale(scale, scale);
-		}
-		tmp.setPosition(
-			static_cast<float>(sprite.pos.x),
-			static_cast<float>(sprite.pos.y));
-		buffer.draw(tmp);
+	tmp.setTexture(sprite.image->texture());
+	tmp.setColor(sprite.color);
+	tmp.rotate(sprite.rotation);
+	if (sprite.frame != std::numeric_limits<size_t>::max()) {
+		const auto texture_size = sprite.image->size().y;
+		tmp.setTextureRect({
+			static_cast<int>(texture_size)
+			* static_cast<int>(sprite.frame),
+			0,
+			static_cast<int>(texture_size),
+			static_cast<int>(texture_size) });
+		const auto scale = sprite.size / texture_size;
+		tmp.scale(scale, scale);
 	}
+	tmp.setPosition(
+		static_cast<float>(sprite.pos.x),
+		static_cast<float>(sprite.pos.y));
+	buffer.draw(tmp);
 }
 
 } // anonymous namespace
