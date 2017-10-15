@@ -20,7 +20,7 @@ protected:
 	// switching to manual control
 	bool queued();
 
-	mark::vector<double> m_target;
+	std::shared_ptr<mark::vector<double>> m_target;
 	bool m_shoot = false;
 	void serialize_base(YAML::Emitter&) const;
 private:

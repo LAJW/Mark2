@@ -32,7 +32,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 		m_rotation = rotation;
 	} else {
 		// TODO Respect angular velocity here
-		m_rotation = mark::turn(m_target - pos, m_rotation, m_angular_velocity, context.dt);
+		m_rotation = mark::turn(*m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_shoot) {
 		std::unordered_set<interface::damageable*> damaged;

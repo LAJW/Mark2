@@ -39,14 +39,12 @@ mark::unit::projectile::projectile(const mark::unit::projectile::info& args, boo
 void mark::unit::projectile::tick(mark::tick_context& context) {
 	double dt = context.dt;
 	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
-	const auto guide = m_guide.lock();
 	const auto turn_speed = 500.f;
-	if (guide) {
-		const auto lookat = guide->lookat();
-		if (mark::length(lookat - pos()) < m_velocity * dt * 2.0) {
+	if (m_guide) {
+		if (mark::length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
 		} else {
-			m_rotation = mark::turn(lookat - pos(), m_rotation, turn_speed, dt);
+			m_rotation = mark::turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
 		auto target = m_world.find_one(
@@ -167,10 +165,6 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 	out << Key << "critical_chance" << Value << m_critical_chance;
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
 	out << Key << "piercing" << Value << m_piercing;
-	const auto guide = m_guide.lock();
-	if (guide) {
-		out << Key << "guide" << Value << guide->id();
-	}
 
 	out << Key << "damaged" << Value << BeginSeq;
 	for (const auto& damaged : m_damaged) {
@@ -186,6 +180,6 @@ void mark::unit::projectile::resolve_ref(
 	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) {
 	
 	if (node["guide"]) {
-		m_guide = std::dynamic_pointer_cast<mark::unit::modular>(units.at(node["guide"].as<uint64_t>()).lock());
+		// TODO
 	}
 }

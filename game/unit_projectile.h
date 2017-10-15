@@ -16,7 +16,7 @@ namespace mark {
 			struct info {
 				mark::world* world = nullptr;
 				// for mouse-guided missiles
-				std::weak_ptr<const mark::unit::modular> guide;
+				std::shared_ptr<const vector<double>> guide;
 				mark::vector<double> pos;
 				float rotation = NAN;
 				float velocity = NAN;
@@ -43,7 +43,7 @@ namespace mark {
 			std::shared_ptr<const mark::resource::image> m_image;
 			std::shared_ptr<const mark::resource::image> m_im_tail;
 			std::unordered_set<interface::damageable*> m_damaged;
-			std::weak_ptr<const mark::unit::modular> m_guide;
+			std::shared_ptr<const vector<double>> m_guide;
 			float m_rotation;
 			float m_velocity;
 			float m_seek_radius;

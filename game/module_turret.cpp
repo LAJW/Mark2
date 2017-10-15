@@ -60,7 +60,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		}
 	} else {
 		m_rotation = mark::turn(
-			m_target - pos, m_rotation, m_angular_velocity, context.dt);
+			*m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
@@ -69,9 +69,8 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		m_adsr.trigger();
 		mark::unit::projectile::info info;
 		info.world = &parent().world();
-		if (m_guided && !this->queued()) {
-			info.guide = std::dynamic_pointer_cast<mark::unit::modular>(
-				parent().shared_from_this());
+		if (m_guided) {
+			info.guide = m_target;
 		}
 		for (int i = 0; i < m_projectile_count; i++) {
 			info.pos = pos;
