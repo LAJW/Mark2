@@ -1,24 +1,25 @@
 #include "stdafx.h"
-#include "world.h"
-#include "resource_manager.h"
-#include "unit_base.h"
-#include "unit_modular.h"
+#include "command.h"
+#include "map.h"
 #include "module_cargo.h"
 #include "module_core.h"
 #include "module_shield_generator.h"
 #include "module_turret.h"
-#include "sprite.h"
-#include "unit_minion.h"
-#include "command.h"
-#include "tick_context.h"
-#include "module_cannon.h"
-#include "unit_landing_pad.h"
 #include "module_energy_generator.h"
 #include "module_battery.h"
 #include "module_flamethrower.h"
 #include "module_engine.h"
-#include "unit_gate.h"
+#include "module_cannon.h"
+#include "particle.h"
+#include "resource_manager.h"
+#include "tick_context.h"
+#include "unit_base.h"
 #include "unit_damageable.h"
+#include "unit_gate.h"
+#include "unit_landing_pad.h"
+#include "unit_minion.h"
+#include "unit_modular.h"
+#include "world.h"
 
 auto make_turret(mark::resource::manager& resource_manager) {
 	mark::module::turret::info info;
@@ -136,6 +137,8 @@ mark::world::world(mark::resource::manager& resource_manager, const bool empty) 
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
 }
+
+mark::world::~world() = default;
 
 auto mark::world::map() const -> const mark::map&{
 	return m_map;
@@ -405,8 +408,6 @@ void mark::world::next() {
 void mark::world::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-
-	out << Key << "id" << Value << this->id();
 
 	out << Key << "type" << Value << "world";
 
