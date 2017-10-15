@@ -560,11 +560,11 @@ void mark::map::serialize(YAML::Emitter& out) const {
 	out << Key << "x" << Value << m_size.x;
 	out << Key << "y" << Value << m_size.y;
 	out << EndMap;
-	std::vector<unsigned char> data;
+	std::string data;
 	for (const auto terrain : m_terrain) {
 		data.push_back(static_cast<unsigned char>(terrain.type));
 	}
-	out << Key << "data" << Value << base64_encode(data.data(), data.size());
+	out << Key << "data" << Value << base64_encode(data);
 	out << EndMap;
 }
 

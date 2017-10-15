@@ -25,7 +25,8 @@ auto mark::resource::image_stub::size() const noexcept -> mark::vector<unsigned>
 }
 
 auto mark::resource::image_stub::filename() const noexcept -> const std::string& {
-	return "file.png";
+	static const std::string file_name("file.png");
+	return file_name;
 }
 
 auto mark::resource::image_stub::texture() const noexcept -> const sf::Texture& {

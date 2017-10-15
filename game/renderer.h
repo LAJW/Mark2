@@ -4,7 +4,7 @@
 
 namespace mark {
 	struct tick_context;
-	class sprite;
+	struct sprite;
 
 	class renderer {
 	public:

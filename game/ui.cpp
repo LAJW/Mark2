@@ -90,7 +90,7 @@ void mark::ui::ui::tick(
 						sprite.pos = module_pos_ + dir * i + vector<double>(16, 16);
 						sprite.image = image_ray;
 						sprite.frame = std::numeric_limits<size_t>::max();
-						sprite.rotation = atan(dir);
+						sprite.rotation = static_cast<float>(atan(dir));
 						context.ui_sprites[1].push_back(sprite);
 					}
 				}

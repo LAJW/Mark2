@@ -77,6 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\x64\Debug;C:\Lib\yaml-cpp\build\Debug;C:\Lib\SFML\bin\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -112,6 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\lajw\Documents\Visual Studio 2017\Projects\game\game;C:\Lib\SFML\include;C:\Lib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
