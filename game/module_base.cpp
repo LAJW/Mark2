@@ -43,6 +43,8 @@ void mark::module::base::tick(mark::tick_context & context) {
 		m_cur_heat = std::max(
 			m_cur_heat - HEAT_LOSS_RATE * static_cast<float>(context.dt),
 			0.f);
+	} else {
+		m_cur_heat = 0.f;
 	}
 	if (!this->parent().landed()) {
 		if (health_percentage <= 0.5f) {
