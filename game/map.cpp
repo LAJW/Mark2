@@ -9,6 +9,7 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "exception.h"
+#include "base64.h"
 
 // Make specific types of maps
 
@@ -559,11 +560,11 @@ void mark::map::serialize(YAML::Emitter& out) const {
 	out << Key << "x" << Value << m_size.x;
 	out << Key << "y" << Value << m_size.y;
 	out << EndMap;
-	out << Key << "data" << Value << BeginSeq;
+	std::vector<unsigned char> data;
 	for (const auto terrain : m_terrain) {
-		out << serialize_terrain_type(terrain.type);
+		data.push_back(static_cast<unsigned char>(terrain.type));
 	}
-	out << EndSeq;
+	out << Key << "data" << Value << base64_encode(data.data(), data.size());
 	out << EndMap;
 }
 
@@ -576,8 +577,9 @@ mark::map::map(
 	}
 	m_terrain = { m_size.x * m_size.y, terrain() };
 	size_t i = 0;
-	for (const auto& cell : node["data"]) {
-		m_terrain[i].type = deserialize_terrain_type(cell.as<std::string>());
+	auto data = base64_decode(node["data"].as<std::string>());
+	for (const auto ch : data) {
+		m_terrain[i].type = static_cast<enum class terrain::type>(ch);
 		m_terrain[i].variant = resource_manager.random(0, 2);
 		i++;
 	}

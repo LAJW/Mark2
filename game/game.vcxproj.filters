@@ -124,6 +124,9 @@
     <ClCompile Include="module_base_turret.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="base64.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -298,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="interface_container.h">
       <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="base64.h">
+      <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
