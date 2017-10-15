@@ -17,4 +17,4 @@ bool mark::ui::callback_group::dispatch(const event& event) const
 }
 
 bool mark::ui::callback_group::operator()(const event& event) const
-{ this->dispatch(event); }
+{ return this->dispatch(event); }
