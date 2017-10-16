@@ -1,0 +1,381 @@
+id: 2710813270096
+team: 0
+pos:
+  x: -2880
+  y: -416
+type: unit_modular
+modules:
+  - type: module_core
+    id: 2710819869800
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -1
+      y: -1
+    thumbnail: core.png
+  - type: module_cargo
+    id: 2710800032600
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -1
+      y: 1
+    thumbnail: cargo.png
+    contents:
+      - slot: 0
+        item:
+          type: shield_generator
+          id: 2710799024120
+          cur_health: 100
+          max_health: 100
+          stunned: 0
+          cur_heat: 0
+          size:
+            x: 2
+            y: 2
+          grid_pos:
+            x: 0
+            y: 0
+          thumbnail: shield-generator.png
+          cur_shield: 1000
+          max_shield: 1000
+  - type: module_cargo
+    id: 2710800035480
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -1
+      y: -3
+    thumbnail: cargo.png
+    contents:
+      []
+  - type: shield_generator
+    id: 2710799026168
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: 1
+      y: -1
+    thumbnail: shield-generator.png
+    cur_shield: 1000
+    max_shield: 1000
+  - type: module_flamethrower
+    id: 2710819870120
+    cur_health: 96.9992
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: 3
+      y: -3
+    thumbnail: turret.png
+  - type: module_flamethrower
+    id: 2710819870440
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: 3
+      y: 1
+    thumbnail: turret.png
+  - type: module_turret
+    id: 2710800167320
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -3
+      y: -3
+    thumbnail: turret-base.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+    cur_cooldown: -0.1
+    rate_of_fire: 10
+    rate_of_fire_curve: flat
+    rotation: 1.669093
+    angular_velocity: 360
+    projectile_count: 1
+    burst_delay: 0
+    guided: true
+    cone: 10
+    cone_curve: linear
+    heat_per_shot: 2
+    critical_chance: 0.1
+    critical_multiplier: 1.5
+    physical: 10
+    energy: 10
+    heat: 1
+    projectile_angular_velocity: 30
+    velocity: 1000
+    acceleration: 100
+    aoe_radius: 0
+    seek_radius: 0
+    range: 2000
+    piercing: 1
+  - type: module_turret
+    id: 2710800165848
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -3
+      y: 1
+    thumbnail: turret-base.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+    cur_cooldown: -0.1
+    rate_of_fire: 10
+    rate_of_fire_curve: flat
+    rotation: -1.89108
+    angular_velocity: 360
+    projectile_count: 1
+    burst_delay: 0
+    guided: true
+    cone: 10
+    cone_curve: linear
+    heat_per_shot: 2
+    critical_chance: 0.1
+    critical_multiplier: 1.5
+    physical: 10
+    energy: 10
+    heat: 1
+    projectile_angular_velocity: 30
+    velocity: 1000
+    acceleration: 100
+    aoe_radius: 0
+    seek_radius: 0
+    range: 2000
+    piercing: 1
+  - type: module_cannon
+    id: 2710799024888
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -1
+      y: 3
+    thumbnail: cannon.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+  - type: module_cannon
+    id: 2710799025144
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -1
+      y: -5
+    thumbnail: cannon.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+  - type: module_turret
+    id: 2710800168056
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -3
+      y: -5
+    thumbnail: turret-base.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+    cur_cooldown: -0.1
+    rate_of_fire: 0.3
+    rate_of_fire_curve: flat
+    rotation: -90.11099
+    angular_velocity: 0
+    projectile_count: 3
+    burst_delay: 0
+    guided: false
+    cone: 30
+    cone_curve: flat
+    heat_per_shot: 30
+    critical_chance: 0.1
+    critical_multiplier: 1.5
+    physical: 10
+    energy: 10
+    heat: 1
+    projectile_angular_velocity: 30
+    velocity: 500
+    acceleration: 100
+    aoe_radius: 0
+    seek_radius: 500
+    range: 2000
+    piercing: 1
+  - type: module_turret
+    id: 2710800165480
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -3
+      y: 3
+    thumbnail: turret-base.png
+    target:
+      x: -1882.34687744313
+      y: -417.9326665221182
+    cur_cooldown: -0.1
+    rate_of_fire: 0.3
+    rate_of_fire_curve: flat
+    rotation: 89.88901
+    angular_velocity: 0
+    projectile_count: 3
+    burst_delay: 0
+    guided: false
+    cone: 30
+    cone_curve: flat
+    heat_per_shot: 30
+    critical_chance: 0.1
+    critical_multiplier: 1.5
+    physical: 10
+    energy: 10
+    heat: 1
+    projectile_angular_velocity: 30
+    velocity: 500
+    acceleration: 100
+    aoe_radius: 0
+    seek_radius: 500
+    range: 2000
+    piercing: 1
+  - type: module_energy_generator
+    id: 2710801825272
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -3
+      y: -1
+    thumbnail: energy-generator.png
+    max_energy: 100
+    cur_energy: 100
+    energy_regen: 30
+  - type: module_battery
+    id: 2710800126392
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 2
+      y: 2
+    grid_pos:
+      x: -5
+      y: -1
+    thumbnail: battery.png
+    max_energy: 1000
+    cur_energy: 1000
+  - type: module_engine
+    id: 2710819870920
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -7
+      y: -3
+    thumbnail: engine.png
+  - type: module_engine
+    id: 2710819871400
+    cur_health: 100
+    max_health: 100
+    stunned: 0
+    cur_heat: 0
+    size:
+      x: 4
+      y: 2
+    grid_pos:
+      x: -7
+      y: 1
+    thumbnail: engine.png
+moveto:
+  x: -1882.34687744313
+  y: -417.9326665221182
+lookat:
+  x: -1882.34687744313
+  y: -417.9326665221182
+ai: true
+move: false
+bindings:
+  - key: 7
+    module_id: 2710819870120
+  - key: 7
+    module_id: 2710819870440
+  - key: 5
+    module_id: 2710800167320
+  - key: 5
+    module_id: 2710800165848
+  - key: 5
+    module_id: 2710800168056
+  - key: 5
+    module_id: 2710800165480
+  - key: 8
+    module_id: 2710799024888
+  - key: 8
+    module_id: 2710799025144
+  - key: 9
+    module_id: 2710819870920
+  - key: 9
+    module_id: 2710819871400

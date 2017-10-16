@@ -79,6 +79,7 @@ public:
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
 	auto p_reserved(mark::vector<int8_t> pos) const noexcept -> bool;
+	void ai(bool);
 private:
 	// Attach without checking structure of the ship
 	[[nodiscard]] auto p_attach(

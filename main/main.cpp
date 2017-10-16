@@ -50,13 +50,15 @@ mark::renderer::render_info tick(
 }
 
 std::unique_ptr<mark::world> load_or_create_world(
-	std::string filename, mark::resource::manager& resource_manager)
+	std::string filename,
+	mark::resource::manager& resource_manager,
+	const std::unordered_map<std::string, YAML::Node>& templates)
 {
 	try {
 		const auto node = YAML::LoadFile(filename);
-		return std::make_unique<mark::world>(resource_manager, node);
+		return std::make_unique<mark::world>(resource_manager, node, templates);
 	} catch (std::exception&) {
-		return std::make_unique<mark::world>(resource_manager);
+		return std::make_unique<mark::world>(resource_manager, templates);
 	}
 
 }
@@ -140,7 +142,11 @@ void mark::main(std::vector<std::string> args)
 	mark::resource::manager_impl rm;
 	mark::ui::ui ui(rm);
 	const auto keymap = mark::keymap("options.yml");
-	auto world = load_or_create_world("state.yml", rm);
+	const auto ship_node = YAML::LoadFile("ship.yml");
+	const auto ship(ship_node);
+	std::unordered_map<std::string, YAML::Node> templates;
+	templates["ship"] = YAML::LoadFile("ship.yml");
+	auto world = load_or_create_world("state.yml", rm, templates);
 	bool shift_pressed = false;
 	const auto on_event = [&](const on_event_info& info) {
 		if ((info.event.type == sf::Event::EventType::KeyPressed
@@ -162,7 +168,7 @@ void mark::main(std::vector<std::string> args)
 			ui.release();
 		}
 		if (command.type == mark::command::type::reset) {
-			world = std::make_unique<mark::world>(rm);
+			world = std::make_unique<mark::world>(rm, templates);
 		} else {
 			ui.command(*world, command);
 			world->command(command);

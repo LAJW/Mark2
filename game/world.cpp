@@ -21,84 +21,19 @@
 #include "unit_modular.h"
 #include "world.h"
 
-auto make_turret(mark::resource::manager& resource_manager) {
-	mark::module::turret::info info;
-	info.resource_manager = &resource_manager;
-	info.seek_radius = 0.f;
-	info.velocity = 1000.f;
-	info.projectile_angular_velocity = 30.f;
-	info.guided = true;
-	info.rate_of_fire = 10.f;
-	info.angular_velocity = 360.f;
-	info.cone_curve = mark::curve::linear;
-	info.cone = 10.f;
-	info.projectile_count = 1;
-	info.heat_per_shot = 2.f;
-	return std::make_unique<mark::module::turret>(info);
-}
-
-auto make_mortar(mark::resource::manager& resource_manager) {
-	mark::module::turret::info info;
-	info.resource_manager = &resource_manager;
-	info.seek_radius = 500.f;
-	info.projectile_count = 3;
-	info.velocity = 500.f;
-	info.projectile_angular_velocity = 30.f;
-	info.guided = false;
-	info.rate_of_fire = .3f;
-	info.angular_velocity = 0.f;
-	info.cone = 30.f;
-	info.heat_per_shot = 30.f;
-	return std::make_unique<mark::module::turret>(info);
-}
-
-auto to_base(std::unique_ptr<mark::module::base> ptr) {
-	return ptr;
-}
-
-auto create_ship(mark::resource::manager& resource_manager, mark::world& world, mark::vector<double> pos = { 0, 0 }) {
-	auto vessel = std::make_shared<mark::unit::modular>(world, pos, 10.f);
-	auto core = to_base(std::make_unique<mark::module::core>(resource_manager));
-	(void)vessel->attach({ -1, -1 }, core);
-	auto cargo1 = std::make_unique<mark::module::cargo>(resource_manager);
-	std::unique_ptr<mark::module::base> shield_generator = std::make_unique<mark::module::shield_generator>(resource_manager);
-	(void)cargo1->attach({ 0, 0 }, shield_generator);
-	(void)vessel->attach({ -1, 1 }, to_base(std::move(cargo1)));
-	(void)vessel->attach({ -1, -3 }, to_base(std::make_unique<mark::module::cargo>(resource_manager)));
-	(void)vessel->attach({ 1, -1 }, to_base(std::make_unique<mark::module::shield_generator>(resource_manager)));
-	(void)vessel->attach({ 3, -3 }, to_base(std::make_unique<mark::module::flamethrower>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_1, { 3, -3 });
-	(void)vessel->attach({ 3, 1 }, to_base(std::make_unique<mark::module::flamethrower>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_1, { 3, 1 });
-	(void)vessel->attach({ -3, -3 }, to_base(make_turret(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::shoot, { -3, -3 });
-	(void)vessel->attach({ -3, 1 }, to_base(make_turret(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::shoot, { -3, 1 });
-	(void)vessel->attach({ -1, 3 }, to_base(std::make_unique<mark::module::cannon>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_2, { -1, 3 });
-	(void)vessel->attach({ -1, -5 }, to_base(std::make_unique<mark::module::cannon>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_2, { -1, -5 });
-	(void)vessel->attach({ -3, -5 }, to_base(make_mortar(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::shoot, { -3, -5 });
-	(void)vessel->attach({ -3, 3 }, to_base(make_mortar(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::shoot, { -3, 3 });
-	(void)vessel->attach({ -3, -1 }, to_base(std::make_unique<mark::module::energy_generator>(resource_manager)));
-	(void)vessel->attach({ -5, -1 }, to_base(std::make_unique<mark::module::battery>(resource_manager)));
-	(void)vessel->attach({ -7, -3 }, to_base(std::make_unique<mark::module::engine>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_3, { -7, -3 });
-	(void)vessel->attach({ -7, 1 }, to_base(std::make_unique<mark::module::engine>(resource_manager)));
-	(void)vessel->toggle_bind(mark::command::type::ability_3, { -7, 1 });
-	return vessel;
-}
-
-mark::world::world(mark::resource::manager& resource_manager, const bool empty) :
-	m_resource_manager(resource_manager),
-	m_map(empty
+mark::world::world(
+	mark::resource::manager& resource_manager,
+	const std::unordered_map<std::string, YAML::Node>& templates,
+	const bool empty)
+	: m_resource_manager(resource_manager)
+	, m_map(empty
 		? mark::map::make_square(resource_manager)
-		: mark::map::make_cavern(resource_manager)),
-	image_bar(resource_manager.image("bar.png")),
-	image_font(resource_manager.image("font.png")),
-	image_stun(resource_manager.image("stun.png")) {
+		: mark::map::make_cavern(resource_manager))
+	, image_bar(resource_manager.image("bar.png"))
+	, image_font(resource_manager.image("font.png"))
+	, image_stun(resource_manager.image("stun.png"))
+	, m_templates(templates)
+{
 	if (empty) {
 		return;
 	}
@@ -127,13 +62,21 @@ mark::world::world(mark::resource::manager& resource_manager, const bool empty) 
 				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
 				mark::command command;
 				command.type = mark::command::type::ai;
-				m_units.push_back(create_ship(resource_manager, *this, pos));
+				m_units.push_back(unit::deserialize(*this, templates.at("ship")));
+				m_units.back()->pos(pos);
 				m_units.back()->command(command);
 			}
 		}
 	}
-	auto vessel = create_ship(resource_manager, *this);
+	auto vessel = std::dynamic_pointer_cast<unit::modular>(
+		unit::deserialize(*this, templates.at("ship")));
+	vessel->ai(false);
+	mark::command command;
+	command.release = true;
+	command.type = mark::command::type::move;
+	vessel->command(command);
 	vessel->team(1);
+	vessel->pos({ 0., 0. });
 	m_camera_target = vessel;
 	m_units.push_back(vessel);
 }
@@ -341,13 +284,17 @@ auto mark::world::damage(mark::world::damage_info& info) ->
 
 // Serializer / Deserializer
 
-mark::world::world(mark::resource::manager& rm, const YAML::Node& node) :
-	m_resource_manager(rm),
-	m_map(rm, node["map"]),
-	m_camera(node["camera"]["x"].as<double>(), node["camera"]["y"].as<double>()),
-	image_bar(rm.image("bar.png")),
-	image_font(rm.image("font.png")),
-	image_stun(rm.image("stun.png")) {
+mark::world::world(
+	mark::resource::manager& rm,
+	const YAML::Node& node,
+	const std::unordered_map<std::string, YAML::Node>& templates)
+	: m_resource_manager(rm)
+	, m_map(rm, node["map"])
+	, m_camera(node["camera"]["x"].as<double>(), node["camera"]["y"].as<double>())
+	, image_bar(rm.image("bar.png"))
+	, image_font(rm.image("font.png"))
+	, image_stun(rm.image("stun.png"))
+	, m_templates(templates) {
 
 	std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
@@ -398,7 +345,8 @@ void mark::world::next() {
 				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
 				mark::command command;
 				command.type = mark::command::type::ai;
-				m_units.push_back(create_ship(m_resource_manager, *this, pos));
+				m_units.push_back(unit::deserialize(*this, m_templates.at("ship")));
+				m_units.back()->pos(pos);
 				m_units.back()->command(command);
 			}
 		}
