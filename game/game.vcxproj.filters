@@ -127,6 +127,9 @@
     <ClCompile Include="base64.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="exception.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">

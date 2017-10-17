@@ -36,7 +36,7 @@ public:
 	void command(const mark::command& command) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)
-		-> error::code override;
+		-> std::error_code override;
 	auto can_attach(
 		const vector<int>& pos, const module::base& module) const
 		-> bool override;
@@ -83,7 +83,8 @@ public:
 private:
 	// Attach without checking structure of the ship
 	[[nodiscard]] auto p_attach(
-		const vector<int>& pos, std::unique_ptr<module::base>& module) -> error::code;
+		const vector<int>& pos, std::unique_ptr<module::base>& module)
+		-> std::error_code;
 	// Check whether module can be attached without checking structure of the ship
 	auto p_can_attach(const module::base& module, mark::vector<int> pos) const -> bool;
 	void remove_dead(mark::tick_context&);

@@ -24,7 +24,7 @@ public:
 	void tick(tick_context& context) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)
-		-> error::code override;
+		-> std::error_code override;
 	auto can_attach(const vector<int>& pos, const module::base& module) const
 		-> bool override;
 	auto at(const vector<int>& pos)
@@ -40,7 +40,7 @@ public:
 	auto passive() const noexcept -> bool override;
 
 	// try to push element to the container
-	[[nodiscard]] error::code push(std::unique_ptr<module::base>& module);
+	[[nodiscard]] std::error_code push(std::unique_ptr<module::base>& module);
 	auto interior_size() const -> vector<int>; // size of the contents of the cargo hold in modular units
 	auto modules() -> std::vector<std::unique_ptr<module::base>>&;
 	auto modules() const -> const std::vector<std::unique_ptr<module::base>>&;

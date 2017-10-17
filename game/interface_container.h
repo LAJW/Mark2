@@ -9,7 +9,7 @@ class base;
 namespace interface {
 class container {
 public:
-	[[nodiscard]] virtual error::code attach(
+	[[nodiscard]] virtual std::error_code attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module) = 0;
 	virtual auto can_attach(
 		const vector<int>& pos, const module::base& module) const -> bool = 0;

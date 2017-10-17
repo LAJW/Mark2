@@ -123,8 +123,7 @@ auto overlaps(
 
 auto mark::module::cargo::attach(
 	const mark::vector<int>& pos,
-	std::unique_ptr<mark::module::base>& module)
-	-> mark::error::code
+	std::unique_ptr<mark::module::base>& module) -> std::error_code
 {
 	if (!this->can_attach(pos, *module)) {
 		return error::code::bad_pos;
@@ -241,8 +240,8 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 	}
 }
 
-mark::error::code mark::module::cargo::push(
-	std::unique_ptr<mark::module::base>& module)
+auto mark::module::cargo::push(
+	std::unique_ptr<mark::module::base>& module) -> std::error_code
 {
 	for (const auto i : range(static_cast<int>(m_modules.size()))) {
 		const auto drop_pos = modulo_vector(i, 16);

@@ -326,7 +326,7 @@ auto mark::unit::modular::attached(const mark::module::base& module) const
 auto mark::unit::modular::attach(
 	const vector<int>& pos_,
 	std::unique_ptr<mark::module::base>& module)
-	-> mark::error::code 
+	-> std::error_code
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	if (!module || !can_attach(pos_, *module)) {
@@ -337,7 +337,7 @@ auto mark::unit::modular::attach(
 
 auto mark::unit::modular::p_attach(
 	const vector<int>& pos_,
-	std::unique_ptr<mark::module::base>& module) -> error::code
+	std::unique_ptr<mark::module::base>& module) -> std::error_code
 {
 	const auto module_pos = mark::vector<int8_t>(pos_);
 	if (!module || !p_can_attach(*module, pos_)) {

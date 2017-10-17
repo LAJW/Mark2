@@ -154,6 +154,7 @@
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="curve.cpp" />
+    <ClCompile Include="exception.cpp" />
     <ClCompile Include="keymap.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="map.cpp" />
