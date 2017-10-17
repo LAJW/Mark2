@@ -22,11 +22,11 @@ namespace mark {
 			float size = 8.f;
 			int layer = 0;
 		};
-		particle(mark::particle::info& info);
+		particle(const mark::particle::info& info);
 		void tick(double dt, std::map<int, std::vector<mark::sprite>>& m_pos);
 		inline bool dead() const { return m_cur_lifespan <= 0; }
 	private:
-		particle(mark::particle::info& info, bool);
+		particle(const mark::particle::info& info, bool);
 		std::shared_ptr<const mark::resource::image> m_image;
 		mark::vector<double> m_pos;
 		float m_lifespan;

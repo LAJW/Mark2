@@ -92,7 +92,7 @@ void event_loop(
 	assert(on_event);
 	assert(on_tick);
 	sf::RenderWindow m_window(sf::VideoMode(res.x, res.y), window_title);
-	mark::renderer renderer(res, 512);
+	mark::renderer renderer(res);
 
 	auto last = std::chrono::system_clock::now();
 	while (m_window.isOpen()) {

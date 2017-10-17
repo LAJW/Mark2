@@ -68,13 +68,13 @@ public:
 	virtual auto detachable() const -> bool { return true; }
 
 	// Target/look at specific position in the world
-	virtual void target(mark::vector<double> pos) { /* no op */ }
+	virtual void target(mark::vector<double> pos);
 
 	// Select target to shoot at
-	virtual void shoot(mark::vector<double> pos, bool release) { /* no op */ }
+	virtual void shoot(mark::vector<double> pos, bool release);
 
 	// Add target to shooting queue
-	virtual void queue(mark::vector<double> pos, bool release) { /* no op */ }
+	virtual void queue(mark::vector<double> pos, bool release);
 
 	// Find collision point, return pointer to damaged module
 	virtual auto collide(const mark::segment_t&) ->

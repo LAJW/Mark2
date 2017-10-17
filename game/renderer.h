@@ -8,7 +8,7 @@ namespace mark {
 
 	class renderer {
 	public:
-		renderer(mark::vector<unsigned> res, unsigned shadow_res);
+		renderer(mark::vector<unsigned> res);
 
 		struct render_info {
 			mark::vector<double> camera;

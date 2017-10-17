@@ -14,7 +14,6 @@ mark::ui::container::container(const info& info)
 	, m_container(*info.container)
 	, m_cargo_bg(info.rm->image("cargo-background.png"))
 {
-	auto& ui = *info.ui;
 	auto& container = *info.container;
 	const auto interior_size = container.interior_size();
 	for (const auto& pos : range(interior_size)) {
@@ -69,7 +68,7 @@ void mark::ui::container::attach(
 	auto button_ptr = std::make_unique<mark::ui::button>(info);
 	auto& button = *button_ptr;
 	button.on_click.insert(
-		[pos, this, &button](const event& event) {
+		[pos, this, &button](const event&) {
 		if (!m_ui.grabbed) {
 			m_ui.grabbed = m_container.detach(pos);
 			if (m_ui.grabbed) {
@@ -84,7 +83,7 @@ void mark::ui::container::attach(
 	});
 	const auto length = static_cast<int>(module.size().x) * 16;
 	button.on_hover.insert(
-		[this, &module, button_pos, length](const event& event) {
+		[this, &module, button_pos, length](const event&) {
 		m_ui.tooltip(
 			this->pos() + button_pos + vector<int>(length, 0),
 			module.describe());

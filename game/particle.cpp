@@ -3,23 +3,21 @@
 #include "particle.h"
 #include "sprite.h"
 
-namespace {
-	static auto validate(mark::particle::info& attr) {
-		assert(attr.image.get());
-		assert(attr.pos.x != NAN);
-		assert(attr.pos.y != NAN);
-		assert(attr.velocity != NAN);
-		assert(attr.direction != NAN);
-		assert(attr.lifespan != NAN);
-		assert(attr.size != NAN);
-		return attr;
-	}
+static auto validate(const mark::particle::info& attr) {
+	assert(attr.image.get());
+	assert(attr.pos.x != NAN);
+	assert(attr.pos.y != NAN);
+	assert(attr.velocity != NAN);
+	assert(attr.direction != NAN);
+	assert(attr.lifespan != NAN);
+	assert(attr.size != NAN);
+	return attr;
 }
 
-mark::particle::particle(mark::particle::info& info):
+mark::particle::particle(const particle::info& info):
 	mark::particle::particle(::validate(info), true) { }
 
-mark::particle::particle(mark::particle::info& attr, bool) :
+mark::particle::particle(const particle::info& attr, bool) :
 	m_image(std::move(attr.image)),
 	m_pos(attr.pos),
 	m_lifespan(attr.lifespan),

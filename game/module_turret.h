@@ -37,7 +37,7 @@ public:
 		// turret turn speed
 		float angular_velocity = 360.f;
 		// number of projectiles shot at once
-		uint8_t projectile_count = 2;
+		unsigned projectile_count = 2;
 		// delay between launching pellets in seconds
 		float burst_delay = 0.f;
 		// Shoots mouse-guided projectiles
@@ -88,7 +88,7 @@ private:
 	mark::curve::ptr m_rate_of_fire_curve = mark::curve::flat;
 	float            m_rotation = 0.f;
 	float            m_angular_velocity = 360.f;
-	uint8_t          m_projectile_count = 2;
+	unsigned         m_projectile_count;
 	float            m_burst_delay = 0.f;
 	bool             m_guided = false;
 	float            m_cone = 0.f;
@@ -106,7 +106,7 @@ private:
 	float            m_aoe_radius = 0.f;
 	float            m_seek_radius = 500.f;
 	float            m_range = 2000.f;
-	size_t           m_piercing = 1;
+	size_t           m_piercing;
 };
 }
 }

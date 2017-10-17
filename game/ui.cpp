@@ -76,22 +76,22 @@ void mark::ui::ui::tick(
 						&& !(module_pos.x <= mouse_pos_.x && mouse_pos_.x < module_pos.x + module_size.x
 							&& module_pos.y <= mouse_pos_.y && mouse_pos_.y < module_pos.y + module_size.y))
 						continue;
-					sprite sprite;
+					sprite circle_sprite;
 					const auto module_pos_ = module_pos + vector<double>(8, 8);
-					sprite.pos = module_pos_;
-					sprite.image = image_circle;
-					sprite.frame = std::numeric_limits<size_t>::max();
-					context.ui_sprites[1].push_back(sprite);
+					circle_sprite.pos = module_pos_;
+					circle_sprite.image = image_circle;
+					circle_sprite.frame = std::numeric_limits<size_t>::max();
+					context.ui_sprites[1].push_back(circle_sprite);
 					const auto diff = vector<double>(x + 32, y + 32) - module_pos_;
 					const auto dir = normalize(diff);
 					const auto dist = length(diff);
-					for (auto i = 0.; i < dist; i += 16.) {
-						mark::sprite sprite;
-						sprite.pos = module_pos_ + dir * i + vector<double>(16, 16);
-						sprite.image = image_ray;
-						sprite.frame = std::numeric_limits<size_t>::max();
-						sprite.rotation = static_cast<float>(atan(dir));
-						context.ui_sprites[1].push_back(sprite);
+					for (auto s = 0.; s < dist; s += 16.) {
+						mark::sprite line_sprite;
+						line_sprite.pos = module_pos_ + dir * s + vector<double>(16, 16);
+						line_sprite.image = image_ray;
+						line_sprite.frame = std::numeric_limits<size_t>::max();
+						line_sprite.rotation = static_cast<float>(atan(dir));
+						context.ui_sprites[1].push_back(line_sprite);
 					}
 				}
 			}
@@ -137,10 +137,8 @@ void mark::ui::ui::tick(
 	if (auto landing_pad
 		= std::dynamic_pointer_cast<mark::unit::landing_pad>(
 			world.target())) {
-		if (auto& ship = landing_pad->ship()) {
-			this->container_ui(
-				world, context, resolution, mouse_pos_, mouse_pos,
-				*landing_pad, *ship);
+		if (const auto ship = landing_pad->ship()) {
+			this->container_ui(context, mouse_pos, *landing_pad, *ship);
 			if (m_windows.empty()
 				|| ship->containers().size() != m_container_count
 				|| m_redraw_ui) {
@@ -229,11 +227,9 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 		if (command.type >= command::type::ability_0
 			&& command.type <= command::type::ability_9
 			|| command.type == command::type::shoot) {
-			if (auto ship = landing_pad->ship()) {
-				const auto relative = (command.pos - landing_pad->pos()) / 16.0;
-				const auto pick_pos = mark::floor(relative);
-				ship->toggle_bind(command.type, pick_pos);
-			}
+			const auto relative = (command.pos - landing_pad->pos()) / 16.0;
+			const auto pick_pos = mark::floor(relative);
+			ship->toggle_bind(command.type, pick_pos);
 		}
 	}
 }
@@ -310,7 +306,7 @@ static std::vector<bool> make_available_map(
 void mark::ui::ui::release()
 {
 	if (grabbed && grabbed_prev_parent) {
-		(void)grabbed_prev_parent->attach(grabbed_prev_pos, std::move(grabbed));
+		(void)grabbed_prev_parent->attach(grabbed_prev_pos, grabbed);
 		if (const auto ship = dynamic_cast<mark::unit::modular*>(grabbed_prev_parent)) {
 			for (const auto& bind : this->grabbed_bind) {
 				ship->toggle_bind(bind, grabbed_prev_pos);
@@ -322,10 +318,7 @@ void mark::ui::ui::release()
 }
 
 void mark::ui::ui::container_ui(
-	const mark::world& world,
 	mark::tick_context& context,
-	mark::vector<double> resolution,
-	mark::vector<double> screen_pos,
 	mark::vector<double> mouse_pos,
 	const mark::unit::landing_pad& landing_pad,
 	const mark::unit::modular& ship)
@@ -378,9 +371,8 @@ void mark::ui::ui::container_ui(
 			const auto module = ship.at(pick_pos);
 			if (module) {
 				const auto description = module->describe();
-				const auto module_pos = module->pos();
 				const auto module_size = mark::vector<double>(module->size()) * static_cast<double>(mark::module::size);
-				const auto tooltip_pos = module_pos + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
+				const auto tooltip_pos = module->pos() + mark::vector<double>(module_size.x, -module_size.y) / 2.0;
 
 				this->world_tooltip(context, description, tooltip_pos);
 			}

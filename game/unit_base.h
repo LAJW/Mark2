@@ -25,8 +25,8 @@ namespace mark {
 			virtual void tick(mark::tick_context& context) = 0;
 			virtual void command(const mark::command&) { };
 			virtual auto dead() const -> bool = 0;
-			virtual void on_death(mark::tick_context& context) { /* no-op */ };
-			virtual void activate(const std::shared_ptr<mark::unit::base>& by) { /* no-op */ };
+			virtual void on_death(mark::tick_context&) { /* no-op */ };
+			virtual void activate(const std::shared_ptr<mark::unit::base>&) { /* no-op */ };
 			// Resolve references after deserializing
 			virtual void resolve_ref(
 				const YAML::Node&,

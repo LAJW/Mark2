@@ -24,35 +24,35 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 	}
 
 	if (m_shoot) {
-		mark::tick_context::spray_info info;
-		info.image = parent().world().resource_manager().image("explosion.png");
-		info.pos = pos;
-		info.lifespan(0.2f, 0.5f);
-		info.diameter(16.f, 64.f);
-		info.direction = parent().rotation();
-		info.cone = 30.f;
-		info.velocity(700.f, 1000.f);
-		info.count = 4;
-		context.render(info);
+		mark::tick_context::spray_info spray_info;
+		spray_info.image = parent().world().resource_manager().image("explosion.png");
+		spray_info.pos = pos;
+		spray_info.lifespan(0.2f, 0.5f);
+		spray_info.diameter(16.f, 64.f);
+		spray_info.direction = parent().rotation();
+		spray_info.cone = 30.f;
+		spray_info.velocity(700.f, 1000.f);
+		spray_info.count = 4;
+		context.render(spray_info);
 
 		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
 			const auto cur = pos + mark::rotate(mark::vector<double>(300, 0), i + parent().rotation());
-			mark::world::damage_info info;
-			info.context = &context;
-			info.aoe_radius = 0.f;
-			info.piercing = 1;
-			info.segment = { pos, cur };
-			info.damage.damaged = &damaged;
-			info.damage.physical = 200.f * static_cast<float>(context.dt);
-			info.damage.team = parent().team();
-			const auto collision = parent().world().damage(info);
+			mark::world::damage_info damage_info;
+			damage_info.context = &context;
+			damage_info.aoe_radius = 0.f;
+			damage_info.piercing = 1;
+			damage_info.segment = { pos, cur };
+			damage_info.damage.damaged = &damaged;
+			damage_info.damage.physical = 200.f * static_cast<float>(context.dt);
+			damage_info.damage.team = parent().team();
+			const auto collision = parent().world().damage(damage_info);
 		}
 	}
 
 }
 
-void mark::module::flamethrower::shoot(mark::vector<double> pos, bool release) {
+void mark::module::flamethrower::shoot(mark::vector<double>, bool release) {
 	m_shoot = !release;
 }
 

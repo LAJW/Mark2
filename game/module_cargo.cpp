@@ -148,10 +148,10 @@ auto mark::module::cargo::can_attach(
 	const auto incoming_pos = mark::vector<unsigned>(pos);
 	const auto incoming_border = incoming_pos + module.size();
 	for (const auto pair : enumerate(m_modules)) {
-		if (const auto& module = pair.second) {
+		if (const auto& cur_module = pair.second) {
 			const auto i = static_cast<unsigned>(pair.first);
 			const auto module_pos = mark::vector<unsigned>(i % 16, i / 16);
-			const auto module_border = module_pos + module->size();
+			const auto module_border = module_pos + cur_module->size();
 			if (overlaps(
 				{ incoming_pos, incoming_border },
 				{ module_pos, module_border })) {

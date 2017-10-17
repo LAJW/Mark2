@@ -370,9 +370,9 @@ static auto pruned_neighbours(
 	std::vector<mark::vector<int>> out;
 	const auto direction = make_direction(node);
 	if (direction.x == 0 && direction.y == 0) {
-		for (const auto& direction : directions) {
-			if (map.traversable(direction + node.pos, radius)) {
-				out.push_back(direction + node.pos);
+		for (const auto& next_direction : directions) {
+			if (map.traversable(next_direction + node.pos, radius)) {
+				out.push_back(next_direction + node.pos);
 			}
 		}
 	} else if (is_diagonal(direction)) {

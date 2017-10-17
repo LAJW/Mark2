@@ -32,7 +32,7 @@ auto mark::module::engine::global_modifiers() const->mark::module::modifiers {
 	return mods;
 }
 
-void mark::module::engine::shoot(mark::vector<double> pos, bool release) {
+void mark::module::engine::shoot(mark::vector<double>, bool release) {
 	m_active = !release;
 }
 

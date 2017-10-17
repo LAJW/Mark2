@@ -2,6 +2,7 @@
 #include <sstream>
 #include <optional>
 #include <utility>
+#include "algorithm.h"
 #include "module_turret.h"
 #include "resource_manager.h"
 #include "resource_image.h"
@@ -72,7 +73,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 		if (m_guided) {
 			info.guide = m_target;
 		}
-		for (int i = 0; i < m_projectile_count; i++) {
+		for (const auto i : range(m_projectile_count)) {
 			info.pos = pos;
 			const auto heat_angle = m_cone
 				* m_cone_curve(m_cur_heat / 100.f)

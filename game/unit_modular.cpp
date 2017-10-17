@@ -35,6 +35,9 @@ struct Node {
 	Node* parent = nullptr;
 };
 
+bool operator<(const Node& left, const Node& right)
+{ return left.f < right.f; }
+
 // Shared implementation of the modular::attached() function
 // Returns list of references to modules and counts, where count is the
 // number of blocks touching the modules
@@ -205,13 +208,7 @@ auto mark::unit::modular::p_connected_to_core(
 	std::vector<std::unique_ptr<Node>> closed;
 
 	while (!open.empty()) {
-		// TODO use std::min to find the smallest it
-		auto min_it = open.begin();
-		for (auto it = open.begin(), end = open.end(); it != end; it++) {
-			if (min_it->f > it->f) {
-				min_it = it;
-			}
-		}
+		auto min_it = std::min_element(open.begin(), open.end());
 		closed.push_back(std::make_unique<Node>(*min_it));
 		auto& current = closed.back();
 		// TODO replace with the last element and pop back, instead of erase
@@ -257,32 +254,32 @@ auto mark::unit::modular::p_connected_to_core(
 	return false;
 }
 
-auto mark::unit::modular::p_at(mark::vector<int8_t> pos) noexcept
+auto mark::unit::modular::p_at(mark::vector<int8_t> user_pos) noexcept
 	-> mark::module::base*&
-{ return p_grid(to_new(pos)).first; }
+{ return p_grid(to_new(user_pos)).first; }
 
-auto mark::unit::modular::p_at(mark::vector<int8_t> pos) const noexcept
+auto mark::unit::modular::p_at(mark::vector<int8_t> user_pos) const noexcept
 	-> const mark::module::base*
-{ return p_grid(to_new(pos)).first; }
+{ return p_grid(to_new(user_pos)).first; }
 
-auto mark::unit::modular::p_reserved(mark::vector<int8_t> pos) noexcept
+auto mark::unit::modular::p_reserved(mark::vector<int8_t> user_pos) noexcept
 	-> bool&
-{ return p_grid(to_new(pos)).second; }
+{ return p_grid(to_new(user_pos)).second; }
 
-auto mark::unit::modular::p_reserved(mark::vector<int8_t> pos) const noexcept
+auto mark::unit::modular::p_reserved(mark::vector<int8_t> user_pos) const noexcept
 	-> bool
-{ return p_grid(to_new(pos)).second; }
+{ return p_grid(to_new(user_pos)).second; }
 
 void mark::unit::modular::ai(bool ai)
 { m_ai = ai; }
 
-auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) noexcept
+auto mark::unit::modular::p_grid(mark::vector<uint8_t> user_pos) noexcept
 	-> std::pair<mark::module::base*, bool>&
-{ return m_grid[pos.x + pos.y * max_size]; }
+{ return m_grid[user_pos.x + user_pos.y * max_size]; }
 
-auto mark::unit::modular::p_grid(mark::vector<uint8_t> pos) const noexcept
+auto mark::unit::modular::p_grid(mark::vector<uint8_t> user_pos) const noexcept
 	-> const std::pair<mark::module::base*, bool>&
-{ return m_grid[pos.x + pos.y * max_size]; }
+{ return m_grid[user_pos.x + user_pos.y * max_size]; }
 
 
 auto mark::unit::modular::modifiers() const -> mark::module::modifiers
@@ -424,10 +421,10 @@ auto mark::unit::modular::p_can_attach(
 	return true;
 }
 
-auto mark::unit::modular::detach(const vector<int>& pos) ->
+auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 	std::unique_ptr<mark::module::base> {
 	
-	const auto module_ptr = this->at(pos);
+	const auto module_ptr = this->at(user_pos);
 	if (!module_ptr) {
 		return nullptr;
 	}
@@ -632,9 +629,9 @@ auto mark::unit::modular::lookat() const noexcept -> mark::vector<double>
 { return m_lookat; }
 
 void mark::unit::modular::toggle_bind(
-	enum class mark::command::type command, mark::vector<int> pos)
+	enum class mark::command::type command, mark::vector<int> user_pos)
 {
-	if (const auto module_ptr = this->at(pos)) {
+	if (const auto module_ptr = this->at(user_pos)) {
 		auto& module = *module_ptr;
 		if (module.passive()) {
 			return;
@@ -652,11 +649,11 @@ void mark::unit::modular::toggle_bind(
 	}
 }
 
-auto mark::unit::modular::binding(mark::vector<int> pos) const
+auto mark::unit::modular::binding(mark::vector<int> user_pos) const
 	-> std::vector<enum class mark::command::type>
 {
 	std::vector<enum class mark::command::type> out;
-	if (const auto module = this->at(pos)) {
+	if (const auto module = this->at(user_pos)) {
 		for (const auto& pair : m_bindings) {
 			if (module == &pair.second.get()) {
 				out.push_back(pair.first);
@@ -697,11 +694,11 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 {
 	std::unordered_map<uint64_t, std::reference_wrapper<mark::module::base>> id_map;
 	for (const auto& module_node : node["modules"]) {
-		const auto pos = module_node["grid_pos"].as<mark::vector<int>>();
+		const auto module_pos = module_node["grid_pos"].as<mark::vector<int>>();
 		const auto id = module_node["id"].as<uint64_t>();
 		auto module = mark::module::deserialize(
 			world.resource_manager(), module_node);
-		if (this->p_attach(pos, std::move(module)) != error::code::success) {
+		if (this->p_attach(module_pos, module) != error::code::success) {
 			throw mark::exception("BAD_MODULE_POS");
 		}
 		id_map.insert({ id, *m_modules.back() });
@@ -757,16 +754,19 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(const vector<int>& pos) noexcept ->
-	mark::module::base* {
-	return const_cast<module::base*>(static_cast<const modular*>(this)->at(pos));
+auto mark::unit::modular::at(const vector<int>& module_pos) noexcept ->
+mark::module::base*
+{
+	return const_cast<module::base*>(
+		static_cast<const modular*>(this)->at(module_pos));
 }
 
-auto mark::unit::modular::at(const vector<int>& pos) const noexcept ->
-	const mark::module::base* {
+auto mark::unit::modular::at(const vector<int>& user_pos) const noexcept ->
+	const mark::module::base*
+{
 	const auto hs = static_cast<int8_t>(max_size / 2);
-	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(vector<int8_t>(pos));
+	if (user_pos.x >= -hs && user_pos.y < hs) {
+		return this->p_at(vector<int8_t>(user_pos));
 	} else {
 		return nullptr;
 	}
@@ -828,7 +828,8 @@ void mark::unit::modular::remove_dead(mark::tick_context& context) {
 	}
 }
 
-void mark::unit::modular::pick_up(mark::tick_context& context) {
+void mark::unit::modular::pick_up(mark::tick_context&)
+{
 	auto units = m_world.find(pos(), 150.f, [](const auto& unit) {
 		return !unit.dead();
 	});
@@ -862,10 +863,8 @@ void mark::unit::modular::unbind(const mark::module::base& module) {
 	}
 }
 
-void mark::unit::modular::activate(
-	const std::shared_ptr<mark::unit::base>& by) {
-	m_world.target(this->shared_from_this());
-}
+void mark::unit::modular::activate(const std::shared_ptr<mark::unit::base>&)
+{ m_world.target(this->shared_from_this()); }
 
 auto mark::unit::modular::containers() ->
 	std::vector<std::reference_wrapper<mark::module::cargo>> {

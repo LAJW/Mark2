@@ -1,53 +1,53 @@
 #include "stdafx.h"
 #include "keymap.h"
 #include "yaml-cpp\yaml.h"
+#include <variant>
 
 namespace {
-	
-	const std::unordered_map<std::string, std::pair<uint8_t, uint8_t>> key_dict{
-		{ "a", { 0, sf::Keyboard::A } },
-		{ "b", { 0, sf::Keyboard::B } },
-		{ "c", { 0, sf::Keyboard::C } },
-		{ "d", { 0, sf::Keyboard::D } },
-		{ "e", { 0, sf::Keyboard::E } },
-		{ "f", { 0, sf::Keyboard::F } },
-		{ "g", { 0, sf::Keyboard::G } },
-		{ "h", { 0, sf::Keyboard::H } },
-		{ "i", { 0, sf::Keyboard::I } },
-		{ "j", { 0, sf::Keyboard::J } },
-		{ "k", { 0, sf::Keyboard::K } },
-		{ "l", { 0, sf::Keyboard::L } },
-		{ "m", { 0, sf::Keyboard::M } },
-		{ "n", { 0, sf::Keyboard::N } },
-		{ "o", { 0, sf::Keyboard::O } },
-		{ "p", { 0, sf::Keyboard::P } },
-		{ "q", { 0, sf::Keyboard::Q } },
-		{ "r", { 0, sf::Keyboard::R } },
-		{ "s", { 0, sf::Keyboard::S } },
-		{ "t", { 0, sf::Keyboard::T } },
-		{ "u", { 0, sf::Keyboard::U } },
-		{ "v", { 0, sf::Keyboard::V } },
-		{ "w", { 0, sf::Keyboard::W } },
-		{ "x", { 0, sf::Keyboard::X } },
-		{ "y", { 0, sf::Keyboard::Y } },
-		{ "z", { 0, sf::Keyboard::Z } },
-		{ "0", { 0, sf::Keyboard::Num0 } },
-		{ "1", { 0, sf::Keyboard::Num1 } },
-		{ "2", { 0, sf::Keyboard::Num2 } },
-		{ "3", { 0, sf::Keyboard::Num3 } },
-		{ "4", { 0, sf::Keyboard::Num4 } },
-		{ "5", { 0, sf::Keyboard::Num5 } },
-		{ "6", { 0, sf::Keyboard::Num6 } },
-		{ "7", { 0, sf::Keyboard::Num7 } },
-		{ "8", { 0, sf::Keyboard::Num8 } },
-		{ "9", { 0, sf::Keyboard::Num9 } },
-		{ "left-mouse-button", { 1, sf::Mouse::Button::Left } },
-		{ "right-mouse-button", { 1, sf::Mouse::Button::Right } },
-		{ "middle-mouse-button", { 1, sf::Mouse::Button::Middle } },
-		{ "mouse-button-4", { 1, sf::Mouse::Button::XButton1 } },
-		{ "mouse-button-5", { 1, sf::Mouse::Button::XButton2 } },
-		{ "mouse-scroll-up", { 1, 5 } },
-		{ "mouse-scroll-down", { 1, 6 } }
+	const std::unordered_map<std::string, in_t> key_dict {
+		{ "a", in_t{ sf::Keyboard::A } },
+		{ "b", in_t{ sf::Keyboard::B } },
+		{ "c", in_t{ sf::Keyboard::C } },
+		{ "d", in_t{ sf::Keyboard::D } },
+		{ "e", in_t{ sf::Keyboard::E } },
+		{ "f", in_t{ sf::Keyboard::F } },
+		{ "g", in_t{ sf::Keyboard::G } },
+		{ "h", in_t{ sf::Keyboard::H } },
+		{ "i", in_t{ sf::Keyboard::I } },
+		{ "j", in_t{ sf::Keyboard::J } },
+		{ "k", in_t{ sf::Keyboard::K } },
+		{ "l", in_t{ sf::Keyboard::L } },
+		{ "m", in_t{ sf::Keyboard::M } },
+		{ "n", in_t{ sf::Keyboard::N } },
+		{ "o", in_t{ sf::Keyboard::O } },
+		{ "p", in_t{ sf::Keyboard::P } },
+		{ "q", in_t{ sf::Keyboard::Q } },
+		{ "r", in_t{ sf::Keyboard::R } },
+		{ "s", in_t{ sf::Keyboard::S } },
+		{ "t", in_t{ sf::Keyboard::T } },
+		{ "u", in_t{ sf::Keyboard::U } },
+		{ "v", in_t{ sf::Keyboard::V } },
+		{ "w", in_t{ sf::Keyboard::W } },
+		{ "x", in_t{ sf::Keyboard::X } },
+		{ "y", in_t{ sf::Keyboard::Y } },
+		{ "z", in_t{ sf::Keyboard::Z } },
+		{ "0", in_t{ sf::Keyboard::Num0 } },
+		{ "1", in_t{ sf::Keyboard::Num1 } },
+		{ "2", in_t{ sf::Keyboard::Num2 } },
+		{ "3", in_t{ sf::Keyboard::Num3 } },
+		{ "4", in_t{ sf::Keyboard::Num4 } },
+		{ "5", in_t{ sf::Keyboard::Num5 } },
+		{ "6", in_t{ sf::Keyboard::Num6 } },
+		{ "7", in_t{ sf::Keyboard::Num7 } },
+		{ "8", in_t{ sf::Keyboard::Num8 } },
+		{ "9", in_t{ sf::Keyboard::Num9 } },
+		{ "left-mouse-button", in_t{ sf::Mouse::Button::Left } },
+		{ "right-mouse-button", in_t{ sf::Mouse::Button::Right } },
+		{ "middle-mouse-button", in_t{ sf::Mouse::Button::Middle } },
+		{ "mouse-button-4", in_t{ sf::Mouse::Button::XButton1 } },
+		{ "mouse-button-5", in_t{ sf::Mouse::Button::XButton2 } },
+		{ "mouse-scroll-up", in_t{ 5 } },
+		{ "mouse-scroll-down", in_t{ 6 } }
 	};
 
 	const std::unordered_map<std::string, enum class mark::command::type> command_dict{
@@ -70,7 +70,7 @@ namespace {
 	static auto load_options(std::string filename) {
 		const auto options = YAML::LoadFile(filename);
 		const auto keybindings = options["keybindings"];
-		std::unordered_map<std::pair<uint8_t, uint8_t>, enum class mark::command::type> map;
+		std::unordered_map<in_t, enum class mark::command::type> map;
 		for (const auto& pair : keybindings) {
 			const auto key = pair.first.as<std::string>();
 			const auto value = pair.second.as<std::string>();
@@ -80,8 +80,7 @@ namespace {
 	}
 
 	static auto event_to_command(
-		const std::unordered_map<std::pair<uint8_t, uint8_t>,
-		enum class mark::command::type>& dict,
+		const std::unordered_map<in_t, enum class mark::command::type>& dict,
 		const sf::Event& event) {
 
 		mark::command command;
@@ -92,13 +91,11 @@ namespace {
 			|| event.type == sf::Event::KeyReleased) {
 			const auto is_mouse = event.type == sf::Event::MouseButtonPressed
 				|| event.type == sf::Event::MouseButtonReleased;
-			const auto released = event.type == sf::Event::MouseButtonReleased
+			command.release = event.type == sf::Event::MouseButtonReleased
 				|| event.type == sf::Event::KeyReleased;
-			const auto button = is_mouse
-				? static_cast<uint8_t>(event.mouseButton.button)
-				: static_cast<uint8_t>(event.key.code);
-			command.release = released;
-			const auto type_it = dict.find({ static_cast<uint8_t>(is_mouse), static_cast<uint8_t>(button) });
+			auto type_it = is_mouse
+				? dict.find(event.mouseButton.button)
+				: dict.find(event.key.code);
 			if (type_it != dict.end()) {
 				command.type = type_it->second;
 			}

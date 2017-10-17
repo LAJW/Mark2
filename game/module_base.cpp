@@ -155,9 +155,17 @@ bool mark::module::base::damage(const interface::damageable::info& attr) {
 	return false;
 }
 
-auto mark::module::base::dead() const -> bool {
-	return m_cur_health <= 0.f;
-}
+auto mark::module::base::dead() const -> bool
+{ return m_cur_health <= 0.f; }
+
+void mark::module::base::target(mark::vector<double>)
+{}
+
+void mark::module::base::queue(mark::vector<double>, bool)
+{}
+
+void mark::module::base::shoot(mark::vector<double>, bool)
+{}
 
 void mark::module::base::on_death(mark::tick_context& context) {
 	mark::tick_context::spray_info spray;

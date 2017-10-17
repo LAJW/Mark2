@@ -56,11 +56,8 @@ public:
 	void release();
 private:
 	void container_ui(
-		const mark::world& world,
 		mark::tick_context& context,
 		mark::vector<double> resolution,
-		mark::vector<double> screen_pos,
-		mark::vector<double> mouse_pos,
 		const mark::unit::landing_pad& landing_pad,
 		const mark::unit::modular& ship);
 

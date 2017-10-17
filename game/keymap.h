@@ -2,15 +2,9 @@
 #include "stdafx.h"
 #include <SFML/Window/Event.hpp>
 #include "command.h"
+#include <variant>
 
-namespace std {
-	template<>
-	struct hash<std::pair<uint8_t, uint8_t>> {
-		size_t operator()(const std::pair<uint8_t, uint8_t>& pair) const {
-			return std::hash<uint16_t>()((pair.first * 256) + pair.second);
-		}
-	};
-}
+using in_t = std::variant<sf::Keyboard::Key, sf::Mouse::Button, int>;
 
 namespace mark {
 	class keymap {
@@ -18,6 +12,6 @@ namespace mark {
 		keymap(std::string filename);
 		auto translate(sf::Event) const -> mark::command;
 	private:
-		std::unordered_map<std::pair<uint8_t, uint8_t>, enum class mark::command::type> m_map;
+		std::unordered_map<in_t, enum class mark::command::type> m_map;
 	};
 }

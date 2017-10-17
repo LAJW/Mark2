@@ -64,15 +64,13 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				context.render(spray);
 				break;
 			}
-			{
-				mark::sprite info;
-				info.image = m_im_ray;
-				info.pos = cur;
-				info.size = mark::module::size;
-				info.rotation = m_rotation;
-				info.color = sf::Color::Red;
-				context.sprites[0].emplace_back(info);
-			}
+			mark::sprite ray_sprite;
+			ray_sprite.image = m_im_ray;
+			ray_sprite.pos = cur;
+			ray_sprite.size = mark::module::size;
+			ray_sprite.rotation = m_rotation;
+			ray_sprite.color = sf::Color::Red;
+			context.sprites[0].emplace_back(ray_sprite);
 		}
 	}
 }

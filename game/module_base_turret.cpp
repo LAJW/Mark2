@@ -78,7 +78,7 @@ void mark::module::base_turret::shoot(mark::vector<double> pos, bool release)
 	m_queue.clear();
 }
 
-void mark::module::base_turret::queue(mark::vector<double> pos, bool release)
+void mark::module::base_turret::queue(mark::vector<double> pos, bool)
 {
 	auto unit = parent().world().find_one(
 		pos, 100.f, [this](const unit::base& unit) {

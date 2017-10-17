@@ -58,7 +58,7 @@ void render_ui(const mark::sprite sprite, sf::RenderTexture& buffer)
 
 } // anonymous namespace
 
-mark::renderer::renderer(mark::vector<unsigned> res, unsigned shadow_res)
+mark::renderer::renderer(mark::vector<unsigned> res)
 {
 	m_buffer = std::make_unique<sf::RenderTexture>();
 	m_buffer->create(res.x, res.y);

@@ -5,13 +5,12 @@
 #include "ui_window.h"
 #include "sprite.h"
 
-namespace {
-bool validate(const mark::ui::button::info& info) noexcept
+static bool validate(const mark::ui::button::info& info) noexcept
 {
 	assert(info.parent);
 	assert(info.image);
+	(void)info;
 	return true;
-}
 }
 
 mark::ui::button::button(const info& info, bool)

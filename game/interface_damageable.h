@@ -25,7 +25,7 @@ public:
 	// try to damage object
 	// Stores damaged object pointers in info.damaged
 	// returns true if something has been damaged
-	virtual bool damage(const damageable::info& info) { return false; };
+	virtual bool damage(const damageable::info&) = 0;
 protected:
 	~damageable() = default;
 };

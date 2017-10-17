@@ -1,5 +1,7 @@
 #pragma once
+#pragma warning(push, 3)
 #include <yaml-cpp\yaml.h>
+#pragma warning(pop)
 
 namespace YAML {
 	template<typename T>

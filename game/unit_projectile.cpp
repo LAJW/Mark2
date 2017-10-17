@@ -176,10 +176,7 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 }
 
 void mark::unit::projectile::resolve_ref(
-	const YAML::Node& node,
-	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units) {
-	
-	if (node["guide"]) {
-		// TODO
-	}
+	const YAML::Node&,
+	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>&) {
+	// TODO: Update guides
 }

@@ -203,8 +203,7 @@ auto mark::world::find_one(mark::vector<double> pos, double radius,
 }
 
 void mark::world::command(const mark::command& command) {
-	auto& camera_target = m_camera_target.lock();
-	if (camera_target) {
+	if (auto camera_target = m_camera_target.lock()) {
 		camera_target->command(command);
 	}
 }
@@ -273,8 +272,8 @@ auto mark::world::damage(mark::world::damage_info& info) ->
 		}
 		if (info.aoe_radius >= 0.f) {
 			const auto damageables = this->collide(pos, info.aoe_radius);
-			for (const auto damageable : damageables) {
-				damageable.get().damage(info.damage);
+			for (const auto aoe_damageable : damageables) {
+				aoe_damageable.get().damage(info.damage);
 			}
 		}
 		return { pos, dead };
