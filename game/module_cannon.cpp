@@ -36,11 +36,14 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 	}
 	if (m_shoot) {
 		std::unordered_set<interface::damageable*> damaged;
-		for (int i = 1; i < 200; i++) {
-			const auto cur_len = mark::module::size * static_cast<double>(i);
-			const auto cur_dir = mark::rotate(mark::vector<double>(1, 0), m_rotation);
-			const auto prev = pos + cur_dir * (cur_len - mark::module::size);
-			const auto cur = pos + cur_dir * (cur_len + 2.0);
+
+		std::optional<vector<double>> collision_pos;
+		int len;
+		const auto dir = mark::rotate(mark::vector<double>(1, 0), m_rotation);
+		for (len = 1; len < 200; len++) {
+			const auto cur_len = mark::module::size * static_cast<double>(len);
+			const auto prev = pos + dir * (cur_len - mark::module::size);
+			const auto cur = pos + dir * (cur_len + 2.0);
 			mark::world::damage_info info;
 			info.context = &context;
 			info.aoe_radius = 0.f;
@@ -51,6 +54,7 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 			info.damage.team = parent().team();
 			const auto [ maybe_pos, died ] = world.damage(info);
 			if (died) {
+				collision_pos = maybe_pos;
 				mark::tick_context::spray_info spray;
 				spray.image = m_im_ray;
 				spray.pos = maybe_pos.value();
@@ -61,16 +65,32 @@ void mark::module::cannon::tick(mark::tick_context& context) {
 				spray.direction = m_rotation + 180.f;
 				spray.cone = 180.f;
 				spray.color = sf::Color::Red;
-				context.render(spray);
+				// context.render(spray);
 				break;
 			}
-			mark::sprite ray_sprite;
-			ray_sprite.image = m_im_ray;
-			ray_sprite.pos = cur;
-			ray_sprite.size = mark::module::size;
-			ray_sprite.rotation = m_rotation;
-			ray_sprite.color = sf::Color::Red;
-			context.sprites[0].emplace_back(ray_sprite);
+		}
+		if (collision_pos) {
+			for (int i = 1; i < len; i++) {
+				const auto cur_len = mark::module::size * static_cast<double>(i) - mark::module::size * 0.5;
+				mark::sprite ray_sprite;
+				ray_sprite.image = m_im_ray;
+				ray_sprite.pos = *collision_pos - dir * cur_len;
+				ray_sprite.size = mark::module::size;
+				ray_sprite.rotation = m_rotation;
+				ray_sprite.color = sf::Color::Red;
+				context.sprites[0].emplace_back(ray_sprite);
+			}
+		} else {
+			for (int i = 1; i < 200; i++) {
+				const auto cur_len = mark::module::size * static_cast<double>(len);
+				mark::sprite ray_sprite;
+				ray_sprite.image = m_im_ray;
+				ray_sprite.pos = pos + dir * (cur_len + 2.0);
+				ray_sprite.size = mark::module::size;
+				ray_sprite.rotation = m_rotation;
+				ray_sprite.color = sf::Color::Red;
+				context.sprites[0].emplace_back(ray_sprite);
+			}
 		}
 	}
 }
