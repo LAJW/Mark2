@@ -68,9 +68,13 @@ void mark::ui::ui::tick(
 			// Highlight bindings
 			const auto center = resolution / 2.0;
 			if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
-				for (const auto& pos : binding.positions) {
-					const auto module_pos = center + vector<double>(pos * 16);
-					const auto module_size = vector<int>(32, 32);
+				for (const auto& module : binding.modules) {
+					const auto pos = module.get().grid_pos();
+					const auto module_pos = center
+						+ vector<double>(pos) * static_cast<double>(module::size);
+					const auto module_size
+						= vector<double>(module.get().size())
+							* static_cast<double>(module::size);
 					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64.
 						&& y <= mouse_pos_.y && mouse_pos_.y < y + 64.)
 						&& !(module_pos.x <= mouse_pos_.x && mouse_pos_.x < module_pos.x + module_size.x

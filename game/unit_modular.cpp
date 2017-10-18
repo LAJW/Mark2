@@ -678,7 +678,7 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t {
 		}
 		out[slot].total++;
 		out[slot].thumbnail = module.get().thumbnail();
-		out[slot].positions.push_back(module.get().grid_pos());
+		out[slot].modules.push_back(module.get());
 	}
 	return out;
 }
