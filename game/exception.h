@@ -18,7 +18,7 @@ public:
 	inline exception(const std::string& message) : std::runtime_error(message) {}
 };
 
-class user_error : public mark::exception {
+class user_error : public exception {
 public:
 	inline user_error(const char* message) : exception(message) {}
 	inline user_error(const std::string& message) : exception(message) {}

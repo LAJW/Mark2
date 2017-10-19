@@ -18,11 +18,11 @@ namespace {
 	}
 }
 
-mark::unit::projectile::projectile(const mark::unit::projectile::info& args) :
-	mark::unit::projectile::projectile(::validate(args), true) { }
+mark::unit::projectile::projectile(const unit::projectile::info& args) :
+	unit::projectile::projectile(::validate(args), true) { }
 
-mark::unit::projectile::projectile(const mark::unit::projectile::info& args, bool):
-	mark::unit::base(*args.world, args.pos),
+mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
+	unit::base(*args.world, args.pos),
 	m_image(args.world->resource_manager().image("shell.png")),
 	m_im_tail(args.world->resource_manager().image("glare.png")),
 	m_velocity(args.velocity),
@@ -36,30 +36,30 @@ mark::unit::projectile::projectile(const mark::unit::projectile::info& args, boo
 	this->team(static_cast<int>(args.team));
 }
 
-void mark::unit::projectile::tick(mark::tick_context& context) {
+void mark::unit::projectile::tick(tick_context& context) {
 	double dt = context.dt;
-	const auto step = mark::rotate(mark::vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
+	const auto step = rotate(vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
 	const auto turn_speed = 500.f;
 	if (m_guide) {
-		if (mark::length(*m_guide - pos()) < m_velocity * dt * 2.0) {
+		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
 		} else {
-			m_rotation = mark::turn(*m_guide - pos(), m_rotation, turn_speed, dt);
+			m_rotation = turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
 		auto target = m_world.find_one(
 			pos(),
 			m_seek_radius,
-			[this](const mark::unit::base& unit) {
+			[this](const unit::base& unit) {
 			return unit.team() != this->team()
 				&& dynamic_cast<const interface::damageable*> (&unit);
 		});
 		if (target) {
-			m_rotation = mark::turn(target->pos() - pos(), m_rotation, turn_speed, dt);
+			m_rotation = turn(target->pos() - pos(), m_rotation, turn_speed, dt);
 		}
 	}
 	pos() += step;
-	mark::world::damage_info info;
+	world::damage_info info;
 	info.context = &context;
 	info.segment = { pos() - step, pos() };
 	info.aoe_radius = m_aoe_radius;
@@ -74,7 +74,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	const auto [ maybe_pos, died ] = m_world.damage(info);
 	m_dead = died;
 	if (maybe_pos) {
-		mark::tick_context::spray_info spray;
+		tick_context::spray_info spray;
 		spray.image = m_im_tail;
 		spray.pos = maybe_pos.value();
 		spray.velocity(5.f, 75.f);
@@ -87,7 +87,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 	} else {
 		// tail: grey dust
 		{
-			mark::tick_context::spray_info spray;
+			tick_context::spray_info spray;
 			spray.image = m_im_tail;
 			spray.pos = pos();
 			spray.velocity(100.f);
@@ -102,7 +102,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 		}
 		// tail: white overlay
 		{
-			mark::tick_context::spray_info spray;
+			tick_context::spray_info spray;
 			spray.image = m_im_tail;
 			spray.pos = pos();
 			spray.velocity(75.f);
@@ -115,7 +115,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			context.render(spray);
 		}
 		{
-			mark::sprite args;
+			sprite args;
 			args.image = m_im_tail;
 			args.pos = pos() - step;
 			args.size = 32.f;
@@ -123,7 +123,7 @@ void mark::unit::projectile::tick(mark::tick_context& context) {
 			context.sprites[0].emplace_back(args);
 		}
 		{
-			mark::sprite args;
+			sprite args;
 			args.image = m_image;
 			args.pos = pos();
 			args.size = 10.f;
@@ -140,8 +140,8 @@ auto mark::unit::projectile::dead() const -> bool {
 
 // Serializer / Deserializer
 
-mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
-	mark::unit::base(world, node),
+mark::unit::projectile::projectile(world& world, const YAML::Node& node):
+	unit::base(world, node),
 	m_image(world.resource_manager().image("shell.png")),
 	m_im_tail(world.resource_manager().image("glare.png")),
 	m_velocity(node["velocity"].as<float>()),
@@ -156,7 +156,7 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
 void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << mark::unit::projectile::type_name;
+	out << Key << "type" << Value << unit::projectile::type_name;
 	this->serialize_base(out);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "velocity" << Value << m_velocity;
@@ -177,6 +177,6 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 
 void mark::unit::projectile::resolve_ref(
 	const YAML::Node&,
-	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>&) {
+	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>&) {
 	// TODO: Update guides
 }

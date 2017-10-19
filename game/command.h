@@ -23,7 +23,7 @@ namespace mark {
 			ability_9,
 			reset
 		} type;
-		mark::vector<double> pos;
+		vector<double> pos;
 		bool release = false;
 		bool shift = false;
 	};

@@ -22,13 +22,13 @@
 #include "world.h"
 
 mark::world::world(
-	mark::resource::manager& resource_manager,
+	resource::manager& resource_manager,
 	const std::unordered_map<std::string, YAML::Node>& templates,
 	const bool empty)
 	: m_resource_manager(resource_manager)
 	, m_map(empty
-		? mark::map::make_square(resource_manager)
-		: mark::map::make_cavern(resource_manager))
+		? map::make_square(resource_manager)
+		: map::make_cavern(resource_manager))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
@@ -39,8 +39,8 @@ mark::world::world(
 	}
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<mark::unit::landing_pad>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<unit::landing_pad>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end;
 			}
 		}
@@ -48,8 +48,8 @@ mark::world::world(
 	end:;
 	for (int x = 999; x >= 0; x--) {
 		for (int y = 999; y >= 0; y--) {
-			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<mark::unit::gate>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<unit::gate>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end2;
 			}
 		}
@@ -57,11 +57,11 @@ mark::world::world(
 	end2:;
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
+			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
 				mark::command command;
-				command.type = mark::command::type::ai;
+				command.type = command::type::ai;
 				m_units.push_back(unit::deserialize(*this, templates.at("ship")));
 				m_units.back()->pos(pos);
 				m_units.back()->command(command);
@@ -73,7 +73,7 @@ mark::world::world(
 	vessel->ai(false);
 	mark::command command;
 	command.release = true;
-	command.type = mark::command::type::move;
+	command.type = command::type::move;
 	vessel->command(command);
 	vessel->team(1);
 	vessel->pos({ 0., 0. });
@@ -83,23 +83,22 @@ mark::world::world(
 
 mark::world::~world() = default;
 
-auto mark::world::map() const -> const mark::map&{
-	return m_map;
-}
+auto mark::world::map() const -> const mark::map&
+{ return m_map; }
 
-auto mark::world::resource_manager() -> mark::resource::manager& {
+auto mark::world::resource_manager() -> resource::manager& {
 	return m_resource_manager;
 }
 
 void mark::world::tick(
-	mark::tick_context& context, mark::vector<double> screen_size)
+	tick_context& context, vector<double> screen_size)
 {
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
 	}
 	const auto camera = vmap(m_camera, std::round);
 	const auto offset = screen_size / 2.0
-		+ mark::vector<double>(map::tile_size, map::tile_size) * 2.;
+		+ vector<double>(map::tile_size, map::tile_size) * 2.;
 	m_map.tick(camera - offset, camera + offset, context);
 
 	for (auto& unit : m_units) {
@@ -114,7 +113,7 @@ void mark::world::tick(
 	}
 	// Add/Remove units
 	{
-		auto last = std::remove_if(m_units.begin(), m_units.end(), [&context](std::shared_ptr<mark::unit::base>& unit) {
+		auto last = std::remove_if(m_units.begin(), m_units.end(), [&context](std::shared_ptr<unit::base>& unit) {
 			const auto dead = unit->dead();
 			if (dead) {
 				unit->on_death(context);
@@ -133,7 +132,7 @@ void mark::world::tick(
 		auto last = std::remove_if(
 			m_particles.begin(),
 			m_particles.end(),
-			[](const mark::particle& particle) {
+			[](const particle& particle) {
 			return particle.dead();
 		});
 		m_particles.erase(last, m_particles.end());
@@ -169,33 +168,33 @@ void mark::world::tick(
 	}
 }
 
-auto mark::world::find(mark::vector<double> pos, double radius) -> std::vector<std::shared_ptr<mark::unit::base>> {
-	std::vector<std::shared_ptr<mark::unit::base>> out;
+auto mark::world::find(vector<double> pos, double radius) -> std::vector<std::shared_ptr<unit::base>> {
+	std::vector<std::shared_ptr<unit::base>> out;
 	for (auto& unit : m_units) {
-		if (mark::length(unit->pos() - pos) < radius) {
+		if (length(unit->pos() - pos) < radius) {
 			out.push_back(unit);
 		}
 	}
 	return out;
 }
 
-auto mark::world::find(mark::vector<double> pos, double radius,
-	const std::function<bool(const mark::unit::base&)>& pred)
-	-> std::vector<std::shared_ptr<mark::unit::base>> {
-	std::vector<std::shared_ptr<mark::unit::base>> out;
+auto mark::world::find(vector<double> pos, double radius,
+	const std::function<bool(const unit::base&)>& pred)
+	-> std::vector<std::shared_ptr<unit::base>> {
+	std::vector<std::shared_ptr<unit::base>> out;
 	for (auto& unit : m_units) {
-		if (mark::length(unit->pos() - pos) < radius && pred(*unit)) {
+		if (length(unit->pos() - pos) < radius && pred(*unit)) {
 			out.push_back(unit);
 		}
 	}
 	return out;
 }
 
-auto mark::world::find_one(mark::vector<double> pos, double radius,
-	const std::function<bool(const mark::unit::base&)>& pred)
-	-> std::shared_ptr<mark::unit::base> {
+auto mark::world::find_one(vector<double> pos, double radius,
+	const std::function<bool(const unit::base&)>& pred)
+	-> std::shared_ptr<unit::base> {
 	for (auto& unit : m_units) {
-		if (mark::length(unit->pos() - pos) < radius && pred(*unit)) {
+		if (length(unit->pos() - pos) < radius && pred(*unit)) {
 			return unit;
 		}
 	}
@@ -208,28 +207,28 @@ void mark::world::command(const mark::command& command) {
 	}
 }
 
-void mark::world::target(const std::shared_ptr<mark::unit::base>& target) {
+void mark::world::target(const std::shared_ptr<unit::base>& target) {
 	m_camera_target = target;
 }
 
-auto mark::world::target() -> std::shared_ptr<mark::unit::base> {
+auto mark::world::target() -> std::shared_ptr<unit::base> {
 	return m_camera_target.lock();
 }
 
-auto mark::world::target() const -> std::shared_ptr<const mark::unit::base> {
+auto mark::world::target() const -> std::shared_ptr<const unit::base> {
 	return m_camera_target.lock();
 }
 
-auto mark::world::collide(const mark::segment_t& ray) ->
-	std::pair<interface::damageable *, std::optional<mark::vector<double>>> {
+auto mark::world::collide(const segment_t& ray) ->
+	std::pair<interface::damageable *, std::optional<vector<double>>> {
 	auto maybe_min = m_map.collide(ray);
 	double min_length = maybe_min
-		? mark::length(ray.first - maybe_min.value())
+		? length(ray.first - maybe_min.value())
 		: INFINITY;
 	interface::damageable* out = nullptr;
 	for (auto& unit_ : m_units) {
 		if (const auto unit
-			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {
+			= dynamic_cast<unit::damageable*>(unit_.get())) {
 			auto[damageable, pos] = unit->collide(ray);;
 			if (damageable) {
 				const auto length = mark::length(ray.first - pos);
@@ -245,13 +244,13 @@ auto mark::world::collide(const mark::segment_t& ray) ->
 	return { out, maybe_min };
 }
 
-auto mark::world::collide(mark::vector<double> center, float radius) ->
+auto mark::world::collide(vector<double> center, float radius) ->
 	std::vector<std::reference_wrapper<interface::damageable>> {
 
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit_ : m_units) {
 		if (const auto unit
-			= dynamic_cast<mark::unit::damageable*>(unit_.get())) {
+			= dynamic_cast<unit::damageable*>(unit_.get())) {
 			const auto tmp = unit->collide(center, radius);
 			std::copy(tmp.begin(), tmp.end(), std::back_inserter(out));
 		}
@@ -259,8 +258,8 @@ auto mark::world::collide(mark::vector<double> center, float radius) ->
 	return out;
 }
 
-auto mark::world::damage(mark::world::damage_info& info) ->
-	std::pair<std::optional<mark::vector<double>>, bool> {
+auto mark::world::damage(world::damage_info& info) ->
+	std::pair<std::optional<vector<double>>, bool> {
 	assert(info.context);
 	const auto [ damageable, maybe_pos ] = this->collide(info.segment);
 	if (maybe_pos) {
@@ -284,7 +283,7 @@ auto mark::world::damage(mark::world::damage_info& info) ->
 // Serializer / Deserializer
 
 mark::world::world(
-	mark::resource::manager& rm,
+	resource::manager& rm,
 	const YAML::Node& node,
 	const std::unordered_map<std::string, YAML::Node>& templates)
 	: m_resource_manager(rm)
@@ -295,10 +294,10 @@ mark::world::world(
 	, image_stun(rm.image("stun.png"))
 	, m_templates(templates) {
 
-	std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>> unit_map;
+	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
 	for (const auto& unit_node : node["units"]) {
-		m_units.push_back(mark::unit::deserialize(*this, unit_node));
+		m_units.push_back(unit::deserialize(*this, unit_node));
 		const auto unit_id = unit_node["id"].as<uint64_t>();
 		unit_map.emplace(unit_id, m_units.back());
 	}
@@ -311,7 +310,7 @@ mark::world::world(
 }
 
 void mark::world::next() {
-	m_map = mark::map::make_cavern(m_resource_manager);
+	m_map = map::make_cavern(m_resource_manager);
 	auto camera_target = m_camera_target.lock();
 	// TODO: Transfer old units and map to history
 	m_units.clear();
@@ -321,8 +320,8 @@ void mark::world::next() {
 
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<mark::unit::landing_pad>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<unit::landing_pad>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end;
 			}
 		}
@@ -330,8 +329,8 @@ void mark::world::next() {
 	end:;
 	for (int x = 999; x >= 0; x--) {
 		for (int y = 999; y >= 0; y--) {
-			if (m_map.traversable(mark::vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<mark::unit::gate>(*this, mark::vector<double>(32 * (x - 500), 32 * (y - 500))));
+			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+				m_units.push_back(std::make_shared<unit::gate>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end2;
 			}
 		}
@@ -339,11 +338,11 @@ void mark::world::next() {
 	end2:;
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			const auto pos = mark::vector<double>(32 * (x - 500), 32 * (y - 500));
+			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				// m_units.push_back(std::make_shared<mark::unit::minion>(*this, pos));
+				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
 				mark::command command;
-				command.type = mark::command::type::ai;
+				command.type = command::type::ai;
 				m_units.push_back(unit::deserialize(*this, m_templates.at("ship")));
 				m_units.back()->pos(pos);
 				m_units.back()->command(command);

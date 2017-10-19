@@ -2,7 +2,7 @@
 #include "ui_window.h"
 #include "algorithm.h"
 
-mark::ui::window::window(mark::vector<int> pos)
+mark::ui::window::window(vector<int> pos)
 	: m_pos(pos) { }
 
 void mark::ui::window::insert(std::unique_ptr<node> node)
@@ -18,7 +18,7 @@ void mark::ui::window::remove(node& to_remove)
 		[&](const auto& node) {
 		return node.get() == &to_remove;
 	});
-	mark::drop(m_nodes, it);
+	drop(m_nodes, it);
 }
 
 bool mark::ui::window::click(const event& event)
@@ -43,7 +43,7 @@ bool mark::ui::window::hover(const event& event)
 	return false;
 }
 
-void mark::ui::window::tick(mark::tick_context& context)
+void mark::ui::window::tick(tick_context& context)
 {
 	for (const auto& node : m_nodes) {
 		node->tick(context);

@@ -10,8 +10,8 @@ namespace mark {
 	class keymap {
 	public:
 		keymap(std::string filename);
-		auto translate(sf::Event) const -> mark::command;
+		auto translate(sf::Event) const -> command;
 	private:
-		std::unordered_map<in_t, enum class mark::command::type> m_map;
+		std::unordered_map<in_t, enum class command::type> m_map;
 	};
 }

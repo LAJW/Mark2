@@ -13,8 +13,8 @@
 #include "world.h"
 #include "exception.h"
 
-mark::module::turret::turret(mark::module::turret::info& info):
-	base_turret(mark::vector<unsigned>(info.size),
+mark::module::turret::turret(module::turret::info& info):
+	base_turret(vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png")),
 	m_im_base(info.resource_manager->image("turret-base.png")),
 	m_im_cannon(info.resource_manager->image("turret-cannon.png")),
@@ -46,8 +46,8 @@ mark::module::turret::turret(mark::module::turret::info& info):
 }
 
 
-void mark::module::turret::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
+void mark::module::turret::tick(tick_context& context) {
+	this->module::base::tick(context);
 	m_adsr.tick(context.dt);
 	auto pos = this->pos();
 
@@ -60,7 +60,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			m_rotation = (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
 		}
 	} else {
-		m_rotation = mark::turn(
+		m_rotation = turn(
 			*m_target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_cur_cooldown >= 0) {
@@ -68,7 +68,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 	} else if (m_shoot) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
-		mark::unit::projectile::info info;
+		unit::projectile::info info;
 		info.world = &parent().world();
 		if (m_guided) {
 			info.guide = m_target;
@@ -77,7 +77,7 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			info.pos = pos;
 			const auto heat_angle = m_cone
 				* m_cone_curve(m_cur_heat / 100.f)
-				* (m_angular_velocity != 0.f && m_cone_curve==mark::curve::flat)
+				* (m_angular_velocity != 0.f && m_cone_curve==curve::flat)
 					? context.random(-1.f, 1.f)
 					: 0.f;
 			float cur_angle = 0.f;
@@ -92,22 +92,22 @@ void mark::module::turret::tick(mark::tick_context& context) {
 			info.piercing = m_piercing;
 			info.critical_chance = m_critical_chance;
 			info.critical_multiplier = m_critical_multiplier;
-			context.units.emplace_back(std::make_shared<mark::unit::projectile>(info));
+			context.units.emplace_back(std::make_shared<unit::projectile>(info));
 		}
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
 	const auto heat_color = this->heat_color();
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_im_cannon;
-		info.pos = pos - mark::rotate(mark::vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
+		info.pos = pos - rotate(vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
 		info.size = 32.f;
 		info.rotation = m_rotation;
 		info.color = heat_color;
 		context.sprites[2].emplace_back(info);
 	}
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_im_base;
 		info.pos = pos;
 		info.size = 32.f;
@@ -129,18 +129,18 @@ auto mark::module::turret::describe() const -> std::string {
 	os << "Critical chance: " << std::round(m_critical_chance * 1000) / 10 << std::endl;
 	os << "Critical multiplier: " << std::round(m_critical_multiplier * 1000) / 10 << std::endl;
 	os << "Heat per shot: " << m_heat_per_shot << std::endl;
-	if (m_cone_curve == mark::curve::linear) {
+	if (m_cone_curve == curve::linear) {
 		os << "Low accuracy when hot" << std::endl;
-	} else if (m_cone_curve == mark::curve::invert) {
+	} else if (m_cone_curve == curve::invert) {
 		os << "High accuracy when hot" << std::endl;
-	} else if (m_cone_curve == mark::curve::sin) {
+	} else if (m_cone_curve == curve::sin) {
 		os << "Average heat for best accuracy" << std::endl;
 	}
 	return os.str();
 }
 
-mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base_turret(rm, node),
+mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
+	module::base_turret(rm, node),
 	m_im_base(rm.image("turret-base.png")),
 	m_im_cannon(rm.image("turret-cannon.png")),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
@@ -152,7 +152,7 @@ mark::module::turret::turret(mark::resource::manager& rm, const YAML::Node& node
 	m_burst_delay(node["burst_delay"].as<float>()),
 	m_guided(node["guided"].as<bool>()),
 	m_cone(node["cone"].as<float>()),
-	m_cone_curve(mark::curve::deserialize(node["cone_curve"].as<std::string>())),
+	m_cone_curve(curve::deserialize(node["cone_curve"].as<std::string>())),
 	m_heat_per_shot(node["heat_per_shot"].as<float>()),
 	m_critical_chance(node["critical_chance"].as<float>()),
 	m_critical_multiplier(node["critical_multiplier"].as<float>()),
@@ -174,14 +174,14 @@ void mark::module::turret::serialize(YAML::Emitter& out) const {
 
 	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
 	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
-	out << Key << "rate_of_fire_curve" << Value << mark::curve::serialize(m_rate_of_fire_curve);
+	out << Key << "rate_of_fire_curve" << Value << curve::serialize(m_rate_of_fire_curve);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "angular_velocity" << Value << m_angular_velocity;
 	out << Key << "projectile_count" << Value << static_cast<unsigned>(m_projectile_count);
 	out << Key << "burst_delay" << Value << m_burst_delay;
 	out << Key << "guided" << Value << m_guided;
 	out << Key << "cone" << Value << m_cone;
-	out << Key << "cone_curve" << Value << mark::curve::serialize(m_cone_curve);
+	out << Key << "cone_curve" << Value << curve::serialize(m_cone_curve);
 	out << Key << "heat_per_shot" << Value << m_heat_per_shot;
 	out << Key << "critical_chance" << Value << m_critical_chance;
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;

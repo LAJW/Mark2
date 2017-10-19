@@ -4,21 +4,21 @@
 #include "tick_context.h"
 #include "world.h"
 
-mark::module::energy_generator::energy_generator(mark::resource::manager& manager) :
+mark::module::energy_generator::energy_generator(resource::manager& manager) :
 	m_image_base(manager.image("energy-generator.png")),
 	m_image_bar(manager.image("bar.png")),
-	mark::module::base({ 2, 2 }, manager.image("energy-generator.png")) {
+	module::base({ 2, 2 }, manager.image("energy-generator.png")) {
 
 }
 
-void mark::module::energy_generator::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
+void mark::module::energy_generator::tick(tick_context& context) {
+	this->module::base::tick(context);
 	m_cur_energy = std::min(m_cur_energy + m_energy_regen * static_cast<float>(context.dt), m_max_energy);
 	const auto pos = this->pos();
-	mark::sprite info;
+	sprite info;
 	info.image = m_image_base;
 	info.pos = pos;
-	info.size = mark::module::size * 2.f;
+	info.size = module::size * 2.f;
 	info.rotation = parent().rotation();
 	info.frame = static_cast<uint8_t>(std::round(m_cur_energy / m_max_energy * 4.f));
 	info.color = this->heat_color();
@@ -41,9 +41,9 @@ auto mark::module::energy_generator::energy_ratio() const -> float {
 // Serialize / Deserialize
 
 mark::module::energy_generator::energy_generator(
-	mark::resource::manager& rm,
+	resource::manager& rm,
 	const YAML::Node& node):
-	mark::module::base(rm, node),
+	module::base(rm, node),
 	m_image_base(rm.image("energy-generator.png")),
 	m_image_bar(rm.image("bar.png")),
 	m_cur_energy(node["cur_energy"].as<float>()),

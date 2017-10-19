@@ -12,23 +12,23 @@
 #include "exception.h"
 
 mark::unit::landing_pad::landing_pad(
-	mark::world& world, mark::vector<double> pos)
-	: mark::unit::base(world, pos)
+	world& world, vector<double> pos)
+	: unit::base(world, pos)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
 // Serialize / Deserialize
 
 mark::unit::landing_pad::landing_pad(
-	mark::world& world,
+	world& world,
 	const YAML::Node& node)
-	: mark::unit::base(world, node)
+	: unit::base(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
 void mark::unit::landing_pad::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
-	out << Key << "type" << Value << mark::unit::landing_pad::type_name;
+	out << Key << "type" << Value << unit::landing_pad::type_name;
 	this->serialize_base(out);
 	if (const auto ship = m_ship.lock()) {
 		out << Key << "ship_id" << Value << ship->id();
@@ -40,7 +40,7 @@ void mark::unit::landing_pad::serialize(YAML::Emitter& out) const
 
 void mark::unit::landing_pad::tick(mark::tick_context& context)
 {
-	mark::sprite info;
+	sprite info;
 	info.image = m_image;
 	info.pos = pos();
 	info.size = 320.f;
@@ -48,12 +48,12 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::unit::landing_pad::dock(mark::unit::modular* ship)
+void mark::unit::landing_pad::dock(unit::modular* ship)
 {
 	if (ship) {
-		auto ship_ptr = std::dynamic_pointer_cast<mark::unit::modular>(
+		auto ship_ptr = std::dynamic_pointer_cast<unit::modular>(
 			m_world.find_one(pos(), 500.0,
-			[ship](const mark::unit::base& unit) {
+			[ship](const unit::base& unit) {
 				return &unit == ship;
 		}));
 		m_ship = ship_ptr;
@@ -63,21 +63,21 @@ void mark::unit::landing_pad::dock(mark::unit::modular* ship)
 }
 
 void mark::unit::landing_pad::activate(
-	const std::shared_ptr<mark::unit::base>& by)
+	const std::shared_ptr<unit::base>& by)
 {
 	if (const auto modular
-		= std::dynamic_pointer_cast<mark::unit::modular>(by)) {
+		= std::dynamic_pointer_cast<unit::modular>(by)) {
 		m_ship = modular;
 		m_world.target(this->shared_from_this());
 		mark::command move;
-		move.type = mark::command::type::move;
+		move.type = command::type::move;
 		move.pos = pos();
 		move.release = true;
 		move.shift = false;
 		modular->command(move);
 		mark::command look;
-		look.type = mark::command::type::guide;
-		look.pos = pos() + mark::vector<double>(1, 0);
+		look.type = command::type::guide;
+		look.pos = pos() + vector<double>(1, 0);
 		look.release = false;
 		look.shift = false;
 		modular->command(look);
@@ -91,7 +91,7 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 			ship->activate(this->shared_from_this());
 			m_ship.reset();
 		}
-	} else if (command.type == mark::command::type::guide) {
+	} else if (command.type == command::type::guide) {
 		m_mousepos = command.pos;
 	}
 }
@@ -99,26 +99,26 @@ void mark::unit::landing_pad::command(const mark::command & command) {
 void mark::unit::landing_pad::resolve_ref(
 	const YAML::Node& node,
 	const std::unordered_map<uint64_t,
-		std::weak_ptr<mark::unit::base>>& units)
+		std::weak_ptr<unit::base>>& units)
 {
 	if (node["ship_id"]) {
 		const auto ship_id = node["ship_id"].as<uint64_t>();
-		m_ship = std::dynamic_pointer_cast<mark::unit::modular>(
+		m_ship = std::dynamic_pointer_cast<unit::modular>(
 			units.at(ship_id).lock());
 	}
 }
 
 auto mark::unit::landing_pad::bindings() const ->
-	mark::unit::modular::bindings_t
+	unit::modular::bindings_t
 {
 	const auto ship = m_ship.lock();
 	assert(ship != nullptr);
 	return ship->bindings();
 }
 
-auto mark::unit::landing_pad::ship() -> std::shared_ptr<mark::unit::modular>
+auto mark::unit::landing_pad::ship() -> std::shared_ptr<unit::modular>
 { return m_ship.lock(); }
 
 auto mark::unit::landing_pad::ship() const ->
-	std::shared_ptr<const mark::unit::modular>
+	std::shared_ptr<const unit::modular>
 { return m_ship.lock(); }

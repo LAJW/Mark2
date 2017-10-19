@@ -9,16 +9,16 @@ constexpr const auto HEAT_TRANSFER_RATE = 15.f;
 constexpr const auto HEAT_LOSS_RATE = 2.f;
 
 mark::module::base::base(
-	mark::vector<unsigned> size,
-	const std::shared_ptr<const mark::resource::image>& thumbnail)
+	vector<unsigned> size,
+	const std::shared_ptr<const resource::image>& thumbnail)
 	: m_size(size)
 	, m_thumbnail(thumbnail)
 {
-	assert(size.x <= mark::module::max_dimension);
-	assert(size.y <= mark::module::max_dimension);
+	assert(size.x <= module::max_dimension);
+	assert(size.y <= module::max_dimension);
 }
 
-void mark::module::base::tick(mark::tick_context & context) {
+void mark::module::base::tick(tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
 	const auto pos = this->pos();
 
@@ -48,7 +48,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 	}
 	if (!this->parent().landed()) {
 		if (health_percentage <= 0.5f) {
-			mark::tick_context::spray_info info;
+			tick_context::spray_info info;
 			info.image = parent().world().resource_manager().image("glare.png");
 			info.lifespan(.3f, 1.f);
 			info.direction = -45.f;
@@ -61,7 +61,7 @@ void mark::module::base::tick(mark::tick_context & context) {
 			info.layer = 5;
 			context.render(info);
 		} else if (health_percentage <= 0.25f) {
-			mark::tick_context::spray_info info;
+			tick_context::spray_info info;
 			info.image = parent().world().resource_manager().image("glare.png");
 			info.lifespan(.3f, 1.f);
 			info.direction = -45.f;
@@ -78,37 +78,37 @@ void mark::module::base::tick(mark::tick_context & context) {
 	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);
 		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
-		mark::sprite stun_sprite;
+		sprite stun_sprite;
 		stun_sprite.image = parent().world().image_stun;
 		stun_sprite.pos = pos;
 		stun_sprite.rotation = m_stun_lfo * 360.f;
-		stun_sprite.size = mark::module::size * 2;
+		stun_sprite.size = module::size * 2;
 		context.sprites[3].emplace_back(stun_sprite);
 	}
 
 }
 
-auto mark::module::base::collide(const mark::segment_t& ray) ->
-	std::pair<interface::damageable*, mark::vector<double>> {
+auto mark::module::base::collide(const segment_t& ray) ->
+	std::pair<interface::damageable*, vector<double>> {
 	const auto size = this->size();
 	// half width
-	const auto hw = static_cast<double>(size.x) / 2.0 * mark::module::size;
+	const auto hw = static_cast<double>(size.x) / 2.0 * module::size;
 	// half height
-	const auto hh = static_cast<double>(size.y) / 2.0 * mark::module::size;
+	const auto hh = static_cast<double>(size.y) / 2.0 * module::size;
 	const auto pos = this->pos();
 	const auto rotation = parent().rotation();
 	const std::array<segment_t, 4> segments {
-		mark::segment_t{ { -hw, -hh }, { -hw, hh } },  // left
-		mark::segment_t{ { -hw, hh },  { hw, hh } },   // bottom
-		mark::segment_t{ { hw, hh },   { hw, -hh } },  // right
-		mark::segment_t{ { hw, -hh },  { -hw, -hh } }  // side
+		segment_t{ { -hw, -hh }, { -hw, hh } },  // left
+		segment_t{ { -hw, hh },  { hw, hh } },   // bottom
+		segment_t{ { hw, hh },   { hw, -hh } },  // right
+		segment_t{ { hw, -hh },  { -hw, -hh } }  // side
 	};
-	auto min = mark::vector<double>(NAN, NAN);
+	auto min = vector<double>(NAN, NAN);
 	double min_length = 40000.0;
 	for (const auto& raw : segments) {
 		const auto segment = std::make_pair(
-			mark::rotate(raw.first, rotation) + pos,
-			mark::rotate(raw.second, rotation) + pos
+			rotate(raw.first, rotation) + pos,
+			rotate(raw.second, rotation) + pos
 		);
 		const auto intersection = intersect(segment, ray);
 		if (!std::isnan(intersection.x)) {
@@ -127,12 +127,12 @@ auto mark::module::base::collide(const mark::segment_t& ray) ->
 }
 
 auto mark::module::base::neighbours()
-	-> std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>> {
+	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>> {
 	return parent().attached(*this);
 }
 
-auto mark::module::base::grid_pos() const noexcept -> mark::vector<int> {
-	return mark::vector<int>(m_grid_pos);
+auto mark::module::base::grid_pos() const noexcept -> vector<int> {
+	return vector<int>(m_grid_pos);
 }
 
 bool mark::module::base::damage(const interface::damageable::info& attr) {
@@ -158,17 +158,17 @@ bool mark::module::base::damage(const interface::damageable::info& attr) {
 auto mark::module::base::dead() const -> bool
 { return m_cur_health <= 0.f; }
 
-void mark::module::base::target(mark::vector<double>)
+void mark::module::base::target(vector<double>)
 {}
 
-void mark::module::base::queue(mark::vector<double>, bool)
+void mark::module::base::queue(vector<double>, bool)
 {}
 
-void mark::module::base::shoot(mark::vector<double>, bool)
+void mark::module::base::shoot(vector<double>, bool)
 {}
 
-void mark::module::base::on_death(mark::tick_context& context) {
-	mark::tick_context::spray_info spray;
+void mark::module::base::on_death(tick_context& context) {
+	tick_context::spray_info spray;
 	spray.image = parent().world().resource_manager().image("explosion.png");
 	spray.pos = pos();
 	spray.velocity(75.f, 150.f);
@@ -178,24 +178,24 @@ void mark::module::base::on_death(mark::tick_context& context) {
 	context.render(spray);
 }
 
-auto mark::module::base::global_modifiers() const->mark::module::modifiers
+auto mark::module::base::global_modifiers() const->module::modifiers
 {
-	return mark::module::modifiers();
+	return module::modifiers();
 }
 
 auto mark::module::base::reserved() const noexcept -> reserved_type
 { return reserved_type::none; }
 
-auto mark::module::base::parent() const -> const mark::unit::modular& {
+auto mark::module::base::parent() const -> const unit::modular& {
 	if (m_parent) {
 		return *m_parent;
 	} else {
-		throw mark::exception("NO_PARENT");
+		throw exception("NO_PARENT");
 	}
 }
 
-auto mark::module::base::parent() -> mark::unit::modular&{
-	return const_cast<mark::unit::modular&>(static_cast<const mark::module::base*>(this)->parent());
+auto mark::module::base::parent() -> unit::modular&{
+	return const_cast<unit::modular&>(static_cast<const module::base*>(this)->parent());
 }
 
 auto mark::module::base::heat_color() const -> sf::Color {
@@ -203,29 +203,29 @@ auto mark::module::base::heat_color() const -> sf::Color {
 	return { 255, intensity, intensity, 255 };
 }
 
-auto mark::module::base::pos() const -> mark::vector<double> {
-	const auto pos = (mark::vector<float>(grid_pos()) + mark::vector<float>(this->size()) / 2.f)
-		* static_cast<float>(mark::module::size);
-	return parent().pos() + mark::vector<double>(rotate(pos, parent().rotation()));
+auto mark::module::base::pos() const -> vector<double> {
+	const auto pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f)
+		* static_cast<float>(module::size);
+	return parent().pos() + vector<double>(rotate(pos, parent().rotation()));
 }
 
-auto mark::module::base::thumbnail() const -> std::shared_ptr<const mark::resource::image> {
+auto mark::module::base::thumbnail() const -> std::shared_ptr<const resource::image> {
 	return m_thumbnail;
 }
 
-auto mark::module::base::size() const -> mark::vector<unsigned> {
+auto mark::module::base::size() const -> vector<unsigned> {
 	return m_size;
 }
 
 // Serializer / Deserializer
 
-mark::module::base::base(mark::resource::manager& rm, const YAML::Node& node):
+mark::module::base::base(resource::manager& rm, const YAML::Node& node):
 	m_cur_health(node["cur_health"].as<float>()),
 	m_max_health(node["max_health"].as<float>()),
 	m_stunned(node["stunned"].as<float>()),
 	m_cur_heat(node["cur_heat"].as<float>()),
-	m_grid_pos(node["grid_pos"].as<mark::vector<int>>()),
-	m_size(node["size"].as<mark::vector<unsigned>>()),
+	m_grid_pos(node["grid_pos"].as<vector<int>>()),
+	m_size(node["size"].as<vector<unsigned>>()),
 	m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png"))) { }
 
 void mark::module::base::serialize_base(YAML::Emitter& out) const {

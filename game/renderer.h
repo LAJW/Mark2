@@ -8,15 +8,15 @@ namespace mark {
 
 	class renderer {
 	public:
-		renderer(mark::vector<unsigned> res);
+		renderer(vector<unsigned> res);
 
 		struct render_info {
-			mark::vector<double> camera;
-			mark::vector<double> resolution;
-			std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
-			std::map<int, std::vector<mark::sprite>> sprites;
-			std::map<int, std::vector<mark::sprite>> ui_sprites;
-			std::map<int, std::vector<mark::sprite>> normals;
+			vector<double> camera;
+			vector<double> resolution;
+			std::vector<std::pair<vector<double>, sf::Color>> lights;
+			std::map<int, std::vector<sprite>> sprites;
+			std::map<int, std::vector<sprite>> ui_sprites;
+			std::map<int, std::vector<sprite>> normals;
 		};
 		sf::Sprite render(const render_info& info);
 	private:

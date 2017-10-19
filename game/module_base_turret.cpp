@@ -4,14 +4,14 @@
 #include "world.h"
 
 mark::module::base_turret::base_turret(
-	mark::vector<unsigned> size,
-	const std::shared_ptr<const mark::resource::image>& image)
-	: mark::module::base(size, image)
+	vector<unsigned> size,
+	const std::shared_ptr<const resource::image>& image)
+	: module::base(size, image)
 	, m_target(std::make_shared<vector<double>>(0., 0.)) { }
 mark::module::base_turret::base_turret(
-	mark::resource::manager & rm,
+	resource::manager & rm,
 	const YAML::Node & node)
-	: mark::module::base(rm, node)
+	: module::base(rm, node)
 	, m_target(std::make_shared<vector<double>>(
 		node["target"]["x"].as<double>(),
 		node["target"]["y"].as<double>())) { }
@@ -21,12 +21,13 @@ auto target(
 	const std::pair<std::weak_ptr<mark::unit::base>, mark::vector<double>>& pair)
 	-> std::optional<mark::vector<double>>
 {
+	using namespace mark;
 	const auto&[unit_wk, offset] = pair;
 	if (const auto unit = unit_wk.lock()) {
-		if (!unit->dead() && mark::length(unit->pos() - turret_pos) < 1000.) {
+		if (!unit->dead() && length(unit->pos() - turret_pos) < 1000.) {
 			if (const auto modular
-				= std::dynamic_pointer_cast<mark::unit::modular>(unit)) {
-				if (modular->at(mark::round(offset / 16.))) {
+				= std::dynamic_pointer_cast<unit::modular>(unit)) {
+				if (modular->at(round(offset / 16.))) {
 					return unit->pos() + offset;
 				}
 			} else {
@@ -68,17 +69,17 @@ void mark::module::base_turret::serialize_base(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-void mark::module::base_turret::target(mark::vector<double> pos)
+void mark::module::base_turret::target(vector<double> pos)
 { *m_target = pos; }
 
-void mark::module::base_turret::shoot(mark::vector<double> pos, bool release)
+void mark::module::base_turret::shoot(vector<double> pos, bool release)
 {
 	*m_target = pos;
 	m_shoot = !release;
 	m_queue.clear();
 }
 
-void mark::module::base_turret::queue(mark::vector<double> pos, bool)
+void mark::module::base_turret::queue(vector<double> pos, bool)
 {
 	auto unit = parent().world().find_one(
 		pos, 100.f, [this](const unit::base& unit) {
@@ -89,7 +90,7 @@ void mark::module::base_turret::queue(mark::vector<double> pos, bool)
 	if (unit) {
 		if (const auto modular
 			= std::dynamic_pointer_cast<unit::modular>(unit)) {
-			const auto rel = mark::rotate(pos - unit->pos(), modular->rotation());
+			const auto rel = rotate(pos - unit->pos(), modular->rotation());
 			m_queue.push_back({ unit, rel });
 		}
 		else {

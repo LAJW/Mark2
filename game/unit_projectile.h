@@ -9,15 +9,15 @@ namespace mark {
 	}
 	namespace unit {
 		class modular;
-		class projectile final : public mark::unit::base {
+		class projectile final : public unit::base {
 		public:
 			static constexpr const char* type_name = "unit_projectile";
 			// projectile constructor attributes
 			struct info {
-				mark::world* world = nullptr;
+				world* world = nullptr;
 				// for mouse-guided missiles
 				std::shared_ptr<const vector<double>> guide;
-				mark::vector<double> pos;
+				vector<double> pos;
 				float rotation = NAN;
 				float velocity = NAN;
 				float seek_radius = 0.f;
@@ -30,18 +30,18 @@ namespace mark {
 				size_t piercing = 1;
 				size_t team = 0;
 			};
-			projectile(mark::world&, const YAML::Node&);
+			projectile(world&, const YAML::Node&);
 			projectile(const projectile::info&);
-			void tick(mark::tick_context& context) override;
+			void tick(tick_context& context) override;
 			auto dead() const -> bool override;
 			void serialize(YAML::Emitter&) const override;
 			void resolve_ref(
 				const YAML::Node&,
-				const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>& units);
+				const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
 		private:
 			projectile(const projectile::info&, bool);
-			std::shared_ptr<const mark::resource::image> m_image;
-			std::shared_ptr<const mark::resource::image> m_im_tail;
+			std::shared_ptr<const resource::image> m_image;
+			std::shared_ptr<const resource::image> m_im_tail;
 			std::unordered_set<interface::damageable*> m_damaged;
 			std::shared_ptr<const vector<double>> m_guide;
 			float m_rotation;

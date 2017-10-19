@@ -5,26 +5,26 @@
 #include "world.h"
 #include "resource_manager.h"
 
-mark::module::flamethrower::flamethrower(mark::resource::manager& manager) :
-	mark::module::base({ 2, 2 }, manager.image("turret.png")),
+mark::module::flamethrower::flamethrower(resource::manager& manager) :
+	module::base({ 2, 2 }, manager.image("turret.png")),
 	m_image_base(manager.image("turret.png")) { }
 
-void mark::module::flamethrower::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
+void mark::module::flamethrower::tick(tick_context& context) {
+	this->module::base::tick(context);
 	const auto pos = this->pos();
 
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_image_base;
 		info.pos = pos;
-		info.size = mark::module::size * 2.f;
+		info.size = module::size * 2.f;
 		info.rotation = parent().rotation();
 		info.color = this->heat_color();
 		context.sprites[2].emplace_back(info);
 	}
 
 	if (m_shoot) {
-		mark::tick_context::spray_info spray_info;
+		tick_context::spray_info spray_info;
 		spray_info.image = parent().world().resource_manager().image("explosion.png");
 		spray_info.pos = pos;
 		spray_info.lifespan(0.2f, 0.5f);
@@ -37,8 +37,8 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 
 		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
-			const auto cur = pos + mark::rotate(mark::vector<double>(300, 0), i + parent().rotation());
-			mark::world::damage_info damage_info;
+			const auto cur = pos + rotate(vector<double>(300, 0), i + parent().rotation());
+			world::damage_info damage_info;
 			damage_info.context = &context;
 			damage_info.aoe_radius = 0.f;
 			damage_info.piercing = 1;
@@ -52,7 +52,7 @@ void mark::module::flamethrower::tick(mark::tick_context& context) {
 
 }
 
-void mark::module::flamethrower::shoot(mark::vector<double>, bool release) {
+void mark::module::flamethrower::shoot(vector<double>, bool release) {
 	m_shoot = !release;
 }
 
@@ -70,8 +70,8 @@ auto mark::module::flamethrower::energy_ratio() const -> float {
 
 // Serialize / Deserialize
 
-mark::module::flamethrower::flamethrower(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+mark::module::flamethrower::flamethrower(resource::manager& rm, const YAML::Node& node):
+	module::base(rm, node),
 	m_image_base(rm.image("turret.png")) { }
 
 void mark::module::flamethrower::serialize(YAML::Emitter& out) const {

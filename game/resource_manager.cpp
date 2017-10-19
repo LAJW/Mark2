@@ -5,11 +5,11 @@
 mark::resource::manager_impl::manager_impl():
 	m_gen(m_rd()) { }
 
-auto mark::resource::manager_impl::image(const std::string& filename) -> std::shared_ptr<const mark::resource::image> {
+auto mark::resource::manager_impl::image(const std::string& filename) -> std::shared_ptr<const resource::image> {
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
 	if (!image) {
-		auto new_image = std::make_shared<mark::resource::image_impl>(filename);
+		auto new_image = std::make_shared<resource::image_impl>(filename);
 		image_ptr = new_image;
 		return new_image;
 	} else {
@@ -27,8 +27,8 @@ auto mark::resource::manager_impl::random_double(double min, double max) -> doub
 	return dist(m_gen);
 }
 
-auto mark::resource::manager_stub::image(const std::string&)->std::shared_ptr<const mark::resource::image> {
-	return std::make_shared<mark::resource::image_stub>();
+auto mark::resource::manager_stub::image(const std::string&)->std::shared_ptr<const resource::image> {
+	return std::make_shared<resource::image_stub>();
 };
 auto mark::resource::manager_stub::random_int(int min, int max) -> int {
 	return (max - min) / 2 + min;

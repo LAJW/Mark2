@@ -15,7 +15,7 @@ static auto validate(const mark::particle::info& attr) {
 }
 
 mark::particle::particle(const particle::info& info):
-	mark::particle::particle(::validate(info), true) { }
+	particle::particle(::validate(info), true) { }
 
 mark::particle::particle(const particle::info& attr, bool) :
 	m_image(std::move(attr.image)),
@@ -28,9 +28,9 @@ mark::particle::particle(const particle::info& attr, bool) :
 	m_color(attr.color),
 	m_layer(attr.layer) { }
 
-void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& sprites) {
-	const auto direction = mark::rotate(mark::vector<float>(1.f, 0.f), m_direction);
-	m_pos += mark::vector<double>(direction) * dt * static_cast<double>(m_velocity);
+void mark::particle::tick(double dt, std::map<int, std::vector<sprite>>& sprites) {
+	const auto direction = rotate(vector<float>(1.f, 0.f), m_direction);
+	m_pos += vector<double>(direction) * dt * static_cast<double>(m_velocity);
 	const auto image_size = m_image->size();
 	const auto frame_count = image_size.x / image_size.y;
 	const auto frame = static_cast<unsigned>((1.f - m_cur_lifespan / m_lifespan) * static_cast<float>(frame_count));
@@ -40,7 +40,7 @@ void mark::particle::tick(double dt, std::map<int, std::vector<mark::sprite>>& s
 	} else {
 		color = sf::Color::White;
 	}
-	mark::sprite info;
+	sprite info;
 	info.image = m_image;
 	info.pos = m_pos;
 	info.size = m_size;

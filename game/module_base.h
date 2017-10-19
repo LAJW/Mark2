@@ -30,8 +30,8 @@ struct modifiers {
 
 class base;
 
-auto deserialize(mark::resource::manager&, const YAML::Node&) ->
-	std::unique_ptr<mark::module::base>;
+auto deserialize(resource::manager&, const YAML::Node&) ->
+	std::unique_ptr<module::base>;
 
 enum class reserved_type {
 	none,
@@ -46,20 +46,20 @@ class base:
 	public interface::serializable {
 public:
 	static constexpr auto max_heat = 100.f;
-	friend mark::unit::modular;
-	friend mark::module::cargo;
+	friend unit::modular;
+	friend module::cargo;
 	virtual ~base() = default;
 
-	virtual void tick(mark::tick_context& context);
+	virtual void tick(tick_context& context);
 
 	// Module's position in the world
-	auto pos() const -> mark::vector<double>;
+	auto pos() const -> vector<double>;
 
 	// Module's image in the inventory
-	auto thumbnail() const -> std::shared_ptr<const mark::resource::image>;
+	auto thumbnail() const -> std::shared_ptr<const resource::image>;
 
 	// Size in grid units
-	auto size() const -> mark::vector<unsigned>;
+	auto size() const -> vector<unsigned>;
 
 	// Describes whether the module is dead or not
 	virtual auto dead() const -> bool;
@@ -68,17 +68,17 @@ public:
 	virtual auto detachable() const -> bool { return true; }
 
 	// Target/look at specific position in the world
-	virtual void target(mark::vector<double> pos);
+	virtual void target(vector<double> pos);
 
 	// Select target to shoot at
-	virtual void shoot(mark::vector<double> pos, bool release);
+	virtual void shoot(vector<double> pos, bool release);
 
 	// Add target to shooting queue
-	virtual void queue(mark::vector<double> pos, bool release);
+	virtual void queue(vector<double> pos, bool release);
 
 	// Find collision point, return pointer to damaged module
-	virtual auto collide(const mark::segment_t&) ->
-		std::pair<mark::interface::damageable*, mark::vector<double>>;
+	virtual auto collide(const segment_t&) ->
+		std::pair<interface::damageable*, vector<double>>;
 
 	// UI text describing module's properties
 	virtual auto describe() const -> std::string = 0;
@@ -90,19 +90,19 @@ public:
 	virtual auto energy_ratio() const -> float { return 0.f; }
 
 	// Neighbour modules
-	auto neighbours() -> std::vector<std::pair<std::reference_wrapper<mark::module::base>, unsigned>>;
+	auto neighbours() -> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>;
 
 	// Position on the grid
-	auto grid_pos() const noexcept -> mark::vector<int>;
+	auto grid_pos() const noexcept -> vector<int>;
 
 	// Default damage handling
-	auto damage(const mark::interface::damageable::info& attr) -> bool override;
+	auto damage(const interface::damageable::info& attr) -> bool override;
 
 	// called on module's death
-	virtual void on_death(mark::tick_context& context);
+	virtual void on_death(tick_context& context);
 
 	// get modifiers for parent modular ship
-	virtual auto global_modifiers() const -> mark::module::modifiers;
+	virtual auto global_modifiers() const -> module::modifiers;
 
 	// Specifies whether space around the module should be reserved
 	// For example behind engines and in front of locked turrets
@@ -112,12 +112,12 @@ public:
 	virtual auto passive() const noexcept -> bool = 0;
 
 protected:
-	base(mark::resource::manager&, const YAML::Node&);
-	base(mark::vector<unsigned> size,
-		const std::shared_ptr<const mark::resource::image>& thumbnail);
+	base(resource::manager&, const YAML::Node&);
+	base(vector<unsigned> size,
+		const std::shared_ptr<const resource::image>& thumbnail);
 
-	auto parent() const -> const mark::unit::modular&;
-	auto parent() -> mark::unit::modular&;
+	auto parent() const -> const unit::modular&;
+	auto parent() -> unit::modular&;
 	auto heat_color() const -> sf::Color;
 	// serialize module::base properties, call only from module serializers
 	void serialize_base(YAML::Emitter&) const;
@@ -127,10 +127,10 @@ protected:
 	float m_stunned = 0.f;
 	float m_cur_heat = 0.f;
 private:
-	std::shared_ptr<const mark::resource::image> m_thumbnail;
-	const mark::vector<unsigned> m_size;
-	mark::unit::modular* m_parent = nullptr;
-	mark::vector<int8_t> m_grid_pos;
+	std::shared_ptr<const resource::image> m_thumbnail;
+	const vector<unsigned> m_size;
+	unit::modular* m_parent = nullptr;
+	vector<int8_t> m_grid_pos;
 	float m_stun_lfo;
 };
 }

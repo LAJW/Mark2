@@ -25,9 +25,9 @@ mark::ui::container::container(const info& info)
 
 }
 
-void mark::ui::container::tick(mark::tick_context& context)
+void mark::ui::container::tick(tick_context& context)
 {
-	mark::sprite sprite;
+	sprite sprite;
 	sprite.image = m_cargo_bg;
 	sprite.pos = vector<double>(this->pos());
 	sprite.size = 64.f;
@@ -46,7 +46,7 @@ bool mark::ui::container::click(const event& event)
 		const vector<int> module_size(module.size());
 		const vector<double> relative_pos(event.cursor - this->pos());
 		const auto pos = round(relative_pos / 16.) - module_size / 2;
-		if (mark::error::code::success ==
+		if (error::code::success ==
 			m_container.attach(pos, m_ui.grabbed)) {
 			this->attach(pos, module);
 			return true;
@@ -56,8 +56,8 @@ bool mark::ui::container::click(const event& event)
 }
 
 void mark::ui::container::attach(
-	mark::vector<int> pos,
-	mark::module::base& module)
+	vector<int> pos,
+	module::base& module)
 {
 	const auto button_pos = pos * 16;
 	mark::ui::button::info info;

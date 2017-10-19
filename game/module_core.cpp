@@ -5,19 +5,19 @@
 #include "sprite.h"
 #include "tick_context.h"
 
-mark::module::core::core(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+mark::module::core::core(resource::manager& rm, const YAML::Node& node):
+	module::base(rm, node),
 	m_image(rm.image("core.png")) { }
 
-mark::module::core::core(mark::resource::manager& resource_manager):
+mark::module::core::core(resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("core.png")),
 	m_image(resource_manager.image("core.png")) {
 	
 }
 
-void mark::module::core::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
-	mark::sprite info;
+void mark::module::core::tick(tick_context& context) {
+	this->module::base::tick(context);
+	sprite info;
 	info.image = m_image;
 	info.pos = this->pos();
 	info.size = 32.f;

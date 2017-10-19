@@ -22,22 +22,22 @@ mark::ui::button::button(const info& info, bool)
 mark::ui::button::button(const info& info)
 	:button(info, validate(info)) { }
 
-auto mark::ui::button::pos() const noexcept -> mark::vector<int>
+auto mark::ui::button::pos() const noexcept -> vector<int>
 {
 	return m_pos + m_parent.pos();
 }
 
-void mark::ui::button::tick(mark::tick_context& context)
+void mark::ui::button::tick(tick_context& context)
 {
 	this->render(context);
 }
 
-void mark::ui::button::render(mark::tick_context& context)
+void mark::ui::button::render(tick_context& context)
 {
-	mark::sprite info;
+	sprite info;
 	info.image = m_image;
 	const auto pos = vector<double>(this->pos());
-	info.pos = pos - mark::vector<double>(0, (m_size.x - m_size.y) / 2.);
+	info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
 	info.size = static_cast<float>(std::max(m_size.x, m_size.y));
 	context.ui_sprites[2].emplace_back(info);
 }

@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "vector.h"
 
-auto mark::distance(const float alpha, const mark::vector<double> point) noexcept -> double {
+auto mark::distance(const float alpha, const vector<double> point) noexcept -> double {
 	const auto a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
 	return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
 }
 
-auto mark::get_line(const mark::vector<double> start, const mark::vector<double> end) noexcept -> mark::vector<double> {
+auto mark::get_line(const vector<double> start, const vector<double> end) noexcept -> vector<double> {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
 			return { 0, start.y };
@@ -20,7 +20,7 @@ auto mark::get_line(const mark::vector<double> start, const mark::vector<double>
 	}
 }
 
-auto mark::intersect(const mark::vector<double> line1, const mark::vector<double> line2) noexcept -> mark::vector<double> {
+auto mark::intersect(const vector<double> line1, const vector<double> line2) noexcept -> vector<double> {
 	if (isnan(line1.x) || isnan(line2.x)) {
 		return { NAN, NAN };
 	} else if (isnan(line1.y)) {
@@ -42,10 +42,10 @@ auto mark::intersect(const mark::vector<double> line1, const mark::vector<double
 	}
 }
 
-auto mark::intersect(const mark::segment_t s1, const mark::segment_t s2) noexcept -> mark::vector<double> {
-	const auto line1 = mark::get_line(s1.first, s1.second);
-	const auto line2 = mark::get_line(s2.first, s2.second);
-	const auto intersection = mark::intersect(line1, line2);
+auto mark::intersect(const segment_t s1, const segment_t s2) noexcept -> vector<double> {
+	const auto line1 = get_line(s1.first, s1.second);
+	const auto line2 = get_line(s2.first, s2.second);
+	const auto intersection = intersect(line1, line2);
 	// lower x bound
 	const auto lx = std::max(std::min(s1.first.x, s1.second.x), std::min(s2.first.x, s2.second.x));
 	// upper x bound
@@ -62,10 +62,10 @@ auto mark::intersect(const mark::segment_t s1, const mark::segment_t s2) noexcep
 }
 
 auto mark::intersect(
-	mark::segment_t segment,
-	mark::vector<double> center,
-	float radius) noexcept -> mark::vector<double> {
-	const auto line = mark::get_line(segment.first, segment.second);
+	segment_t segment,
+	vector<double> center,
+	float radius) noexcept -> vector<double> {
+	const auto line = get_line(segment.first, segment.second);
 	const auto lx = std::min(segment.first.x, segment.second.x);
 	const auto ux = std::max(segment.first.x, segment.second.x);
 	const auto ly = std::min(segment.first.y, segment.second.y);
@@ -88,10 +88,10 @@ auto mark::intersect(
 			const auto x2 = (-B - delta) / (2.0 * A);
 			const auto y1 = c * x1 + d;
 			const auto y2 = c * x2 + d;
-			const auto p1 = mark::vector<double>(x1, y1);
-			const auto p2 = mark::vector<double>(x2, y2);
-			const auto length1 = mark::length(p1 - segment.first);
-			const auto length2 = mark::length(p2 - segment.first);
+			const auto p1 = vector<double>(x1, y1);
+			const auto p2 = vector<double>(x2, y2);
+			const auto length1 = length(p1 - segment.first);
+			const auto length2 = length(p2 - segment.first);
 
 			bool p1_in_range = p1.x >= lx && p1.x <= ux
 				&& p1.y >= ly && p1.y <= uy;
@@ -128,11 +128,11 @@ auto mark::intersect(
 }
 
 // Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
-auto mark::turn(mark::vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float {
-	const auto turn_direction = mark::sgn(mark::atan(mark::rotate(new_direction, -current_rotation)));
+auto mark::turn(vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float {
+	const auto turn_direction = sgn(atan(rotate(new_direction, -current_rotation)));
 	const auto rot_step = static_cast<float>(turn_direction  * angular_velocity * dt);
-	if (std::abs(mark::atan(mark::rotate(new_direction, -current_rotation))) < angular_velocity * dt) {
-		return static_cast<float>(mark::atan(new_direction));
+	if (std::abs(atan(rotate(new_direction, -current_rotation))) < angular_velocity * dt) {
+		return static_cast<float>(atan(new_direction));
 	} else {
 		return current_rotation + rot_step;
 	}

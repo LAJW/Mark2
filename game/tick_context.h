@@ -13,23 +13,23 @@ namespace mark {
 		class base;
 	}
 	struct tick_context {
-		tick_context(mark::resource::manager&);
+		tick_context(resource::manager&);
 		double dt;
-		std::map<int, std::vector<mark::sprite>> sprites;
-		std::map<int, std::vector<mark::sprite>> normals;
-		std::map<int, std::vector<mark::sprite>> ui_sprites;
-		std::vector<std::pair<mark::vector<double>, sf::Color>> lights;
-		std::vector<std::shared_ptr<mark::unit::base>> units;
-		std::vector<mark::particle> particles;
+		std::map<int, std::vector<sprite>> sprites;
+		std::map<int, std::vector<sprite>> normals;
+		std::map<int, std::vector<sprite>> ui_sprites;
+		std::vector<std::pair<vector<double>, sf::Color>> lights;
+		std::vector<std::shared_ptr<unit::base>> units;
+		std::vector<particle> particles;
 		enum class bar_type {
 			health,
 			energy,
 			shield
 		};
 		struct bar_info {
-			std::shared_ptr<const mark::resource::image> image;
+			std::shared_ptr<const resource::image> image;
 			bar_type type;
-			mark::vector<double> pos;
+			vector<double> pos;
 			float percentage;
 		};
 		void render(const bar_info& info);
@@ -49,8 +49,8 @@ namespace mark {
 			return one;
 		}
 		struct spray_info {
-			std::shared_ptr<const mark::resource::image> image;
-			mark::vector<double> pos;
+			std::shared_ptr<const resource::image> image;
+			vector<double> pos;
 			float min_velocity = NAN;
 			float max_velocity = NAN;
 			float min_lifespan = NAN;
@@ -70,13 +70,13 @@ namespace mark {
 		};
 		void render(const spray_info&);
 	private:
-		mark::resource::manager& m_resource_manager;
+		resource::manager& m_resource_manager;
 	};
 	void print(
-		std::shared_ptr<const mark::resource::image> font,
-		std::vector<mark::sprite>& out,
-		mark::vector<double> pos,
-		mark::vector<double> box,
+		std::shared_ptr<const resource::image> font,
+		std::vector<sprite>& out,
+		vector<double> pos,
+		vector<double> box,
 		float size,
 		sf::Color color,
 		std::string text);

@@ -5,7 +5,7 @@
 #include "model_shield.h"
 
 mark::model::shield::shield(
-	mark::resource::manager& rm,
+	resource::manager& rm,
 	float radius):
 	m_adsr(0, 255, 0.1f, 1),
 	m_lfo(1.f, rm.random(0.f, 1.f)),
@@ -14,16 +14,16 @@ mark::model::shield::shield(
 	m_radius(radius) { }
 
 void mark::model::shield::tick(
-	mark::tick_context & context,
-	mark::vector<double> pos) {
+	tick_context & context,
+	vector<double> pos) {
 
 	m_lfo.tick(context.dt);
 	m_adsr.tick(context.dt);
 	const auto shield_opacity = static_cast<uint8_t>((m_lfo.get() * 0.5f + 0.5f) * 255.f);
 	const auto reflection_opacity = static_cast<uint8_t>(m_adsr.get());
-	const auto rotation = static_cast<float>(mark::atan(m_trigger_pos - pos));
+	const auto rotation = static_cast<float>(atan(m_trigger_pos - pos));
 
-	mark::sprite args;
+	sprite args;
 	args.image = m_image_shield;
 	args.pos = pos;
 	args.size = m_radius;
@@ -36,7 +36,7 @@ void mark::model::shield::tick(
 	context.sprites[1].emplace_back(args);
 }
 
-void mark::model::shield::trigger(mark::vector<double> pos) {
+void mark::model::shield::trigger(vector<double> pos) {
 	m_adsr.trigger();
 	m_trigger_pos = pos;
 }

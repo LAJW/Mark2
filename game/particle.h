@@ -13,8 +13,8 @@ namespace mark {
 	class particle {
 	public:
 		struct info {
-			std::shared_ptr<const mark::resource::image> image;
-			mark::vector<double> pos;
+			std::shared_ptr<const resource::image> image;
+			vector<double> pos;
 			float velocity = NAN;
 			float direction = NAN;
 			float lifespan = 0.3f;
@@ -22,13 +22,13 @@ namespace mark {
 			float size = 8.f;
 			int layer = 0;
 		};
-		particle(const mark::particle::info& info);
-		void tick(double dt, std::map<int, std::vector<mark::sprite>>& m_pos);
+		particle(const particle::info& info);
+		void tick(double dt, std::map<int, std::vector<sprite>>& m_pos);
 		inline bool dead() const { return m_cur_lifespan <= 0; }
 	private:
-		particle(const mark::particle::info& info, bool);
-		std::shared_ptr<const mark::resource::image> m_image;
-		mark::vector<double> m_pos;
+		particle(const particle::info& info, bool);
+		std::shared_ptr<const resource::image> m_image;
+		vector<double> m_pos;
 		float m_lifespan;
 		float m_cur_lifespan;
 		float m_velocity;

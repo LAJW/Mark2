@@ -7,36 +7,36 @@
 #include "world.h"
 #include <sstream>
 
-mark::module::shield_generator::shield_generator(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+mark::module::shield_generator::shield_generator(resource::manager& rm, const YAML::Node& node):
+	module::base(rm, node),
 	m_im_generator(rm.image("shield-generator.png")),
 	m_model_shield(rm, 128.f) { }
 
-mark::module::shield_generator::shield_generator(mark::resource::manager& resource_manager):
+mark::module::shield_generator::shield_generator(resource::manager& resource_manager):
 	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
 	m_im_generator(resource_manager.image("shield-generator.png")),
 	m_model_shield(resource_manager, 128.f) {
 
 }
 
-void mark::module::shield_generator::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
+void mark::module::shield_generator::tick(tick_context& context) {
+	this->module::base::tick(context);
 	const auto pos = this->pos();
 	if (m_cur_shield > 0) {
 		m_model_shield.tick(context, pos);
 	}
-	mark::sprite info;
+	sprite info;
 	info.image = m_im_generator;
 	info.pos = pos;
-	info.size = mark::module::size * 2.f;
+	info.size = module::size * 2.f;
 	info.rotation = parent().rotation();
 	info.color = this->heat_color();
 	context.sprites[2].emplace_back(info);
 
-	mark::tick_context::bar_info shield_bar;
+	tick_context::bar_info shield_bar;
 	shield_bar.image = parent().world().resource_manager().image("bar.png");
-	shield_bar.pos = pos + mark::vector<double>(0, -mark::module::size * 2);
-	shield_bar.type = mark::tick_context::bar_type::shield;
+	shield_bar.pos = pos + vector<double>(0, -module::size * 2);
+	shield_bar.type = tick_context::bar_type::shield;
 	shield_bar.percentage = m_cur_shield / m_max_shield;
 	context.render(shield_bar);
 }
@@ -65,18 +65,18 @@ auto mark::module::shield_generator::describe() const -> std::string {
 	return os.str();
 }
 
-auto mark::module::shield_generator::collide(const mark::segment_t& ray) ->
-	std::pair<interface::damageable*, mark::vector<double>> {
+auto mark::module::shield_generator::collide(const segment_t& ray) ->
+	std::pair<interface::damageable*, vector<double>> {
 	if (m_cur_shield > 0.f) {
 		const auto shield_size = 64.f;
-		const auto intersection = mark::intersect(ray, pos(), shield_size);
+		const auto intersection = intersect(ray, pos(), shield_size);
 		if (!std::isnan(intersection.x)) {
 			return { this, intersection };
 		} else {
 			return { nullptr, { NAN, NAN } };
 		}
 	} else {
-		return mark::module::base::collide(ray);
+		return module::base::collide(ray);
 	}
 }
 

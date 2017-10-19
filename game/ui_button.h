@@ -21,13 +21,13 @@ public:
 		// Parent window
 		const window* parent = nullptr;
 		// Position of top left corner relative to the parent element
-		mark::vector<int> pos;
+		vector<int> pos;
 		// Size of the button
-		mark::vector<unsigned> size;
+		vector<unsigned> size;
 	};
 
 	button(const info&);
-	void tick(mark::tick_context&) override;
+	void tick(tick_context&) override;
 
 	bool click(const event&) override;
 	callback_group on_click;
@@ -35,10 +35,10 @@ public:
 	bool hover(const event&) override;
 	callback_group on_hover;
 
-	auto pos() const noexcept -> mark::vector<int> override;
+	auto pos() const noexcept -> vector<int> override;
 private:
 	button(const info&, bool);
-	void render(mark::tick_context&);
+	void render(tick_context&);
 
 	const window& m_parent;
 	// Position relative to the parent element

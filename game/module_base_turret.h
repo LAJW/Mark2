@@ -4,15 +4,15 @@
 #include <deque>
 
 namespace mark { namespace module {
-class base_turret : public mark::module::base {
+class base_turret : public module::base {
 public:
 	base_turret(
-		mark::vector<unsigned> size,
-		const std::shared_ptr<const mark::resource::image>& image);
-	base_turret(mark::resource::manager&, const YAML::Node& node);
-	void target(mark::vector<double> pos) override;
-	void shoot(mark::vector<double> pos, bool release) override;
-	void queue(mark::vector<double> pos, bool release) override;
+		vector<unsigned> size,
+		const std::shared_ptr<const resource::image>& image);
+	base_turret(resource::manager&, const YAML::Node& node);
+	void target(vector<double> pos) override;
+	void shoot(vector<double> pos, bool release) override;
+	void queue(vector<double> pos, bool release) override;
 	auto passive() const noexcept -> bool override;
 protected:
 	void tick_ai();
@@ -20,13 +20,13 @@ protected:
 	// switching to manual control
 	bool queued();
 
-	std::shared_ptr<mark::vector<double>> m_target;
+	std::shared_ptr<vector<double>> m_target;
 	bool m_shoot = false;
 	void serialize_base(YAML::Emitter&) const;
 private:
 	std::deque<
 		std::pair<
-			std::weak_ptr<mark::unit::base>,
+			std::weak_ptr<unit::base>,
 			vector<double>>> m_queue;
 };
 } }

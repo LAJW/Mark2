@@ -10,7 +10,7 @@ struct event;
 class node {
 public:
 	virtual ~node() = default;
-	virtual void tick(mark::tick_context& ctx) = 0;
+	virtual void tick(tick_context& ctx) = 0;
 	virtual bool click(const event&) = 0;
 	virtual bool hover(const event&) = 0;
 	// get absolute pos

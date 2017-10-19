@@ -6,14 +6,14 @@
 #include "tick_context.h"
 #include "unit_projectile.h"
 
-mark::unit::minion::minion(mark::world& world, mark::vector<double> pos):
-	mark::unit::damageable(world, pos),
+mark::unit::minion::minion(world& world, vector<double> pos):
+	unit::damageable(world, pos),
 	m_model(world.resource_manager().image("mark1.png")),
 	m_gun_cooldown(0.5f),
 	m_model_shield(world.resource_manager(), 116.f),
 	m_image_explosion(world.resource_manager().image("explosion.png")) { }
 
-void mark::unit::minion::tick(mark::tick_context& context) {
+void mark::unit::minion::tick(tick_context& context) {
 	double dt = context.dt;
 	context.lights.emplace_back(pos(), sf::Color::White);
 	m_gun_cooldown.tick(dt);
@@ -26,9 +26,9 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 	if (m_world.target()) {
 		const auto target_pos = m_world.target()->pos();
 		const auto distance = target_pos - pos();
-		if (mark::length(distance) < 1000) {
+		if (length(distance) < 1000) {
 			const auto length = mark::length(distance);
-			auto direction2 = mark::vector<double>(0, 0);
+			auto direction2 = vector<double>(0, 0);
 			for (const auto& neighbor : neighbors) {
 				auto dist = (pos() - neighbor->pos());
 				auto len = mark::length(dist);
@@ -43,36 +43,36 @@ void mark::unit::minion::tick(mark::tick_context& context) {
 			} else {
 				m_path_age -= static_cast<float>(context.dt);
 			}
-			mark::vector<double> direction;
+			vector<double> direction;
 			if (m_path_cache.size() > 3) {
-				const auto first = mark::vector<double>(m_path_cache[m_path_cache.size() - 3]);
-				direction = mark::normalize((first - pos())) + mark::normalize(direction2);
+				const auto first = vector<double>(m_path_cache[m_path_cache.size() - 3]);
+				direction = normalize((first - pos())) + normalize(direction2);
 			} else if (mark::length(target_pos - pos()) > 320.0) {
-				direction = mark::normalize((target_pos - pos())) + mark::normalize(direction2);
+				direction = normalize((target_pos - pos())) + normalize(direction2);
 			}
 			pos() += direction * velocity * dt;
 			if (direction.x == 0 && direction.y == 0) {
-				m_rotation = mark::turn(target_pos - pos(), m_rotation, angular_velocity, dt);
+				m_rotation = turn(target_pos - pos(), m_rotation, angular_velocity, dt);
 			} else {
-				m_rotation = mark::turn(direction, m_rotation, angular_velocity, dt);
+				m_rotation = turn(direction, m_rotation, angular_velocity, dt);
 			}
 			if (m_gun_cooldown.trigger()) {
-				mark::unit::projectile::info attr;
+				unit::projectile::info attr;
 				attr.world = &m_world;
 				attr.pos = pos();
 				attr.rotation = m_rotation;
 				attr.velocity = 500.f;
 				attr.team = this->team();
-				context.units.emplace_back(std::make_shared<mark::unit::projectile>(attr));
+				context.units.emplace_back(std::make_shared<unit::projectile>(attr));
 			}
 		}
 	}
 
 	context.sprites[1].push_back(m_model.render(pos(), 116.f, m_rotation, sf::Color::White));
-	mark::tick_context::bar_info bar;
+	tick_context::bar_info bar;
 	bar.image = m_world.image_bar;
-	bar.pos = pos() + mark::vector<double>(0, -72);
-	bar.type = mark::tick_context::bar_type::health;
+	bar.pos = pos() + vector<double>(0, -72);
+	bar.type = tick_context::bar_type::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
 }
@@ -93,11 +93,11 @@ auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool
 	return false;
 }
 
-auto mark::unit::minion::collide(const mark::segment_t& ray) ->
-	std::pair<interface::damageable *, mark::vector<double>> {
+auto mark::unit::minion::collide(const segment_t& ray) ->
+	std::pair<interface::damageable *, vector<double>> {
 
 	const auto ship_radius = 58.f;
-	const auto intersection = mark::intersect(ray, pos(), ship_radius);
+	const auto intersection = intersect(ray, pos(), ship_radius);
 	if (!std::isnan(intersection.x)) {
 		return { this, intersection };
 	} else {
@@ -105,20 +105,20 @@ auto mark::unit::minion::collide(const mark::segment_t& ray) ->
 	}
 }
 
-auto mark::unit::minion::collide(mark::vector<double> center, float radius) ->
+auto mark::unit::minion::collide(vector<double> center, float radius) ->
 	std::vector<std::reference_wrapper<interface::damageable>> {
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	const auto ship_radius = 58.f;
-	if (mark::length(pos() - center) <= ship_radius + radius) {
+	if (length(pos() - center) <= ship_radius + radius) {
 		return { *this };
 	} else {
 		return { };
 	}
 }
 
-void mark::unit::minion::on_death(mark::tick_context & context) {
+void mark::unit::minion::on_death(tick_context & context) {
 	if (m_health < 0) {
-		mark::tick_context::spray_info spray;
+		tick_context::spray_info spray;
 		spray.image = m_image_explosion;
 		spray.pos = pos();
 		spray.velocity(50.f, 350.f);

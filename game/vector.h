@@ -15,11 +15,11 @@ namespace mark {
 		return T(px, py);
 	}
 	template<typename T>
-	auto length(mark::vector<T> vector) {
+	auto length(vector<T> vector) {
 		return std::sqrt(vector.x * vector.x + vector.y * vector.y);
 	}
 	template<typename T>
-	auto normalize(mark::vector<T> vector) {
+	auto normalize(vector<T> vector) {
 		const auto length = mark::length(vector);
 		if (length) {
 			return vector / length;
@@ -29,13 +29,13 @@ namespace mark {
 	}
 	// get vector's arcus tangens in degrees
 	template<typename T>
-	auto atan(const mark::vector<T>& vector) {
+	auto atan(const vector<T>& vector) {
 		return std::atan2(vector.y, vector.x) / static_cast<float>(M_PI) * 180.f;
 	}
 	// convert [i, width] into vector
 	template<typename T>
 	auto modulo_vector(T i, T width) {
-		return mark::vector<T>(i % width, i / width);
+		return vector<T>(i % width, i / width);
 	}
 	template<typename T>
 	T sgn(T val) {
@@ -52,7 +52,7 @@ namespace mark {
 	public:
 		class iterator {
 		public:
-			iterator(const mark::area& area, int i) : m_area(&area), m_i(i) {}
+			iterator(const area& area, int i) : m_area(&area), m_i(i) {}
 			iterator& operator++() {
 				m_i++;
 				return *this;
@@ -61,15 +61,15 @@ namespace mark {
 				return other.m_i != m_i;
 			}
 			auto operator*() const {
-				return mark::vector<int>(m_i % m_area->width(), m_i / m_area->width());
+				return vector<int>(m_i % m_area->width(), m_i / m_area->width());
 			}
 		private:
-			const mark::area* m_area;
+			const area* m_area;
 			int m_i = 0;
 		};
 		using const_iterator = iterator;
 		area(int width, int height) : m_width(width), m_height(height) {}
-		area(mark::vector<int> size) : m_width(size.x), m_height(size.y) {}
+		area(vector<int> size) : m_width(size.x), m_height(size.y) {}
 		int width() const {
 			return m_width;
 		}
@@ -84,32 +84,32 @@ namespace mark {
 		int m_height;
 	};
 	template<typename T>
-	inline auto vmap(const mark::vector<T> vector, T(*proc)(T)) {
+	inline auto vmap(const vector<T> vector, T(*proc)(T)) {
 		return mark::vector<T>(proc(vector.x), proc(vector.y));
 	}
-	inline auto round(const mark::vector<double> in) noexcept {
-		return mark::vector<int>(vmap(in, std::round));
+	inline auto round(const vector<double> in) noexcept {
+		return vector<int>(vmap(in, std::round));
 	}
-	inline auto floor(const mark::vector<double> in) noexcept {
-		return mark::vector<int>(vmap(in, std::floor));
+	inline auto floor(const vector<double> in) noexcept {
+		return vector<int>(vmap(in, std::floor));
 	}
 	// distance between point and a line: tan(alpha) + 0
-	auto distance(float alpha, mark::vector<double> point) noexcept -> double;
+	auto distance(float alpha, vector<double> point) noexcept -> double;
 
 	// Given 2 points, return [ a,b ] from y = ax + b
 	// Vertical line - [ x, NAN ]
-	auto get_line(mark::vector<double> start, mark::vector<double> end) noexcept->mark::vector<double>;
+	auto get_line(vector<double> start, vector<double> end) noexcept->vector<double>;
 
 	// given 2 lines, find intersection point, or [ NAN, NAN ] if no intersection happens
-	auto intersect(mark::vector<double> line1, mark::vector<double> line2) noexcept->mark::vector<double>;
+	auto intersect(vector<double> line1, vector<double> line2) noexcept->vector<double>;
 
 	// given 2 segments, find intersecting point
-	using segment_t = std::pair<mark::vector<double>, mark::vector<double>>;
-	auto intersect(mark::segment_t, mark::segment_t) noexcept -> mark::vector<double>;
+	using segment_t = std::pair<vector<double>, vector<double>>;
+	auto intersect(segment_t, segment_t) noexcept -> vector<double>;
 
 	// given segment and a circle, get nearerst intersection, NAN on divergent
-	auto intersect(mark::segment_t, mark::vector<double> center, float radius) noexcept -> mark::vector<double>;
+	auto intersect(segment_t, vector<double> center, float radius) noexcept -> vector<double>;
 
 	// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
-	auto turn(mark::vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float;
+	auto turn(vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float;
 }

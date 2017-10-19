@@ -3,18 +3,18 @@
 #include "resource_manager.h"
 #include "tick_context.h"
 
-mark::module::battery::battery(mark::resource::manager& manager) :
+mark::module::battery::battery(resource::manager& manager) :
 	m_image_base(manager.image("battery.png")),
-	mark::module::base({ 2, 2 }, manager.image("battery.png")) {
+	module::base({ 2, 2 }, manager.image("battery.png")) {
 
 }
 
-void mark::module::battery::tick(mark::tick_context& context) {
-	this->mark::module::base::tick(context);
-	mark::sprite info;
+void mark::module::battery::tick(tick_context& context) {
+	this -> module::base::tick(context);
+	sprite info;
 	info.image = m_image_base;
 	info.pos = this->pos();
-	info.size = mark::module::size * 2.f;
+	info.size = module::size * 2.f;
 	info.rotation = parent().rotation();
 	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
 	info.color = this->heat_color();
@@ -46,8 +46,8 @@ auto mark::module::battery::energy_ratio() const -> float {
 
 // deserialize / serialize
 
-mark::module::battery::battery(mark::resource::manager& rm, const YAML::Node& node):
-	mark::module::base(rm, node),
+mark::module::battery::battery(resource::manager& rm, const YAML::Node& node):
+	module::base(rm, node),
 	m_image_base(rm.image("battery.png")),
 	m_max_energy(node["max_energy"].as<float>()),
 	m_cur_energy(node["cur_energy"].as<float>()) { }

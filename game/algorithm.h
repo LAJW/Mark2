@@ -5,14 +5,14 @@
 namespace mark {
 
 // Vector/Area range_t
-// TODO: Type static assert to check whether T is specialization of mark::vector
+// TODO: Type static assert to check whether T is specialization of vector
 template<typename T, typename = void>
 class range_t {
 public:
 	class iterator:
 		public std::iterator<std::bidirectional_iterator_tag, T, void> {
 	public:
-		iterator(const mark::range_t<T>& area, T i):
+		iterator(const range_t<T>& area, T i):
 			m_area(area),
 			m_i(i) {}
 		iterator& operator++() noexcept {
@@ -42,7 +42,7 @@ public:
 			return m_i;
 		}
 	private:
-		const mark::range_t<T>& m_area;
+		const range_t<T>& m_area;
 		T m_i = 0;
 	};
 	using const_iterator = iterator;
@@ -169,17 +169,17 @@ private:
 
 template<typename T> 
 auto range(const T& min, const T& max) {
-	return mark::range_t<T>(min, max);
+	return range_t<T>(min, max);
 }
 
 template<typename T>
 auto range(const T& max) {
-	return mark::range_t<T>(max);
+	return range_t<T>(max);
 }
 
 template<typename T> 
 auto enumerate(T& max) {
-	return mark::enumerator<T>(max);
+	return enumerator<T>(max);
 }
 
 template <typename iterator_t, typename pred_t>

@@ -12,7 +12,7 @@ public:
 		// damage(). idamageable upon taking damage should store itself
 		// here
 		std::unordered_set<damageable*>* damaged = nullptr;
-		mark::vector<double> pos;
+		vector<double> pos;
 		float physical = 0.f;
 		float energy = 0.f;
 		float critical_chance = 0.1f;

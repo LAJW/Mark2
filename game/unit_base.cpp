@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "unit_base.h"
 
-mark::unit::base::base(mark::world & world, mark::vector<double> pos)
+mark::unit::base::base(world & world, vector<double> pos)
 	:pos(pos), m_world(world) { }
 
-mark::unit::base::base(mark::world& world, const YAML::Node& node):
+mark::unit::base::base(world& world, const YAML::Node& node):
 	m_world(world),
-	pos(node["pos"].as<mark::vector<double>>()),
+	pos(node["pos"].as<vector<double>>()),
 	team(node["team"].as<unsigned>(0)) { }
 
 void mark::unit::base::resolve_ref(
 	const YAML::Node&,
-	const std::unordered_map<uint64_t, std::weak_ptr<mark::unit::base>>&)
+	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>&)
 { /* no-op */ }
 
 void mark::unit::base::serialize_base(YAML::Emitter& out) const {

@@ -15,7 +15,7 @@ namespace interface {
 class has_bindings {
 public:
 	struct binding final {
-		std::shared_ptr<const mark::resource::image> thumbnail;
+		std::shared_ptr<const resource::image> thumbnail;
 		uint16_t total = 0;
 		uint16_t ready = 0;
 		float cooldown = 0.f;

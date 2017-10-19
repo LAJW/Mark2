@@ -2,31 +2,31 @@
 #include "curve.h"
 #include "exception.h"
 
-auto mark::curve::serialize(mark::curve::ptr ptr) -> std::string {
-	if (ptr == mark::curve::flat) {
+auto mark::curve::serialize(curve::ptr ptr) -> std::string {
+	if (ptr == curve::flat) {
 		return "flat";
-	} else if (ptr == mark::curve::invert) {
+	} else if (ptr == curve::invert) {
 		return "invert";
-	} else if (ptr == mark::curve::linear) {
+	} else if (ptr == curve::linear) {
 		return "linear";
-	} else if (ptr == mark::curve::sin) {
+	} else if (ptr == curve::sin) {
 		return "sin";
 	} else {
-		throw mark::exception("BAD_CURVE");
+		throw exception("BAD_CURVE");
 	}
 }
 
-auto mark::curve::deserialize(const std::string& str) -> mark::curve::ptr {
+auto mark::curve::deserialize(const std::string& str) -> curve::ptr {
 	if (str == "flat") {
-		return mark::curve::flat;
+		return curve::flat;
 	} else if (str == "invert") {
-		return mark::curve::invert;
+		return curve::invert;
 	} else if (str == "linear") {
-		return mark::curve::linear;
+		return curve::linear;
 	} else if (str == "sin") {
-		return mark::curve::sin;
+		return curve::sin;
 	} else {
-		throw mark::exception("BAD_CURVE");
+		throw exception("BAD_CURVE");
 	}
 }
 

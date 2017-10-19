@@ -28,15 +28,15 @@ namespace {
 
 
 void mark::print(
-	std::shared_ptr<const mark::resource::image> font,
-	std::vector<mark::sprite>& out,
-	mark::vector<double> pos,
-	mark::vector<double> box,
+	std::shared_ptr<const resource::image> font,
+	std::vector<sprite>& out,
+	vector<double> pos,
+	vector<double> box,
 	float size,
 	sf::Color color,
 	std::string text) {
 
-	auto offset = mark::vector<double>(size, size) / 2.0;
+	auto offset = vector<double>(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {
 		const auto ch = text[i];
 		char frame = -1;
@@ -57,9 +57,9 @@ void mark::print(
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			mark::sprite args;
+			sprite args;
 			args.image = font;
-			args.pos = pos + offset + mark::vector<double>(0, offset_y(ch));
+			args.pos = pos + offset + vector<double>(0, offset_y(ch));
 			args.size = size;
 			args.frame = frame;
 			args.color = color;
@@ -89,7 +89,7 @@ void mark::print(
 	}
 }
 
-mark::tick_context::tick_context(mark::resource::manager& rm):
+mark::tick_context::tick_context(resource::manager& rm):
 	m_resource_manager(rm) {
 }
 
@@ -106,9 +106,9 @@ void mark::tick_context::render(const bar_info & info) {
 		uint8_t frame = 0;
 		// render gray background
 		if (i >= edge) {
-			mark::sprite args;
+			sprite args;
 			args.image = image;
-			args.pos = pos + mark::vector<double>(offset_x, 0);
+			args.pos = pos + vector<double>(offset_x, 0);
 			args.size = 8.f;
 			args.frame = 6;
 			this->sprites[50].emplace_back(args);
@@ -119,11 +119,11 @@ void mark::tick_context::render(const bar_info & info) {
 		}
 		if (i <= edge) {
 			// choose color
-			if (type == mark::tick_context::bar_type::shield) {
+			if (type == tick_context::bar_type::shield) {
 				frame = 5;
-			} else if (type == mark::tick_context::bar_type::energy) {
+			} else if (type == tick_context::bar_type::energy) {
 				frame = 4;
-			} else if (type == mark::tick_context::bar_type::health) {
+			} else if (type == tick_context::bar_type::health) {
 				if (percent > 75.f) {
 					frame = 3;
 				} else if (percent > 50.f) {
@@ -134,9 +134,9 @@ void mark::tick_context::render(const bar_info & info) {
 					frame = 0;
 				}
 			}
-			mark::sprite args;
+			sprite args;
 			args.image = image;
-			args.pos = pos + mark::vector<double>(offset_x, 0);
+			args.pos = pos + vector<double>(offset_x, 0);
 			args.size = 8.f;
 			args.frame = frame;
 			args.color = sf::Color(255, 255, 255, opacity);
@@ -146,7 +146,7 @@ void mark::tick_context::render(const bar_info & info) {
 
 }
 
-void mark::tick_context::render(const mark::tick_context::spray_info& info) {
+void mark::tick_context::render(const tick_context::spray_info& info) {
 	for (size_t i = 0; i < info.count; i++) {
 		const auto tmp_velocity = !std::isnan(info.max_velocity)
 			? this->random(info.min_velocity, info.max_velocity)
@@ -157,8 +157,8 @@ void mark::tick_context::render(const mark::tick_context::spray_info& info) {
 		const auto tmp_diameter = !std::isnan(info.max_diameter)
 			? this->random(info.min_diameter, info.max_diameter)
 			: info.min_diameter;
-		const auto tmp_pos = info.pos + mark::rotate(
-			mark::vector<double>(1, 0), info.direction) * (info.step * static_cast<double>(i) / static_cast<double>(info.count));
+		const auto tmp_pos = info.pos + rotate(
+			vector<double>(1, 0), info.direction) * (info.step * static_cast<double>(i) / static_cast<double>(info.count));
 		const auto rotation = info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
 		particle::info attr;
 		attr.image = info.image;

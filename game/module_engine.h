@@ -8,21 +8,21 @@ class manager;
 class image;
 }
 namespace module {
-class engine : public mark::module::base {
+class engine : public module::base {
 public:
 	static constexpr const char* type_name = "module_engine";
 
-	engine(mark::resource::manager&, const YAML::Node&);
-	engine(mark::resource::manager& manager);
-	void tick(mark::tick_context& context) override;
+	engine(resource::manager&, const YAML::Node&);
+	engine(resource::manager& manager);
+	void tick(tick_context& context) override;
 	auto describe() const->std::string override;
-	auto global_modifiers() const->mark::module::modifiers override;
-	void shoot(mark::vector<double> pos, bool release) override;
+	auto global_modifiers() const->module::modifiers override;
+	void shoot(vector<double> pos, bool release) override;
 	void serialize(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;
 private:
-	std::shared_ptr<const mark::resource::image> m_image_base;
+	std::shared_ptr<const resource::image> m_image_base;
 	bool m_active = false;
 };
 }

@@ -6,8 +6,8 @@ namespace resource {
 	class image;
 }
 struct sprite {
-	std::shared_ptr<const mark::resource::image> image;
-	mark::vector<double> pos;
+	std::shared_ptr<const resource::image> image;
+	vector<double> pos;
 	float size = 16.f;
 	float rotation = 0.f;
 	size_t frame = 0;

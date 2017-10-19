@@ -12,13 +12,13 @@ class manager;
 class image;
 }
 namespace module {
-class turret : public mark::module::base_turret {
+class turret : public module::base_turret {
 public:
 	static constexpr const char* type_name = "module_turret";
 
 	struct info {
 		// base
-		mark::resource::manager* resource_manager;
+		resource::manager* resource_manager;
 		// turret max health
 		float max_health = 100.f;
 		// turrent current health
@@ -33,7 +33,7 @@ public:
 		// number of shots per second
 		float rate_of_fire = 1.f;
 		// heat to rate of fire unary function
-		mark::curve::ptr rate_of_fire_curve = mark::curve::flat;
+		curve::ptr rate_of_fire_curve = curve::flat;
 		// turret turn speed
 		float angular_velocity = 360.f;
 		// number of projectiles shot at once
@@ -45,13 +45,13 @@ public:
 		// cone of fire
 		float cone = 0.f;
 		// heat-based cone of fire curve
-		mark::curve::ptr cone_curve = mark::curve::flat;
+		curve::ptr cone_curve = curve::flat;
 		// heat generated per shot
 		float heat_per_shot = 10.f;
 		// current heat
 		float cur_heat = 0.f;
 		// turret dimensions on the grid
-		mark::vector<uint8_t> size = { 2, 2 };
+		vector<uint8_t> size = { 2, 2 };
 		// turret current rotation (for deserializer)
 		float rotation = 0.f;
 
@@ -72,41 +72,41 @@ public:
 		float critical_multiplier = 1.5f;
 		size_t piercing = 1;
 	};
-	turret(mark::resource::manager&, const YAML::Node&);
-	turret(mark::module::turret::info&);
-	void tick(mark::tick_context& context) override;
+	turret(resource::manager&, const YAML::Node&);
+	turret(module::turret::info&);
+	void tick(tick_context& context) override;
 	auto describe() const -> std::string;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
-	std::shared_ptr<const mark::resource::image> m_im_base;
-	std::shared_ptr<const mark::resource::image> m_im_cannon;
-	mark::adsr       m_adsr;
+	std::shared_ptr<const resource::image> m_im_base;
+	std::shared_ptr<const resource::image> m_im_cannon;
+	adsr       m_adsr;
 
-	float            m_cur_cooldown = 0;
-	float            m_rate_of_fire = 1.f;
-	mark::curve::ptr m_rate_of_fire_curve = mark::curve::flat;
-	float            m_rotation = 0.f;
-	float            m_angular_velocity = 360.f;
-	unsigned         m_projectile_count;
-	float            m_burst_delay = 0.f;
-	bool             m_guided = false;
-	float            m_cone = 0.f;
-	mark::curve::ptr m_cone_curve = mark::curve::flat;
-	float            m_heat_per_shot = 5.f;
-	float            m_critical_chance = 0.1f;
-	float            m_critical_multiplier = 1.5f;
+	float      m_cur_cooldown = 0;
+	float      m_rate_of_fire = 1.f;
+	curve::ptr m_rate_of_fire_curve = curve::flat;
+	float      m_rotation = 0.f;
+	float      m_angular_velocity = 360.f;
+	unsigned   m_projectile_count;
+	float      m_burst_delay = 0.f;
+	bool       m_guided = false;
+	float      m_cone = 0.f;
+	curve::ptr m_cone_curve = curve::flat;
+	float      m_heat_per_shot = 5.f;
+	float      m_critical_chance = 0.1f;
+	float      m_critical_multiplier = 1.5f;
 
-	float            m_physical = 10.f;
-	float            m_energy = 10.f;
-	float            m_heat = 1.f;
-	float            m_projectile_angular_velocity = 0.f;
-	float            m_velocity = 1000.f;
-	float            m_acceleration = 100.f;
-	float            m_aoe_radius = 0.f;
-	float            m_seek_radius = 500.f;
-	float            m_range = 2000.f;
-	size_t           m_piercing;
+	float      m_physical = 10.f;
+	float      m_energy = 10.f;
+	float      m_heat = 1.f;
+	float      m_projectile_angular_velocity = 0.f;
+	float      m_velocity = 1000.f;
+	float      m_acceleration = 100.f;
+	float      m_aoe_radius = 0.f;
+	float      m_seek_radius = 500.f;
+	float      m_range = 2000.f;
+	size_t     m_piercing;
 };
 }
 }

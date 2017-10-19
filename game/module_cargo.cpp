@@ -10,8 +10,8 @@
 #include <sstream>
 #include "algorithm.h"
 
-mark::module::cargo::cargo(mark::resource::manager& resource_manager)
-	: mark::module::base({ 4, 2 }, resource_manager.image("cargo.png"))
+mark::module::cargo::cargo(resource::manager& resource_manager)
+	: module::base({ 4, 2 }, resource_manager.image("cargo.png"))
 	, m_grid_bg(resource_manager.image("grid-background.png"))
 	, m_im_body(resource_manager.image("cargo.png"))
 	, m_im_light(resource_manager.image("glare.png"))
@@ -20,8 +20,8 @@ mark::module::cargo::cargo(mark::resource::manager& resource_manager)
 
 // Serialize / Deserialize
 
-mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node)
-	: mark::module::base(rm, node)
+mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
+	: module::base(rm, node)
 	, m_im_body(rm.image("cargo.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_im_light(rm.image("glare.png"))
@@ -30,7 +30,7 @@ mark::module::cargo::cargo(mark::resource::manager& rm, const YAML::Node& node)
 {
 	for (const auto& slot_node : node["contents"]) {
 		const auto slot = slot_node["slot"].as<size_t>();
-		auto module = mark::module::deserialize(rm, slot_node["item"]);
+		auto module = module::deserialize(rm, slot_node["item"]);
 		m_modules[slot] = std::move(module);
 	}
 }
@@ -63,15 +63,15 @@ void mark::module::cargo::serialize(YAML::Emitter& out) const
 auto mark::module::cargo::passive() const noexcept -> bool
 { return true; }
 
-void mark::module::cargo::tick(mark::tick_context& context)
+void mark::module::cargo::tick(tick_context& context)
 {
-	this->mark::module::base::tick(context);
+	this->module::base::tick(context);
 	m_lfo.tick(context.dt);
 	auto pos = this->pos();
-	auto light_offset = mark::rotate(mark::vector<double>(24.f, 8.f), parent().rotation());
+	auto light_offset = rotate(vector<double>(24.f, 8.f), parent().rotation());
 	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_im_body;
 		info.pos = pos;
 		info.size = 64.f;
@@ -80,7 +80,7 @@ void mark::module::cargo::tick(mark::tick_context& context)
 		context.sprites[2].emplace_back(info);
 	}
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 32.f;
@@ -89,7 +89,7 @@ void mark::module::cargo::tick(mark::tick_context& context)
 		context.sprites[4].emplace_back(info);
 	}
 	{
-		mark::sprite info;
+		sprite info;
 		info.image = m_im_light;
 		info.pos = pos + light_offset;
 		info.size = 16.f;
@@ -100,11 +100,11 @@ void mark::module::cargo::tick(mark::tick_context& context)
 }
 
 auto mark::module::cargo::modules() ->
-	std::vector<std::unique_ptr<mark::module::base>>&
+	std::vector<std::unique_ptr<module::base>>&
 { return m_modules; }
 
 auto mark::module::cargo::modules() const ->
-	const std::vector<std::unique_ptr<mark::module::base>>&
+	const std::vector<std::unique_ptr<module::base>>&
 { return m_modules; }
 
 namespace {
@@ -122,34 +122,34 @@ auto overlaps(
 }
 
 auto mark::module::cargo::attach(
-	const mark::vector<int>& pos,
-	std::unique_ptr<mark::module::base>& module) -> std::error_code
+	const vector<int>& pos,
+	std::unique_ptr<module::base>& module) -> std::error_code
 {
 	if (!this->can_attach(pos, *module)) {
 		return error::code::bad_pos;
 	}
 	module->m_grid_pos = vector<int8_t>(pos);
 	m_modules[pos.y * 16 + pos.x] = std::move(module);
-	return mark::error::code::success;
+	return error::code::success;
 }
 
 auto mark::module::cargo::can_attach(
 	const vector<int>& pos, const module::base & module) const -> bool
 {
 	// Check if fits inside the container
-	const auto cargo_size = mark::vector<size_t>(16, m_modules.size() / 16);
+	const auto cargo_size = vector<size_t>(16, m_modules.size() / 16);
 	if (pos.x < 0 || pos.y < 0
 		|| pos.x + module.size().x > cargo_size.x
 		|| pos.y + module.size().y > cargo_size.y) {
 		return false;
 	}
 	// Check if doesn't overlap with any of the existing modules
-	const auto incoming_pos = mark::vector<unsigned>(pos);
+	const auto incoming_pos = vector<unsigned>(pos);
 	const auto incoming_border = incoming_pos + module.size();
 	for (const auto pair : enumerate(m_modules)) {
 		if (const auto& cur_module = pair.second) {
 			const auto i = static_cast<unsigned>(pair.first);
-			const auto module_pos = mark::vector<unsigned>(i % 16, i / 16);
+			const auto module_pos = vector<unsigned>(i % 16, i / 16);
 			const auto module_border = module_pos + cur_module->size();
 			if (overlaps(
 				{ incoming_pos, incoming_border },
@@ -161,14 +161,14 @@ auto mark::module::cargo::can_attach(
 	return true;
 }
 
-auto mark::module::cargo::at(const mark::vector<int>& pos) -> mark::module::base*
+auto mark::module::cargo::at(const vector<int>& pos) -> module::base*
 {
-	return const_cast<mark::module::base*>(
-		static_cast<const mark::module::cargo*>(this)->at(pos));
+	return const_cast<module::base*>(
+		static_cast<const module::cargo*>(this)->at(pos));
 }
 
-auto mark::module::cargo::at(const mark::vector<int>& i_pos) const
-	-> const mark::module::base*
+auto mark::module::cargo::at(const vector<int>& i_pos) const
+	-> const module::base*
  {
 	if (i_pos.x < 0 || i_pos.y < 0) {
 		return nullptr;
@@ -187,8 +187,8 @@ auto mark::module::cargo::at(const mark::vector<int>& i_pos) const
 	return nullptr;
 }
 
-auto mark::module::cargo::detach(const mark::vector<int>& pos) ->
-	std::unique_ptr<mark::module::base>
+auto mark::module::cargo::detach(const vector<int>& pos) ->
+	std::unique_ptr<module::base>
 {
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
@@ -197,7 +197,7 @@ auto mark::module::cargo::detach(const mark::vector<int>& pos) ->
 		const auto i = static_cast<int>(pair.first);
 		const auto module_pos = modulo_vector(i, 16);
 		if (auto& module = pair.second) {
-			const auto border = module_pos + mark::vector<int>(module->size());
+			const auto border = module_pos + vector<int>(module->size());
 			if (pos.x >= module_pos.x && pos.x < border.x
 				&& pos.y >= module_pos.y && pos.y < border.y) {
 				return std::move(module);
@@ -207,9 +207,9 @@ auto mark::module::cargo::detach(const mark::vector<int>& pos) ->
 	return nullptr;
 }
 
-auto mark::module::cargo::interior_size() const -> mark::vector<int> {
+auto mark::module::cargo::interior_size() const -> vector<int> {
 	auto size_v = static_cast<int>(m_modules.size());
-	return mark::vector<int>(16, size_v / 16);
+	return vector<int>(16, size_v / 16);
 }
 
 auto mark::module::cargo::detachable() const -> bool {
@@ -228,11 +228,11 @@ std::string mark::module::cargo::describe() const {
 	return os.str();
 }
 
-void mark::module::cargo::on_death(mark::tick_context & context) {
-	mark::module::base::on_death(context);
+void mark::module::cargo::on_death(tick_context & context) {
+	module::base::on_death(context);
 	for (auto& module : m_modules) {
 		if (module) {
-			context.units.push_back(std::make_shared<mark::unit::bucket>(
+			context.units.push_back(std::make_shared<unit::bucket>(
 				parent().world(),
 				pos(),
 				std::move(module)));
@@ -241,13 +241,13 @@ void mark::module::cargo::on_death(mark::tick_context & context) {
 }
 
 auto mark::module::cargo::push(
-	std::unique_ptr<mark::module::base>& module) -> std::error_code
+	std::unique_ptr<module::base>& module) -> std::error_code
 {
 	for (const auto i : range(static_cast<int>(m_modules.size()))) {
 		const auto drop_pos = modulo_vector(i, 16);
-		if (this->attach(drop_pos, module) == mark::error::code::success) {
-			return mark::error::code::success;
+		if (this->attach(drop_pos, module) == error::code::success) {
+			return error::code::success;
 		}
 	}
-	return mark::error::code::occupied;
+	return error::code::occupied;
 }

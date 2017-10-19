@@ -12,19 +12,19 @@ namespace mark {
 		class base;
 	}
 	namespace unit {
-		class bucket final : public mark::unit::base {
+		class bucket final : public unit::base {
 		public:
 			static constexpr const char* type_name = "unit_bucket";
 
-			bucket(mark::world& world, const YAML::Node&);
-			bucket(mark::world& world, mark::vector<double> pos, std::unique_ptr<mark::module::base>);
-			void tick(mark::tick_context& context) override;
+			bucket(world& world, const YAML::Node&);
+			bucket(world& world, vector<double> pos, std::unique_ptr<module::base>);
+			void tick(tick_context& context) override;
 			auto dead() const -> bool override;
-			auto release() -> std::unique_ptr<mark::module::base>;
-			void insert(std::unique_ptr<mark::module::base>);
+			auto release() -> std::unique_ptr<module::base>;
+			void insert(std::unique_ptr<module::base>);
 			void serialize(YAML::Emitter& out) const override;
 		private:
-			std::unique_ptr<mark::module::base> m_module;
+			std::unique_ptr<module::base> m_module;
 			float m_direction = NAN;
 		};
 	}

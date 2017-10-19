@@ -58,7 +58,7 @@ void render_ui(const mark::sprite sprite, sf::RenderTexture& buffer)
 
 } // anonymous namespace
 
-mark::renderer::renderer(mark::vector<unsigned> res)
+mark::renderer::renderer(vector<unsigned> res)
 {
 	m_buffer = std::make_unique<sf::RenderTexture>();
 	m_buffer->create(res.x, res.y);
@@ -84,8 +84,8 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	const auto resolution = info.resolution;
 	const auto shadow_res = m_vbo->getSize().x;
 
-	if (mark::vector<double>(m_buffer->getSize()) != resolution) {
-		const auto res = mark::vector<unsigned>(resolution);
+	if (vector<double>(m_buffer->getSize()) != resolution) {
+		const auto res = vector<unsigned>(resolution);
 		m_buffer = std::make_unique<sf::RenderTexture>();
 		m_buffer->create(res.x, res.y);
 		m_buffer2 = std::make_unique<sf::RenderTexture>();
@@ -118,7 +118,7 @@ sf::Sprite mark::renderer::render(const render_info& info)
 		if (pos.x >= -resolution.x / 2.0 - 160.0 && pos.x <= resolution.x / 2.0 + 160.0
 			&& pos.y >= -resolution.y / 2.0 - 160.0 && pos.y <= resolution.y / 2.0 + 160.0) {
 			lights_color.push_back(color);
-			lights_pos.push_back(mark::vector<float>(pos));
+			lights_pos.push_back(vector<float>(pos));
 		}
 	}
 	const auto lights_count = std::min(
