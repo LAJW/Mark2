@@ -15,7 +15,7 @@ void mark::module::battery::tick(tick_context& context) {
 	info.image = m_image_base;
 	info.pos = this->pos();
 	info.size = module::size * 2.f;
-	info.rotation = parent().rotation();
+	info.rotation = parent_rotation();
 	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
 	info.color = this->heat_color();
 	context.sprites[2].emplace_back(info);

@@ -21,7 +21,7 @@ void mark::module::core::tick(tick_context& context) {
 	info.image = m_image;
 	info.pos = this->pos();
 	info.size = 32.f;
-	info.rotation = parent().rotation();
+	info.rotation = parent_rotation();
 	info.color = this->heat_color();
 	context.sprites[2].emplace_back(info);
 }

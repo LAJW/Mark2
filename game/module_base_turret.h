@@ -3,7 +3,11 @@
 #include "module_base.h"
 #include <deque>
 
-namespace mark { namespace module {
+namespace mark {
+namespace unit {
+class base;
+}
+namespace module {
 class base_turret : public module::base {
 public:
 	base_turret(

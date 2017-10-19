@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "interface_damageable.h"
 #include "interface_serializable.h"
-#include "lfo.h"
-#include "unit_modular.h"
 
 namespace sf {
 	class Color;
@@ -15,6 +13,11 @@ class image;
 class manager;
 }
 struct sprite;
+namespace unit {
+class modular;
+}
+struct tick_context;
+class world;
 
 namespace module {
 // grid size - width/height of an 1x1 module
@@ -48,7 +51,7 @@ public:
 	static constexpr auto max_heat = 100.f;
 	friend unit::modular;
 	friend module::cargo;
-	virtual ~base() = default;
+	virtual ~base();
 
 	virtual void tick(tick_context& context);
 
@@ -121,6 +124,11 @@ protected:
 	auto heat_color() const -> sf::Color;
 	// serialize module::base properties, call only from module serializers
 	void serialize_base(YAML::Emitter&) const;
+
+	// Get parent rotation (reduces compile time)
+	float parent_rotation() const;
+
+	auto world() noexcept -> mark::world&;
 
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;

@@ -1,11 +1,12 @@
 #include "stdafx.h"
+#include <sstream>
 #include "module_shield_generator.h"
 #include "resource_manager.h"
 #include "resource_image.h"
 #include "sprite.h"
 #include "tick_context.h"
+#include "unit_modular.h"
 #include "world.h"
-#include <sstream>
 
 mark::module::shield_generator::shield_generator(resource::manager& rm, const YAML::Node& node):
 	module::base(rm, node),

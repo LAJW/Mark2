@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "adsr.h"
 #include "cooldown.h"
 #include "unit_damageable.h"
 #include "model_animated.h"

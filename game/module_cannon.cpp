@@ -4,7 +4,7 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "world.h"
-#include "particle.h"
+#include "unit_modular.h"
 
 mark::module::cannon::cannon(resource::manager& resource_manager):
 	module::base_turret({ 4, 2 }, resource_manager.image("cannon.png")),

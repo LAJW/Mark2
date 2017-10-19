@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "interface_has_bindings.h"
 #include "unit_base.h"
-#include "unit_modular.h"
 
 namespace mark {
 	namespace resource {
@@ -13,6 +12,7 @@ namespace mark {
 		class base;
 	}
 	namespace unit {
+		class modular;
 		class landing_pad final:
 			public unit::base,
 			public interface::has_bindings {

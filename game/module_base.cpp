@@ -4,6 +4,7 @@
 #include "tick_context.h"
 #include "world.h"
 #include "resource_image.h"
+#include "unit_modular.h"
 
 constexpr const auto HEAT_TRANSFER_RATE = 15.f;
 constexpr const auto HEAT_LOSS_RATE = 2.f;
@@ -17,6 +18,8 @@ mark::module::base::base(
 	assert(size.x <= module::max_dimension);
 	assert(size.y <= module::max_dimension);
 }
+
+mark::module::base::~base() = default;
 
 void mark::module::base::tick(tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
@@ -248,4 +251,10 @@ void mark::module::base::serialize_base(YAML::Emitter& out) const {
 
 	out << Key << "thumbnail" << Value << m_thumbnail->filename();
 }
+
+float mark::module::base::parent_rotation() const
+{ return parent().rotation(); }
+
+auto mark::module::base::world() noexcept -> mark::world &
+{ return parent().world(); }
 
