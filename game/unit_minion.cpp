@@ -6,7 +6,7 @@
 #include "tick_context.h"
 #include "unit_projectile.h"
 
-mark::unit::minion::minion(world& world, vector<double> pos):
+mark::unit::minion::minion(mark::world& world, vector<double> pos):
 	unit::damageable(world, pos),
 	m_model(world.resource_manager().image("mark1.png")),
 	m_gun_cooldown(0.5f),
@@ -22,9 +22,9 @@ void mark::unit::minion::tick(tick_context& context) {
 	const auto velocity = 100.0;
 	const auto angular_velocity = 90.f;
 
-	auto neighbors = m_world.find(pos(), 50.0);
-	if (m_world.target()) {
-		const auto target_pos = m_world.target()->pos();
+	auto neighbors = world().find(pos(), 50.0);
+	if (world().target()) {
+		const auto target_pos = world().target()->pos();
 		const auto distance = target_pos - pos();
 		if (length(distance) < 1000) {
 			const auto length = mark::length(distance);
@@ -38,7 +38,7 @@ void mark::unit::minion::tick(tick_context& context) {
 				}
 			}
 			if (m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - target_pos) < 150.f) {
-				m_path_cache = m_world.map().find_path(pos(), target_pos);
+				m_path_cache = world().map().find_path(pos(), target_pos);
 				m_path_age = 1.f;
 			} else {
 				m_path_age -= static_cast<float>(context.dt);
@@ -58,7 +58,7 @@ void mark::unit::minion::tick(tick_context& context) {
 			}
 			if (m_gun_cooldown.trigger()) {
 				unit::projectile::info attr;
-				attr.world = &m_world;
+				attr.world = &world();
 				attr.pos = pos();
 				attr.rotation = m_rotation;
 				attr.velocity = 500.f;
@@ -70,7 +70,7 @@ void mark::unit::minion::tick(tick_context& context) {
 
 	context.sprites[1].push_back(m_model.render(pos(), 116.f, m_rotation, sf::Color::White));
 	tick_context::bar_info bar;
-	bar.image = m_world.image_bar;
+	bar.image = world().image_bar;
 	bar.pos = pos() + vector<double>(0, -72);
 	bar.type = tick_context::bar_type::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;

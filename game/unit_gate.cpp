@@ -7,7 +7,7 @@
 #include "tick_context.h"
 #include "unit_modular.h"
 
-mark::unit::gate::gate(world& world, vector<double> pos):
+mark::unit::gate::gate(mark::world& world, vector<double> pos):
 	unit::base(world, pos),
 	m_image(world.resource_manager().image("kappa.png")) {
 }
@@ -24,14 +24,14 @@ void mark::unit::gate::tick(tick_context& context) {
 void mark::unit::gate::activate(const std::shared_ptr<unit::base>& by) {
 	auto modular = std::dynamic_pointer_cast<unit::modular>(by);
 	if (modular) {
-		m_world.next();
+		world().next();
 	}
 }
 
 // Serialize / Deserialize
 
 mark::unit::gate::gate(
-	world& world,
+	mark::world& world,
 	const YAML::Node& node):
 	unit::base(world, node),
 	m_image(world.resource_manager().image("kappa.png")) {

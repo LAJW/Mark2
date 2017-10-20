@@ -12,14 +12,14 @@
 #include "exception.h"
 
 mark::unit::landing_pad::landing_pad(
-	world& world, vector<double> pos)
+	mark::world& world, vector<double> pos)
 	: unit::base(world, pos)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
 // Serialize / Deserialize
 
 mark::unit::landing_pad::landing_pad(
-	world& world,
+	mark::world& world,
 	const YAML::Node& node)
 	: unit::base(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
@@ -52,7 +52,7 @@ void mark::unit::landing_pad::dock(unit::modular* ship)
 {
 	if (ship) {
 		auto ship_ptr = std::dynamic_pointer_cast<unit::modular>(
-			m_world.find_one(pos(), 500.0,
+			world().find_one(pos(), 500.0,
 			[ship](const unit::base& unit) {
 				return &unit == ship;
 		}));
@@ -68,7 +68,7 @@ void mark::unit::landing_pad::activate(
 	if (const auto modular
 		= std::dynamic_pointer_cast<unit::modular>(by)) {
 		m_ship = modular;
-		m_world.target(this->shared_from_this());
+		world().target(this->shared_from_this());
 		mark::command move;
 		move.type = command::type::move;
 		move.pos = pos();

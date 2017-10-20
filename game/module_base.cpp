@@ -257,4 +257,3 @@ float mark::module::base::parent_rotation() const
 
 auto mark::module::base::world() noexcept -> mark::world &
 { return parent().world(); }
-

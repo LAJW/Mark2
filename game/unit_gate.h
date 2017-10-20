@@ -16,8 +16,8 @@ namespace mark {
 		public:
 			static constexpr const char* type_name = "gate";
 
-			gate(world& world, const YAML::Node&);
-			gate(world& world, vector<double> pos);
+			gate(mark::world& world, const YAML::Node&);
+			gate(mark::world& world, vector<double> pos);
 			void tick(tick_context& context) override;
 			auto dead() const -> bool override { return false; };
 			void activate(const std::shared_ptr<unit::base>& by) override;

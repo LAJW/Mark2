@@ -31,8 +31,8 @@ public:
 	static constexpr const char* type_name = "unit_modular";
 	static constexpr unsigned max_size = 40;
 
-	modular(world& world, const YAML::Node&);
-	modular(world& world, vector<double> pos = { 0, 0 }, float rotation = 0.0f);
+	modular(mark::world& world, const YAML::Node&);
+	modular(mark::world& world, vector<double> pos = { 0, 0 }, float rotation = 0.0f);
 	void command(const mark::command& command) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)
@@ -57,7 +57,6 @@ public:
 	inline auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;
 	void on_death(tick_context& context) override;
-	inline auto world() -> world& { return m_world; }
 	void activate(const std::shared_ptr<unit::base>& by) override;
 	auto containers() ->
 		std::vector<std::reference_wrapper<module::cargo>>;

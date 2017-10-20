@@ -7,11 +7,11 @@
 #include "world.h"
 #include "map.h"
 
-mark::unit::bucket::bucket(world& world, const YAML::Node& node):
+mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node):
 	unit::base(world, node),
 	m_module(module::deserialize(world.resource_manager(), node["module"])) { }
 
-mark::unit::bucket::bucket(world& world, vector<double> pos, std::unique_ptr<module::base> module) :
+mark::unit::bucket::bucket(mark::world& world, vector<double> pos, std::unique_ptr<module::base> module) :
 	unit::base(world, pos),
 	m_module(std::move(module)) {
 	assert(m_module != nullptr);
@@ -25,7 +25,7 @@ void mark::unit::bucket::tick(tick_context& context) {
 		return;
 	}
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * module::size;
-	const auto nearby_buckets = m_world.find(
+	const auto nearby_buckets = world().find(
 		pos(), size, [this](const unit::base& unit) {
 		return &unit != this && dynamic_cast<const unit::bucket*>(&unit);
 	});
@@ -44,7 +44,7 @@ void mark::unit::bucket::tick(tick_context& context) {
 			m_direction = static_cast<float>(atan(diff));
 		}
 		const auto ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);
-		if (m_world.map().traversable(pos() + ds, size)) {
+		if (world().map().traversable(pos() + ds, size)) {
 			this->pos(pos() + ds);
 		}
 	}

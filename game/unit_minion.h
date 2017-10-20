@@ -13,7 +13,7 @@ namespace mark {
 		public:
 			static constexpr const char* type_name = "unit_minion";
 
-			minion(world& world, vector<double> pos);
+			minion(mark::world& world, vector<double> pos);
 			void tick(tick_context& context) override;
 			auto dead() const -> bool override;
 			auto damage(const interface::damageable::info&) -> bool override;

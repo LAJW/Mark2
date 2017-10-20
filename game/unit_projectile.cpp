@@ -47,7 +47,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 			m_rotation = turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
-		auto target = m_world.find_one(
+		auto target = world().find_one(
 			pos(),
 			m_seek_radius,
 			[this](const unit::base& unit) {
@@ -71,7 +71,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
-	const auto [ maybe_pos, died ] = m_world.damage(info);
+	const auto [ maybe_pos, died ] = world().damage(info);
 	m_dead = died;
 	if (maybe_pos) {
 		tick_context::spray_info spray;
@@ -140,7 +140,7 @@ auto mark::unit::projectile::dead() const -> bool {
 
 // Serializer / Deserializer
 
-mark::unit::projectile::projectile(world& world, const YAML::Node& node):
+mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
 	unit::base(world, node),
 	m_image(world.resource_manager().image("shell.png")),
 	m_im_tail(world.resource_manager().image("glare.png")),

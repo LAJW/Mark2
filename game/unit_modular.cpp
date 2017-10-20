@@ -130,9 +130,9 @@ void mark::unit::modular::tick_movement(
 			&& (m_path_age <= 0.f
 				|| !m_path_cache.empty()
 					&& length(m_path_cache.front() - m_moveto) < radius)
-			&& m_world.map().can_find()
-			&& !m_world.resource_manager().random(0, 2)) {
-			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
+			&& world().map().can_find()
+			&& !world().resource_manager().random(0, 2)) {
+			m_path_cache = world().map().find_path(pos(), m_moveto, radius);
 			m_path_age = 1.f;
 		} else {
 			m_path_age -= static_cast<float>(dt);
@@ -163,12 +163,12 @@ void mark::unit::modular::tick_movement(
 		}
 	}
 	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
-	if (m_world.map().traversable(pos() + step, radius)) {
+	if (world().map().traversable(pos() + step, radius)) {
 		pos() += step;
-	} else if (m_world.map().traversable(
+	} else if (world().map().traversable(
 			pos() + vector<double>(step.x, 0), radius)) {
 		pos() += vector<double>(step.x, 0);
-	} else if (m_world.map().traversable(
+	} else if (world().map().traversable(
 			pos() + vector<double>(0, step.y), radius)) {
 		pos() += vector<double>(0, step.y);
 	}
@@ -179,7 +179,7 @@ void mark::unit::modular::tick_movement(
 }
 
 void mark::unit::modular::tick_ai() {
-	auto enemy = m_world.find_one(
+	auto enemy = world().find_one(
 		pos(),
 		1000.f,
 		[this](const auto& unit) {
@@ -296,7 +296,7 @@ void mark::unit::modular::tick(tick_context& context)
 {
 	const auto modifiers = this->modifiers();
 	this->tick_modules(context);
-	if (!m_ai && m_world.target().get() == this) {
+	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);
 	}
 	this->tick_movement(context.dt, modifiers);
@@ -478,7 +478,7 @@ void mark::unit::modular::command(const mark::command& command)
 	const auto radius = 75.f;
 	if (command.type == command::type::move) {
 		m_moveto = command.pos;
-		m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
+		m_path_cache = world().map().find_path(pos(), m_moveto, radius);
 		if (!m_path_cache.empty()
 			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 			m_moveto = m_path_cache.front();
@@ -491,7 +491,7 @@ void mark::unit::modular::command(const mark::command& command)
 		}
 		if (m_move) {
 			m_moveto = m_lookat;
-			m_path_cache = m_world.map().find_path(pos(), m_moveto, radius);
+			m_path_cache = world().map().find_path(pos(), m_moveto, radius);
 			if (!m_path_cache.empty()
 				&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 				m_moveto = m_path_cache.front();
@@ -501,7 +501,7 @@ void mark::unit::modular::command(const mark::command& command)
 		m_ai = true;
 	} else if (command.type == command::type::activate
 		&& !command.release) {
-		auto pad = m_world.find_one(
+		auto pad = world().find_one(
 			pos(),
 			150.0,
 			[this](const auto& unit) {
@@ -532,7 +532,7 @@ void mark::unit::modular::on_death(tick_context& context) {
 	for (auto& module : m_modules) {
 		if (!module->dead()) {
 			context.units.emplace_back(std::make_shared<unit::bucket>(
-				m_world,
+				world(),
 				pos(),
 				std::move(module)));
 		}
@@ -773,7 +773,7 @@ auto mark::unit::modular::at(const vector<int>& user_pos) const noexcept ->
 }
 
 auto mark::unit::modular::landed() const noexcept -> bool {
-	return !m_ai && m_world.target().get() != this;
+	return !m_ai && world().target().get() != this;
 }
 
 void mark::unit::modular::remove_dead(tick_context& context) {
@@ -822,7 +822,7 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 			std::back_inserter(context.units),
 			[this](auto module) {
 			return std::make_shared<unit::bucket>(
-				m_world, this->pos(), std::move(module));
+				world(), this->pos(), std::move(module));
 		});
 		m_modules.erase(first_detached_it, m_modules.end());
 	}
@@ -830,7 +830,7 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 
 void mark::unit::modular::pick_up(tick_context&)
 {
-	auto units = m_world.find(pos(), 150.f, [](const auto& unit) {
+	auto units = world().find(pos(), 150.f, [](const auto& unit) {
 		return !unit.dead();
 	});
 	auto containers = this->containers();
@@ -864,7 +864,7 @@ void mark::unit::modular::unbind(const module::base& module) {
 }
 
 void mark::unit::modular::activate(const std::shared_ptr<unit::base>&)
-{ m_world.target(this->shared_from_this()); }
+{ world().target(this->shared_from_this()); }
 
 auto mark::unit::modular::containers() ->
 	std::vector<std::reference_wrapper<module::cargo>> {

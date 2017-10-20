@@ -19,8 +19,8 @@ namespace mark {
 		public:
 			static constexpr const char* type_name = "unit_landing_pad";
 
-			landing_pad(world& world, const YAML::Node&);
-			landing_pad(world& world, vector<double> pos);
+			landing_pad(mark::world& world, const YAML::Node&);
+			landing_pad(mark::world& world, vector<double> pos);
 			void tick(tick_context& context) override;
 			auto dead() const -> bool override { return false; };
 			void dock(unit::modular* ship);

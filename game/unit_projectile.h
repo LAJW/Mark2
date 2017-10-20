@@ -14,7 +14,7 @@ namespace mark {
 			static constexpr const char* type_name = "unit_projectile";
 			// projectile constructor attributes
 			struct info {
-				world* world = nullptr;
+				mark::world* world = nullptr;
 				// for mouse-guided missiles
 				std::shared_ptr<const vector<double>> guide;
 				vector<double> pos;
@@ -30,7 +30,7 @@ namespace mark {
 				size_t piercing = 1;
 				size_t team = 0;
 			};
-			projectile(world&, const YAML::Node&);
+			projectile(mark::world&, const YAML::Node&);
 			projectile(const projectile::info&);
 			void tick(tick_context& context) override;
 			auto dead() const -> bool override;
