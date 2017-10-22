@@ -68,17 +68,19 @@ namespace mark {
 			void diameter(float min, float max = NAN);
 		};
 		void render(const spray_info&);
+		struct text_info {
+			int layer = 0;
+			std::shared_ptr<const resource::image> font;
+			vector<double> pos;
+			vector<double> box;
+			float size = 14.f;
+			sf::Color color = sf::Color::White;
+			std::string text;
+			bool world = false;
+			bool centred = false;
+		};
+		void render(const text_info&);
 	private:
 		resource::manager& m_resource_manager;
 	};
-	void print(
-		std::shared_ptr<const resource::image> font,
-		std::vector<sprite>& out,
-		vector<double> pos,
-		vector<double> box,
-		float size,
-		sf::Color color,
-		std::string text,
-		bool world = false,
-		bool centrer = false);
 }

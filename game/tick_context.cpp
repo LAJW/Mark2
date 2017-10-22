@@ -27,16 +27,17 @@ namespace {
 }
 
 
-void mark::print(
-	std::shared_ptr<const resource::image> font,
-	std::vector<sprite>& out,
-	vector<double> pos,
-	vector<double> box,
-	float size,
-	sf::Color color,
-	std::string text,
-	const bool world,
-	const bool centred) {
+void mark::tick_context::render(const text_info& info)
+{
+	const auto& font = info.font;
+	auto& out = sprites[info.layer];
+	const auto pos = info.pos;
+	const auto box = info.box;
+	const auto size = info.size;
+	const auto color = info.color;
+	const auto& text = info.text;
+	const auto world = info.world;
+	const auto centred = info.centred;
 
 	auto offset = vector<double>(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {

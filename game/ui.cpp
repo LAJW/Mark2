@@ -122,28 +122,26 @@ void mark::ui::ui::tick(
 			{
 				std::ostringstream os;
 				os << static_cast<int>(i);
-				print(
-					m_font,
-					context.sprites[101],
-					vector<double>(x + 32.f, y + 8.f),
-					{ 300 - 14.f, 300 - 14.f },
-					14.f,
-					sf::Color::White,
-					os.str()
-				);
+				tick_context::text_info text;
+				text.font = m_font;
+				text.layer = 101;
+				text.pos = vector<double>(x + 32.f, y + 8.f);
+				text.box = { 300 - 14.f, 300 - 14.f };
+				text.size = 14.f;
+				text.text = os.str();
+				context.render(text);
 			}
 			{
 				std::ostringstream os;
 				os << binding.total;
-				print(
-					m_font,
-					context.sprites[101],
-					vector<double>(x + 32.f, y + 32.f),
-					{ 300 - 14.f, 300 - 14.f },
-					14.f,
-					sf::Color::White,
-					os.str()
-				);
+				tick_context::text_info text;
+				text.font = m_font;
+				text.layer = 101;
+				text.pos = vector<double>(x + 32.f, y + 32.f);
+				text.box = { 300 - 14.f, 300 - 14.f };
+				text.size = 14.f;
+				text.text = os.str();
+				context.render(text);
 			}
 		}
 	}
@@ -261,15 +259,14 @@ void mark::ui::ui::tooltip(
 	info.centred = false;
 	context.sprites[110].emplace_back(info);
 
-	print(
-		m_font,
-		context.sprites[110],
-		screen_pos + vector<double>(7.f, 7.f),
-		{ 300 - 14.f, 300 - 14.f },
-		14.f,
-		sf::Color::White,
-		text
-	);
+	tick_context::text_info text_info;
+	text_info.font = m_font;
+	text_info.layer = 110;
+	text_info.pos = screen_pos + vector<double>(7.f, 7.f);
+	text_info.box = { 300 - 14.f, 300 - 14.f };
+	text_info.size = 14.f;
+	text_info.text = text;
+	context.render(text_info);
 
 }
 
@@ -284,18 +281,16 @@ void mark::ui::ui::world_tooltip(
 	info.size = 300.f;
 	context.sprites[100].emplace_back(info);
 
-	print(
-		m_font,
-		context.sprites[100],
-		pos + vector<double>(7.f, 7.f),
-		{ 300 - 14.f, 300 - 14.f },
-		14.f,
-		sf::Color::White,
-		text,
-		true,
-		true
-	);
-
+	tick_context::text_info text_info;
+	text_info.font = m_font;
+	text_info.layer = 100;
+	text_info.pos = pos + vector<double>(7.f, 7.f);
+	text_info.box = { 300 - 14.f, 300 - 14.f };
+	text_info.size = 14.f;
+	text_info.text = text;
+	text_info.world = true;
+	text_info.centred = true;
+	context.render(text_info);
 }
 
 static std::vector<bool> make_available_map(
