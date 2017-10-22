@@ -39,7 +39,9 @@ void mark::ui::button::render(tick_context& context)
 	const auto pos = vector<double>(this->pos());
 	info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
 	info.size = static_cast<float>(std::max(m_size.x, m_size.y));
-	context.ui_sprites[2].emplace_back(info);
+	info.world = false;
+	info.centred = false;
+	context.sprites[102].emplace_back(info);
 }
 
 bool mark::ui::button::click(const event& event)

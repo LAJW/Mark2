@@ -17,7 +17,6 @@ namespace mark {
 		double dt;
 		std::map<int, std::vector<sprite>> sprites;
 		std::map<int, std::vector<sprite>> normals;
-		std::map<int, std::vector<sprite>> ui_sprites;
 		std::vector<std::pair<vector<double>, sf::Color>> lights;
 		std::vector<std::shared_ptr<unit::base>> units;
 		std::vector<particle> particles;
@@ -79,5 +78,7 @@ namespace mark {
 		vector<double> box,
 		float size,
 		sf::Color color,
-		std::string text);
+		std::string text,
+		bool world = false,
+		bool centrer = false);
 }

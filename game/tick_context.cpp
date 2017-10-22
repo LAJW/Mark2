@@ -34,7 +34,9 @@ void mark::print(
 	vector<double> box,
 	float size,
 	sf::Color color,
-	std::string text) {
+	std::string text,
+	const bool world,
+	const bool centred) {
 
 	auto offset = vector<double>(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {
@@ -63,6 +65,8 @@ void mark::print(
 			args.size = size;
 			args.frame = frame;
 			args.color = color;
+			args.centred = centred;
+			args.world = world;
 			out.emplace_back(args);
 		}
 		if (ch != '\n') {

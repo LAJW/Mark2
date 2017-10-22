@@ -43,7 +43,9 @@ void mark::ui::ui::tick(
 		bg_sprite.pos.x = resolution.x / 2. - 23. - 64. * 5.5;
 		bg_sprite.pos.y = resolution.y - 85;
 		bg_sprite.frame = std::numeric_limits<size_t>::max();
-		context.ui_sprites[0].emplace_back(bg_sprite);
+		bg_sprite.world = false;
+		bg_sprite.centred = false;
+		context.sprites[100].emplace_back(bg_sprite);
 	}
 	{
 		sprite bg_sprite;
@@ -51,7 +53,9 @@ void mark::ui::ui::tick(
 		bg_sprite.pos.x = resolution.x / 2. - 64. * 5.5;
 		bg_sprite.pos.y = resolution.y - 64;
 		bg_sprite.frame = std::numeric_limits<size_t>::max();
-		context.ui_sprites[2].emplace_back(bg_sprite);
+		bg_sprite.world = false;
+		bg_sprite.centred = false;
+		context.sprites[102].emplace_back(bg_sprite);
 	}
 
 	if (const auto unit
@@ -85,7 +89,9 @@ void mark::ui::ui::tick(
 					circle_sprite.pos = module_pos_;
 					circle_sprite.image = image_circle;
 					circle_sprite.frame = std::numeric_limits<size_t>::max();
-					context.ui_sprites[1].push_back(circle_sprite);
+					circle_sprite.world = false;
+					circle_sprite.centred = false;
+					context.sprites[101].push_back(circle_sprite);
 					const auto diff = vector<double>(x + 32, y + 32) - module_pos_;
 					const auto dir = normalize(diff);
 					const auto dist = length(diff);
@@ -95,7 +101,9 @@ void mark::ui::ui::tick(
 						line_sprite.image = image_ray;
 						line_sprite.frame = std::numeric_limits<size_t>::max();
 						line_sprite.rotation = static_cast<float>(atan(dir));
-						context.ui_sprites[1].push_back(line_sprite);
+						line_sprite.world = false;
+						line_sprite.centred = false;
+						context.sprites[101].push_back(line_sprite);
 					}
 				}
 			}
@@ -107,14 +115,16 @@ void mark::ui::ui::tick(
 				sprite.pos.y = y;
 				sprite.image = binding.thumbnail;
 				sprite.size = 64.f;
-				context.ui_sprites[1].emplace_back(sprite);
+				sprite.world = false;
+				sprite.centred = false;
+				context.sprites[101].emplace_back(sprite);
 			}
 			{
 				std::ostringstream os;
 				os << static_cast<int>(i);
 				print(
 					m_font,
-					context.ui_sprites[1],
+					context.sprites[101],
 					vector<double>(x + 32.f, y + 8.f),
 					{ 300 - 14.f, 300 - 14.f },
 					14.f,
@@ -127,7 +137,7 @@ void mark::ui::ui::tick(
 				os << binding.total;
 				print(
 					m_font,
-					context.ui_sprites[1],
+					context.sprites[101],
 					vector<double>(x + 32.f, y + 32.f),
 					{ 300 - 14.f, 300 - 14.f },
 					14.f,
@@ -247,11 +257,13 @@ void mark::ui::ui::tooltip(
 	info.image = m_tooltip_bg;
 	info.pos = screen_pos;
 	info.size = 300.f;
-	context.ui_sprites[10].emplace_back(info);
+	info.world = false;
+	info.centred = false;
+	context.sprites[110].emplace_back(info);
 
 	print(
 		m_font,
-		context.ui_sprites[10],
+		context.sprites[110],
 		screen_pos + vector<double>(7.f, 7.f),
 		{ 300 - 14.f, 300 - 14.f },
 		14.f,
@@ -279,7 +291,9 @@ void mark::ui::ui::world_tooltip(
 		{ 300 - 14.f, 300 - 14.f },
 		14.f,
 		sf::Color::White,
-		text
+		text,
+		true,
+		true
 	);
 
 }

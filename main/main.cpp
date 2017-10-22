@@ -45,7 +45,6 @@ mark::renderer::render_info tick(
 	info.resolution = resolution;
 	info.lights = std::move(context.lights);
 	info.sprites = std::move(context.sprites);
-	info.ui_sprites = std::move(context.ui_sprites);
 	info.normals = std::move(context.normals);
 	return info;
 }

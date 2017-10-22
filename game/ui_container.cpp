@@ -33,7 +33,9 @@ void mark::ui::container::tick(tick_context& context)
 	sprite.size = 64.f;
 	sprite.frame = std::numeric_limits<size_t>::max();
 	sprite.color = { 255, 255, 255, 200 };
-	context.ui_sprites[-1].push_back(sprite);
+	sprite.world = false;
+	sprite.centred = false;
+	context.sprites[100].push_back(sprite);
 	this->window::tick(context);
 }
 
