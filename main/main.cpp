@@ -14,6 +14,7 @@
 #include "sprite.h"
 #include "tick_context.h"
 #include "unit_modular.h"
+#include "world_stack.h"
 #include "world.h"
 #include "ui.h"
 
@@ -47,20 +48,6 @@ mark::renderer::render_info tick(
 	info.ui_sprites = std::move(context.ui_sprites);
 	info.normals = std::move(context.normals);
 	return info;
-}
-
-std::unique_ptr<mark::world> load_or_create_world(
-	std::string filename,
-	mark::resource::manager& resource_manager,
-	const std::unordered_map<std::string, YAML::Node>& templates)
-{
-	try {
-		const auto node = YAML::LoadFile(filename);
-		return std::make_unique<mark::world>(resource_manager, node, templates);
-	} catch (std::exception&) {
-		return std::make_unique<mark::world>(resource_manager, templates);
-	}
-
 }
 
 void save_world(const mark::world& world, std::string filename)
@@ -142,11 +129,12 @@ void mark::main(std::vector<std::string> args)
 	mark::resource::manager_impl rm;
 	mark::ui::ui ui(rm);
 	const auto keymap = mark::keymap("options.yml");
-	const auto ship_node = YAML::LoadFile("ship.yml");
-	const auto ship(ship_node);
 	std::unordered_map<std::string, YAML::Node> templates;
 	templates["ship"] = YAML::LoadFile("ship.yml");
-	auto world = load_or_create_world("state.yml", rm, templates);
+	mark::world_stack world_stack(
+		YAML::LoadFile("state.yml"),
+		rm,
+		templates);
 	bool shift_pressed = false;
 	const auto on_event = [&](const on_event_info& info) {
 		if ((info.event.type == sf::Event::EventType::KeyPressed
@@ -156,7 +144,7 @@ void mark::main(std::vector<std::string> args)
 		}
 		const auto mouse_pos = info.mouse_pos;
 		const auto window_res = info.window_res;
-		const auto target = world->camera() + mouse_pos - window_res / 2.;
+		const auto target = world_stack.world().camera() + mouse_pos - window_res / 2.;
 		if (info.event.mouseButton.button == sf::Mouse::Button::Left
 			&& info.event.type == sf::Event::MouseButtonPressed) {
 			ui.click(mark::vector<int>(info.mouse_pos));
@@ -167,28 +155,28 @@ void mark::main(std::vector<std::string> args)
 		if (command.type == mark::command::type::activate) {
 			ui.release();
 		}
-		if (command.type == mark::command::type::reset) {
-			world = std::make_unique<mark::world>(rm, templates);
+		if (command.type == mark::command::type::reset && !command.release) {
+			world_stack.prev();
 		} else {
-			ui.command(*world, command);
-			world->command(command);
+			ui.command(world_stack.world(), command);
+			world_stack.world().command(command);
 		}
 	};
 	const auto on_tick = [&](const on_tick_info& info) {
 		const auto mouse_pos = info.mouse_pos;
 		const auto window_res = info.window_res;
-		const auto target = world->camera() + mouse_pos - window_res / 2.;
+		const auto target = world_stack.world().camera() + mouse_pos - window_res / 2.;
 		mark::command guide;
 		guide.type = mark::command::type::guide;
 		guide.pos = target;
-		world->command(guide);
+		world_stack.world().command(guide);
 		mark::tick_context context(rm);
 		ui.hover(mark::vector<int>(info.mouse_pos));
-		return tick(info.dt, ui, rm, *world, window_res, mouse_pos);
+		return tick(info.dt, ui, rm, world_stack.world(), window_res, mouse_pos);
 	};
 	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
 	ui.release();
-	save_world(*world, "state.yml");
+	save_world(world_stack.world(), "state.yml");
 }
 
 int main(const int argc, const char* argv[]) {

@@ -20,11 +20,14 @@
 #include "unit_minion.h"
 #include "unit_modular.h"
 #include "world.h"
+#include "world_stack.h"
 
 mark::world::world(
+	world_stack& stack,
 	resource::manager& resource_manager,
 	const std::unordered_map<std::string, YAML::Node>& templates,
-	const bool empty)
+	const bool empty,
+	const bool make_modular)
 	: m_resource_manager(resource_manager)
 	, m_map(empty
 		? map::make_square(resource_manager)
@@ -33,6 +36,7 @@ mark::world::world(
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
 	, m_templates(templates)
+	, m_stack(stack)
 {
 	if (empty) {
 		return;
@@ -68,17 +72,19 @@ mark::world::world(
 			}
 		}
 	}
-	auto vessel = std::dynamic_pointer_cast<unit::modular>(
-		unit::deserialize(*this, templates.at("ship")));
-	vessel->ai(false);
-	mark::command command;
-	command.release = true;
-	command.type = command::type::move;
-	vessel->command(command);
-	vessel->team(1);
-	vessel->pos({ 0., 0. });
-	m_camera_target = vessel;
-	m_units.push_back(vessel);
+	if (make_modular) {
+		auto vessel = std::dynamic_pointer_cast<unit::modular>(
+			unit::deserialize(*this, templates.at("ship")));
+		vessel->ai(false);
+		mark::command command;
+		command.release = true;
+		command.type = command::type::move;
+		vessel->command(command);
+		vessel->team(1);
+		vessel->pos({ 0., 0. });
+		m_camera_target = vessel;
+		m_units.push_back(vessel);
+	}
 }
 
 mark::world::~world() = default;
@@ -289,6 +295,7 @@ auto mark::world::damage(world::damage_info& info) ->
 // Serializer / Deserializer
 
 mark::world::world(
+	world_stack& stack,
 	resource::manager& rm,
 	const YAML::Node& node,
 	const std::unordered_map<std::string, YAML::Node>& templates)
@@ -298,7 +305,8 @@ mark::world::world(
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
-	, m_templates(templates) {
+	, m_templates(templates)
+	, m_stack(stack) {
 
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
@@ -316,46 +324,11 @@ mark::world::world(
 }
 
 void mark::world::next() {
-	m_map = map::make_cavern(m_resource_manager);
-	auto camera_target = m_camera_target.lock();
-	// TODO: Transfer old units and map to history
-	m_units.clear();
-	m_units.push_back(camera_target);
-	camera_target->pos({ 0, 0 });
-	m_camera = { 0, 0 };
-
-	for (int x = 0; x < 1000; x++) {
-		for (int y = 0; y < 1000; y++) {
-			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::landing_pad>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
-				goto end;
-			}
-		}
-	}
-	end:;
-	for (int x = 999; x >= 0; x--) {
-		for (int y = 999; y >= 0; y--) {
-			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::gate>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
-				goto end2;
-			}
-		}
-	}
-	end2:;
-	for (int x = 0; x < 1000; x++) {
-		for (int y = 0; y < 1000; y++) {
-			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
-			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
-				mark::command command;
-				command.type = command::type::ai;
-				m_units.push_back(unit::deserialize(*this, m_templates.at("ship")));
-				m_units.back()->pos(pos);
-				m_units.back()->command(command);
-			}
-		}
-	}
+	m_stack.next();
 }
+
+void mark::world::prev()
+{ m_stack.prev(); }
 
 void mark::world::serialize(YAML::Emitter& out) const {
 	using namespace YAML;

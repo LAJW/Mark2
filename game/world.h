@@ -7,6 +7,7 @@ namespace mark {
 class command;
 struct tick_context;
 class particle;
+class world_stack;
 namespace resource {
 class manager;
 class image;
@@ -17,10 +18,13 @@ class base;
 class world final {
 public:
 	world(
+		world_stack& stack,
 		resource::manager& resource_manager,
 		const std::unordered_map<std::string, YAML::Node>& templates,
-		bool empty = false);
+		bool empty = false,
+		bool make_modular = true);
 	world(
+		world_stack& stack,
 		resource::manager&,
 		const YAML::Node&,
 		const std::unordered_map<std::string, YAML::Node>& templates);
@@ -59,6 +63,7 @@ public:
 		-> std::pair<std::optional<vector<double>>, bool>;
 	// go to the next map
 	void next();
+	void prev();
 	void serialize(YAML::Emitter& out) const;
 
 	const std::shared_ptr<const resource::image> image_bar;
@@ -83,5 +88,6 @@ private:
 	double m_a = 0.;
 	std::vector<particle> m_particles;
 	const std::unordered_map<std::string, YAML::Node>& m_templates;
+	world_stack& m_stack;
 };
 }
