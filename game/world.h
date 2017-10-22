@@ -22,7 +22,7 @@ public:
 		resource::manager& resource_manager,
 		const std::unordered_map<std::string, YAML::Node>& templates,
 		bool empty = false,
-		bool make_modular = true);
+		bool initial = true);
 	world(
 		world_stack& stack,
 		resource::manager&,

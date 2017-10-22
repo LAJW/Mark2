@@ -30,10 +30,12 @@ void mark::world_stack::next()
 			*this, m_resource_manager, m_templates, false, false);
 		m_worlds.push_back(std::move(data));
 		target->pos({ 0., 0. });
+		world().attach(target);
 	} else {
 		target->pos(m_worlds[m_current_world_id].target_pos);
+		// Don't need to attach - instance of world is already shared with previous worlds
+		target->world(world());
 	}
-	world().attach(target);
 	world().target(target);
 }
 
@@ -45,7 +47,7 @@ void mark::world_stack::prev()
 	old_data.target_pos = old_data.world->target()->pos();
 	--m_current_world_id;
 	old_data.world->target()->pos(m_worlds[m_current_world_id].target_pos);
-	// Don't need to attach - instance of world is already shared with previous worlds
+	old_data.world->target()->world(world());
 }
 
 auto mark::world_stack::world() noexcept -> mark::world& 

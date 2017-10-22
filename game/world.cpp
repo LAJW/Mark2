@@ -27,7 +27,7 @@ mark::world::world(
 	resource::manager& resource_manager,
 	const std::unordered_map<std::string, YAML::Node>& templates,
 	const bool empty,
-	const bool make_modular)
+	const bool inital)
 	: m_resource_manager(resource_manager)
 	, m_map(empty
 		? map::make_square(resource_manager)
@@ -53,7 +53,8 @@ mark::world::world(
 	for (int x = 999; x >= 0; x--) {
 		for (int y = 999; y >= 0; y--) {
 			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::gate>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
+				m_units.push_back(std::make_shared<unit::gate>(
+					*this, vector<double>(32 * (x - 500), 32 * (y - 500)), false));
 				goto end2;
 			}
 		}
@@ -72,7 +73,7 @@ mark::world::world(
 			}
 		}
 	}
-	if (make_modular) {
+	if (inital) {
 		auto vessel = std::dynamic_pointer_cast<unit::modular>(
 			unit::deserialize(*this, templates.at("ship")));
 		vessel->ai(false);
@@ -84,6 +85,9 @@ mark::world::world(
 		vessel->pos({ 0., 0. });
 		m_camera_target = vessel;
 		m_units.push_back(vessel);
+	} else {
+		m_units.push_back(std::make_shared<unit::gate>(
+			*this, vector<double>(), true));
 	}
 }
 
