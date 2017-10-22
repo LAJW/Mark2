@@ -60,7 +60,7 @@ public:
 		float aoe_radius = 0.f;
 	};
 	auto damage(world::damage_info&)
-		-> std::pair<std::optional<vector<double>>, bool>;
+		-> std::optional<std::pair<vector<double>, bool>>;
 	// go to the next map
 	void next();
 	void prev();
