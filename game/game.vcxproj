@@ -194,6 +194,7 @@
     <ClCompile Include="unit_projectile.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="world.cpp" />
+    <ClCompile Include="world_stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tick_context.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="world.h" />
+    <ClInclude Include="world_stack.h" />
     <ClInclude Include="yaml.h" />
   </ItemGroup>
   <ItemGroup>

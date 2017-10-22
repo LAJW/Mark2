@@ -47,6 +47,7 @@ public:
 	// get target for commands
 	auto target() -> std::shared_ptr<unit::base>;
 	auto target() const -> std::shared_ptr<const unit::base>;
+	void attach(const std::shared_ptr<mark::unit::base>& unit);
 	struct damage_info {
 		interface::damageable::info damage;
 		tick_context* context = nullptr;

@@ -219,6 +219,12 @@ auto mark::world::target() const -> std::shared_ptr<const unit::base> {
 	return m_camera_target.lock();
 }
 
+void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
+{
+	m_units.push_back(unit);
+	unit->world(*this);
+}
+
 auto mark::world::collide(const segment_t& ray) ->
 	std::pair<interface::damageable *, std::optional<vector<double>>> {
 	auto maybe_min = m_map.collide(ray);

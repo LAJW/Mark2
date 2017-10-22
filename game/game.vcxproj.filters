@@ -130,6 +130,9 @@
     <ClCompile Include="exception.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="world_stack.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -306,6 +309,9 @@
       <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="base64.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="world_stack.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>
