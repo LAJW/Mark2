@@ -44,13 +44,32 @@ enum class reserved_type {
 
 class cargo;
 
+// Part of the base modifiable by the modular and cargo
+class base_ref {
+public:
+	friend unit::modular;
+	friend module::cargo;
+
+	auto grid_pos() const noexcept -> vector<int>;
+protected:
+	base_ref() = default;
+	base_ref(const YAML::Node& node);
+	auto parent() const -> const unit::modular&;
+	auto parent() -> unit::modular&;
+	void serialize_base(YAML::Emitter& out) const;
+	// Position on the grid
+	~base_ref()=default;
+private:
+	unit::modular* m_parent = nullptr;
+	vector<int8_t> m_grid_pos;
+};
+
 class base:
+	public base_ref,
 	public interface::damageable,
 	public interface::serializable {
 public:
 	static constexpr auto max_heat = 100.f;
-	friend unit::modular;
-	friend module::cargo;
 	virtual ~base();
 
 	virtual void tick(tick_context& context);
@@ -95,9 +114,6 @@ public:
 	// Neighbour modules
 	auto neighbours() -> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>;
 
-	// Position on the grid
-	auto grid_pos() const noexcept -> vector<int>;
-
 	// Default damage handling
 	auto damage(const interface::damageable::info& attr) -> bool override;
 
@@ -119,8 +135,6 @@ protected:
 	base(vector<unsigned> size,
 		const std::shared_ptr<const resource::image>& thumbnail);
 
-	auto parent() const -> const unit::modular&;
-	auto parent() -> unit::modular&;
 	auto heat_color() const -> sf::Color;
 	// serialize module::base properties, call only from module serializers
 	void serialize_base(YAML::Emitter&) const;
@@ -137,8 +151,6 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	const vector<unsigned> m_size;
-	unit::modular* m_parent = nullptr;
-	vector<int8_t> m_grid_pos;
 	float m_stun_lfo;
 };
 }

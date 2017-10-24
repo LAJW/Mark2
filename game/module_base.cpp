@@ -6,6 +6,30 @@
 #include "resource_image.h"
 #include "unit_modular.h"
 
+mark::module::base_ref::base_ref(const YAML::Node& node)
+	: m_grid_pos(node["grid_pos"].as<vector<int>>()) { }
+
+void mark::module::base_ref::serialize_base(YAML::Emitter& out) const {
+	using namespace YAML;
+	out << Key << "grid_pos" << Value << BeginMap;
+	out << Key << "x" << m_grid_pos.x;
+	out << Value << "y" << m_grid_pos.y;
+	out << EndMap;
+}
+
+auto mark::module::base_ref::parent() const -> const unit::modular& {
+	assert(m_parent);
+	return *m_parent;
+}
+
+auto mark::module::base_ref::parent() -> unit::modular& {
+	assert(m_parent);
+	return *m_parent;
+}
+
+auto mark::module::base_ref::grid_pos() const noexcept -> vector<int>
+{ return vector<int>(m_grid_pos); }
+
 constexpr const auto HEAT_TRANSFER_RATE = 15.f;
 constexpr const auto HEAT_LOSS_RATE = 2.f;
 
@@ -134,10 +158,6 @@ auto mark::module::base::neighbours()
 	return parent().attached(*this);
 }
 
-auto mark::module::base::grid_pos() const noexcept -> vector<int> {
-	return vector<int>(m_grid_pos);
-}
-
 bool mark::module::base::damage(const interface::damageable::info& attr) {
 	if (attr.team != parent().team() && m_cur_health > 0
 		&& attr.damaged->find(this) == attr.damaged->end()) {
@@ -189,18 +209,6 @@ auto mark::module::base::global_modifiers() const->module::modifiers
 auto mark::module::base::reserved() const noexcept -> reserved_type
 { return reserved_type::none; }
 
-auto mark::module::base::parent() const -> const unit::modular& {
-	if (m_parent) {
-		return *m_parent;
-	} else {
-		throw exception("NO_PARENT");
-	}
-}
-
-auto mark::module::base::parent() -> unit::modular&{
-	return const_cast<unit::modular&>(static_cast<const module::base*>(this)->parent());
-}
-
 auto mark::module::base::heat_color() const -> sf::Color {
 	const auto intensity = static_cast<uint8_t>((1.f - m_cur_heat / max_heat) * 255.f);
 	return { 255, intensity, intensity, 255 };
@@ -223,11 +231,11 @@ auto mark::module::base::size() const -> vector<unsigned> {
 // Serializer / Deserializer
 
 mark::module::base::base(resource::manager& rm, const YAML::Node& node):
+	base_ref(node),
 	m_cur_health(node["cur_health"].as<float>()),
 	m_max_health(node["max_health"].as<float>()),
 	m_stunned(node["stunned"].as<float>()),
 	m_cur_heat(node["cur_heat"].as<float>()),
-	m_grid_pos(node["grid_pos"].as<vector<int>>()),
 	m_size(node["size"].as<vector<unsigned>>()),
 	m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png"))) { }
 
@@ -244,10 +252,7 @@ void mark::module::base::serialize_base(YAML::Emitter& out) const {
 	out << Value << "y" << m_size.y;
 	out << EndMap;
 
-	out << Key << "grid_pos" << Value << BeginMap;
-	out << Key << "x" << m_grid_pos.x;
-	out << Value << "y" << m_grid_pos.y;
-	out << EndMap;
+	base_ref::serialize_base(out);
 
 	out << Key << "thumbnail" << Value << m_thumbnail->filename();
 }

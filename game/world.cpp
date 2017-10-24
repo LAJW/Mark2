@@ -283,11 +283,9 @@ auto mark::world::damage(world::damage_info& info) ->
 		return { };
 	}
 	const auto pos = maybe_pos.value();
-	auto dead = false;
-	if (info.piercing == 1 && damageable && damageable->damage(info.damage)
-		|| !damageable) {
-		dead = true;
-	}
+	const auto dead =
+		info.piercing == 1 && damageable && damageable->damage(info.damage)
+		|| !damageable;
 	if (info.aoe_radius >= 0.f) {
 		const auto damageables = this->collide(pos, info.aoe_radius);
 		for (const auto aoe_damageable : damageables) {
