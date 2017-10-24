@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "algorithm.h"
 #include "command.h"
 #include "map.h"
 #include "module_cargo.h"
@@ -231,8 +232,10 @@ auto mark::world::target() const -> std::shared_ptr<const unit::base> {
 
 void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 {
-	m_units.push_back(unit);
-	unit->world(*this);
+	if (std::find(m_units.cbegin(), m_units.cend(), unit) == m_units.cend()) {
+		m_units.push_back(unit);
+	}
+	unit->m_world=*this;
 }
 
 auto mark::world::collide(const segment_t& ray) ->
