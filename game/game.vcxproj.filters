@@ -91,9 +91,6 @@
     <ClCompile Include="unit_deserialize.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
-    <ClCompile Include="keymap.cpp">
-      <Filter>General</Filter>
-    </ClCompile>
     <ClCompile Include="resource_image.cpp">
       <Filter>General</Filter>
     </ClCompile>
@@ -133,6 +130,9 @@
     <ClCompile Include="world_stack.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="hid.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -156,9 +156,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adsr.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="keymap.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="renderer.h">
@@ -312,6 +309,9 @@
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="world_stack.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="hid.h">
       <Filter>General</Filter>
     </ClInclude>
   </ItemGroup>

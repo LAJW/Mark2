@@ -155,7 +155,7 @@
     <ClCompile Include="cooldown.cpp" />
     <ClCompile Include="curve.cpp" />
     <ClCompile Include="exception.cpp" />
-    <ClCompile Include="keymap.cpp" />
+    <ClCompile Include="hid.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="model_animated.cpp" />
@@ -205,6 +205,7 @@
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="base64.h" />
     <ClInclude Include="command.h" />
+    <ClInclude Include="hid.h" />
     <ClInclude Include="interface_container.h" />
     <ClInclude Include="unit_damageable.h" />
     <ClInclude Include="module_base_turret.h" />
@@ -215,7 +216,6 @@
     <ClInclude Include="interface_damageable.h" />
     <ClInclude Include="interface_has_bindings.h" />
     <ClInclude Include="interface_serializable.h" />
-    <ClInclude Include="keymap.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="model_animated.h" />

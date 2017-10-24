@@ -7,7 +7,7 @@
 
 #include "algorithm.h"
 #include "command.h"
-#include "keymap.h"
+#include "hid.h"
 #include "renderer.h"
 #include "resource_image.h"
 #include "resource_manager.h"
@@ -127,51 +127,32 @@ void mark::main(std::vector<std::string> args)
 {
 	mark::resource::manager_impl rm;
 	mark::ui::ui ui(rm);
-	const auto keymap = mark::keymap("options.yml");
+	const auto options = YAML::LoadFile("options.yml");
+	mark::hid hid(options["keybindings"]);
 	std::unordered_map<std::string, YAML::Node> templates;
 	templates["ship"] = YAML::LoadFile("ship.yml");
-	mark::world_stack world_stack(
-		YAML::LoadFile("state.yml"),
-		rm,
-		templates);
-	bool shift_pressed = false;
+	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
 	const auto on_event = [&](const on_event_info& info) {
-		if ((info.event.type == sf::Event::EventType::KeyPressed
-				|| info.event.type == sf::Event::EventType::KeyReleased)
-			&& info.event.key.code == sf::Keyboard::LShift) {
-			shift_pressed = info.event.type == sf::Event::EventType::KeyPressed;
+		if (info.event.type == sf::Event::MouseMoved) {
+			ui.hover(round(info.mouse_pos));
 		}
-		const auto mouse_pos = info.mouse_pos;
-		const auto window_res = info.window_res;
-		const auto target = world_stack.world().camera() + mouse_pos - window_res / 2.;
 		if (info.event.mouseButton.button == sf::Mouse::Button::Left
 			&& info.event.type == sf::Event::MouseButtonPressed) {
-			ui.click(mark::vector<int>(info.mouse_pos));
+			if (ui.click(round(info.mouse_pos))) {
+				return;
+			}
 		}
-		auto command = keymap.translate(info.event);
-		command.pos = target;
-		command.shift = shift_pressed;
-		if (command.type == mark::command::type::activate) {
-			ui.release();
-		}
-		if (command.type == mark::command::type::reset && !command.release) {
-			world_stack.prev();
-		} else {
-			ui.command(world_stack.world(), command);
-			world_stack.world().command(command);
-		}
+		hid.handle(info.event);
 	};
 	const auto on_tick = [&](const on_tick_info& info) {
-		const auto mouse_pos = info.mouse_pos;
-		const auto window_res = info.window_res;
-		const auto target = world_stack.world().camera() + mouse_pos - window_res / 2.;
-		mark::command guide;
-		guide.type = mark::command::type::guide;
-		guide.pos = target;
-		world_stack.world().command(guide);
+		const auto target = world_stack.world().camera()
+			+ info.mouse_pos - info.window_res / 2.;
+		for (const auto command : hid.commands(target)) {
+			world_stack.world().command(command);
+		}
 		mark::tick_context context(rm);
-		ui.hover(mark::vector<int>(info.mouse_pos));
-		return tick(info.dt, ui, rm, world_stack.world(), window_res, mouse_pos);
+		return tick(
+			info.dt, ui, rm, world_stack.world(), info.window_res, info.mouse_pos);
 	};
 	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
 	ui.release();
