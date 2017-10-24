@@ -483,19 +483,10 @@ void mark::unit::modular::command(const mark::command& command)
 			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 			m_moveto = m_path_cache.front();
 		}
-		m_move = !command.release;
 	} else if (command.type == command::type::guide) {
 		m_lookat = command.pos;
 		for (auto& module : m_modules) {
 			module->target(command.pos);
-		}
-		if (m_move) {
-			m_moveto = m_lookat;
-			m_path_cache = world().map().find_path(pos(), m_moveto, radius);
-			if (!m_path_cache.empty()
-				&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
-				m_moveto = m_path_cache.front();
-			}
 		}
 	} else if (command.type == command::type::ai) {
 		m_ai = true;
@@ -690,7 +681,6 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	, m_moveto(node["moveto"].as<vector<double>>())
 	, m_lookat(node["lookat"].as<vector<double>>())
 	, m_ai(node["ai"].as<bool>())
-	, m_move(node["move"].as<bool>())
 {
 	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
 	for (const auto& module_node : node["modules"]) {
@@ -737,8 +727,6 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	out << EndMap;
 
 	out << Key << "ai" << Value << m_ai;
-
-	out << Key << "move" << Value << m_move;
 
 	out << Key << "bindings" << Value << BeginSeq;
 

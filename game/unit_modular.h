@@ -111,7 +111,6 @@ private:
 	vector<double> m_moveto;
 	vector<double> m_lookat;
 	bool m_ai = false;
-	bool m_move = false;
 	std::unordered_multimap<enum class command::type, std::reference_wrapper<module::base>> m_bindings;
 	std::vector<vector<double>> m_path_cache; // path cache
 	float m_path_age = 0.f;
