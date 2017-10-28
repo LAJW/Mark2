@@ -137,12 +137,11 @@ auto mark::module::base::collide(const segment_t& ray) ->
 			rotate(raw.first, rotation) + pos,
 			rotate(raw.second, rotation) + pos
 		);
-		const auto intersection = intersect(segment, ray);
-		if (!std::isnan(intersection.x)) {
-			const auto length = mark::length(intersection - pos);
+		if (const auto intersection = intersect(segment, ray)) {
+			const auto length = mark::length(*intersection - pos);
 			if (length < min_length) {
 				min_length = length;
-				min = intersection;
+				min = *intersection;
 			}
 		}
 	}

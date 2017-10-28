@@ -539,10 +539,10 @@ auto mark::map::collide(segment_t segment_) const -> std::optional<vector<double
 					border.first + center,
 					border.second + center
 				});
-				if (!isnan(intersection.x)) {
-					const auto len = mark::length(intersection - segment.first);
+				if (intersection) {
+					const auto len = mark::length(*intersection - segment.first);
 					if (len < min_len) {
-						min = intersection;
+						min = *intersection;
 						min_len = len;
 					}
 				}

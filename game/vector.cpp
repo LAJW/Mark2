@@ -20,51 +20,66 @@ auto mark::get_line(const vector<double> start, const vector<double> end) noexce
 	}
 }
 
-auto mark::intersect(const vector<double> line1, const vector<double> line2) noexcept -> vector<double> {
+auto mark::intersect(
+	const vector<double>& line1, const vector<double>& line2) noexcept
+	-> std::optional<vector<double>>
+{
 	if (isnan(line1.x) || isnan(line2.x)) {
-		return { NAN, NAN };
-	} else if (isnan(line1.y)) {
-		if (isnan(line2.y)) {
-			return { NAN, NAN };
-		} else {
-			const auto y = line1.x * line2.x + line2.y;
-			return { line1.x, y };
-		}
-	} else if (isnan(line2.y)) {
-		const auto y = line2.x * line1.x + line1.y;
-		return { line2.x, y };
-	} else if (line1.x == line2.x) {
-		return { NAN, NAN };
-	} else {
-		const auto x = (line2.y - line1.y) / (line1.x - line2.x);
-		const auto y = line1.x * x + line1.y;
-		return { x, y };
+		return { };
 	}
+	if (isnan(line1.y)) {
+		if (isnan(line2.y)) {
+			return { };
+		}
+		const auto y = line1.x * line2.x + line2.y;
+		return { { line1.x, y } };
+	}
+	if (isnan(line2.y)) {
+		const auto y = line2.x * line1.x + line1.y;
+		return { { line2.x, y } };
+	}
+	if (line1.x == line2.x) {
+		return { };
+	}
+	const auto x = (line2.y - line1.y) / (line1.x - line2.x);
+	const auto y = line1.x * x + line1.y;
+	return { { x, y } };
 }
 
-auto mark::intersect(const segment_t s1, const segment_t s2) noexcept -> vector<double> {
+auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
+	-> std::optional<vector<double>>
+{
 	const auto line1 = get_line(s1.first, s1.second);
 	const auto line2 = get_line(s2.first, s2.second);
 	const auto intersection = intersect(line1, line2);
-	// lower x bound
-	const auto lx = std::max(std::min(s1.first.x, s1.second.x), std::min(s2.first.x, s2.second.x));
-	// upper x bound
-	const auto ux = std::min(std::max(s1.first.x, s1.second.x), std::max(s2.first.x, s2.second.x));
-	// lower y bound
-	const auto ly = std::max(std::min(s1.first.y, s1.second.y), std::min(s2.first.y, s2.second.y));
-	// upper y bound
-	const auto uy = std::min(std::max(s1.first.y, s1.second.y), std::max(s2.first.y, s2.second.y));
-	if (intersection.x >= lx && intersection.x <= ux && intersection.y >= ly && intersection.y <= uy) {
-		return intersection;
-	} else {
-		return { NAN, NAN };
+	if (!intersection) {
+		return { };
 	}
+	// lower x bound
+	const auto lx = std::max(
+		std::min(s1.first.x, s1.second.x), std::min(s2.first.x, s2.second.x));
+	// upper x bound
+	const auto ux = std::min(
+		std::max(s1.first.x, s1.second.x), std::max(s2.first.x, s2.second.x));
+	// lower y bound
+	const auto ly = std::max(
+		std::min(s1.first.y, s1.second.y), std::min(s2.first.y, s2.second.y));
+	// upper y bound
+	const auto uy = std::min(
+		std::max(s1.first.y, s1.second.y), std::max(s2.first.y, s2.second.y));
+	if (intersection->x >= lx
+		&& intersection->x <= ux
+		&& intersection->y >= ly
+		&& intersection->y <= uy) {
+		return intersection;
+	}
+	return { };
 }
 
 auto mark::intersect(
-	segment_t segment,
-	vector<double> center,
-	float radius) noexcept -> vector<double> {
+	segment_t segment, const vector<double>& center, float radius) noexcept
+	-> std::optional<vector<double>>
+{
 	const auto line = get_line(segment.first, segment.second);
 	const auto lx = std::min(segment.first.x, segment.second.x);
 	const auto ux = std::max(segment.first.x, segment.second.x);
@@ -119,12 +134,12 @@ auto mark::intersect(
 		const auto y2_in_range = y2 >= ly && y2 <= uy;
 
 		if (y1_in_range && y2_in_range && length1 < length2 || !y2_in_range) {
-			return { line.x, y1 };
+			return { { line.x, y1 } };
 		} else if (y2_in_range) {
-			return { line.x, y2 };
+			return { { line.x, y2 } };
 		}
 	}
-	return { NAN, NAN };
+	return { };
 }
 
 // Calculate new rotation for an entity based on angular velocity, lookat direction, etc.

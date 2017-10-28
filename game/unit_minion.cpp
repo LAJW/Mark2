@@ -97,9 +97,8 @@ auto mark::unit::minion::collide(const segment_t& ray) ->
 	std::optional<std::pair<interface::damageable*, vector<double>>>
 {
 	const auto ship_radius = 58.f;
-	const auto intersection = intersect(ray, pos(), ship_radius);
-	if (!std::isnan(intersection.x)) {
-		return std::make_pair(this, intersection);
+	if (const auto intersection = intersect(ray, pos(), ship_radius)) {
+		return { { this, *intersection} };
 	}
 	return { };
 }

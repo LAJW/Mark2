@@ -65,15 +65,20 @@ namespace mark {
 	// Vertical line - [ x, NAN ]
 	auto get_line(vector<double> start, vector<double> end) noexcept->vector<double>;
 
-	// given 2 lines, find intersection point, or [ NAN, NAN ] if no intersection happens
-	auto intersect(vector<double> line1, vector<double> line2) noexcept->vector<double>;
+	// given 2 lines, find intersection point
+	auto intersect(
+		const vector<double>& line1, const vector<double>& line2) noexcept
+		-> std::optional<vector<double>>;
 
 	// given 2 segments, find intersecting point
 	using segment_t = std::pair<vector<double>, vector<double>>;
-	auto intersect(segment_t, segment_t) noexcept -> vector<double>;
+	auto intersect(const segment_t&, const segment_t&) noexcept
+		-> std::optional<vector<double>>;
 
-	// given segment and a circle, get nearerst intersection, NAN on divergent
-	auto intersect(segment_t, vector<double> center, float radius) noexcept -> vector<double>;
+	// given segment and a circle, get nearerst intersection
+	auto intersect(
+		segment_t, const vector<double>& center, float radius) noexcept
+		-> std::optional<vector<double>>;
 
 	// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
 	auto turn(vector<double> new_direction, float current_rotation, float angular_velocity, double dt) -> float;

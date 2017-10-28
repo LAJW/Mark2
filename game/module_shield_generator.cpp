@@ -70,9 +70,8 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 	std::pair<interface::damageable*, vector<double>> {
 	if (m_cur_shield > 0.f) {
 		const auto shield_size = 64.f;
-		const auto intersection = intersect(ray, pos(), shield_size);
-		if (!std::isnan(intersection.x)) {
-			return { this, intersection };
+		if (const auto intersection = intersect(ray, pos(), shield_size)) {
+			return { this, *intersection };
 		} else {
 			return { nullptr, { NAN, NAN } };
 		}
