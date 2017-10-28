@@ -31,7 +31,7 @@ void mark::unit::landing_pad::serialize(YAML::Emitter& out) const
 	out << Key << "type" << Value << unit::landing_pad::type_name;
 	this->serialize_base(out);
 	if (const auto ship = m_ship.lock()) {
-		out << Key << "ship_id" << Value << ship->id();
+		out << Key << "ship_id" << Value << reinterpret_cast<size_t>(this);
 	}
 	out << EndMap;
 }

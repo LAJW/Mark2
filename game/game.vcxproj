@@ -215,7 +215,6 @@
     <ClInclude Include="exception.h" />
     <ClInclude Include="interface_damageable.h" />
     <ClInclude Include="interface_has_bindings.h" />
-    <ClInclude Include="interface_serializable.h" />
     <ClInclude Include="lfo.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="model_animated.h" />

@@ -311,7 +311,7 @@ void mark::world::serialize(YAML::Emitter& out) const {
 
 	const auto camera_target = m_camera_target.lock();
 	if (camera_target) {
-		out << Key << "camera_target_id" << Value << camera_target->id();
+		out << Key << "camera_target_id" << Value << reinterpret_cast<size_t>(camera_target.get());
 	}
 
 	out << Key << "camera" << Value << BeginMap;

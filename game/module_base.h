@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
 #include "interface_damageable.h"
-#include "interface_serializable.h"
 
 namespace sf {
 	class Color;
@@ -66,10 +65,12 @@ private:
 
 class base:
 	public base_ref,
-	public interface::damageable,
-	public interface::serializable {
+	public interface::damageable {
 public:
+	virtual void serialize(YAML::Emitter&) const = 0;
+
 	static constexpr auto max_heat = 100.f;
+
 	virtual ~base();
 
 	virtual void tick(tick_context& context);

@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "interface_serializable.h"
 #include "interface_damageable.h"
 #include "property.h"
 
@@ -33,7 +32,6 @@ private:
 
 class base:
 	public base_ref,
-	public interface::serializable,
 	public std::enable_shared_from_this<unit::base> {
 public:
 	virtual ~base() = default;
@@ -46,6 +44,7 @@ public:
 	virtual void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
+	virtual void serialize(YAML::Emitter&) const = 0;
 
 	Property<int> team = 0;
 	Property<vector<double>> pos;

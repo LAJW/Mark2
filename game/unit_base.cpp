@@ -25,7 +25,7 @@ void mark::unit::base::resolve_ref(
 
 void mark::unit::base::serialize_base(YAML::Emitter& out) const {
 	using namespace YAML;
-	out << Key << "id" << Value << this->id();
+	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
 	out << Key << "team" << Value << this->team();
 	out << Key << "pos" << Value << BeginMap;
 	out << Key << "x" << Value << pos().x;

@@ -731,7 +731,7 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const {
 	for (const auto& pair : m_bindings) {
 		out << BeginMap;
 		out << Key << "key" << Value << static_cast<int>(pair.first);
-		out << Key << "module_id" << pair.second.get().id();
+		out << Key << "module_id" << reinterpret_cast<size_t>(&pair.second.get());
 		out << EndMap;
 	}
 	out << EndSeq;
