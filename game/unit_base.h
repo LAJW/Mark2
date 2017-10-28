@@ -35,6 +35,7 @@ class base:
 	public std::enable_shared_from_this<unit::base> {
 public:
 	virtual ~base() = default;
+	virtual void serialize(YAML::Emitter&) const;
 	virtual void tick(tick_context& context) = 0;
 	virtual void command(const command&) { };
 	virtual auto dead() const -> bool = 0;
@@ -44,14 +45,12 @@ public:
 	virtual void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
-	virtual void serialize(YAML::Emitter&) const = 0;
 
 	Property<int> team = 0;
 	Property<vector<double>> pos;
 protected:
 	base(mark::world& world, vector<double> pos);
 	base(mark::world& world, const YAML::Node&);
-	void serialize_base(YAML::Emitter&) const;
 };
 }
 }

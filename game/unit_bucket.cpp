@@ -72,7 +72,7 @@ void mark::unit::bucket::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::bucket::type_name;
-	this->serialize_base(out);
+	base::serialize(out);
 
 	out << Key << "module" << Value;
 	m_module->serialize(out);

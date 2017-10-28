@@ -56,7 +56,7 @@ void mark::module::battery::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	this->serialize_base(out);
+	base::serialize(out);
 	out << Key << "max_energy" << Value << m_max_energy;
 	out << Key << "cur_energy" << Value << m_cur_energy;
 	out << EndMap;

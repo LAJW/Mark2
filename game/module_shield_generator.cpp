@@ -89,7 +89,7 @@ void mark::module::shield_generator::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	this->serialize_base(out);
+	base::serialize(out);
 	out << Key << "cur_shield" << Value << m_cur_shield;
 	out << Key << "max_shield" << Value << m_max_shield;
 	out << EndMap;

@@ -109,7 +109,7 @@ void mark::module::cannon::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	this->serialize_base(out);
+	base_turret::serialize(out);
 	out << EndMap;
 }
 

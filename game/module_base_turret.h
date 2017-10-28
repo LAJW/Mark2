@@ -24,7 +24,7 @@ protected:
 	void tick();
 	auto shoot() const -> bool;
 	auto target() const -> std::optional<vector<double>>;
-	void serialize_base(YAML::Emitter&) const;
+	void serialize(YAML::Emitter&) const;
 private:
 	using target_type = std::pair<bool, vector<double>>;
 	using queue_type = std::deque<

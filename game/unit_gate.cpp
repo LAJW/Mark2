@@ -46,6 +46,6 @@ void mark::unit::gate::serialize(YAML::Emitter& out) const {
 	out << BeginMap;
 	out << Key << "type" << Value << unit::gate::type_name;
 	out << Key << "inverted" << Value << m_inverted;
-	this->serialize_base(out);
+	base::serialize(out);
 	out << EndMap;
 }

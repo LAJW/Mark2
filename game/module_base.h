@@ -55,7 +55,7 @@ protected:
 	base_ref(const YAML::Node& node);
 	auto parent() const -> const unit::modular&;
 	auto parent() -> unit::modular&;
-	void serialize_base(YAML::Emitter& out) const;
+	void serialize(YAML::Emitter& out) const;
 	// Position on the grid
 	~base_ref()=default;
 private:
@@ -67,7 +67,7 @@ class base:
 	public base_ref,
 	public interface::damageable {
 public:
-	virtual void serialize(YAML::Emitter&) const = 0;
+	virtual void serialize(YAML::Emitter&) const;
 
 	static constexpr auto max_heat = 100.f;
 
@@ -138,7 +138,6 @@ protected:
 
 	auto heat_color() const -> sf::Color;
 	// serialize module::base properties, call only from module serializers
-	void serialize_base(YAML::Emitter&) const;
 
 	// Get parent rotation (reduces compile time)
 	float parent_rotation() const;

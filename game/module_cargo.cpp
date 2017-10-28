@@ -41,7 +41,7 @@ void mark::module::cargo::serialize(YAML::Emitter& out) const
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
 
-	this->serialize_base(out);
+	base::serialize(out);
 
 	out << Key << "contents" << Value << BeginSeq;
 	for (size_t i = 0, size = m_modules.size(); i < size; i++) {

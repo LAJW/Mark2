@@ -153,7 +153,7 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::projectile::type_name;
-	this->serialize_base(out);
+	base::serialize(out);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "velocity" << Value << m_velocity;
 	out << Key << "seek_radius" << Value << m_seek_radius;
