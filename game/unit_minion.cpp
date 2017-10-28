@@ -94,15 +94,14 @@ auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool
 }
 
 auto mark::unit::minion::collide(const segment_t& ray) ->
-	std::pair<interface::damageable *, vector<double>> {
-
+	std::optional<std::pair<interface::damageable*, vector<double>>>
+{
 	const auto ship_radius = 58.f;
 	const auto intersection = intersect(ray, pos(), ship_radius);
 	if (!std::isnan(intersection.x)) {
-		return { this, intersection };
-	} else {
-		return { nullptr, { NAN, NAN } };
+		return std::make_pair(this, intersection);
 	}
+	return { };
 }
 
 auto mark::unit::minion::collide(vector<double> center, float radius) ->
@@ -111,9 +110,8 @@ auto mark::unit::minion::collide(vector<double> center, float radius) ->
 	const auto ship_radius = 58.f;
 	if (length(pos() - center) <= ship_radius + radius) {
 		return { *this };
-	} else {
-		return { };
 	}
+	return { };
 }
 
 void mark::unit::minion::on_death(tick_context & context) {

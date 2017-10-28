@@ -539,9 +539,9 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr) {
 }
 
 auto mark::unit::modular::collide(const segment_t& ray)
-	-> std::pair<interface::damageable*, vector<double>>
+	-> std::optional<std::pair<interface::damageable*, vector<double>>>
 {
-	auto min = vector<double>(NAN, NAN);
+	std::optional<vector<double>> min;
 	double min_length = INFINITY;
 	interface::damageable* damageable = nullptr;
 	for (auto& module : m_modules) {
@@ -553,8 +553,10 @@ auto mark::unit::modular::collide(const segment_t& ray)
 				min = result.second;
 				damageable = result.first;
 			}
-
 		}
+	}
+	if (!min) {
+		return { };
 	}
 	// check if module is under the shield
 	std::vector<std::reference_wrapper<module::shield_generator>> shields;
@@ -568,11 +570,11 @@ auto mark::unit::modular::collide(const segment_t& ray)
 	for (auto shield : shields) {
 		const auto shield_pos = shield.get().pos();
 		const auto shield_size = 64.f;
-		if (length(min - shield_pos) < shield_size - 1.f) {
-			return { nullptr, { NAN, NAN } };
+		if (length(*min - shield_pos) < shield_size - 1.f) {
+			return { };
 		}
 	}
-	return { damageable, min };
+	return std::make_pair(damageable, *min);
 }
 
 auto mark::unit::modular::collide(vector<double> center, float radius)

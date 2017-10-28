@@ -212,10 +212,9 @@ auto mark::world::collide(const segment_t& ray) ->
 		: INFINITY;
 	interface::damageable* out = nullptr;
 	for (auto& unit_ : m_units) {
-		if (const auto unit
-			= dynamic_cast<unit::damageable*>(unit_.get())) {
-			auto[damageable, pos] = unit->collide(ray);;
-			if (damageable) {
+		if (const auto unit = dynamic_cast<unit::damageable*>(unit_.get())) {
+			if (const auto result = unit->collide(ray)) {
+				auto[damageable, pos] = *result;
 				const auto length = mark::length(ray.first - pos);
 				if (length < min_length) {
 					min_length = length;
