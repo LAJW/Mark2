@@ -11,9 +11,9 @@ mark::module::base_turret::base_turret(
 	resource::manager & rm,
 	const YAML::Node & node)
 	: module::base(rm, node)
-	, m_target(vector<double>(
+	, m_target(std::make_pair(false, vector<double>(
 		node["target"]["x"].as<double>(),
-		node["target"]["y"].as<double>())) { }
+		node["target"]["y"].as<double>()))) { }
 
 auto target(
 	const mark::vector<double>& turret_pos,
@@ -27,7 +27,7 @@ auto target(
 			if (const auto modular
 				= std::dynamic_pointer_cast<unit::modular>(unit)) {
 				if (modular->at(round(offset / 16.))) {
-					return unit->pos() + offset;
+					return unit->pos() + rotate(offset, modular->rotation());
 				}
 			} else {
 				return { unit->pos() };
@@ -39,48 +39,66 @@ auto target(
 
 void mark::module::base_turret::tick_ai()
 {
-	std::optional<vector<double>> queued_target;
-	while (!m_queue.empty()
-		&& !(queued_target = ::target(this->pos(), m_queue.front()))) {
-		m_queue.pop_front();
-		m_shoot = false;
-	}
-	if (queued_target) {
-		m_target = *queued_target;
-		m_shoot = true;
-	} else {
-		m_shoot = m_shoot || false;
+	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+		while (!queue->empty() && !::target(this->pos(), queue->front())) {
+			queue->pop_front();
+		}
 	}
 }
 
 auto mark::module::base_turret::queued() const -> bool
-{ return !m_queue.empty(); }
+{
+	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+		return queue->empty();
+	}
+	return false;
+}
 
 auto mark::module::base_turret::shoot() const -> bool
-{ return m_shoot; }
+{
+	if (const auto pair = std::get_if<target_type>(&m_target)) {
+		return pair->first;
+	}
+	return !std::get<queue_type>(m_target).empty();
+}
 
-auto mark::module::base_turret::target() const -> vector<double>
-{ return m_target; }
+auto mark::module::base_turret::target() const -> std::optional<vector<double>>
+{
+	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+		if (queue->empty()) {
+			return { };
+		}
+		return ::target(this->pos(), queue->front());
+	}
+	return std::get<target_type>(m_target).second;
+}
 
 void mark::module::base_turret::serialize_base(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	base::serialize_base(out);
+	// TODO: This should serialise queue as well
 	out << Key << "target" << Value << BeginMap;
-	out << Key << "x" << m_target.x;
-	out << Key << "y" << m_target.y;
+	if (const auto target = this->target()) {
+		out << Key << "x" << target->x;
+		out << Key << "y" << target->y;
+	} else {
+		// TODO: This shouldn't be necessary
+		out << Key << "x" << 0;
+		out << Key << "y" << 0;
+	}
 	out << EndMap;
 }
 
 void mark::module::base_turret::target(vector<double> pos)
-{ m_target = pos; }
+{ 
+	if (const auto pair = std::get_if<target_type>(&m_target)) {
+		pair->second = pos;
+	}
+}
 
 void mark::module::base_turret::shoot(vector<double> pos, bool release)
-{
-	m_target = pos;
-	m_shoot = !release;
-	m_queue.clear();
-}
+{ m_target = std::make_pair(!release, pos); }
 
 void mark::module::base_turret::queue(vector<double> pos, bool)
 {
@@ -91,13 +109,16 @@ void mark::module::base_turret::queue(vector<double> pos, bool)
 			&& unit.team() != parent().team();
 	});
 	if (unit) {
+		if (!std::holds_alternative<queue_type>(m_target)) {
+			m_target = queue_type();
+		}
+		auto& queue = std::get<queue_type>(m_target);
 		if (const auto modular
 			= std::dynamic_pointer_cast<unit::modular>(unit)) {
-			const auto rel = rotate(pos - unit->pos(), modular->rotation());
-			m_queue.push_back({ unit, rel });
-		}
-		else {
-			m_queue.push_back({ unit, vector<double>() });
+			const auto rel = rotate(pos - unit->pos(), -modular->rotation());
+			queue.push_back({ unit, rel });
+		} else {
+			queue.push_back({ unit, vector<double>() });
 		}
 	}
 }

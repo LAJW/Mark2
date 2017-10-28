@@ -30,9 +30,9 @@ void mark::module::cannon::tick(tick_context& context) {
 	this->tick_ai();
 	if (m_angular_velocity == 0.f) {
 		m_rotation = rotation;
-	} else {
+	} else if (const auto target = this->target()) {
 		// TODO Respect angular velocity here
-		m_rotation = turn(target() - pos, m_rotation, m_angular_velocity, context.dt);
+		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (shoot()) {
 		std::unordered_set<interface::damageable*> damaged;
