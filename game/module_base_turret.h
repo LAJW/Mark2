@@ -25,8 +25,6 @@ protected:
 	// switching to manual control
 
 	// DEPRECATE during this commit
-	auto queued() const -> bool;
-
 	auto shoot() const -> bool;
 	auto target() const -> std::optional<vector<double>>;
 	void serialize_base(YAML::Emitter&) const;

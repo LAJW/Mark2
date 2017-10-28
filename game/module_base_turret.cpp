@@ -46,14 +46,6 @@ void mark::module::base_turret::tick_ai()
 	}
 }
 
-auto mark::module::base_turret::queued() const -> bool
-{
-	if (const auto queue = std::get_if<queue_type>(&m_target)) {
-		return queue->empty();
-	}
-	return false;
-}
-
 auto mark::module::base_turret::shoot() const -> bool
 {
 	if (const auto pair = std::get_if<target_type>(&m_target)) {
