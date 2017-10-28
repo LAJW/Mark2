@@ -32,7 +32,6 @@ namespace mark {
 			};
 			projectile(mark::world&, const YAML::Node&);
 			projectile(const projectile::info&);
-			void tick(tick_context& context) override;
 			auto dead() const -> bool override;
 			void serialize(YAML::Emitter&) const override;
 			void resolve_ref(
@@ -40,6 +39,8 @@ namespace mark {
 				const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
 		private:
 			projectile(const projectile::info&, bool);
+			void tick(tick_context& context) override;
+
 			std::shared_ptr<const resource::image> m_image;
 			std::shared_ptr<const resource::image> m_im_tail;
 			std::unordered_set<interface::damageable*> m_damaged;

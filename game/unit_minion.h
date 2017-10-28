@@ -14,7 +14,6 @@ public:
 	static constexpr const char* type_name = "unit_minion";
 
 	minion(mark::world& world, vector<double> pos);
-	void tick(tick_context& context) override;
 	auto dead() const -> bool override;
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const segment_t&) ->
@@ -23,6 +22,8 @@ public:
 		std::vector<std::reference_wrapper<interface::damageable>> override;
 	void on_death(tick_context& context) override;
 private:
+	void tick(tick_context& context) override;
+
 	model::animated m_model;
 	model::shield m_model_shield;
 	std::shared_ptr<const resource::image> m_image_explosion;

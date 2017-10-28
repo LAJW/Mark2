@@ -12,7 +12,7 @@ class manager;
 class image;
 }
 namespace module {
-class turret : public module::base_turret {
+class turret final : public module::base_turret {
 public:
 	static constexpr const char* type_name = "module_turret";
 
@@ -74,11 +74,12 @@ public:
 	};
 	turret(resource::manager&, const YAML::Node&);
 	turret(module::turret::info&);
-	void tick(tick_context& context) override;
 	auto describe() const -> std::string;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
+	void tick(tick_context& context) override;
+
 	std::shared_ptr<const resource::image> m_im_base;
 	std::shared_ptr<const resource::image> m_im_cannon;
 	adsr       m_adsr;

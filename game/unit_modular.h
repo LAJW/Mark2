@@ -53,10 +53,8 @@ public:
 	auto attached(const module::base&) const ->
 		std::vector<std::pair<std::reference_wrapper<const module::base>, unsigned>>;
 
-	void tick(tick_context& context) override;
 	inline auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;
-	void on_death(tick_context& context) override;
 	void activate(const std::shared_ptr<unit::base>& by) override;
 	auto containers() ->
 		std::vector<std::reference_wrapper<module::cargo>>;
@@ -82,6 +80,9 @@ public:
 	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;
 	void ai(bool);
 private:
+	void tick(tick_context& context) override;
+	void on_death(tick_context& context) override;
+
 	// Attach without checking structure of the ship
 	[[nodiscard]] auto p_attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)

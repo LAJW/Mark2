@@ -21,7 +21,6 @@ namespace mark {
 
 			landing_pad(mark::world& world, const YAML::Node&);
 			landing_pad(mark::world& world, vector<double> pos);
-			void tick(tick_context& context) override;
 			auto dead() const -> bool override { return false; };
 			void dock(unit::modular* ship);
 			void activate(
@@ -37,6 +36,8 @@ namespace mark {
 			auto ship() -> std::shared_ptr<unit::modular>;
 			auto ship() const -> std::shared_ptr<const unit::modular>;
 		private:
+			void tick(tick_context& context) override;
+
 			std::shared_ptr<const resource::image> m_image;
 			std::weak_ptr<unit::modular> m_ship;
 			vector<double> m_mousepos;

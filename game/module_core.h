@@ -10,18 +10,19 @@ class sprite;
 };
 
 namespace module {
-class core : public base {
+class core final : public base {
 public:
 	static constexpr const char* type_name = "module_core";
 
 	core(resource::manager&, const YAML::Node&);
 	core(resource::manager& resource_manager);
-	void tick(tick_context& context) override;
 	auto detachable() const -> bool;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
+	void tick(tick_context& context) override;
+
 	std::shared_ptr<const resource::image> m_image;
 };
 }

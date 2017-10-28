@@ -96,7 +96,7 @@ void mark::unit::modular::tick_modules(tick_context& context) {
 	for (auto& module : m_modules) {
 		// Module might be already dead, don't tick dead modules
 		if (!module->dead()) {
-			module->tick(context);
+			static_cast<module::base_ref&>(*module).tick(context);
 		}
 	}
 }

@@ -27,6 +27,8 @@ protected:
 	base_ref(mark::world&);
 	~base_ref() = default;
 private:
+	virtual void tick(tick_context& context) = 0;
+	virtual void on_death(tick_context&) { /* no-op */ };
 	std::reference_wrapper<mark::world> m_world;
 };
 
@@ -36,10 +38,8 @@ class base:
 public:
 	virtual ~base() = default;
 	virtual void serialize(YAML::Emitter&) const;
-	virtual void tick(tick_context& context) = 0;
 	virtual void command(const command&) { };
 	virtual auto dead() const -> bool = 0;
-	virtual void on_death(tick_context&) { /* no-op */ };
 	virtual void activate(const std::shared_ptr<unit::base>&) { /* no-op */ };
 	// Resolve references after deserializing
 	virtual void resolve_ref(

@@ -12,7 +12,7 @@ namespace resource {
 class manager;
 }
 namespace module {
-class cargo:
+class cargo final :
 	public module::base,
 	public interface::container {
 public:
@@ -21,7 +21,6 @@ public:
 	cargo(resource::manager&, const YAML::Node&);
 	cargo(resource::manager& manager);
 
-	void tick(tick_context& context) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)
 		-> std::error_code override;
@@ -45,6 +44,8 @@ public:
 	auto modules() -> std::vector<std::unique_ptr<module::base>>&;
 	auto modules() const -> const std::vector<std::unique_ptr<module::base>>&;
 private:
+	void tick(tick_context& context) override;
+
 	std::shared_ptr<const resource::image> m_grid_bg;
 	std::shared_ptr<const resource::image> m_im_body;
 	std::shared_ptr<const resource::image> m_im_light;

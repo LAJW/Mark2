@@ -14,12 +14,12 @@ public:
 
 	bucket(mark::world& world, const YAML::Node&);
 	bucket(mark::world& world, vector<double> pos, std::unique_ptr<module::base>);
-	void tick(tick_context& context) override;
 	auto dead() const -> bool override;
 	auto release() -> std::unique_ptr<module::base>;
 	void insert(std::unique_ptr<module::base>);
 	void serialize(YAML::Emitter& out) const override;
 private:
+	void tick(tick_context& context) override;
 	std::unique_ptr<module::base> m_module;
 	float m_direction = NAN;
 };

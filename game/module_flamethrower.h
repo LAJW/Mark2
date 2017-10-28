@@ -8,13 +8,12 @@ class manager;
 class image;
 }
 namespace module {
-class flamethrower : public module::base{
+class flamethrower final : public module::base {
 public:
 	static constexpr const char* type_name = "module_flamethrower";
 
 	flamethrower(resource::manager&, const YAML::Node&);
 	flamethrower(resource::manager& manager);
-	void tick(tick_context& context) override;
 	void shoot(vector<double> pos, bool release) override;
 	auto describe() const -> std::string override;
 	auto harvest_energy() -> float override;
@@ -23,6 +22,8 @@ public:
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;
 private:
+	void tick(tick_context& context) override;
+
 	std::shared_ptr<const resource::image> m_image_base;
 	bool m_shoot = false;
 };

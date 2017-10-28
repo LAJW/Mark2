@@ -59,6 +59,7 @@ protected:
 	// Position on the grid
 	~base_ref()=default;
 private:
+	virtual void tick(tick_context& context) = 0;
 	unit::modular* m_parent = nullptr;
 	vector<int8_t> m_grid_pos;
 };
@@ -72,8 +73,6 @@ public:
 	static constexpr auto max_heat = 100.f;
 
 	virtual ~base();
-
-	virtual void tick(tick_context& context);
 
 	// Module's position in the world
 	auto pos() const -> vector<double>;
@@ -137,6 +136,8 @@ protected:
 	base(resource::manager&, const YAML::Node&);
 	base(vector<unsigned> size,
 		const std::shared_ptr<const resource::image>& thumbnail);
+
+	virtual void tick(tick_context& context);
 
 	auto heat_color() const -> sf::Color;
 	// serialize module::base properties, call only from module serializers

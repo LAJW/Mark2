@@ -18,11 +18,11 @@ namespace mark {
 
 			gate(mark::world& world, const YAML::Node&);
 			gate(mark::world& world, vector<double> pos, bool inverted);
-			void tick(tick_context& context) override;
 			auto dead() const -> bool override { return false; };
 			void activate(const std::shared_ptr<unit::base>& by) override;
 			void serialize(YAML::Emitter&) const override;
 		private:
+			void tick(tick_context& context) override;
 			std::shared_ptr<const resource::image> m_image;
 			bool m_inverted;
 		};
