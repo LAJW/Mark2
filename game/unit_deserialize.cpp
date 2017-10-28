@@ -7,7 +7,7 @@
 #include "unit_landing_pad.h"
 #include "unit_gate.h"
 
-auto mark::unit::deserialize(
+auto mark::unit::deserialise(
 	world& world,
 	const YAML::Node& node) ->
 	std::shared_ptr<unit::base> {

@@ -18,7 +18,7 @@ public:
 	core(resource::manager& resource_manager);
 	auto detachable() const -> bool;
 	auto describe() const -> std::string override;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
 	void tick(tick_context& context) override;

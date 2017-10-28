@@ -9,7 +9,7 @@
 mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vector<int>>()) { }
 
-void mark::module::base_ref::serialize(YAML::Emitter& out) const {
+void mark::module::base_ref::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "grid_pos" << Value << BeginMap;
 	out << Key << "x" << m_grid_pos.x;
@@ -238,7 +238,7 @@ mark::module::base::base(resource::manager& rm, const YAML::Node& node):
 	m_size(node["size"].as<vector<unsigned>>()),
 	m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png"))) { }
 
-void mark::module::base::serialize(YAML::Emitter& out) const {
+void mark::module::base::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
 	out << Key << "cur_health" << Value << m_cur_health;
@@ -251,7 +251,7 @@ void mark::module::base::serialize(YAML::Emitter& out) const {
 	out << Value << "y" << m_size.y;
 	out << EndMap;
 
-	base_ref::serialize(out);
+	base_ref::serialise(out);
 
 	out << Key << "thumbnail" << Value << m_thumbnail->filename();
 }

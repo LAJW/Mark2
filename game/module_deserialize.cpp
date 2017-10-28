@@ -10,7 +10,7 @@
 #include "module_shield_generator.h"
 #include "module_turret.h"
 
-auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node) ->
+auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<module::base> {
 	const auto type = node["type"].as<std::string>();
 	if (type == module::battery::type_name) {

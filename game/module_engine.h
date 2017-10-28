@@ -17,7 +17,7 @@ public:
 	auto describe() const->std::string override;
 	auto global_modifiers() const->module::modifiers override;
 	void shoot(vector<double> pos, bool release) override;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;
 private:

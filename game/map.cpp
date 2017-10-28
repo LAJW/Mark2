@@ -554,7 +554,7 @@ auto mark::map::collide(segment_t segment_) const -> std::optional<vector<double
 	return { };
 }
 
-void mark::map::serialize(YAML::Emitter& out) const {
+void mark::map::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "map";

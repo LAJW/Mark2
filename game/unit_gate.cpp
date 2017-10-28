@@ -41,11 +41,11 @@ mark::unit::gate::gate(
 	, m_image(world.resource_manager().image("kappa.png"))
 	, m_inverted(node["inverted"].as<bool>(false)) { }
 
-void mark::unit::gate::serialize(YAML::Emitter& out) const {
+void mark::unit::gate::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::gate::type_name;
 	out << Key << "inverted" << Value << m_inverted;
-	base::serialize(out);
+	base::serialise(out);
 	out << EndMap;
 }

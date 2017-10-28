@@ -685,7 +685,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	for (const auto& module_node : node["modules"]) {
 		const auto module_pos = module_node["grid_pos"].as<vector<int>>();
 		const auto id = module_node["id"].as<uint64_t>();
-		auto module = module::deserialize(
+		auto module = module::deserialise(
 			world.resource_manager(), module_node);
 		if (this->p_attach(module_pos, module) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
@@ -702,16 +702,16 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	}
 }
 
-void mark::unit::modular::serialize(YAML::Emitter& out) const {
+void mark::unit::modular::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
-	base::serialize(out);
+	base::serialise(out);
 
 	out << Key << "type" << Value << unit::modular::type_name;
 
 	out << Key << "modules" << Value << BeginSeq;
 	for (const auto& module : m_modules) {
-		module->serialize(out);
+		module->serialise(out);
 	}
 	out << EndSeq;
 

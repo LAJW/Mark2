@@ -9,7 +9,7 @@
 
 mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node):
 	unit::base(world, node),
-	m_module(module::deserialize(world.resource_manager(), node["module"])) { }
+	m_module(module::deserialise(world.resource_manager(), node["module"])) { }
 
 mark::unit::bucket::bucket(mark::world& world, vector<double> pos, std::unique_ptr<module::base> module) :
 	unit::base(world, pos),
@@ -68,14 +68,14 @@ void mark::unit::bucket::insert(std::unique_ptr<module::base> module) {
 	m_module = std::move(module);
 }
 
-void mark::unit::bucket::serialize(YAML::Emitter& out) const {
+void mark::unit::bucket::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::bucket::type_name;
-	base::serialize(out);
+	base::serialise(out);
 
 	out << Key << "module" << Value;
-	m_module->serialize(out);
+	m_module->serialise(out);
 
 	out << EndMap;
 }

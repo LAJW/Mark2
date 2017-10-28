@@ -105,11 +105,11 @@ mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node):
 	m_im_ray(rm.image("ray.png")) { }
 
 
-void mark::module::cannon::serialize(YAML::Emitter& out) const {
+void mark::module::cannon::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base_turret::serialize(out);
+	base_turret::serialise(out);
 	out << EndMap;
 }
 

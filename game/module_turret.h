@@ -75,7 +75,7 @@ public:
 	turret(resource::manager&, const YAML::Node&);
 	turret(module::turret::info&);
 	auto describe() const -> std::string;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
 	void tick(tick_context& context) override;

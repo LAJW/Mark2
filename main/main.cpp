@@ -52,7 +52,7 @@ mark::renderer::render_info tick(
 void save_world(const mark::world& world, std::string filename)
 {
 	YAML::Emitter out;
-	world.serialize(out);
+	world.serialise(out);
 	std::ofstream state(filename);
 	state << out.c_str();
 }

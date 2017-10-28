@@ -27,7 +27,7 @@ namespace mark {
 				const std::shared_ptr<unit::base>& by)
 				override;
 			void command(const mark::command& command) override;
-			void serialize(YAML::Emitter&) const override;
+			void serialise(YAML::Emitter&) const override;
 			void resolve_ref(
 				const YAML::Node&,
 				const std::unordered_map<uint64_t,

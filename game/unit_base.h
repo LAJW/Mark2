@@ -12,7 +12,7 @@ struct tick_context;
 
 namespace unit {
 class base;
-auto deserialize(
+auto deserialise(
 	world& world,
 	const YAML::Node& node) ->
 	std::shared_ptr<unit::base>;
@@ -37,7 +37,7 @@ class base:
 	public std::enable_shared_from_this<unit::base> {
 public:
 	virtual ~base() = default;
-	virtual void serialize(YAML::Emitter&) const;
+	virtual void serialise(YAML::Emitter&) const;
 	virtual void command(const command&) { };
 	virtual auto dead() const -> bool = 0;
 	virtual void activate(const std::shared_ptr<unit::base>&) { /* no-op */ };

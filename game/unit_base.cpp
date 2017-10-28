@@ -23,7 +23,7 @@ void mark::unit::base::resolve_ref(
 	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>&)
 { /* no-op */ }
 
-void mark::unit::base::serialize(YAML::Emitter& out) const {
+void mark::unit::base::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
 	out << Key << "team" << Value << this->team();

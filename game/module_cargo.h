@@ -35,7 +35,7 @@ public:
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(tick_context& context) override;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 
 	// try to push element to the container

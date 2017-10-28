@@ -87,11 +87,11 @@ auto mark::module::shield_generator::shield() const noexcept -> float {
 	return m_cur_shield;
 }
 
-void mark::module::shield_generator::serialize(YAML::Emitter& out) const {
+void mark::module::shield_generator::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialize(out);
+	base::serialise(out);
 	out << Key << "cur_shield" << Value << m_cur_shield;
 	out << Key << "max_shield" << Value << m_max_shield;
 	out << EndMap;

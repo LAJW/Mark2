@@ -25,7 +25,7 @@ public:
 			std::reference_wrapper<interface::damageable>,
 			vector<double>>> override;
 	auto shield() const noexcept -> float;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 private:
 	void tick(tick_context& context) override;

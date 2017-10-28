@@ -64,10 +64,10 @@ auto mark::module::base_turret::target() const -> std::optional<vector<double>>
 	return std::get<target_type>(m_target).second;
 }
 
-void mark::module::base_turret::serialize(YAML::Emitter& out) const
+void mark::module::base_turret::serialise(YAML::Emitter& out) const
 {
 	using namespace YAML;
-	base::serialize(out);
+	base::serialise(out);
 	// TODO: This should serialise queue as well
 	out << Key << "target" << Value << BeginMap;
 	if (const auto target = this->target()) {

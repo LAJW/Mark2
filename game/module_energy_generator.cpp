@@ -50,11 +50,11 @@ mark::module::energy_generator::energy_generator(
 	m_max_energy(node["max_energy"].as<float>()),
 	m_energy_regen(node["energy_regen"].as<float>()) { }
 
-void mark::module::energy_generator::serialize(YAML::Emitter& out) const {
+void mark::module::energy_generator::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialize(out);
+	base::serialise(out);
 	out << Key << "max_energy" << Value << m_max_energy;
 	out << Key << "cur_energy" << Value << m_cur_energy;
 	out << Key << "energy_regen" << Value << m_energy_regen;

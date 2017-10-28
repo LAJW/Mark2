@@ -32,7 +32,7 @@ struct modifiers {
 
 class base;
 
-auto deserialize(resource::manager&, const YAML::Node&) ->
+auto deserialise(resource::manager&, const YAML::Node&) ->
 	std::unique_ptr<module::base>;
 
 enum class reserved_type {
@@ -55,7 +55,7 @@ protected:
 	base_ref(const YAML::Node& node);
 	auto parent() const -> const unit::modular&;
 	auto parent() -> unit::modular&;
-	void serialize(YAML::Emitter& out) const;
+	void serialise(YAML::Emitter& out) const;
 	// Position on the grid
 	~base_ref()=default;
 private:
@@ -68,7 +68,7 @@ class base:
 	public base_ref,
 	public interface::damageable {
 public:
-	virtual void serialize(YAML::Emitter&) const;
+	virtual void serialise(YAML::Emitter&) const;
 
 	static constexpr auto max_heat = 100.f;
 
@@ -140,7 +140,7 @@ protected:
 	virtual void tick(tick_context& context);
 
 	auto heat_color() const -> sf::Color;
-	// serialize module::base properties, call only from module serializers
+	// serialise module::base properties, call only from module serializers
 
 	// Get parent rotation (reduces compile time)
 	float parent_rotation() const;

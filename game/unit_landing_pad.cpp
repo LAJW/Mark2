@@ -24,12 +24,12 @@ mark::unit::landing_pad::landing_pad(
 	: unit::base(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
-void mark::unit::landing_pad::serialize(YAML::Emitter& out) const
+void mark::unit::landing_pad::serialise(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::landing_pad::type_name;
-	base::serialize(out);
+	base::serialise(out);
 	if (const auto ship = m_ship.lock()) {
 		out << Key << "ship_id" << Value << reinterpret_cast<size_t>(this);
 	}

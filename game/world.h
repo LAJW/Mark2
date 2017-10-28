@@ -89,7 +89,7 @@ public:
 	// go to the next map
 	void next();
 	void prev();
-	void serialize(YAML::Emitter& out) const;
+	void serialise(YAML::Emitter& out) const;
 
 	const std::shared_ptr<const resource::image> image_bar;
 	const std::shared_ptr<const resource::image> image_font;

@@ -34,11 +34,11 @@ auto mark::module::core::describe() const ->std::string {
 	return "Core Module";
 }
 
-void mark::module::core::serialize(YAML::Emitter& out) const {
+void mark::module::core::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialize(out);
+	base::serialise(out);
 	out << EndMap;
 }
 

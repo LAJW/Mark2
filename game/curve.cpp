@@ -2,7 +2,7 @@
 #include "curve.h"
 #include "exception.h"
 
-auto mark::curve::serialize(curve::ptr ptr) -> std::string {
+auto mark::curve::serialise(curve::ptr ptr) -> std::string {
 	if (ptr == curve::flat) {
 		return "flat";
 	} else if (ptr == curve::invert) {
@@ -16,7 +16,7 @@ auto mark::curve::serialize(curve::ptr ptr) -> std::string {
 	}
 }
 
-auto mark::curve::deserialize(const std::string& str) -> curve::ptr {
+auto mark::curve::deserialise(const std::string& str) -> curve::ptr {
 	if (str == "flat") {
 		return curve::flat;
 	} else if (str == "invert") {

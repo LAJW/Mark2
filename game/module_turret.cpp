@@ -155,7 +155,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	m_burst_delay(node["burst_delay"].as<float>()),
 	m_guided(node["guided"].as<bool>()),
 	m_cone(node["cone"].as<float>()),
-	m_cone_curve(curve::deserialize(node["cone_curve"].as<std::string>())),
+	m_cone_curve(curve::deserialise(node["cone_curve"].as<std::string>())),
 	m_heat_per_shot(node["heat_per_shot"].as<float>()),
 	m_critical_chance(node["critical_chance"].as<float>()),
 	m_critical_multiplier(node["critical_multiplier"].as<float>()),
@@ -169,22 +169,22 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	m_range(node["range"].as<float>()),
 	m_piercing(node["piercing"].as<size_t>()) { }
 
-void mark::module::turret::serialize(YAML::Emitter& out) const {
+void mark::module::turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base_turret::serialize(out);
+	base_turret::serialise(out);
 
 	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
 	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
-	out << Key << "rate_of_fire_curve" << Value << curve::serialize(m_rate_of_fire_curve);
+	out << Key << "rate_of_fire_curve" << Value << curve::serialise(m_rate_of_fire_curve);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "angular_velocity" << Value << m_angular_velocity;
 	out << Key << "projectile_count" << Value << static_cast<unsigned>(m_projectile_count);
 	out << Key << "burst_delay" << Value << m_burst_delay;
 	out << Key << "guided" << Value << m_guided;
 	out << Key << "cone" << Value << m_cone;
-	out << Key << "cone_curve" << Value << curve::serialize(m_cone_curve);
+	out << Key << "cone_curve" << Value << curve::serialise(m_cone_curve);
 	out << Key << "heat_per_shot" << Value << m_heat_per_shot;
 	out << Key << "critical_chance" << Value << m_critical_chance;
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;

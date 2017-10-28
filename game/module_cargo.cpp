@@ -29,19 +29,19 @@ mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
 {
 	for (const auto& slot_node : node["contents"]) {
 		const auto slot = slot_node["slot"].as<size_t>();
-		auto module = module::deserialize(rm, slot_node["item"]);
+		auto module = module::deserialise(rm, slot_node["item"]);
 		m_modules[slot] = std::move(module);
 	}
 }
 
 
-void mark::module::cargo::serialize(YAML::Emitter& out) const
+void mark::module::cargo::serialise(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
 
-	base::serialize(out);
+	base::serialise(out);
 
 	out << Key << "contents" << Value << BeginSeq;
 	for (size_t i = 0, size = m_modules.size(); i < size; i++) {
@@ -50,7 +50,7 @@ void mark::module::cargo::serialize(YAML::Emitter& out) const
 			out << BeginMap;
 			out << Key << "slot" << Value << i;
 			out << Key << "item" << Value;
-			module->serialize(out);
+			module->serialise(out);
 			out << EndMap;
 		}
 	}

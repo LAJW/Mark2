@@ -39,7 +39,7 @@ public:
 	auto collide(segment_t) const
 		-> std::optional<vector<double>>;
 
-	void serialize(YAML::Emitter&) const;
+	void serialise(YAML::Emitter&) const;
 
 	// Not a part of the public interface
 	struct Node {

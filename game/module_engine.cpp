@@ -40,11 +40,11 @@ mark::module::engine::engine(resource::manager& rm, const YAML::Node& node):
 	module::base(rm, node),
 	m_image_base(rm.image("engine.png")) { }
 
-void mark::module::engine::serialize(YAML::Emitter& out) const {
+void mark::module::engine::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialize(out);
+	base::serialise(out);
 	out << EndMap;
 }
 

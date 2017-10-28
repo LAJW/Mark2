@@ -18,7 +18,7 @@ public:
 	auto describe() const -> std::string override;
 	auto harvest_energy() -> float override;
 	auto energy_ratio() const -> float override;
-	void serialize(YAML::Emitter&) const override;
+	void serialise(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;
 private:

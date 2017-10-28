@@ -74,7 +74,7 @@ public:
 	// Get vector of commands controlling this module
 	auto binding(vector<int> pos) const
 		-> std::vector<enum class command::type>;
-	void serialize(YAML::Emitter&) const;
+	void serialise(YAML::Emitter&) const;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
 	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;

@@ -67,7 +67,7 @@ mark::world::world(
 				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
 				mark::command command;
 				command.type = command::type::ai;
-				m_units.push_back(unit::deserialize(*this, templates.at("ship")));
+				m_units.push_back(unit::deserialise(*this, templates.at("ship")));
 				m_units.back()->pos(pos);
 				m_units.back()->command(command);
 			}
@@ -75,7 +75,7 @@ mark::world::world(
 	}
 	if (inital) {
 		auto vessel = std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialize(*this, templates.at("ship")));
+			unit::deserialise(*this, templates.at("ship")));
 		vessel->ai(false);
 		mark::command command;
 		command.release = true;
@@ -280,7 +280,7 @@ mark::world::world(
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
 	for (const auto& unit_node : node["units"]) {
-		m_units.push_back(unit::deserialize(*this, unit_node));
+		m_units.push_back(unit::deserialise(*this, unit_node));
 		const auto unit_id = unit_node["id"].as<uint64_t>();
 		unit_map.emplace(unit_id, m_units.back());
 	}
@@ -299,7 +299,7 @@ void mark::world::next() {
 void mark::world::prev()
 { m_stack.prev(); }
 
-void mark::world::serialize(YAML::Emitter& out) const {
+void mark::world::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 
@@ -317,12 +317,12 @@ void mark::world::serialize(YAML::Emitter& out) const {
 
 	out << Key << "units" << Value << BeginSeq;
 	for (const auto& unit : m_units) {
-		unit->serialize(out);
+		unit->serialise(out);
 	}
 	out << EndSeq;
 
 	out << Key << "map" << Value;
-	m_map.serialize(out);
+	m_map.serialise(out);
 
 	out << EndMap;
 }
