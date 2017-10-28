@@ -101,7 +101,9 @@ public:
 
 	// Find collision point, return pointer to damaged module
 	virtual auto collide(const segment_t&) ->
-		std::pair<interface::damageable*, vector<double>>;
+		std::optional<std::pair<
+			std::reference_wrapper<interface::damageable>,
+			vector<double>>>;
 
 	// UI text describing module's properties
 	virtual auto describe() const -> std::string = 0;

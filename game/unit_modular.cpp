@@ -545,13 +545,12 @@ auto mark::unit::modular::collide(const segment_t& ray)
 	double min_length = INFINITY;
 	interface::damageable* damageable = nullptr;
 	for (auto& module : m_modules) {
-		auto result = module->collide(ray);
-		if (result.first) {
-			const auto length = mark::length(ray.first - result.second);
+		if (const auto result = module->collide(ray)) {
+			const auto length = mark::length(ray.first - result->second);
 			if (length < min_length) {
 				min_length = length;
-				min = result.second;
-				damageable = result.first;
+				min = result->second;
+				damageable = &result->first.get();
 			}
 		}
 	}

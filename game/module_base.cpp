@@ -116,7 +116,8 @@ void mark::module::base::tick(tick_context & context) {
 }
 
 auto mark::module::base::collide(const segment_t& ray) ->
-	std::pair<interface::damageable*, vector<double>> {
+	std::optional<std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
+{
 	const auto size = this->size();
 	// half width
 	const auto hw = static_cast<double>(size.x) / 2.0 * module::size;
@@ -130,8 +131,8 @@ auto mark::module::base::collide(const segment_t& ray) ->
 		segment_t{ { hw, hh },   { hw, -hh } },  // right
 		segment_t{ { hw, -hh },  { -hw, -hh } }  // side
 	};
-	auto min = vector<double>(NAN, NAN);
-	double min_length = 40000.0;
+	std::optional<vector<double>> min;
+	double min_length = INFINITY;
 	for (const auto& raw : segments) {
 		const auto segment = std::make_pair(
 			rotate(raw.first, rotation) + pos,
@@ -145,11 +146,10 @@ auto mark::module::base::collide(const segment_t& ray) ->
 			}
 		}
 	}
-	if (!std::isnan(min.x)) {
-		return { this, min };
-	} else {
-		return { nullptr, min };
+	if (min) {
+		return { { std::ref(static_cast<interface::damageable&>(*this)), *min } };
 	}
+	return { };
 }
 
 auto mark::module::base::neighbours()

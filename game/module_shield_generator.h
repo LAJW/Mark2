@@ -21,8 +21,10 @@ public:
 	void tick(tick_context& context) override;
 	bool damage(const interface::damageable::info&) override;
 	auto describe() const->std::string;
-	virtual auto collide(const segment_t&) ->
-		std::pair<interface::damageable*, vector<double>> override;
+	auto collide(const segment_t&) ->
+		std::optional<std::pair<
+			std::reference_wrapper<interface::damageable>,
+			vector<double>>> override;
 	auto shield() const noexcept -> float;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

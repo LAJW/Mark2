@@ -67,17 +67,20 @@ auto mark::module::shield_generator::describe() const -> std::string {
 }
 
 auto mark::module::shield_generator::collide(const segment_t& ray) ->
-	std::pair<interface::damageable*, vector<double>> {
+	std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>>
+{
 	if (m_cur_shield > 0.f) {
 		const auto shield_size = 64.f;
 		if (const auto intersection = intersect(ray, pos(), shield_size)) {
-			return { this, *intersection };
-		} else {
-			return { nullptr, { NAN, NAN } };
+			return { {
+				std::ref(static_cast<interface::damageable&>(*this)),
+				*intersection } };
 		}
-	} else {
-		return module::base::collide(ray);
+		return { };
 	}
+	return module::base::collide(ray);
 }
 
 auto mark::module::shield_generator::shield() const noexcept -> float {
