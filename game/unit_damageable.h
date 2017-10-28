@@ -11,7 +11,9 @@ class damageable:
 	public interface::damageable {
 public:
 	virtual auto collide(const segment_t&) ->
-		std::optional<std::pair<interface::damageable*, vector<double>>> = 0;
+		std::optional<std::pair<
+			std::reference_wrapper<interface::damageable>,
+			vector<double>>> = 0;
 	virtual auto collide(vector<double> center, float radius) ->
 		std::vector<std::reference_wrapper<interface::damageable>> = 0;
 protected:

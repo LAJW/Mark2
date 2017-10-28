@@ -94,11 +94,13 @@ auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool
 }
 
 auto mark::unit::minion::collide(const segment_t& ray) ->
-	std::optional<std::pair<interface::damageable*, vector<double>>>
+	std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>>
 {
 	const auto ship_radius = 58.f;
 	if (const auto intersection = intersect(ray, pos(), ship_radius)) {
-		return { { this, *intersection} };
+		return { { *this, *intersection} };
 	}
 	return { };
 }

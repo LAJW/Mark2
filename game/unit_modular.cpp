@@ -539,7 +539,9 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr) {
 }
 
 auto mark::unit::modular::collide(const segment_t& ray)
-	-> std::optional<std::pair<interface::damageable*, vector<double>>>
+	-> std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>>
 {
 	std::optional<vector<double>> min;
 	double min_length = INFINITY;
@@ -560,8 +562,7 @@ auto mark::unit::modular::collide(const segment_t& ray)
 	// check if module is under the shield
 	std::vector<std::reference_wrapper<module::shield_generator>> shields;
 	for (auto& module : m_modules) {
-		const auto shield
-			= dynamic_cast<module::shield_generator*>(module.get());
+		const auto shield = dynamic_cast<module::shield_generator*>(module.get());
 		if (shield && shield->shield() > 0.f) {
 			shields.push_back(*shield);
 		}
@@ -573,7 +574,7 @@ auto mark::unit::modular::collide(const segment_t& ray)
 			return { };
 		}
 	}
-	return std::make_pair(damageable, *min);
+	return { { std::ref(*damageable), *min } };
 }
 
 auto mark::unit::modular::collide(vector<double> center, float radius)
@@ -607,11 +608,10 @@ auto mark::unit::modular::collide(vector<double> center, float radius)
 	}
 	std::vector<std::reference_wrapper<interface::damageable>> tmp;
 	std::transform(
-		out.begin(),
-		out.end(),
+		out.cbegin(),
+		out.cend(),
 		std::back_inserter(tmp),
-		[](auto module) { return std::ref(*module); }
-	);
+		[](const auto ptr) { return std::ref(*ptr); });
 	return tmp;
 }
 

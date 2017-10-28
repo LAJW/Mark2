@@ -219,7 +219,7 @@ auto mark::world::collide(const segment_t& ray) ->
 				if (length < min_length) {
 					min_length = length;
 					maybe_min = pos;
-					out = damageable;
+					out = &damageable.get();
 				}
 			}
 

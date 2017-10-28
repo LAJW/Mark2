@@ -64,7 +64,9 @@ public:
 		std::vector<std::reference_wrapper<const module::cargo>>;
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const segment_t&) ->
-		std::optional<std::pair<interface::damageable*, vector<double>>> override;
+		std::optional<std::pair<
+			std::reference_wrapper<interface::damageable>,
+			vector<double>>> override;
 	auto collide(vector<double> center, float radius) ->
 		std::vector<std::reference_wrapper<interface::damageable>> override;
 	auto lookat() const noexcept -> vector<double>;
