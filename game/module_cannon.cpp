@@ -26,12 +26,10 @@ void mark::module::cannon::tick(tick_context& context) {
 		rotation,
 		this->heat_color()));
 	auto& world = parent().world();
-	tick_context::bar_info bar;
-	this->tick_ai();
+	base_turret::tick();
 	if (m_angular_velocity == 0.f) {
 		m_rotation = rotation;
 	} else if (const auto target = this->target()) {
-		// TODO Respect angular velocity here
 		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (shoot()) {

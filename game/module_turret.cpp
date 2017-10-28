@@ -51,7 +51,7 @@ void mark::module::turret::tick(tick_context& context) {
 	m_adsr.tick(context.dt);
 	auto pos = this->pos();
 
-	this->tick_ai();
+	base_turret::tick();
 	if (const auto target = this->target()) {
 		*m_shared_target = *target;
 	}

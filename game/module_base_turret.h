@@ -21,11 +21,7 @@ protected:
 		const std::shared_ptr<const resource::image>& image);
 	base_turret(resource::manager&, const YAML::Node& node);
 
-	void tick_ai();
-	// Returns true if there are objects still to be destroyed before
-	// switching to manual control
-
-	// DEPRECATE during this commit
+	void tick();
 	auto shoot() const -> bool;
 	auto target() const -> std::optional<vector<double>>;
 	void serialize_base(YAML::Emitter&) const;

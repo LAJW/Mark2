@@ -29,15 +29,14 @@ auto target(
 				if (modular->at(round(offset / 16.))) {
 					return unit->pos() + rotate(offset, modular->rotation());
 				}
-			} else {
-				return { unit->pos() };
 			}
+			return unit->pos();
 		}
 	}
 	return { };
 }
 
-void mark::module::base_turret::tick_ai()
+void mark::module::base_turret::tick()
 {
 	if (const auto queue = std::get_if<queue_type>(&m_target)) {
 		while (!queue->empty() && !::target(this->pos(), queue->front())) {
@@ -107,10 +106,10 @@ void mark::module::base_turret::queue(vector<double> pos, bool)
 		auto& queue = std::get<queue_type>(m_target);
 		if (const auto modular
 			= std::dynamic_pointer_cast<unit::modular>(unit)) {
-			const auto rel = rotate(pos - unit->pos(), -modular->rotation());
-			queue.push_back({ unit, rel });
+			const auto offset = rotate(pos - unit->pos(), -modular->rotation());
+			queue.push_back({ unit, offset });
 		} else {
-			queue.push_back({ unit, vector<double>() });
+			queue.push_back({ unit, { } });
 		}
 	}
 }
