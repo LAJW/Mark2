@@ -52,6 +52,7 @@ void mark::module::turret::tick(tick_context& context) {
 	auto pos = this->pos();
 
 	this->tick_ai();
+	*m_shared_target = target();
 
 	if (m_angular_velocity == 0.f) {
 		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
@@ -61,17 +62,17 @@ void mark::module::turret::tick(tick_context& context) {
 		}
 	} else {
 		m_rotation = turn(
-			*m_target - pos, m_rotation, m_angular_velocity, context.dt);
+			target() - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (m_shoot) {
+	} else if (shoot()) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
 		unit::projectile::info info;
 		info.world = &parent().world();
 		if (m_guided) {
-			info.guide = m_target;
+			info.guide = m_shared_target;
 		}
 		for (const auto i : range(m_projectile_count)) {
 			info.pos = pos;

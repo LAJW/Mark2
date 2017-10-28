@@ -22,15 +22,16 @@ protected:
 	void tick_ai();
 	// Returns true if there are objects still to be destroyed before
 	// switching to manual control
-	bool queued();
-
-	std::shared_ptr<vector<double>> m_target;
-	bool m_shoot = false;
+	auto queued() const -> bool;
+	auto shoot() const -> bool;
+	auto target() const -> vector<double>;
 	void serialize_base(YAML::Emitter&) const;
 private:
+	vector<double> m_target;
 	std::deque<
 		std::pair<
 			std::weak_ptr<unit::base>,
 			vector<double>>> m_queue;
+	bool m_shoot = false;
 };
 } }

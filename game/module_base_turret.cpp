@@ -6,13 +6,12 @@
 mark::module::base_turret::base_turret(
 	vector<unsigned> size,
 	const std::shared_ptr<const resource::image>& image)
-	: module::base(size, image)
-	, m_target(std::make_shared<vector<double>>(0., 0.)) { }
+	: module::base(size, image) { }
 mark::module::base_turret::base_turret(
 	resource::manager & rm,
 	const YAML::Node & node)
 	: module::base(rm, node)
-	, m_target(std::make_shared<vector<double>>(
+	, m_target(vector<double>(
 		node["target"]["x"].as<double>(),
 		node["target"]["y"].as<double>())) { }
 
@@ -47,34 +46,38 @@ void mark::module::base_turret::tick_ai()
 		m_shoot = false;
 	}
 	if (queued_target) {
-		*m_target = *queued_target;
+		m_target = *queued_target;
 		m_shoot = true;
 	} else {
 		m_shoot = m_shoot || false;
 	}
 }
 
-bool mark::module::base_turret::queued()
-{
-	return !m_queue.empty();
-}
+auto mark::module::base_turret::queued() const -> bool
+{ return !m_queue.empty(); }
+
+auto mark::module::base_turret::shoot() const -> bool
+{ return m_shoot; }
+
+auto mark::module::base_turret::target() const -> vector<double>
+{ return m_target; }
 
 void mark::module::base_turret::serialize_base(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	base::serialize_base(out);
 	out << Key << "target" << Value << BeginMap;
-	out << Key << "x" << m_target->x;
-	out << Key << "y" << m_target->y;
+	out << Key << "x" << m_target.x;
+	out << Key << "y" << m_target.y;
 	out << EndMap;
 }
 
 void mark::module::base_turret::target(vector<double> pos)
-{ *m_target = pos; }
+{ m_target = pos; }
 
 void mark::module::base_turret::shoot(vector<double> pos, bool release)
 {
-	*m_target = pos;
+	m_target = pos;
 	m_shoot = !release;
 	m_queue.clear();
 }
