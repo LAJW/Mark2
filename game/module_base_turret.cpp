@@ -93,11 +93,9 @@ void mark::module::base_turret::shoot(vector<double> pos, bool release)
 
 void mark::module::base_turret::queue(vector<double> pos, bool)
 {
-	auto unit = parent().world().find_one(
+	auto unit = parent().world().find_one<unit::damageable>(
 		pos, 100.f, [this](const unit::base& unit) {
-		return !unit.dead()
-			&& dynamic_cast<const interface::damageable*>(&unit)
-			&& unit.team() != parent().team();
+		return !unit.dead() && unit.team() != parent().team();
 	});
 	if (unit) {
 		if (!std::holds_alternative<queue_type>(m_target)) {

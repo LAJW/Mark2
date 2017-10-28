@@ -47,12 +47,9 @@ void mark::unit::projectile::tick(tick_context& context) {
 			m_rotation = turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
 	} else if (m_seek_radius >= 0.f) {
-		auto target = world().find_one(
-			pos(),
-			m_seek_radius,
-			[this](const unit::base& unit) {
-			return unit.team() != this->team()
-				&& dynamic_cast<const interface::damageable*> (&unit);
+		auto target = world().find_one<unit::damageable>(
+			pos(), m_seek_radius, [this](const unit::base& unit) {
+			return unit.team() != this->team();
 		});
 		if (target) {
 			m_rotation = turn(target->pos() - pos(), m_rotation, turn_speed, dt);

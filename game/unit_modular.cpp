@@ -150,10 +150,9 @@ void mark::unit::modular::tick_movement(
 		m_velocity = 0.0;
 	}
 	if (m_ai) {
-		const auto allies = world().find(
+		const auto allies = world().find<modular>(
 			pos(), radius * 2, [this](const auto& unit) {
-			return unit.team() == this->team()
-				&& dynamic_cast<const modular*>(&unit);
+			return unit.team() == this->team();
 		});
 		for (const auto& ally : allies) {
 			if (length(pos() + step - ally->pos())
@@ -179,12 +178,11 @@ void mark::unit::modular::tick_movement(
 }
 
 void mark::unit::modular::tick_ai() {
-	auto enemy = world().find_one(
+	auto enemy = world().find_one<unit::damageable>(
 		pos(),
 		1000.f,
 		[this](const auto& unit) {
-		return unit.team() != this->team()
-			&& dynamic_cast<const interface::damageable*>(&unit);
+		return unit.team() != this->team();
 	});
 	if (enemy) {
 		m_moveto = enemy->pos();
@@ -818,23 +816,19 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 
 void mark::unit::modular::pick_up(tick_context&)
 {
-	auto units = world().find(pos(), 150.f, [](const auto& unit) {
-		return !unit.dead();
-	});
+	auto buckets = world().find<unit::bucket>(
+		pos(), 150.f, [](const auto& unit) { return !unit.dead(); });
 	auto containers = this->containers();
-	for (auto& unit : units) {
-		const auto bucket = std::dynamic_pointer_cast<unit::bucket>(unit);
-		if (bucket) {
-			auto module = bucket->release();
-			for (auto& container : containers) {
-				if (container.get().push(module)
-					== error::code::success) {
-					break;
-				}
+	for (auto& bucket : buckets) {
+		auto module = bucket->release();
+		for (auto& container : containers) {
+			if (container.get().push(module)
+				== error::code::success) {
+				break;
 			}
-			if (module) {
-				bucket->insert(std::move(module));
-			}
+		}
+		if (module) {
+			bucket->insert(std::move(module));
 		}
 	}
 }

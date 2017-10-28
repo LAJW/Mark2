@@ -33,18 +33,45 @@ public:
 	void tick(tick_context&, vector<double> screen_size);
 	auto map() const -> const map&;
 	auto camera() const -> vector<double> { return m_camera; }
-	auto find(vector<double> pos, double radius)
-		-> std::vector<std::shared_ptr<unit::base>>;
+
+	template<typename unit_type = unit::base>
 	auto find(
-		vector<double> pos,
-		double radius,
-		const std::function<bool(const unit::base&)>& pred)
-		-> std::vector<std::shared_ptr<unit::base>>;
+		const vector<double>& pos,
+		const double radius,
+		const std::function<bool(const unit::base&)>& pred
+			= [](const auto&) { return true; })
+		-> std::vector<std::shared_ptr<unit_type>>
+	{
+		std::vector<std::shared_ptr<unit_type>> out;
+		for (auto& unit : m_units) {
+			if (length(unit->pos() - pos) < radius && pred(*unit)) {
+				if (const auto derived
+					= std::dynamic_pointer_cast<unit_type>(unit)) {
+					out.push_back(std::move(derived));
+				}
+			}
+		}
+		return out;
+	}
+
+	template<typename unit_type = unit::base>
 	auto find_one(
-		vector<double> pos,
-		double radius,
-		const std::function<bool(const unit::base&)>& pred)
-		-> std::shared_ptr<unit::base>;
+		const vector<double>& pos,
+		const double radius,
+		const std::function<bool(const unit::base&)>& pred
+			= [](const auto&) { return true; })
+		-> std::shared_ptr<unit_type>
+	{
+		for (auto& unit : m_units) {
+			if (length(unit->pos() - pos) < radius && pred(*unit)) {
+				if (const auto derived
+					= std::dynamic_pointer_cast<unit_type>(unit)) {
+					return derived;
+				}
+			}
+		}
+		return nullptr;
+	}
 	void command(const command& command);
 	// set target for commmands
 	void target(const std::shared_ptr<unit::base>& target);

@@ -51,11 +51,10 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 void mark::unit::landing_pad::dock(unit::modular* ship)
 {
 	if (ship) {
-		auto ship_ptr = std::dynamic_pointer_cast<unit::modular>(
-			world().find_one(pos(), 500.0,
-			[ship](const unit::base& unit) {
+		auto ship_ptr = world().find_one<unit::modular>(
+			pos(), 500.0, [ship](const unit::base& unit) {
 				return &unit == ship;
-		}));
+		});
 		m_ship = ship_ptr;
 	} else {
 		m_ship.reset();

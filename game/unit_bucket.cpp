@@ -25,10 +25,8 @@ void mark::unit::bucket::tick(tick_context& context) {
 		return;
 	}
 	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * module::size;
-	const auto nearby_buckets = world().find(
-		pos(), size, [this](const unit::base& unit) {
-		return &unit != this && dynamic_cast<const unit::bucket*>(&unit);
-	});
+	const auto nearby_buckets = world().find<unit::bucket>(
+		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
 		vector<double> diff;
 		for (const auto& bucket : nearby_buckets) {
