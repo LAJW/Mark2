@@ -26,7 +26,6 @@
 mark::world::world(
 	world_stack& stack,
 	resource::manager& resource_manager,
-	const std::unordered_map<std::string, YAML::Node>& templates,
 	const bool empty,
 	const bool inital)
 	: m_resource_manager(resource_manager)
@@ -36,9 +35,9 @@ mark::world::world(
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
-	, m_templates(templates)
 	, m_stack(stack)
 {
+	const auto& templates = stack.templates();
 	if (empty) {
 		return;
 	}
@@ -270,15 +269,13 @@ auto mark::world::damage(world::damage_info& info) ->
 mark::world::world(
 	world_stack& stack,
 	resource::manager& rm,
-	const YAML::Node& node,
-	const std::unordered_map<std::string, YAML::Node>& templates)
+	const YAML::Node& node)
 	: m_resource_manager(rm)
 	, m_map(rm, node["map"])
 	, m_camera(node["camera"]["x"].as<double>(), node["camera"]["y"].as<double>())
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
-	, m_templates(templates)
 	, m_stack(stack) {
 
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;

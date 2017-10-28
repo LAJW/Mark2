@@ -15,6 +15,7 @@ public:
 	void next();
 	void prev();
 	auto world() noexcept -> mark::world&;
+	auto templates() const -> const std::unordered_map<std::string, YAML::Node>&;
 	~world_stack();
 private:
 	struct world_data {

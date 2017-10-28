@@ -13,7 +13,7 @@ mark::world_stack::world_stack(
 {
 	world_data data;
 	data.world = std::make_unique<mark::world>(
-		*this, resource_manager, state_node, m_templates);
+		*this, resource_manager, state_node);
 	m_worlds.push_back(std::move(data));
 }
 
@@ -27,7 +27,7 @@ void mark::world_stack::next()
 	if (m_current_world_id == m_worlds.size()) {
 		world_data data;
 		data.world = std::make_unique<mark::world>(
-			*this, m_resource_manager, m_templates, false, false);
+			*this, m_resource_manager, false, false);
 		m_worlds.push_back(std::move(data));
 		target->pos({ 0., 0. });
 	} else {
@@ -50,5 +50,9 @@ void mark::world_stack::prev()
 
 auto mark::world_stack::world() noexcept -> mark::world& 
 { return *m_worlds[m_current_world_id].world; }
+
+auto mark::world_stack::templates() const
+	-> const std::unordered_map<std::string, YAML::Node>&
+{ return m_templates; }
 
 mark::world_stack::~world_stack() = default;
