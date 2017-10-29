@@ -96,9 +96,8 @@ mark::world::~world() = default;
 auto mark::world::map() const -> const mark::map&
 { return m_map; }
 
-auto mark::world::resource_manager() -> resource::manager& {
-	return m_resource_manager;
-}
+auto mark::world::resource_manager() -> resource::manager&
+{ return m_resource_manager; }
 
 void mark::world::tick(
 	tick_context& context, vector<double> screen_size)
@@ -123,7 +122,8 @@ void mark::world::tick(
 	}
 	// Add/Remove units
 	{
-		auto last = std::remove_if(m_units.begin(), m_units.end(), [&context](std::shared_ptr<unit::base>& unit) {
+		auto last = std::remove_if(
+			m_units.begin(), m_units.end(), [&context](auto& unit) {
 			const auto dead = unit->dead();
 			if (dead) {
 				unit->on_death(context);
@@ -178,23 +178,21 @@ void mark::world::tick(
 	}
 }
 
-void mark::world::command(const mark::command& command) {
+void mark::world::command(const mark::command& command)
+{
 	if (auto camera_target = m_camera_target.lock()) {
 		camera_target->command(command);
 	}
 }
 
-void mark::world::target(const std::shared_ptr<unit::base>& target) {
-	m_camera_target = target;
-}
+void mark::world::target(const std::shared_ptr<unit::base>& target)
+{ m_camera_target = target; }
 
-auto mark::world::target() -> std::shared_ptr<unit::base> {
-	return m_camera_target.lock();
-}
+auto mark::world::target() -> std::shared_ptr<unit::base>
+{ return m_camera_target.lock(); }
 
-auto mark::world::target() const -> std::shared_ptr<const unit::base> {
-	return m_camera_target.lock();
-}
+auto mark::world::target() const -> std::shared_ptr<const unit::base>
+{ return m_camera_target.lock(); }
 
 void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 {
@@ -204,8 +202,9 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 	unit->m_world=*this;
 }
 
-auto mark::world::collide(const segment_t& ray) ->
-	std::pair<interface::damageable *, std::optional<vector<double>>> {
+auto mark::world::collide(const segment_t& ray)
+	-> std::pair<interface::damageable *, std::optional<vector<double>>>
+{
 	auto maybe_min = m_map.collide(ray);
 	double min_length = maybe_min
 		? length(ray.first - maybe_min.value())
@@ -228,9 +227,9 @@ auto mark::world::collide(const segment_t& ray) ->
 	return { out, maybe_min };
 }
 
-auto mark::world::collide(vector<double> center, float radius) ->
-	std::vector<std::reference_wrapper<interface::damageable>> {
-
+auto mark::world::collide(vector<double> center, float radius)
+	-> std::vector<std::reference_wrapper<interface::damageable>>
+{
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit_ : m_units) {
 		if (const auto unit
@@ -242,8 +241,8 @@ auto mark::world::collide(vector<double> center, float radius) ->
 	return out;
 }
 
-auto mark::world::damage(world::damage_info& info) ->
-	std::optional<std::pair<vector<double>, bool>>
+auto mark::world::damage(world::damage_info& info)
+	-> std::optional<std::pair<vector<double>, bool>>
 {
 	assert(info.context);
 	const auto [ damageable, maybe_pos ] = this->collide(info.segment);
@@ -271,12 +270,14 @@ mark::world::world(
 	const YAML::Node& node)
 	: m_resource_manager(rm)
 	, m_map(rm, node["map"])
-	, m_camera(node["camera"]["x"].as<double>(), node["camera"]["y"].as<double>())
+	, m_camera(
+		node["camera"]["x"].as<double>(),
+		node["camera"]["y"].as<double>())
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
-	, m_stack(stack) {
-
+	, m_stack(stack)
+{
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
 	for (const auto& unit_node : node["units"]) {
@@ -292,14 +293,14 @@ mark::world::world(
 
 }
 
-void mark::world::next() {
-	m_stack.next();
-}
+void mark::world::next()
+{ m_stack.next(); }
 
 void mark::world::prev()
 { m_stack.prev(); }
 
-void mark::world::serialise(YAML::Emitter& out) const {
+void mark::world::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 
@@ -307,7 +308,8 @@ void mark::world::serialise(YAML::Emitter& out) const {
 
 	const auto camera_target = m_camera_target.lock();
 	if (camera_target) {
-		out << Key << "camera_target_id" << Value << reinterpret_cast<size_t>(camera_target.get());
+		out << Key << "camera_target_id"
+			<< Value << reinterpret_cast<size_t>(camera_target.get());
 	}
 
 	out << Key << "camera" << Value << BeginMap;
