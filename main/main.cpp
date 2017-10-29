@@ -148,6 +148,7 @@ void mark::main(std::vector<std::string> args)
 		const auto target = world_stack.world().camera()
 			+ info.mouse_pos - info.window_res / 2.;
 		for (const auto command : hid.commands(target)) {
+			ui.command(world_stack.world(), command);
 			world_stack.world().command(command);
 		}
 		mark::tick_context context(rm);

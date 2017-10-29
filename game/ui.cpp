@@ -207,9 +207,9 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 	if (!ship) {
 		return;
 	}
-	if (command.type == command::type::shoot && !command.release && grabbed) {
+	if (command.type == command::type::shoot && command.release && grabbed) {
 		this->release();
-	} else if (command.type == command::type::move && !command.release) {
+	} else if (command.type == command::type::move && command.release) {
 		const auto relative = (command.pos - landing_pad->pos()) / 16.0;
 		const auto module_pos = round(relative);
 		const auto pick_pos = floor(relative);
@@ -235,7 +235,7 @@ void mark::ui::ui::command(world& world, const mark::command &command)
 				}
 			}
 		}
-	} else if (!command.release) {
+	} else if (command.release) {
 		if (command.type >= command::type::ability_0
 			&& command.type <= command::type::ability_9
 			|| command.type == command::type::shoot) {
