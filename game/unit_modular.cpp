@@ -79,6 +79,18 @@ static auto neighbours_of(
 	return out;
 }
 
+template<typename module_type, typename vector_type>
+static auto filter_modules(vector_type& modules)
+{
+	std::vector<std::reference_wrapper<module_type>> out;
+	for (const auto& module : modules) {
+		if (const auto derived = dynamic_cast<module_type*>(module.get())) {
+			out.push_back(std::ref(*derived));
+		}
+	}
+	return out;
+}
+
 }
 
 
@@ -560,18 +572,13 @@ auto mark::unit::modular::collide(const segment_t& ray)
 		return { };
 	}
 	// check if module is under the shield
-	std::vector<std::reference_wrapper<module::shield_generator>> shields;
-	for (auto& module : m_modules) {
-		const auto shield = dynamic_cast<module::shield_generator*>(module.get());
-		if (shield && shield->shield() > 0.f) {
-			shields.push_back(*shield);
-		}
-	}
-	for (auto shield : shields) {
-		const auto shield_pos = shield.get().pos();
-		const auto shield_size = 64.f;
-		if (length(*min - shield_pos) < shield_size - 1.f) {
-			return { };
+	for (const auto shield : filter_modules<module::shield_generator>(m_modules)) {
+		if (shield.get().shield() > 0.f) {
+			const auto shield_pos = shield.get().pos();
+			const auto shield_size = 64.f;
+			if (length(*min - shield_pos) < shield_size - 1.f) {
+				return { };
+			}
 		}
 	}
 	return { { std::ref(*damageable), *min } };
@@ -581,25 +588,19 @@ auto mark::unit::modular::collide(vector<double> center, float radius)
 	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
 	std::unordered_set<interface::damageable*> out;
-	// get shields
-	std::vector<std::reference_wrapper<module::shield_generator>> shields;
-	for (auto& module : m_modules) {
-		const auto shield
-			= dynamic_cast<module::shield_generator*>(module.get());
-		if (shield && shield->shield() >= 0.f) {
-			shields.push_back(*shield);
-		}
-	}
+	const auto shields = filter_modules<module::shield_generator>(m_modules);
 	for (auto& module : m_modules) {
 		const auto module_size = std::max(module->size().x, module->size().y);
 		const auto module_pos = module->pos();
 		if (length(center - module_pos) < module_size + radius) {
 			for (auto shield : shields) {
-				const auto shield_pos = shield.get().pos();
-				const auto shield_size = 64.f;
-				if (length(module_pos - shield_pos) < shield_size) {
-					out.insert(&shield.get());
-					goto outer_continue;
+				if (shield.get().shield() > 0.f) {
+					const auto shield_pos = shield.get().pos();
+					const auto shield_size = 64.f;
+					if (length(module_pos - shield_pos) < shield_size) {
+						out.insert(&shield.get());
+						goto outer_continue;
+					}
 				}
 			}
 			out.insert(module.get());
@@ -847,25 +848,9 @@ void mark::unit::modular::unbind(const module::base& module) {
 }
 
 auto mark::unit::modular::containers() ->
-	std::vector<std::reference_wrapper<module::cargo>> {
-	std::vector<std::reference_wrapper<module::cargo>> out;
-	for (auto& module : m_modules) {
-		if (const auto cargo =
-			dynamic_cast<module::cargo*>(module.get())) {
-			out.push_back(*cargo);
-		}
-	}
-	return out;
-}
+	std::vector<std::reference_wrapper<module::cargo>>
+{ return filter_modules<module::cargo>(m_modules); }
 
 auto mark::unit::modular::containers() const ->
-	std::vector<std::reference_wrapper<const module::cargo>> {
-	std::vector<std::reference_wrapper<const module::cargo>> out;
-	for (auto& module : m_modules) {
-		if (const auto cargo =
-			dynamic_cast<module::cargo*>(module.get())) {
-			out.push_back(*cargo);
-		}
-	}
-	return out;
-}
+	std::vector<std::reference_wrapper<const module::cargo>>
+{ return filter_modules<const module::cargo>(m_modules); }
