@@ -29,6 +29,7 @@ auto target(
 				if (modular->at(round(offset / 16.))) {
 					return unit->pos() + rotate(offset, modular->rotation());
 				}
+				return { };
 			}
 			return unit->pos();
 		}
