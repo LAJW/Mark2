@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 #include <SFML/Graphics/Color.hpp>
 #include "vector.h"

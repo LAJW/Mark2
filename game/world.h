@@ -99,8 +99,9 @@ private:
 	// Returns damageable and collision position
 	// If damageable is null - terrain was hit
 	// If nothing was hit - position is [ NAN, NAN ]
+	using collision_type = std::pair<std::reference_wrapper<interface::damageable>, vector<double>>;
 	auto collide(const segment_t&)
-		-> std::pair<interface::damageable*, std::optional<vector<double>>>;
+		-> std::variant<std::monostate, vector<double>, collision_type>;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	mark::map m_map;

@@ -203,7 +203,7 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 }
 
 auto mark::world::collide(const segment_t& ray)
-	-> std::pair<interface::damageable *, std::optional<vector<double>>>
+	-> std::variant<std::monostate, vector<double>, collision_type>
 {
 	auto maybe_min = m_map.collide(ray);
 	double min_length = maybe_min
@@ -221,10 +221,14 @@ auto mark::world::collide(const segment_t& ray)
 					out = &damageable.get();
 				}
 			}
-
 		}
 	}
-	return { out, maybe_min };
+	if (out) {
+		return std::make_pair(std::ref(*out), *maybe_min);
+	} else if (maybe_min) {
+		return *maybe_min;
+	}
+	return std::monostate();
 }
 
 auto mark::world::collide(vector<double> center, float radius)
@@ -245,14 +249,18 @@ auto mark::world::damage(world::damage_info& info)
 	-> std::optional<std::pair<vector<double>, bool>>
 {
 	assert(info.context);
-	const auto [ damageable, maybe_pos ] = this->collide(info.segment);
-	if (!maybe_pos) {
+	const auto result = this->collide(info.segment);
+	if (std::holds_alternative<std::monostate>(result)) {
 		return { };
 	}
-	const auto pos = maybe_pos.value();
-	const auto dead =
-		info.piercing == 1 && damageable && damageable->damage(info.damage)
-		|| !damageable;
+	const auto[pos, dead] = [&]() {
+		if (const auto pos = std::get_if<vector<double>>(&result)) {
+			return std::make_pair(*pos, true);
+		}
+		const auto&[damageable, pos] = std::get<collision_type>(result);
+		const auto dead = damageable.get().damage(info.damage) && info.piercing == 1;
+		return std::make_pair(pos, dead);
+	}();
 	if (info.aoe_radius >= 0.f) {
 		const auto damageables = this->collide(pos, info.aoe_radius);
 		for (const auto aoe_damageable : damageables) {
