@@ -48,8 +48,9 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::unit::landing_pad::activate(
+auto mark::unit::landing_pad::activate(
 	const std::shared_ptr<unit::modular>& ship)
+	-> std::error_code
 {
 	m_ship = ship;
 	world().target(this->shared_from_this());
@@ -65,6 +66,7 @@ void mark::unit::landing_pad::activate(
 	look.release = false;
 	look.shift = false;
 	ship->command(look);
+	return error::code::success;
 }
 
 void mark::unit::landing_pad::command(const mark::command& command) {

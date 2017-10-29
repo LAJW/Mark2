@@ -22,12 +22,15 @@ void mark::unit::gate::tick(tick_context& context) {
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::unit::gate::activate(const std::shared_ptr<unit::modular>&) {
+auto mark::unit::gate::activate(const std::shared_ptr<unit::modular>&)
+	-> std::error_code
+{
 	if (m_inverted) {
 		world().prev();
 	} else {
 		world().next();
 	}
+	return error::code::success;
 }
 
 // Serialize / Deserialize

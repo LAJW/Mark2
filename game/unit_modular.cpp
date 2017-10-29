@@ -490,7 +490,9 @@ void mark::unit::modular::command(const mark::command& command)
 	} else if (command.type == command::type::activate
 		&& !command.release) {
 		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
-			pad->activate(std::dynamic_pointer_cast<modular>(this->shared_from_this()));
+			// TODO Propagate error
+			(void)pad->activate(
+				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
 		}
 	} else if (command.shift == false) {
 		auto bindings = m_bindings.equal_range(command.type);
