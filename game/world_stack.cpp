@@ -2,7 +2,7 @@
 #include "world.h"
 #include "world_stack.h"
 #include "exception.h"
-#include "unit_base.h"
+#include "unit_modular.h"
 
 mark::world_stack::world_stack(
 	const YAML::Node& state_node,
@@ -21,7 +21,7 @@ void mark::world_stack::next()
 {
 	// Can't use always - pointer gets invalidated on vector push
 	auto& old_data = m_worlds[m_current_world_id];
-	auto target = old_data.world->target();
+	auto target = std::dynamic_pointer_cast<unit::modular>(old_data.world->target());
 	old_data.target_pos = target->pos();
 	++m_current_world_id;
 	if (m_current_world_id == m_worlds.size()) {
@@ -30,8 +30,10 @@ void mark::world_stack::next()
 			*this, m_resource_manager, false, false);
 		m_worlds.push_back(std::move(data));
 		target->pos({ 0., 0. });
+		target->stop();
 	} else {
 		target->pos(m_worlds[m_current_world_id].target_pos);
+		target->stop();
 	}
 	world().attach(target);
 	world().target(target);
@@ -41,11 +43,13 @@ void mark::world_stack::prev()
 {
 	if (m_current_world_id == 0)
 		throw user_error("NO_PREV_WORLD_FOUND");
+	const auto target = std::dynamic_pointer_cast<unit::modular>(world().target());
 	auto& old_data = m_worlds[m_current_world_id];
-	old_data.target_pos = old_data.world->target()->pos();
+	old_data.target_pos = target->pos();
 	--m_current_world_id;
-	old_data.world->target()->pos(m_worlds[m_current_world_id].target_pos);
-	world().attach(old_data.world->target());
+	target->pos(m_worlds[m_current_world_id].target_pos);
+	target->stop();
+	world().attach(target);
 }
 
 auto mark::world_stack::world() noexcept -> mark::world& 

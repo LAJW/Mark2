@@ -77,6 +77,8 @@ public:
 	auto landed() const noexcept -> bool;
 	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;
 	void ai(bool);
+	// Set velocity (and acceleration) of this vessel to zero
+	void stop();
 private:
 	void tick(tick_context& context) override;
 	void on_death(tick_context& context) override;

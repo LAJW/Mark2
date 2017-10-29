@@ -270,6 +270,12 @@ auto mark::unit::modular::p_reserved(vector<int8_t> user_pos) const noexcept
 void mark::unit::modular::ai(bool ai)
 { m_ai = ai; }
 
+void mark::unit::modular::stop()
+{
+	m_velocity = { };
+	m_moveto = pos();
+}
+
 auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) noexcept
 	-> std::pair<module::base*, bool>&
 { return m_grid[user_pos.x + user_pos.y * max_size]; }
