@@ -47,10 +47,9 @@ public:
 	auto detach(const vector<int>& pos)
 		-> std::unique_ptr<module::base> override;
 
-	// TODO: Rename to neighbour_of
-	auto attached(const module::base&) ->
+	auto neighbours_of(const module::base&) ->
 		std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>;
-	auto attached(const module::base&) const ->
+	auto neighbours_of(const module::base&) const ->
 		std::vector<std::pair<std::reference_wrapper<const module::base>, unsigned>>;
 
 	inline auto rotation() const { return m_rotation; }

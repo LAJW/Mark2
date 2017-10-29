@@ -49,9 +49,9 @@ void mark::module::base::tick(tick_context & context) {
 	const auto health_percentage = m_cur_health / m_max_health;
 	const auto pos = this->pos();
 
-	auto attached = parent().attached(*this);
+	auto neighbours = parent().neighbours_of(*this);
 	const auto total_surface = 2 * (m_size.x + m_size.y);
-	for (auto& pair : attached) {
+	for (auto& pair : neighbours) {
 		const auto&[module, surface] = pair;
 		auto& module_heat = module.get().m_cur_heat;
 		const auto delta_heat
@@ -154,7 +154,7 @@ auto mark::module::base::collide(const segment_t& ray) ->
 
 auto mark::module::base::neighbours()
 	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>> {
-	return parent().attached(*this);
+	return parent().neighbours_of(*this);
 }
 
 bool mark::module::base::damage(const interface::damageable::info& attr) {

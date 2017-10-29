@@ -37,11 +37,11 @@ struct Node {
 bool operator<(const Node& left, const Node& right)
 { return left.f < right.f; }
 
-// Shared implementation of the modular::attached() function
+// Shared implementation of the modular::neighbours_of() function
 // Returns list of references to modules and counts, where count is the
 // number of blocks touching the modules
 template <typename module_t, typename modular_t>
-static auto attached(
+static auto neighbours_of(
 	modular_t& modular,
 	mark::vector<int8_t> pos,
 	mark::vector<int8_t> size)
@@ -302,19 +302,19 @@ void mark::unit::modular::tick(tick_context& context)
 	}
 }
 
-auto mark::unit::modular::attached(const module::base& module)
+auto mark::unit::modular::neighbours_of(const module::base& module)
 	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>
 {
-	return ::attached<module::base>(
+	return ::neighbours_of<module::base>(
 		*this,
 		vector<int8_t>(module.grid_pos()),
 		vector<int8_t>(module.size()));
 }
 
-auto mark::unit::modular::attached(const module::base& module) const
+auto mark::unit::modular::neighbours_of(const module::base& module) const
 	-> std::vector<std::pair<std::reference_wrapper<const module::base>, unsigned>>
 {
-	return ::attached<const module::base>(
+	return ::neighbours_of<const module::base>(
 		*this,
 		vector<int8_t>(module.grid_pos()),
 		vector<int8_t>(module.size()));
@@ -373,7 +373,7 @@ auto mark::unit::modular::can_attach(
 {
 	return p_can_attach(module, pos_)
 		&& (m_modules.empty()
-			|| !::attached<const module::base>(
+			|| !::neighbours_of<const module::base>(
 				*this,
 				vector<int8_t>(pos_),
 				vector<int8_t>(module.size())).empty());
@@ -436,7 +436,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 	for (const auto grid_pos : surface) {
 		this->p_at(grid_pos) = nullptr;
 	}
-	const auto neighbours = this->attached(module);
+	const auto neighbours = this->neighbours_of(module);
 	const auto disconnected = std::find_if(
 		neighbours.begin(), neighbours.end(),
 		[this](const auto& neighbour) {
