@@ -8,19 +8,20 @@
 #include "unit_modular.h"
 #include "world.h"
 
-mark::module::shield_generator::shield_generator(resource::manager& rm, const YAML::Node& node):
-	module::base(rm, node),
-	m_im_generator(rm.image("shield-generator.png")),
-	m_model_shield(rm, 128.f) { }
+mark::module::shield_generator::shield_generator(
+	resource::manager& rm, const YAML::Node& node)
+	: module::base(rm, node)
+	, m_im_generator(rm.image("shield-generator.png"))
+	, m_model_shield(rm, 128.f) { }
 
-mark::module::shield_generator::shield_generator(resource::manager& resource_manager):
-	base({ 2, 2 }, resource_manager.image("shield-generator.png")),
-	m_im_generator(resource_manager.image("shield-generator.png")),
-	m_model_shield(resource_manager, 128.f) {
+mark::module::shield_generator::shield_generator(
+	resource::manager& resource_manager)
+	: base({ 2, 2 }, resource_manager.image("shield-generator.png"))
+	, m_im_generator(resource_manager.image("shield-generator.png"))
+	, m_model_shield(resource_manager, 128.f) { }
 
-}
-
-void mark::module::shield_generator::tick(tick_context& context) {
+void mark::module::shield_generator::tick(tick_context& context)
+{
 	this->module::base::tick(context);
 	const auto pos = this->pos();
 	if (m_cur_shield > 0) {
@@ -42,27 +43,31 @@ void mark::module::shield_generator::tick(tick_context& context) {
 	context.render(shield_bar);
 }
 
-bool mark::module::shield_generator::damage(const interface::damageable::info& attr) {
-	if (attr.damaged->find(this) == attr.damaged->end() && attr.team != parent().team()) {
-		if (m_cur_shield > 0.f) {
-			attr.damaged->insert(this);
-			m_model_shield.trigger(attr.pos);
-			m_cur_shield -= attr.physical;
-			return true;
-		} else {
-			attr.damaged->insert(this);
-			m_cur_health -= attr.physical;
-			return true;
-		}
+auto mark::module::shield_generator::damage(
+	const interface::damageable::info& attr) -> bool
+{
+	if (attr.team == parent().team()
+		|| attr.damaged->find(this) != attr.damaged->end()) {
+		return false;
 	}
-	return false;
+	attr.damaged->insert(this);
+	if (m_cur_shield > 0.f) {
+		m_model_shield.trigger(attr.pos);
+		m_cur_shield -= attr.physical;
+	} else {
+		m_cur_health -= attr.physical;
+	}
+	return true;
 }
 
-auto mark::module::shield_generator::describe() const -> std::string {
+auto mark::module::shield_generator::describe() const -> std::string
+{
 	std::ostringstream os;
 	os << "Shield Generator Module" << std::endl;
-	os << "Health: " << static_cast<int>(std::ceil(m_cur_health)) << " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
-	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield)) << " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
+	os << "Health: " << static_cast<int>(std::ceil(m_cur_health))
+		<< " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
+	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield))
+		<< " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
 	return os.str();
 }
 
@@ -83,11 +88,11 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 	return module::base::collide(ray);
 }
 
-auto mark::module::shield_generator::shield() const noexcept -> float {
-	return m_cur_shield;
-}
+auto mark::module::shield_generator::shield() const noexcept -> float
+{ return m_cur_shield; }
 
-void mark::module::shield_generator::serialise(YAML::Emitter& out) const {
+void mark::module::shield_generator::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
