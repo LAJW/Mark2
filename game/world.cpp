@@ -258,14 +258,16 @@ auto mark::world::damage(world::damage_info& info)
 			return std::make_pair(*pos, true);
 		}
 		const auto&[damageable, pos] = std::get<collision_type>(result);
+		info.damage.pos = pos;
 		return std::make_pair(pos, damageable.get().damage(info.damage));
 	}();
 	if (!connected) {
 		return { };
 	}
-	if (info.aoe_radius >= 0.f) {
+	if (info.aoe_radius > 0.f) {
 		const auto damageables = this->collide(pos, info.aoe_radius);
 		for (const auto aoe_damageable : damageables) {
+			info.damage.pos = pos;
 			aoe_damageable.get().damage(info.damage);
 		}
 	}
