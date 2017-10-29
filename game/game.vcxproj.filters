@@ -311,6 +311,9 @@
     <ClInclude Include="hid.h">
       <Filter>General</Filter>
     </ClInclude>
+    <ClInclude Include="unit_activable.h">
+      <Filter>Unit</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bump_mapping.glsl">

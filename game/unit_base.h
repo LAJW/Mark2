@@ -40,7 +40,6 @@ public:
 	virtual void serialise(YAML::Emitter&) const;
 	virtual void command(const command&) { };
 	virtual auto dead() const -> bool = 0;
-	virtual void activate(const std::shared_ptr<unit::base>&) { /* no-op */ };
 	// Resolve references after deserializing
 	virtual void resolve_ref(
 		const YAML::Node&,

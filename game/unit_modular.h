@@ -55,7 +55,6 @@ public:
 
 	inline auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;
-	void activate(const std::shared_ptr<unit::base>& by) override;
 	auto containers() ->
 		std::vector<std::reference_wrapper<module::cargo>>;
 	auto containers() const ->

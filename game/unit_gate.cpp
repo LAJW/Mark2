@@ -8,7 +8,7 @@
 #include "unit_modular.h"
 
 mark::unit::gate::gate(mark::world& world, vector<double> pos, bool inverted)
-	: unit::base(world, pos)
+	: activable(world, pos)
 	, m_image(world.resource_manager().image("kappa.png"))
 	, m_inverted(inverted)
 { }
@@ -22,13 +22,11 @@ void mark::unit::gate::tick(tick_context& context) {
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::unit::gate::activate(const std::shared_ptr<unit::base>& by) {
-	if (auto modular = std::dynamic_pointer_cast<unit::modular>(by)) {
-		if (m_inverted) {
-			world().prev();
-		} else {
-			world().next();
-		}
+void mark::unit::gate::activate(const std::shared_ptr<unit::modular>&) {
+	if (m_inverted) {
+		world().prev();
+	} else {
+		world().next();
 	}
 }
 
@@ -37,7 +35,7 @@ void mark::unit::gate::activate(const std::shared_ptr<unit::base>& by) {
 mark::unit::gate::gate(
 	mark::world& world,
 	const YAML::Node& node)
-	: unit::base(world, node)
+	: activable(world, node)
 	, m_image(world.resource_manager().image("kappa.png"))
 	, m_inverted(node["inverted"].as<bool>(false)) { }
 

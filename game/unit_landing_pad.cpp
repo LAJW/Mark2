@@ -13,7 +13,7 @@
 
 mark::unit::landing_pad::landing_pad(
 	mark::world& world, vector<double> pos)
-	: unit::base(world, pos)
+	: activable(world, pos)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
 // Serialize / Deserialize
@@ -21,7 +21,7 @@ mark::unit::landing_pad::landing_pad(
 mark::unit::landing_pad::landing_pad(
 	mark::world& world,
 	const YAML::Node& node)
-	: unit::base(world, node)
+	: activable(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png")) { }
 
 void mark::unit::landing_pad::serialise(YAML::Emitter& out) const
@@ -62,36 +62,30 @@ void mark::unit::landing_pad::dock(unit::modular* ship)
 }
 
 void mark::unit::landing_pad::activate(
-	const std::shared_ptr<unit::base>& by)
+	const std::shared_ptr<unit::modular>& ship)
 {
-	if (const auto modular
-		= std::dynamic_pointer_cast<unit::modular>(by)) {
-		m_ship = modular;
-		world().target(this->shared_from_this());
-		mark::command move;
-		move.type = command::type::move;
-		move.pos = pos();
-		move.release = true;
-		move.shift = false;
-		modular->command(move);
-		mark::command look;
-		look.type = command::type::guide;
-		look.pos = pos() + vector<double>(1, 0);
-		look.release = false;
-		look.shift = false;
-		modular->command(look);
-	}
+	m_ship = ship;
+	world().target(this->shared_from_this());
+	mark::command move;
+	move.type = command::type::move;
+	move.pos = pos();
+	move.release = true;
+	move.shift = false;
+	ship->command(move);
+	mark::command look;
+	look.type = command::type::guide;
+	look.pos = pos() + vector<double>(1, 0);
+	look.release = false;
+	look.shift = false;
+	ship->command(look);
 }
 
-void mark::unit::landing_pad::command(const mark::command & command) {
+void mark::unit::landing_pad::command(const mark::command& command) {
 	if (command.type == mark::command::type::activate && !command.release) {
-		auto ship = m_ship.lock();
-		if (ship) {
-			ship->activate(this->shared_from_this());
+		if (auto ship = m_ship.lock()) {
+			world().target(std::move(ship));
 			m_ship.reset();
 		}
-	} else if (command.type == command::type::guide) {
-		m_mousepos = command.pos;
 	}
 }
 

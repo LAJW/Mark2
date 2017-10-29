@@ -8,12 +8,11 @@
 #include "command.h"
 #include "resource_manager.h"
 #include "tick_context.h"
-#include "unit_landing_pad.h"
 #include "module_shield_generator.h"
 #include "module_cargo.h"
 #include "unit_bucket.h"
-#include "unit_gate.h"
 #include "algorithm.h"
+#include "unit_activable.h"
 
 // MODULAR
 
@@ -490,15 +489,8 @@ void mark::unit::modular::command(const mark::command& command)
 		m_ai = true;
 	} else if (command.type == command::type::activate
 		&& !command.release) {
-		auto pad = world().find_one(
-			pos(),
-			150.0,
-			[this](const auto& unit) {
-			return dynamic_cast<const unit::landing_pad*>(&unit) != nullptr
-				|| dynamic_cast<const unit::gate*>(&unit) != nullptr;
-		});
-		if (pad) {
-			pad->activate(this->shared_from_this());
+		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
+			pad->activate(std::dynamic_pointer_cast<modular>(this->shared_from_this()));
 		}
 	} else if (command.shift == false) {
 		auto bindings = m_bindings.equal_range(command.type);
@@ -845,9 +837,6 @@ void mark::unit::modular::unbind(const module::base& module) {
 		}
 	}
 }
-
-void mark::unit::modular::activate(const std::shared_ptr<unit::base>&)
-{ world().target(this->shared_from_this()); }
 
 auto mark::unit::modular::containers() ->
 	std::vector<std::reference_wrapper<module::cargo>> {

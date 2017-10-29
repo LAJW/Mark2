@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "interface_has_bindings.h"
-#include "unit_base.h"
+#include "unit_activable.h"
 
 namespace mark {
 	namespace resource {
@@ -14,7 +14,7 @@ namespace mark {
 	namespace unit {
 		class modular;
 		class landing_pad final:
-			public unit::base,
+			public unit::activable,
 			public interface::has_bindings {
 		public:
 			static constexpr const char* type_name = "unit_landing_pad";
@@ -23,9 +23,7 @@ namespace mark {
 			landing_pad(mark::world& world, vector<double> pos);
 			auto dead() const -> bool override { return false; };
 			void dock(unit::modular* ship);
-			void activate(
-				const std::shared_ptr<unit::base>& by)
-				override;
+			void activate(const std::shared_ptr<unit::modular>& by) override;
 			void command(const mark::command& command) override;
 			void serialise(YAML::Emitter&) const override;
 			void resolve_ref(
@@ -40,7 +38,6 @@ namespace mark {
 
 			std::shared_ptr<const resource::image> m_image;
 			std::weak_ptr<unit::modular> m_ship;
-			vector<double> m_mousepos;
 		};
 	}
 }
