@@ -84,8 +84,8 @@ public:
 		size_t piercing = 1;
 		float aoe_radius = 0.f;
 	};
-	auto damage(world::damage_info&)
-		-> std::optional<std::pair<vector<double>, bool>>;
+	// Returns position where and if collision occured
+	auto damage(world::damage_info&) -> std::optional<vector<double>>;
 	// go to the next map
 	void next();
 	void prev();
@@ -95,11 +95,13 @@ public:
 	const std::shared_ptr<const resource::image> image_font;
 	const std::shared_ptr<const resource::image> image_stun;
 private:
+	using collision_type = std::pair<
+		std::reference_wrapper<interface::damageable>, vector<double>>;
 	// Collide with units and terrain
-	// Returns damageable and collision position
-	// If damageable is null - terrain was hit
-	// If nothing was hit - position is [ NAN, NAN ]
-	using collision_type = std::pair<std::reference_wrapper<interface::damageable>, vector<double>>;
+	// Returns collision position if collided with the terrain
+	// Returns collision position and reference to damageable if collided with
+	// a unit (but doesn't damage the object)
+	// Returns monostate if didn't collide with anything
 	auto collide(const segment_t&)
 		-> std::variant<std::monostate, vector<double>, collision_type>;
 	auto collide(vector<double> center, float radius)

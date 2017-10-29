@@ -68,11 +68,11 @@ void mark::unit::projectile::tick(tick_context& context) {
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
-	if (const auto result = world().damage(info)) {
-		m_dead = result->second;
+	if (const auto collision_pos = world().damage(info)) {
+		m_dead = true;
 		tick_context::spray_info spray;
 		spray.image = m_im_tail;
-		spray.pos = result->first;
+		spray.pos = *collision_pos;
 		spray.velocity(5.f, 75.f);
 		spray.lifespan(0.3f);
 		spray.diameter(8.f);

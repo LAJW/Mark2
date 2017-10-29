@@ -246,28 +246,30 @@ auto mark::world::collide(vector<double> center, float radius)
 }
 
 auto mark::world::damage(world::damage_info& info)
-	-> std::optional<std::pair<vector<double>, bool>>
+	-> std::optional<vector<double>>
 {
 	assert(info.context);
 	const auto result = this->collide(info.segment);
 	if (std::holds_alternative<std::monostate>(result)) {
 		return { };
 	}
-	const auto[pos, dead] = [&]() {
+	const auto[pos, connected] = [&]() {
 		if (const auto pos = std::get_if<vector<double>>(&result)) {
 			return std::make_pair(*pos, true);
 		}
 		const auto&[damageable, pos] = std::get<collision_type>(result);
-		const auto dead = damageable.get().damage(info.damage) && info.piercing == 1;
-		return std::make_pair(pos, dead);
+		return std::make_pair(pos, damageable.get().damage(info.damage));
 	}();
+	if (!connected) {
+		return { };
+	}
 	if (info.aoe_radius >= 0.f) {
 		const auto damageables = this->collide(pos, info.aoe_radius);
 		for (const auto aoe_damageable : damageables) {
 			aoe_damageable.get().damage(info.damage);
 		}
 	}
-	return std::make_pair(pos, dead);
+	return pos;
 }
 
 // Serializer / Deserializer
