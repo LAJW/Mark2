@@ -22,7 +22,6 @@ namespace mark {
 			landing_pad(mark::world& world, const YAML::Node&);
 			landing_pad(mark::world& world, vector<double> pos);
 			auto dead() const -> bool override { return false; };
-			void dock(unit::modular* ship);
 			void activate(const std::shared_ptr<unit::modular>& by) override;
 			void command(const mark::command& command) override;
 			void serialise(YAML::Emitter&) const override;

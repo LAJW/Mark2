@@ -48,19 +48,6 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 	context.sprites[0].emplace_back(info);
 }
 
-void mark::unit::landing_pad::dock(unit::modular* ship)
-{
-	if (ship) {
-		auto ship_ptr = world().find_one<unit::modular>(
-			pos(), 500.0, [ship](const unit::base& unit) {
-				return &unit == ship;
-		});
-		m_ship = ship_ptr;
-	} else {
-		m_ship.reset();
-	}
-}
-
 void mark::unit::landing_pad::activate(
 	const std::shared_ptr<unit::modular>& ship)
 {
