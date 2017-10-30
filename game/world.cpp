@@ -178,7 +178,7 @@ void mark::world::tick(
 	}
 }
 
-void mark::world::command(const mark::command& command)
+void mark::world::command(const mark::command_any& command)
 {
 	if (auto camera_target = m_camera_target.lock()) {
 		camera_target->command(command);

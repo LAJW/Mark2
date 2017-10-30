@@ -2,9 +2,9 @@
 #include "stdafx.h"
 #include "interface_damageable.h"
 #include "map.h"
+#include "command.h"
 
 namespace mark {
-class command;
 struct tick_context;
 class particle;
 class world_stack;
@@ -70,7 +70,7 @@ public:
 		}
 		return nullptr;
 	}
-	void command(const command& command);
+	void command(const command_any& command);
 	// set target for commmands
 	void target(const std::shared_ptr<unit::base>& target);
 	// get target for commands

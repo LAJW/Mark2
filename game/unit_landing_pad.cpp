@@ -69,11 +69,13 @@ auto mark::unit::landing_pad::activate(
 	return error::code::success;
 }
 
-void mark::unit::landing_pad::command(const mark::command& command) {
-	if (command.type == mark::command::type::activate && !command.release) {
-		if (auto ship = m_ship.lock()) {
-			world().target(std::move(ship));
-			m_ship.reset();
+void mark::unit::landing_pad::command(const mark::command_any& any) {
+	if (const auto command = std::get_if<mark::command>(&any)) {
+		if (command->type == mark::command::type::activate && !command->release) {
+			if (auto ship = m_ship.lock()) {
+				world().target(std::move(ship));
+				m_ship.reset();
+			}
 		}
 	}
 }

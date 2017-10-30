@@ -61,9 +61,13 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 	};
 }
 
+auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool) -> mark::command_any
+{ return mark::command::move{ mouse_pos }; };
+
+
 const std::unordered_map<std::string, mark::hid::make_command_type>
 command_dict {
-	{ "move", make_make_command(mark::command::type::move) },
+	{ "move", make_command_move },
 	{ "guide", make_make_command(mark::command::type::guide) },
 	{ "ability", make_make_command(mark::command::type::shoot) },
 	{ "ability-0", make_make_command(mark::command::type::ability_0) },
@@ -110,9 +114,9 @@ void mark::hid::handle(const sf::Event& event)
 }
 
 auto mark::hid::commands(const mark::vector<double>& mouse_pos)
-	-> std::vector<command>
+	-> std::vector<command_any>
 {
-	std::vector<command> out;
+	std::vector<command_any> out;
 	for (const auto& button : m_pressed) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {

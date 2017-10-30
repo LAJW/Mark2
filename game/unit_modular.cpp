@@ -502,39 +502,41 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 }
 
 
-void mark::unit::modular::command(const mark::command& command)
+void mark::unit::modular::command(const command_any& any)
 {
-	if (command.type == command::type::move) {
-		m_moveto = command.pos;
+	if (const auto move = std::get_if<command::move>(&any)) {
+		m_moveto = move->to;
 		m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
 		if (!m_path_cache.empty()
 			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 			m_moveto = m_path_cache.front();
 		}
-	} else if (command.type == command::type::guide) {
-		m_lookat = command.pos;
-		for (auto& module : m_modules) {
-			module->target(command.pos);
+	} else if (const auto command = std::get_if<mark::command>(&any)) {
+		if (command->type == command::type::guide) {
+			m_lookat = command->pos;
+			for (auto& module : m_modules) {
+				module->target(command->pos);
+			}
+		} else if (command->type == command::type::ai) {
+			m_ai = true;
+		} else if (command->type == command::type::activate
+			&& !command->release) {
+			if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
+				// TODO Propagate error
+				(void)pad->activate(
+					std::dynamic_pointer_cast<modular>(this->shared_from_this()));
+			}
+		} else if (command->shift == false) {
+			auto bindings = m_bindings.equal_range(command->type);
+			std::for_each(bindings.first, bindings.second, [&command](auto module) {
+				module.second.get().shoot(command->pos, command->release);
+			});
+		} else {
+			auto bindings = m_bindings.equal_range(command->type);
+			std::for_each(bindings.first, bindings.second, [&command](auto module) {
+				module.second.get().queue(command->pos, command->release);
+			});
 		}
-	} else if (command.type == command::type::ai) {
-		m_ai = true;
-	} else if (command.type == command::type::activate
-		&& !command.release) {
-		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
-			// TODO Propagate error
-			(void)pad->activate(
-				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
-		}
-	} else if (command.shift == false) {
-		auto bindings = m_bindings.equal_range(command.type);
-		std::for_each(bindings.first, bindings.second, [&command](auto module) {
-			module.second.get().shoot(command.pos, command.release);
-		});
-	} else {
-		auto bindings = m_bindings.equal_range(command.type);
-		std::for_each(bindings.first, bindings.second, [&command](auto module) {
-			module.second.get().queue(command.pos, command.release);
-		});
 	}
 }
 

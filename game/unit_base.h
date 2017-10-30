@@ -2,12 +2,12 @@
 #include "stdafx.h"
 #include "interface_damageable.h"
 #include "property.h"
+#include "command.h"
 
 namespace mark {
 
 struct sprite;
 class world;
-class command;
 struct tick_context;
 
 namespace unit {
@@ -38,7 +38,7 @@ class base:
 public:
 	virtual ~base() = default;
 	virtual void serialise(YAML::Emitter&) const;
-	virtual void command(const command&) { };
+	virtual void command(const command_any&) { };
 	virtual auto dead() const -> bool = 0;
 	// Resolve references after deserializing
 	virtual void resolve_ref(

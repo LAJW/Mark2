@@ -23,7 +23,7 @@ public:
 	auto dead() const -> bool override { return false; };
 	[[nodiscard]] auto activate(
 		const std::shared_ptr<unit::modular>& by) -> std::error_code override;
-	void command(const mark::command& command) override;
+	void command(const mark::command_any& command) override;
 	void serialise(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,

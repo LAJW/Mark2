@@ -33,7 +33,7 @@ public:
 
 	modular(mark::world& world, const YAML::Node&);
 	modular(mark::world& world, vector<double> pos = { 0, 0 }, float rotation = 0.0f);
-	void command(const mark::command& command) override;
+	void command(const command_any& command) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)
 		-> std::error_code override;

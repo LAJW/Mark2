@@ -14,8 +14,9 @@ public:
 	void handle(const sf::Event& event);
 	// Generate list of commands, flush hid buffers. Mouse pos for commands,
 	// relative to the world
-	auto commands(const vector<double>& mouse_pos) -> std::vector<command>;
-	using make_command_type = std::function<mark::command(const mark::vector<double>& mouse_pos, bool shift, bool release)>;
+	auto commands(const vector<double>& mouse_pos) -> std::vector<command_any>;
+	using make_command_type = std::function<command_any(
+		const mark::vector<double>& mouse_pos, bool shift, bool release)>;
 private:
 	// Buttons pressed in a specific frame
 	std::vector<button> m_pressed;
