@@ -77,10 +77,7 @@ mark::world::world(
 		auto vessel = std::dynamic_pointer_cast<unit::modular>(
 			unit::deserialise(*this, templates.at("ship")));
 		vessel->ai(false);
-		mark::command command;
-		command.release = true;
-		command.type = command::type::move;
-		vessel->command(command);
+		vessel->command(command::move{ vector<double>() });
 		vessel->team(1);
 		vessel->pos({ 0., 0. });
 		m_camera_target = vessel;

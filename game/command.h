@@ -5,10 +5,9 @@ namespace mark {
 class command {
 public:
 	struct move { vector<double> to; };
+	struct guide { vector<double> pos; };
 	enum class type {
 		null,
-		move,
-		guide,
 		ai,
 		activate,
 		shoot,
@@ -29,5 +28,5 @@ public:
 	bool shift = false;
 };
 
-using command_any = std::variant<command::move, command>;
+using command_any = std::variant<command::move, command::guide, command>;
 }

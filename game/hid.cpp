@@ -64,11 +64,14 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool) -> mark::command_any
 { return mark::command::move{ mouse_pos }; };
 
+auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool) -> mark::command_any
+{ return mark::command::guide{ mouse_pos }; };
+
 
 const std::unordered_map<std::string, mark::hid::make_command_type>
 command_dict {
 	{ "move", make_command_move },
-	{ "guide", make_make_command(mark::command::type::guide) },
+	{ "guide", make_command_guide },
 	{ "ability", make_make_command(mark::command::type::shoot) },
 	{ "ability-0", make_make_command(mark::command::type::ability_0) },
 	{ "ability-1", make_make_command(mark::command::type::ability_1) },

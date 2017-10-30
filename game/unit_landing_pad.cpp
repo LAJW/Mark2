@@ -54,18 +54,8 @@ auto mark::unit::landing_pad::activate(
 {
 	m_ship = ship;
 	world().target(this->shared_from_this());
-	mark::command move;
-	move.type = command::type::move;
-	move.pos = pos();
-	move.release = true;
-	move.shift = false;
-	ship->command(move);
-	mark::command look;
-	look.type = command::type::guide;
-	look.pos = pos() + vector<double>(1, 0);
-	look.release = false;
-	look.shift = false;
-	ship->command(look);
+	ship->command(command::move { pos() });
+	ship->command(command::guide { pos() + vector<double>(1, 0) });
 	return error::code::success;
 }
 

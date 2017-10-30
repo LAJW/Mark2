@@ -210,32 +210,6 @@ void mark::ui::ui::command(world& world, const mark::command_any &any)
 	if (const auto command = std::get_if<mark::command>(&any)) {
 		if (command->type == command::type::shoot && command->release && grabbed) {
 			this->release();
-		} else if (command->type == command::type::move && command->release) {
-			const auto relative = (command->pos - landing_pad->pos()) / 16.0;
-			const auto module_pos = round(relative);
-			const auto pick_pos = floor(relative);
-			if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-				// ship drag&drop
-				if (grabbed) {
-					// module's top-left corner
-					const auto drop_pos = module_pos
-						- vector<int>(grabbed->size()) / 2;
-					(void)ship->attach(drop_pos, grabbed);
-					for (const auto& bind : this->grabbed_bind) {
-						ship->toggle_bind(bind, drop_pos);
-					}
-					grabbed_bind.clear();
-				} else {
-					grabbed_bind = ship->binding(pick_pos);
-					grabbed = ship->detach(pick_pos);
-					if (grabbed) {
-						grabbed_prev_pos = grabbed->grid_pos();
-						grabbed_prev_parent = ship.get();
-					} else {
-						grabbed_bind.clear();
-					}
-				}
-			}
 		} else if (command->release) {
 			if (command->type >= command::type::ability_0
 				&& command->type <= command::type::ability_9
@@ -243,6 +217,32 @@ void mark::ui::ui::command(world& world, const mark::command_any &any)
 				const auto relative = (command->pos - landing_pad->pos()) / 16.0;
 				const auto pick_pos = floor(relative);
 				ship->toggle_bind(command->type, pick_pos);
+			}
+		}
+	} else if (const auto move = std::get_if<command::move>(&any)) {
+		const auto relative = (command->pos - landing_pad->pos()) / 16.0;
+		const auto module_pos = round(relative);
+		const auto pick_pos = floor(relative);
+		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+			// ship drag&drop
+			if (grabbed) {
+				// module's top-left corner
+				const auto drop_pos = module_pos
+					- vector<int>(grabbed->size()) / 2;
+				(void)ship->attach(drop_pos, grabbed);
+				for (const auto& bind : this->grabbed_bind) {
+					ship->toggle_bind(bind, drop_pos);
+				}
+				grabbed_bind.clear();
+			} else {
+				grabbed_bind = ship->binding(pick_pos);
+				grabbed = ship->detach(pick_pos);
+				if (grabbed) {
+					grabbed_prev_pos = grabbed->grid_pos();
+					grabbed_prev_parent = ship.get();
+				} else {
+					grabbed_bind.clear();
+				}
 			}
 		}
 	}

@@ -508,16 +508,16 @@ void mark::unit::modular::command(const command_any& any)
 		m_moveto = move->to;
 		m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
 		if (!m_path_cache.empty()
-			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
+			&& length(m_path_cache.front() - m_moveto) > map::tile_size) {
 			m_moveto = m_path_cache.front();
 		}
+	} else if (const auto guide = std::get_if<command::guide>(&any)) {
+		m_lookat = guide->pos;
+		for (auto& module : m_modules) {
+			module->target(guide->pos);
+		}
 	} else if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->type == command::type::guide) {
-			m_lookat = command->pos;
-			for (auto& module : m_modules) {
-				module->target(command->pos);
-			}
-		} else if (command->type == command::type::ai) {
+		if (command->type == command::type::ai) {
 			m_ai = true;
 		} else if (command->type == command::type::activate
 			&& !command->release) {
