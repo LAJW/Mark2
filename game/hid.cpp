@@ -48,22 +48,36 @@ const std::unordered_map<std::string, mark::hid::button> key_dict{
 	{ "mouse-scroll-down", mark::hid::button{ 6 } }
 };
 
-const std::unordered_map<std::string, enum class mark::command::type>
+auto make_make_command(enum class mark::command::type type) -> mark::hid::make_command_type
+{ 
+	return [=](
+		const mark::vector<double>& mouse_pos, bool shift, bool release) {
+		mark::command command;
+		command.type = type;
+		command.pos = mouse_pos;
+		command.shift = shift;
+		command.release = release;
+		return command;
+	};
+}
+
+const std::unordered_map<std::string, mark::hid::make_command_type>
 command_dict {
-	{ "move", mark::command::type::move },
-	{ "ability", mark::command::type::shoot },
-	{ "ability-0", mark::command::type::ability_0 },
-	{ "ability-1", mark::command::type::ability_1 },
-	{ "ability-2", mark::command::type::ability_2 },
-	{ "ability-3", mark::command::type::ability_3 },
-	{ "ability-4", mark::command::type::ability_4 },
-	{ "ability-5", mark::command::type::ability_5 },
-	{ "ability-6", mark::command::type::ability_6 },
-	{ "ability-7", mark::command::type::ability_7 },
-	{ "ability-8", mark::command::type::ability_8 },
-	{ "ability-9", mark::command::type::ability_9 },
-	{ "reset", mark::command::type::reset },
-	{ "activate", mark::command::type::activate }
+	{ "move", make_make_command(mark::command::type::move) },
+	{ "guide", make_make_command(mark::command::type::guide) },
+	{ "ability", make_make_command(mark::command::type::shoot) },
+	{ "ability-0", make_make_command(mark::command::type::ability_0) },
+	{ "ability-1", make_make_command(mark::command::type::ability_1) },
+	{ "ability-2", make_make_command(mark::command::type::ability_2) },
+	{ "ability-3", make_make_command(mark::command::type::ability_3) },
+	{ "ability-4", make_make_command(mark::command::type::ability_4) },
+	{ "ability-5", make_make_command(mark::command::type::ability_5) },
+	{ "ability-6", make_make_command(mark::command::type::ability_6) },
+	{ "ability-7", make_make_command(mark::command::type::ability_7) },
+	{ "ability-8", make_make_command(mark::command::type::ability_8) },
+	{ "ability-9", make_make_command(mark::command::type::ability_9) },
+	{ "reset", make_make_command(mark::command::type::reset) },
+	{ "activate", make_make_command(mark::command::type::activate) }
 };
 }
 
@@ -102,45 +116,17 @@ auto mark::hid::commands(const mark::vector<double>& mouse_pos)
 	for (const auto& button : m_pressed) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
-			if (it->second == command::type::activate) {
-				mark::command command;
-				command.type = it->second;
-				command.pos =  mouse_pos;
-				command.shift = m_shift;
-				command.release = false;
-				out.push_back(command);
-			} else {
-				m_active.insert(it->second);
-			}
+			out.push_back(it->second(mouse_pos, m_shift, false));
 		}
 	}
+	m_pressed.clear();
 	for (const auto& button : m_released) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
-			m_active.erase(it->second);
-			mark::command command;
-			command.type = it->second;
-			command.pos =  mouse_pos;
-			command.shift = m_shift;
-			command.release = true;
-			out.push_back(command);
+			out.push_back(it->second(mouse_pos, m_shift, true));
 		}
 	}
-	for (const auto& command_type : m_active) {
-		mark::command command;
-		command.type = command_type;
-		command.pos =  mouse_pos;
-		command.shift = m_shift;
-		command.release = false;
-		out.push_back(command);
-	}
-	mark::command command;
-	command.type = command::type::guide;
-	command.pos =  mouse_pos;
-	command.release = false;
-	command.shift = m_shift;
-	out.push_back(command);
-	m_pressed.clear();
 	m_released.clear();
+	out.push_back(command_dict.at("guide")(mouse_pos, m_shift, true));
 	return out;
 }
