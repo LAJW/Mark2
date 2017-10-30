@@ -16,6 +16,7 @@ public:
 			vector<double>>> = 0;
 	virtual auto collide(vector<double> center, float radius) ->
 		std::vector<std::reference_wrapper<interface::damageable>> = 0;
+	virtual auto radius() const -> double = 0;
 protected:
 	template<typename...Args>
 	inline damageable(Args&&... args)

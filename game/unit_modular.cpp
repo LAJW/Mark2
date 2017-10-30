@@ -126,7 +126,6 @@ void mark::unit::modular::tick_movement(
 	double dt, const module::modifiers& mods)
 {
 	double max_velocity = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
-	const auto radius = 75.f;
 	vector<double> step;
 	const auto distance = length(m_moveto - pos());
 	if (distance > m_velocity * dt) {
@@ -140,10 +139,10 @@ void mark::unit::modular::tick_movement(
 		if (team() != 1
 			&& (m_path_age <= 0.f
 				|| !m_path_cache.empty()
-					&& length(m_path_cache.front() - m_moveto) < radius)
+					&& length(m_path_cache.front() - m_moveto) < m_radius)
 			&& world().map().can_find()
 			&& !world().resource_manager().random(0, 2)) {
-			m_path_cache = world().map().find_path(pos(), m_moveto, radius);
+			m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
 			m_path_age = 1.f;
 		} else {
 			m_path_age -= static_cast<float>(dt);
@@ -162,7 +161,7 @@ void mark::unit::modular::tick_movement(
 	}
 	if (m_ai) {
 		const auto allies = world().find<modular>(
-			pos(), radius * 2, [this](const auto& unit) {
+			pos(), m_radius, [this](const auto& unit) {
 			return unit.team() == this->team();
 		});
 		for (const auto& ally : allies) {
@@ -173,13 +172,13 @@ void mark::unit::modular::tick_movement(
 		}
 	}
 	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
-	if (world().map().traversable(pos() + step, radius)) {
+	if (world().map().traversable(pos() + step, m_radius)) {
 		pos() += step;
 	} else if (world().map().traversable(
-			pos() + vector<double>(step.x, 0), radius)) {
+			pos() + vector<double>(step.x, 0), m_radius)) {
 		pos() += vector<double>(step.x, 0);
 	} else if (world().map().traversable(
-			pos() + vector<double>(0, step.y), radius)) {
+			pos() + vector<double>(0, step.y), m_radius)) {
 		pos() += vector<double>(0, step.y);
 	}
 	if (m_lookat != pos()) {
@@ -288,6 +287,9 @@ void mark::unit::modular::stop()
 	m_moveto = pos();
 }
 
+auto mark::unit::modular::radius() const -> double
+{ return m_radius; }
+
 auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) noexcept
 	-> std::pair<module::base*, bool>&
 { return m_grid[user_pos.x + user_pos.y * max_size]; }
@@ -380,6 +382,10 @@ auto mark::unit::modular::p_attach(
 			this->p_reserved(vector<int8_t>(i)) = true;
 		}
 	}
+	m_radius = std::max(
+		m_radius,
+		length(module->pos() - this->pos())
+		/* + length(module->size()) * static_cast<double>(module::size) / 2. */);
 	m_modules.emplace_back(std::move(module));
 	return error::code::success;
 }
@@ -484,16 +490,23 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 		m_modules.begin(), m_modules.end(), [=](const auto& ptr) {
 		return ptr.get() == module_ptr;
 	});
+	m_radius = 0.;
+	for (const auto& cur_module : m_modules) {
+		m_radius = std::max(
+			m_radius,
+			length(cur_module->pos() - this->pos())
+			/* + length(module->size()) * static_cast<double>(module::size) / 2. */);
+
+	}
 	return std::move(drop(m_modules, module_it));
 }
 
 
 void mark::unit::modular::command(const mark::command& command)
 {
-	const auto radius = 75.f;
 	if (command.type == command::type::move) {
 		m_moveto = command.pos;
-		m_path_cache = world().map().find_path(pos(), m_moveto, radius);
+		m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
 		if (!m_path_cache.empty()
 			&& length(m_path_cache.front() - m_moveto) > map::tile_size ) {
 			m_moveto = m_path_cache.front();

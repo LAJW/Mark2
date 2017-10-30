@@ -77,7 +77,7 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 }
 
 auto mark::intersect(
-	segment_t segment, const vector<double>& center, float radius) noexcept
+	segment_t segment, const vector<double>& center, double radius) noexcept
 	-> std::optional<vector<double>>
 {
 	const auto line = get_line(segment.first, segment.second);

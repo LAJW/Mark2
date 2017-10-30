@@ -77,7 +77,7 @@ namespace mark {
 
 	// given segment and a circle, get nearerst intersection
 	auto intersect(
-		segment_t, const vector<double>& center, float radius) noexcept
+		segment_t, const vector<double>& center, double radius) noexcept
 		-> std::optional<vector<double>>;
 
 	// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.

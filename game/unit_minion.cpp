@@ -10,7 +10,7 @@ mark::unit::minion::minion(mark::world& world, vector<double> pos):
 	unit::damageable(world, pos),
 	m_model(world.resource_manager().image("mark1.png")),
 	m_gun_cooldown(0.5f),
-	m_model_shield(world.resource_manager(), 116.f),
+	m_model_shield(world.resource_manager(), static_cast<float>(this->radius()) * 2.f),
 	m_image_explosion(world.resource_manager().image("explosion.png")) { }
 
 void mark::unit::minion::tick(tick_context& context) {
@@ -22,15 +22,15 @@ void mark::unit::minion::tick(tick_context& context) {
 	const auto velocity = 100.0;
 	const auto angular_velocity = 90.f;
 
-	auto neighbors = world().find(pos(), 50.0);
+	auto neighbours = world().find(pos(), this->radius());
 	if (world().target()) {
 		const auto target_pos = world().target()->pos();
 		const auto distance = target_pos - pos();
 		if (length(distance) < 1000) {
 			const auto length = mark::length(distance);
 			auto direction2 = vector<double>(0, 0);
-			for (const auto& neighbor : neighbors) {
-				auto dist = (pos() - neighbor->pos());
+			for (const auto& neighbour : neighbours) {
+				auto dist = (pos() - neighbour->pos());
 				auto len = mark::length(dist);
 				if (len) {
 					dist = dist / len;
@@ -98,18 +98,17 @@ auto mark::unit::minion::collide(const segment_t& ray) ->
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
-	const auto ship_radius = 58.f;
-	if (const auto intersection = intersect(ray, pos(), ship_radius)) {
+	if (const auto intersection = intersect(ray, pos(), this->radius())) {
 		return { { *this, *intersection} };
 	}
 	return { };
 }
 
 auto mark::unit::minion::collide(vector<double> center, float radius) ->
-	std::vector<std::reference_wrapper<interface::damageable>> {
+	std::vector<std::reference_wrapper<interface::damageable>>
+{
 	std::vector<std::reference_wrapper<interface::damageable>> out;
-	const auto ship_radius = 58.f;
-	if (length(pos() - center) <= ship_radius + radius) {
+	if (length(pos() - center) <= this->radius() + radius) {
 		return { *this };
 	}
 	return { };
@@ -128,4 +127,7 @@ void mark::unit::minion::on_death(tick_context & context) {
 		m_dead = true;
 	}
 }
+
+auto mark::unit::minion::radius() const -> double
+{ return 58.f; }
 

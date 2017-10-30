@@ -79,6 +79,7 @@ public:
 	void ai(bool);
 	// Set velocity (and acceleration) of this vessel to zero
 	void stop();
+	auto radius() const -> double override;
 private:
 	void tick(tick_context& context) override;
 	void on_death(tick_context& context) override;
@@ -118,6 +119,7 @@ private:
 	std::vector<vector<double>> m_path_cache; // path cache
 	float m_path_age = 0.f;
 	double m_velocity = 0;
+	double m_radius = 0.;
 };
 }
 }
