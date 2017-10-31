@@ -52,8 +52,7 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 { 
 	return [=](
 		const mark::vector<double>& mouse_pos, bool shift, bool release)
-		-> mark::command::any
-	{
+		-> mark::command::any {
 		if (shift) {
 			if (release) {
 				return std::monostate();
@@ -67,9 +66,10 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 	};
 }
 
-auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool)
+auto make_command_move(
+	const mark::vector<double>& mouse_pos, bool, bool release)
 	-> mark::command::any
-{ return mark::command::move{ mouse_pos }; };
+{ return mark::command::move{ mouse_pos, release }; };
 
 auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool)
 	-> mark::command::any

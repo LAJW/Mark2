@@ -144,11 +144,20 @@ void mark::main(std::vector<std::string> args)
 		}
 		hid.handle(info.event);
 	};
+	bool moving = false;
 	const auto on_tick = [&](const on_tick_info& info) {
 		const auto target = world_stack.world().camera()
 			+ info.mouse_pos - info.window_res / 2.;
 		for (const auto command : hid.commands(target)) {
 			ui.command(world_stack.world(), command);
+			if (const auto move = std::get_if<command::move>(&command)) {
+				moving = !move->release;
+			}
+			if (const auto move = std::get_if<command::guide>(&command)) {
+				if (moving) {
+					world_stack.world().command(command::move{ move->pos, true });
+				}
+			}
 			world_stack.world().command(command);
 		}
 		mark::tick_context context(rm);

@@ -216,7 +216,10 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 			ship->toggle_bind(use->type, pick_pos);
 		}
 	} else if (const auto move = std::get_if<command::move>(&any)) {
-		const auto relative = (use->pos - landing_pad->pos()) / 16.0;
+		if (move->release) {
+			return;
+		}
+		const auto relative = (move->to - landing_pad->pos()) / 16.0;
 		const auto module_pos = round(relative);
 		const auto pick_pos = floor(relative);
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {

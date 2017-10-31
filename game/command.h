@@ -3,7 +3,7 @@
 
 namespace mark {
 namespace command {
-struct move { vector<double> to; };
+struct move { vector<double> to; bool release; };
 struct guide { vector<double> pos; };
 struct activate { };
 enum class type {
