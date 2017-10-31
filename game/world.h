@@ -70,7 +70,7 @@ public:
 		}
 		return nullptr;
 	}
-	void command(const command_any& command);
+	void command(const command::any& command);
 	// set target for commmands
 	void target(const std::shared_ptr<unit::base>& target);
 	// get target for commands

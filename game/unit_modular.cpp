@@ -502,7 +502,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 }
 
 
-void mark::unit::modular::command(const command_any& any)
+void mark::unit::modular::command(const command::any& any)
 {
 	if (const auto move = std::get_if<command::move>(&any)) {
 		m_moveto = move->to;

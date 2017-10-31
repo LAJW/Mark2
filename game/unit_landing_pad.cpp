@@ -59,7 +59,7 @@ auto mark::unit::landing_pad::activate(
 	return error::code::success;
 }
 
-void mark::unit::landing_pad::command(const mark::command_any& any) {
+void mark::unit::landing_pad::command(const mark::command::any& any) {
 	if (std::holds_alternative<command::activate>(any)) {
 		if (auto ship = m_ship.lock()) {
 			world().target(std::move(ship));

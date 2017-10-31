@@ -197,7 +197,7 @@ bool mark::ui::ui::hover(vector<int> screen_pos)
 	return false;
 }
 
-void mark::ui::ui::command(world& world, const mark::command_any &any)
+void mark::ui::ui::command(world& world, const mark::command::any &any)
 {
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());
 	if (!landing_pad) {

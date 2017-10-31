@@ -52,7 +52,7 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 { 
 	return [=](
 		const mark::vector<double>& mouse_pos, bool shift, bool release)
-		-> mark::command_any
+		-> mark::command::any
 	{
 		if (shift) {
 			if (release) {
@@ -68,15 +68,15 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 }
 
 auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool)
-	-> mark::command_any
+	-> mark::command::any
 { return mark::command::move{ mouse_pos }; };
 
 auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool)
-	-> mark::command_any
+	-> mark::command::any
 { return mark::command::guide{ mouse_pos }; };
 
 auto make_command_activate(const mark::vector<double>&, bool, bool release)
-	-> mark::command_any
+	-> mark::command::any
 {
 	if (release) {
 		return std::monostate();
@@ -133,9 +133,9 @@ void mark::hid::handle(const sf::Event& event)
 }
 
 auto mark::hid::commands(const mark::vector<double>& mouse_pos)
-	-> std::vector<command_any>
+	-> std::vector<command::any>
 {
-	std::vector<command_any> out;
+	std::vector<command::any> out;
 	for (const auto& button : m_pressed) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
