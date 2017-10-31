@@ -19,8 +19,7 @@ public:
 		ability_6,
 		ability_7,
 		ability_8,
-		ability_9,
-		reset
+		ability_9
 	} type;
 	vector<double> pos;
 	bool release = false;

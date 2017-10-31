@@ -94,7 +94,6 @@ command_dict {
 	{ "ability-7", make_make_command(mark::command::type::ability_7) },
 	{ "ability-8", make_make_command(mark::command::type::ability_8) },
 	{ "ability-9", make_make_command(mark::command::type::ability_9) },
-	{ "reset", make_make_command(mark::command::type::reset) },
 	{ "activate", make_command_activate }
 };
 }
