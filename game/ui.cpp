@@ -228,11 +228,12 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 				// module's top-left corner
 				const auto drop_pos = module_pos
 					- vector<int>(grabbed->size()) / 2;
-				(void)ship->attach(drop_pos, grabbed);
-				for (const auto& bind : this->grabbed_bind) {
-					ship->toggle_bind(bind, drop_pos);
+				if (error::code::success == ship->attach(drop_pos, grabbed)) {
+					for (const auto& bind : this->grabbed_bind) {
+						ship->toggle_bind(bind, drop_pos);
+					}
+					grabbed_bind.clear();
 				}
-				grabbed_bind.clear();
 			} else {
 				grabbed_bind = ship->binding(pick_pos);
 				grabbed = ship->detach(pick_pos);
