@@ -522,18 +522,21 @@ void mark::unit::modular::command(const command_any& any)
 			(void)pad->activate(
 				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
 		}
-	} else if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->shift == false) {
-			auto bindings = m_bindings.equal_range(command->type);
-			std::for_each(bindings.first, bindings.second, [&command](auto module) {
-				module.second.get().shoot(command->pos, command->release);
-			});
-		} else {
-			auto bindings = m_bindings.equal_range(command->type);
-			std::for_each(bindings.first, bindings.second, [&command](auto module) {
-				module.second.get().queue(command->pos, command->release);
-			});
-		}
+	} else if (const auto shoot = std::get_if<command::use>(&any)) {
+		auto bindings = m_bindings.equal_range(shoot->type);
+		std::for_each(bindings.first, bindings.second, [&shoot](auto module) {
+			module.second.get().shoot(shoot->pos, false);
+		});
+	} else if (const auto release = std::get_if<command::release>(&any)) {
+		auto bindings = m_bindings.equal_range(release->type);
+		std::for_each(bindings.first, bindings.second, [&release](auto module) {
+			module.second.get().shoot(release->pos, true);
+		});
+	} else if (const auto queue = std::get_if<command::queue>(&any)) {
+		auto bindings = m_bindings.equal_range(queue->type);
+		std::for_each(bindings.first, bindings.second, [&queue](auto module) {
+			module.second.get().queue(queue->pos, true);
+		});
 	}
 }
 

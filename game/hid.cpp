@@ -51,13 +51,19 @@ const std::unordered_map<std::string, mark::hid::button> key_dict{
 auto make_make_command(enum class mark::command::type type) -> mark::hid::make_command_type
 { 
 	return [=](
-		const mark::vector<double>& mouse_pos, bool shift, bool release) {
-		mark::command command;
-		command.type = type;
-		command.pos = mouse_pos;
-		command.shift = shift;
-		command.release = release;
-		return command;
+		const mark::vector<double>& mouse_pos, bool shift, bool release)
+		-> mark::command_any
+	{
+		if (shift) {
+			if (release) {
+				return std::monostate();
+			}
+			return mark::command::queue{ type, mouse_pos };
+		}
+		if (release) {
+			return mark::command::release{ type, mouse_pos };
+		}
+		return mark::command::use{ type, mouse_pos };
 	};
 }
 

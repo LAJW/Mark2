@@ -207,20 +207,16 @@ void mark::ui::ui::command(world& world, const mark::command_any &any)
 	if (!ship) {
 		return;
 	}
-	if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->type == command::type::shoot && command->release && grabbed) {
+	if (const auto use = std::get_if<command::use>(&any)) {
+		if (grabbed) {
 			this->release();
-		} else if (command->release) {
-			if (command->type >= command::type::ability_0
-				&& command->type <= command::type::ability_9
-				|| command->type == command::type::shoot) {
-				const auto relative = (command->pos - landing_pad->pos()) / 16.0;
-				const auto pick_pos = floor(relative);
-				ship->toggle_bind(command->type, pick_pos);
-			}
+		} else {
+			const auto relative = (use->pos - landing_pad->pos()) / 16.0;
+			const auto pick_pos = floor(relative);
+			ship->toggle_bind(use->type, pick_pos);
 		}
 	} else if (const auto move = std::get_if<command::move>(&any)) {
-		const auto relative = (command->pos - landing_pad->pos()) / 16.0;
+		const auto relative = (use->pos - landing_pad->pos()) / 16.0;
 		const auto module_pos = round(relative);
 		const auto pick_pos = floor(relative);
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {

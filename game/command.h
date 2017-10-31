@@ -8,7 +8,6 @@ public:
 	struct guide { vector<double> pos; };
 	struct activate { };
 	enum class type {
-		null,
 		shoot,
 		ability_0,
 		ability_1,
@@ -20,12 +19,12 @@ public:
 		ability_7,
 		ability_8,
 		ability_9
-	} type;
-	vector<double> pos;
-	bool release = false;
-	bool shift = false;
+	};
+	struct queue { type type; vector<double> pos; };
+	struct use { type type; vector<double> pos; };
+	struct release { type type; vector<double> pos; };
 };
 
 using command_any = std::variant<
-	command::move, command::guide, command::activate, command, std::monostate>;
+	command::move, command::guide, command::activate, command::release, command::queue, command::use, std::monostate>;
 }
