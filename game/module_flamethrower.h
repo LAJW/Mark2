@@ -14,7 +14,7 @@ public:
 
 	flamethrower(resource::manager&, const YAML::Node&);
 	flamethrower(resource::manager& manager);
-	void shoot(vector<double> pos, bool release) override;
+	void command(const command::any& any) override;
 	auto describe() const -> std::string override;
 	auto harvest_energy() -> float override;
 	auto energy_ratio() const -> float override;

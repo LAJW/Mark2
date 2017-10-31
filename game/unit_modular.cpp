@@ -198,7 +198,7 @@ void mark::unit::modular::tick_ai() {
 		m_moveto = enemy->pos();
 		m_lookat = enemy->pos();
 		for (auto& module : m_modules) {
-			module->target(enemy->pos());
+			module->command(command::guide{ m_moveto });
 		}
 	}
 }
@@ -501,6 +501,22 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 	return std::move(drop(m_modules, module_it));
 }
 
+namespace {
+static auto ability_id(const mark::command::any& any) -> std::optional<mark::command::type>
+{
+	using namespace mark;
+	if (const auto release = std::get_if<command::release>(&any)) {
+		return release->type;
+	}
+	if (const auto use = std::get_if<command::use>(&any)) {
+		return use->type;
+	}
+	if (const auto queue = std::get_if<command::queue>(&any)) {
+		return queue->type;
+	}
+	return { };
+}
+}
 
 void mark::unit::modular::command(const command::any& any)
 {
@@ -514,7 +530,7 @@ void mark::unit::modular::command(const command::any& any)
 	} else if (const auto guide = std::get_if<command::guide>(&any)) {
 		m_lookat = guide->pos;
 		for (auto& module : m_modules) {
-			module->target(guide->pos);
+			module->command(command::guide{ guide->pos });
 		}
 	} else if (std::holds_alternative<command::activate>(any)) {
 		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
@@ -522,20 +538,10 @@ void mark::unit::modular::command(const command::any& any)
 			(void)pad->activate(
 				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
 		}
-	} else if (const auto shoot = std::get_if<command::use>(&any)) {
-		auto bindings = m_bindings.equal_range(shoot->type);
-		std::for_each(bindings.first, bindings.second, [&shoot](auto module) {
-			module.second.get().shoot(shoot->pos, false);
-		});
-	} else if (const auto release = std::get_if<command::release>(&any)) {
-		auto bindings = m_bindings.equal_range(release->type);
-		std::for_each(bindings.first, bindings.second, [&release](auto module) {
-			module.second.get().shoot(release->pos, true);
-		});
-	} else if (const auto queue = std::get_if<command::queue>(&any)) {
-		auto bindings = m_bindings.equal_range(queue->type);
-		std::for_each(bindings.first, bindings.second, [&queue](auto module) {
-			module.second.get().queue(queue->pos, true);
+	} else if (const auto id = ability_id(any)) {
+		auto bindings = m_bindings.equal_range(*id);
+		std::for_each(bindings.first, bindings.second, [&](auto module) {
+			module.second.get().command(any);
 		});
 	}
 }

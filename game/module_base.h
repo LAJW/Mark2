@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "interface_damageable.h"
+#include "command.h"
 
 namespace sf {
 	class Color;
@@ -89,14 +90,7 @@ public:
 	// Can module be detached from the vessel
 	virtual auto detachable() const -> bool { return true; }
 
-	// Target/look at specific position in the world
-	virtual void target(vector<double> pos);
-
-	// Select target to shoot at
-	virtual void shoot(vector<double> pos, bool release);
-
-	// Add target to shooting queue
-	virtual void queue(vector<double> pos, bool release);
+	virtual void command(const command::any&);
 
 	// Find collision point, return pointer to damaged module
 	virtual auto collide(const segment_t&) ->

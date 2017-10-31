@@ -11,10 +11,8 @@ class base;
 namespace module {
 class base_turret : public module::base {
 public:
-	void target(vector<double> pos) override;
-	void shoot(vector<double> pos, bool release) override;
-	void queue(vector<double> pos, bool release) override;
 	auto passive() const noexcept -> bool override;
+	void command(const command::any&) override final;
 protected:
 	base_turret(
 		vector<unsigned> size,
@@ -26,6 +24,10 @@ protected:
 	auto target() const -> std::optional<vector<double>>;
 	void serialise(YAML::Emitter&) const;
 private:
+	void target(vector<double> pos);
+	void shoot(vector<double> pos, bool release);
+	void queue(vector<double> pos, bool release);
+
 	using target_type = std::pair<bool, vector<double>>;
 	using queue_type = std::deque<
 		std::pair<

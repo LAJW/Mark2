@@ -116,3 +116,16 @@ void mark::module::base_turret::queue(vector<double> pos, bool)
 auto mark::module::base_turret::passive() const noexcept -> bool
 { return false; }
 
+void mark::module::base_turret::command(const command::any& any)
+{
+	if (const auto use = std::get_if<command::use>(&any)) {
+		this->shoot(use->pos, false);
+	} else if (const auto release = std::get_if<command::release>(&any)) {
+		this->shoot(release->pos, true);
+	} else if (const auto guide = std::get_if<command::guide>(&any)) {
+		this->target(guide->pos);
+	} else if (const auto queue = std::get_if<command::queue>(&any)) {
+		this->queue(queue->pos, false);
+	}
+}
+

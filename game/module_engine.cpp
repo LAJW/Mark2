@@ -32,8 +32,13 @@ auto mark::module::engine::global_modifiers() const->module::modifiers {
 	return mods;
 }
 
-void mark::module::engine::shoot(vector<double>, bool release) {
-	m_active = !release;
+void mark::module::engine::command(const command::any& any)
+{
+	if (std::holds_alternative<command::use>(any)) {
+		m_active = true;
+	} else if (std::holds_alternative<command::release>(any)) {
+		m_active = false;
+	}
 }
 
 mark::module::engine::engine(resource::manager& rm, const YAML::Node& node):

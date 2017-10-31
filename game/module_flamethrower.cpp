@@ -10,6 +10,15 @@ mark::module::flamethrower::flamethrower(resource::manager& manager) :
 	module::base({ 2, 2 }, manager.image("turret.png")),
 	m_image_base(manager.image("turret.png")) { }
 
+void mark::module::flamethrower::command(const command::any & any)
+{
+	if (std::holds_alternative<command::use>(any)) {
+		m_shoot = true;
+	} else if (std::holds_alternative<command::release>(any)) {
+		m_shoot = false;
+	}
+}
+
 void mark::module::flamethrower::tick(tick_context& context) {
 	this->module::base::tick(context);
 	const auto pos = this->pos();
@@ -51,10 +60,6 @@ void mark::module::flamethrower::tick(tick_context& context) {
 		}
 	}
 
-}
-
-void mark::module::flamethrower::shoot(vector<double>, bool release) {
-	m_shoot = !release;
 }
 
 auto mark::module::flamethrower::describe() const->std::string {

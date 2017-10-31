@@ -180,13 +180,7 @@ bool mark::module::base::damage(const interface::damageable::info& attr) {
 auto mark::module::base::dead() const -> bool
 { return m_cur_health <= 0.f; }
 
-void mark::module::base::target(vector<double>)
-{}
-
-void mark::module::base::queue(vector<double>, bool)
-{}
-
-void mark::module::base::shoot(vector<double>, bool)
+void mark::module::base::command(const command::any&)
 {}
 
 void mark::module::base::on_death(tick_context& context) {
