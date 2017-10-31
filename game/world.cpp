@@ -65,11 +65,9 @@ mark::world::world(
 			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
 				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
-				mark::command command;
-				command.type = command::type::ai;
 				m_units.push_back(unit::deserialise(*this, templates.at("ship")));
+				std::dynamic_pointer_cast<unit::modular>(m_units.back())->ai(true);
 				m_units.back()->pos(pos);
-				m_units.back()->command(command);
 			}
 		}
 	}

@@ -8,7 +8,6 @@ public:
 	struct guide { vector<double> pos; };
 	enum class type {
 		null,
-		ai,
 		activate,
 		shoot,
 		ability_0,

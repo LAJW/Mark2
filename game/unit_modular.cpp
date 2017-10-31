@@ -517,9 +517,7 @@ void mark::unit::modular::command(const command_any& any)
 			module->target(guide->pos);
 		}
 	} else if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->type == command::type::ai) {
-			m_ai = true;
-		} else if (command->type == command::type::activate
+		if (command->type == command::type::activate
 			&& !command->release) {
 			if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
 				// TODO Propagate error
