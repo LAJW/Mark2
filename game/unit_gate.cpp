@@ -7,6 +7,8 @@
 #include "tick_context.h"
 #include "unit_modular.h"
 
+constexpr const auto UNIT_GATE_SIZE = 320.f;
+
 mark::unit::gate::gate(mark::world& world, vector<double> pos, bool inverted)
 	: activable(world, pos)
 	, m_image(world.resource_manager().image("kappa.png"))
@@ -17,7 +19,7 @@ void mark::unit::gate::tick(tick_context& context) {
 	sprite info;
 	info.image = m_image;
 	info.pos = pos();
-	info.size = 320.f;
+	info.size = UNIT_GATE_SIZE;
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
 }

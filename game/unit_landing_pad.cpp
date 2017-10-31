@@ -11,6 +11,8 @@
 #include "module_cargo.h"
 #include "exception.h"
 
+constexpr const auto LANDING_PAD_SIZE = 320.f;
+
 mark::unit::landing_pad::landing_pad(
 	mark::world& world, vector<double> pos)
 	: activable(world, pos)
@@ -43,7 +45,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 	sprite info;
 	info.image = m_image;
 	info.pos = pos();
-	info.size = 320.f;
+	info.size = LANDING_PAD_SIZE;
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
 }
