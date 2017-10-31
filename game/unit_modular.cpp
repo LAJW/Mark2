@@ -516,15 +516,14 @@ void mark::unit::modular::command(const command_any& any)
 		for (auto& module : m_modules) {
 			module->target(guide->pos);
 		}
+	} else if (std::holds_alternative<command::activate>(any)) {
+		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
+			// TODO Propagate error
+			(void)pad->activate(
+				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
+		}
 	} else if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->type == command::type::activate
-			&& !command->release) {
-			if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
-				// TODO Propagate error
-				(void)pad->activate(
-					std::dynamic_pointer_cast<modular>(this->shared_from_this()));
-			}
-		} else if (command->shift == false) {
+		if (command->shift == false) {
 			auto bindings = m_bindings.equal_range(command->type);
 			std::for_each(bindings.first, bindings.second, [&command](auto module) {
 				module.second.get().shoot(command->pos, command->release);

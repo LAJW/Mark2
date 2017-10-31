@@ -60,12 +60,10 @@ auto mark::unit::landing_pad::activate(
 }
 
 void mark::unit::landing_pad::command(const mark::command_any& any) {
-	if (const auto command = std::get_if<mark::command>(&any)) {
-		if (command->type == mark::command::type::activate && !command->release) {
-			if (auto ship = m_ship.lock()) {
-				world().target(std::move(ship));
-				m_ship.reset();
-			}
+	if (std::holds_alternative<command::activate>(any)) {
+		if (auto ship = m_ship.lock()) {
+			world().target(std::move(ship));
+			m_ship.reset();
 		}
 	}
 }

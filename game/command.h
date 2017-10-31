@@ -6,9 +6,9 @@ class command {
 public:
 	struct move { vector<double> to; };
 	struct guide { vector<double> pos; };
+	struct activate { };
 	enum class type {
 		null,
-		activate,
 		shoot,
 		ability_0,
 		ability_1,
@@ -27,5 +27,6 @@ public:
 	bool shift = false;
 };
 
-using command_any = std::variant<command::move, command::guide, command>;
+using command_any = std::variant<
+	command::move, command::guide, command::activate, command, std::monostate>;
 }

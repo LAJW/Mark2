@@ -61,11 +61,22 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 	};
 }
 
-auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool) -> mark::command_any
+auto make_command_move(const mark::vector<double>& mouse_pos, bool, bool)
+	-> mark::command_any
 { return mark::command::move{ mouse_pos }; };
 
-auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool) -> mark::command_any
+auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool)
+	-> mark::command_any
 { return mark::command::guide{ mouse_pos }; };
+
+auto make_command_activate(const mark::vector<double>&, bool, bool release)
+	-> mark::command_any
+{
+	if (release) {
+		return std::monostate();
+	}
+	return mark::command::activate();
+};
 
 
 const std::unordered_map<std::string, mark::hid::make_command_type>
@@ -84,7 +95,7 @@ command_dict {
 	{ "ability-8", make_make_command(mark::command::type::ability_8) },
 	{ "ability-9", make_make_command(mark::command::type::ability_9) },
 	{ "reset", make_make_command(mark::command::type::reset) },
-	{ "activate", make_make_command(mark::command::type::activate) }
+	{ "activate", make_command_activate }
 };
 }
 
