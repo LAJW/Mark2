@@ -89,9 +89,6 @@ void mark::module::base_turret::target(vector<double> pos)
 	}
 }
 
-void mark::module::base_turret::shoot(vector<double> pos, bool release)
-{ m_target = std::make_pair(!release, pos); }
-
 void mark::module::base_turret::queue(vector<double> pos, bool)
 {
 	auto unit = parent().world().find_one<unit::damageable>(
@@ -119,9 +116,11 @@ auto mark::module::base_turret::passive() const noexcept -> bool
 void mark::module::base_turret::command(const command::any& any)
 {
 	if (const auto use = std::get_if<command::use>(&any)) {
-		this->shoot(use->pos, false);
+		m_target = std::make_pair(true, use->pos);
 	} else if (const auto release = std::get_if<command::release>(&any)) {
-		this->shoot(release->pos, true);
+		if (std::holds_alternative<target_type>(m_target)) {
+			m_target = std::make_pair(false, release->pos);
+		}
 	} else if (const auto guide = std::get_if<command::guide>(&any)) {
 		this->target(guide->pos);
 	} else if (const auto queue = std::get_if<command::queue>(&any)) {

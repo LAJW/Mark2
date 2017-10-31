@@ -25,7 +25,6 @@ protected:
 	void serialise(YAML::Emitter&) const;
 private:
 	void target(vector<double> pos);
-	void shoot(vector<double> pos, bool release);
 	void queue(vector<double> pos, bool release);
 
 	using target_type = std::pair<bool, vector<double>>;

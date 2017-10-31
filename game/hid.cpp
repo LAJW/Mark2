@@ -55,7 +55,7 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 		-> mark::command::any {
 		if (shift) {
 			if (release) {
-				return std::monostate();
+				return mark::command::release{ type, mouse_pos };
 			}
 			return mark::command::queue{ type, mouse_pos };
 		}
