@@ -13,6 +13,10 @@
 #include "ui_button.h"
 #include "ui_container.h"
 
+constexpr const auto tooltip_size = 300.f;
+constexpr const auto tooltip_margin = 7.f;
+constexpr const auto font_size = 14.f;
+
 mark::ui::ui::ui(resource::manager& rm)
 	: m_action_bar(rm)
 	, m_font(rm.image("font.png"))
@@ -103,7 +107,7 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 		if (grabbed) {
 			this->release();
 		} else {
-			const auto relative = (use->pos - landing_pad->pos()) / 16.0;
+			const auto relative = (use->pos - landing_pad->pos()) / double(module::size);
 			const auto pick_pos = floor(relative);
 			ship->toggle_bind(use->type, pick_pos);
 		}
@@ -111,7 +115,7 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 		if (move->release) {
 			return;
 		}
-		const auto relative = (move->to - landing_pad->pos()) / 16.0;
+		const auto relative = (move->to - landing_pad->pos()) / double(module::size);
 		const auto module_pos = round(relative);
 		const auto pick_pos = floor(relative);
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
@@ -148,7 +152,7 @@ void mark::ui::ui::tooltip(
 	sprite info;
 	info.image = m_tooltip_bg;
 	info.pos = screen_pos;
-	info.size = 300.f;
+	info.size = tooltip_size;
 	info.world = false;
 	info.centred = false;
 	context.sprites[110].emplace_back(info);
@@ -156,9 +160,11 @@ void mark::ui::ui::tooltip(
 	tick_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 110;
-	text_info.pos = screen_pos + vector<double>(7.f, 7.f);
-	text_info.box = { 300 - 14.f, 300 - 14.f };
-	text_info.size = 14.f;
+	text_info.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
+	text_info.box = {
+		tooltip_size - tooltip_margin * 2.f,
+		tooltip_size - tooltip_margin * 2.f };
+	text_info.size = font_size;
 	text_info.text = text;
 	context.render(text_info);
 
@@ -172,15 +178,17 @@ void mark::ui::ui::world_tooltip(
 	sprite info;
 	info.image = m_tooltip_bg;
 	info.pos = pos + vector<double>(150, 150),
-	info.size = 300.f;
+	info.size = tooltip_size;
 	context.sprites[100].emplace_back(info);
 
 	tick_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 100;
-	text_info.pos = pos + vector<double>(7.f, 7.f);
-	text_info.box = { 300 - 14.f, 300 - 14.f };
-	text_info.size = 14.f;
+	text_info.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
+	text_info.box = {
+		tooltip_size - tooltip_margin,
+		tooltip_size - tooltip_margin };
+	text_info.size = font_size;
 	text_info.text = text;
 	text_info.world = true;
 	text_info.centred = true;
@@ -192,18 +200,19 @@ static std::vector<bool> make_available_map(
 	const mark::unit::modular& ship)
 {
 	using namespace mark;
+	constexpr const auto grid_size = unit::modular::max_size;
 	const auto surface = range<vector<int>>(
-		{ -20, -20 },
-		{ 20, 20 });
-	std::vector<bool> available(40 * 40, false);
+		{ -int(grid_size) / 2, -int(grid_size) /2 },
+		{ grid_size / 2, grid_size / 2 });
+	std::vector<bool> available(grid_size * grid_size, false);
 	for (const auto top_left : surface) {
 		if (ship.can_attach(top_left, module)) {
 			for (const auto relative : range(module.size())) {
 				const auto pos = top_left
-					+ vector<int>(20, 20)
+					+ vector<int>(grid_size / 2, grid_size / 2)
 					+ vector<int>(relative);
-				if (pos.x < 40 && pos.y < 40) {
-					available[pos.x + pos.y * 40] = true;
+				if (pos.x < grid_size && pos.y < grid_size) {
+					available[pos.x + pos.y * grid_size] = true;
 				}
 			}
 		}
@@ -231,19 +240,22 @@ void mark::ui::ui::container_ui(
 	const unit::landing_pad& landing_pad,
 	const unit::modular& ship)
 {
+	constexpr const auto grid_size = unit::modular::max_size;
 	const auto surface = range<vector<int>>(
-		{ -20, -20 },
-		{ 20, 20 });
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
 	const auto relative = (mouse_pos - landing_pad.pos()) / double(module::size);
 	const auto module_pos = round(relative);
 	if (grabbed) {
 		const auto available = make_available_map(*grabbed, ship);
 		for (const auto offset : surface) {
-			if (available[offset.x + 20 + (offset.y + 20) * 40]) {
+			if (available[offset.x + grid_size / 2 + (offset.y + grid_size / 2) * grid_size]) {
 				sprite info;
 				info.image = m_grid_bg;
-				info.pos = landing_pad.pos() + vector<double>(offset) * 16.0 + vector<double>(8.0, 8.0);
-				info.size = 16.f;
+				info.pos = landing_pad.pos()
+					+ vector<double>(offset) * double(module::size)
+					+ vector<double>(module::size, module::size) / 2.;
+				info.size = module::size;
 				info.color = sf::Color(0, 255, 255, 255);
 				context.sprites[1].emplace_back(info);
 			}
@@ -251,17 +263,17 @@ void mark::ui::ui::container_ui(
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			const auto size = static_cast<float>(std::max(
 				grabbed->size().x,
-				grabbed->size().y)) * 16.f;
+				grabbed->size().y)) * module::size;
 			const auto drop_pos = module_pos - vector<int>(grabbed->size()) / 2; // module's top-left corner
 			const auto color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green : sf::Color::Red;
 			sprite info;
 			info.image = grabbed->thumbnail();
-			info.pos = vector<double>(module_pos * 16) + landing_pad.pos();
+			info.pos = vector<double>(module_pos) * double(module::size) + landing_pad.pos();
 			info.size = size;
 			info.color = color;
 			context.sprites[100].emplace_back(info);
 		} else {
-			const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * 16.f;
+			const auto size = static_cast<float>(std::max(grabbed->size().x, grabbed->size().y)) * module::size;
 			sprite info;
 			info.image = grabbed->thumbnail();
 			info.pos = mouse_pos;
