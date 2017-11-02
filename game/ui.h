@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "command.h"
+#include "action_bar.h"
 
 namespace mark {
 namespace interface{
@@ -22,6 +23,7 @@ class world;
 
 namespace ui {
 class window;
+
 class ui final {
 public:
 	explicit ui(resource::manager& rm);
@@ -60,14 +62,14 @@ private:
 		const unit::landing_pad& landing_pad,
 		const unit::modular& ship);
 
+	action_bar m_action_bar;
+
 	std::string m_tooltip_text;
 	vector<double> m_tooltip_pso;
 
 	const std::shared_ptr<const resource::image> m_font;
 	const std::shared_ptr<const resource::image> m_tooltip_bg;
 	const std::shared_ptr<const resource::image> m_grid_bg;
-	const std::shared_ptr<const resource::image> m_hotbar_bg;
-	const std::shared_ptr<const resource::image> m_hotbar_overlay;
 
 	// Used to detect container change
 	size_t m_container_count = 0;

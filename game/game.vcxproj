@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="action_bar.cpp" />
     <ClCompile Include="adsr.cpp" />
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="cooldown.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="unit_deserialize.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="action_bar.h" />
     <ClInclude Include="adsr.h" />
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="base64.h" />

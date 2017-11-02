@@ -133,6 +133,9 @@
     <ClCompile Include="hid.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="action_bar.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -313,6 +316,9 @@
     </ClInclude>
     <ClInclude Include="unit_activable.h">
       <Filter>Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="action_bar.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
