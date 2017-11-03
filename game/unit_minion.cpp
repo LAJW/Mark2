@@ -7,7 +7,7 @@
 #include "unit_projectile.h"
 
 mark::unit::minion::minion(mark::world& world, vector<double> pos):
-	unit::damageable(world, pos),
+	unit::mobile(world, pos),
 	m_model(world.resource_manager().image("mark1.png")),
 	m_gun_cooldown(0.5f),
 	m_model_shield(world.resource_manager(), static_cast<float>(this->radius()) * 2.f),
@@ -23,9 +23,8 @@ void mark::unit::minion::tick(tick_context& context) {
 	const auto angular_velocity = 90.f;
 
 	auto neighbours = world().find(pos(), this->radius());
-	if (world().target()) {
-		const auto target_pos = world().target()->pos();
-		const auto distance = target_pos - pos();
+	if (const auto target = world().target()) {
+		const auto distance = target->pos() - pos();
 		if (length(distance) < 1000) {
 			const auto length = mark::length(distance);
 			auto direction2 = vector<double>(0, 0);
@@ -37,25 +36,10 @@ void mark::unit::minion::tick(tick_context& context) {
 					direction2 += dist;
 				}
 			}
-			if (m_path_age <= 0.f || m_path_cache.size() > 0 && mark::length(m_path_cache.back() - target_pos) < 150.f) {
-				m_path_cache = world().map().find_path(pos(), target_pos);
-				m_path_age = 1.f;
-			} else {
-				m_path_age -= static_cast<float>(context.dt);
-			}
-			vector<double> direction;
-			if (m_path_cache.size() > 3) {
-				const auto first = vector<double>(m_path_cache[m_path_cache.size() - 3]);
-				direction = normalize((first - pos())) + normalize(direction2);
-			} else if (mark::length(target_pos - pos()) > 320.0) {
-				direction = normalize((target_pos - pos())) + normalize(direction2);
-			}
-			pos() += direction * velocity * dt;
-			if (direction.x == 0 && direction.y == 0) {
-				m_rotation = turn(target_pos - pos(), m_rotation, angular_velocity, dt);
-			} else {
-				m_rotation = turn(direction, m_rotation, angular_velocity, dt);
-			}
+			mobile::command(command::move{ target->pos() });
+			mobile::tick_movement(dt, velocity, true);
+			m_rotation = turn(
+				normalize(distance), m_rotation, angular_velocity, dt);
 			if (m_gun_cooldown.trigger()) {
 				unit::projectile::info attr;
 				attr.world = &world();
