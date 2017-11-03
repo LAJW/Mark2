@@ -93,13 +93,11 @@ static auto filter_modules(vector_type& modules)
 
 }
 
-
-
 mark::unit::modular::modular(
 	mark::world& world,
 	vector<double> pos,
 	float rotation):
-	unit::damageable(world, pos),
+	unit::mobile(world, pos),
 	m_rotation(rotation) {}
 
 void mark::unit::modular::tick_modules(tick_context& context) {
@@ -112,81 +110,6 @@ void mark::unit::modular::tick_modules(tick_context& context) {
 	}
 }
 
-static auto start_breaking(
-	const double length,
-	const double velocity,
-	const double acceleration) -> bool
-{
-	const auto v = velocity, a = acceleration;
-	const auto s = std::pow(v, 2.0) / a - 0.5 * std::pow(v, 3.) / std::pow(a, 2.);
-	return length <= s;
-}
-
-void mark::unit::modular::tick_movement(
-	double dt, const module::modifiers& mods)
-{
-	double max_velocity = ((m_ai ? 64.0 : 320.0) + mods.velocity) + mods.velocity;
-	vector<double> step;
-	const auto distance = length(m_moveto - pos());
-	if (distance > m_velocity * dt) {
-		const auto acceleration = 500.0;
-		if (start_breaking(distance, m_velocity, acceleration)
-			|| m_velocity > max_velocity) {
-			m_velocity = std::max(0., m_velocity - acceleration * dt);
-		} else {
-			m_velocity = std::min(max_velocity, m_velocity + acceleration * dt);
-		}
-		if (team() != 1
-			&& (m_path_age <= 0.f
-				|| !m_path_cache.empty()
-					&& length(m_path_cache.front() - m_moveto) < m_radius)
-			&& world().map().can_find()
-			&& !world().resource_manager().random(0, 2)) {
-			m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
-			m_path_age = 1.f;
-		} else {
-			m_path_age -= static_cast<float>(dt);
-		}
-
-		while (!m_path_cache.empty() && length(m_path_cache.back() - pos()) <= map::tile_size) {
-			m_path_cache.pop_back();
-		}
-		const auto dir = m_path_cache.empty()
-			? normalize(m_moveto - pos())
-			: normalize(m_path_cache.back() - pos());
-		step = dir * m_velocity * dt;
-	} else {
-		step = m_moveto - pos();
-		m_velocity = 0.0;
-	}
-	if (m_ai) {
-		const auto allies = world().find<modular>(
-			pos(), m_radius, [this](const auto& unit) {
-			return unit.team() == this->team();
-		});
-		for (const auto& ally : allies) {
-			if (length(pos() + step - ally->pos())
-				< length(pos() - ally->pos())) {
-				step = { 0, 0 };
-			}
-		}
-	}
-	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
-	if (world().map().traversable(pos() + step, m_radius)) {
-		pos() += step;
-	} else if (world().map().traversable(
-			pos() + vector<double>(step.x, 0), m_radius)) {
-		pos() += vector<double>(step.x, 0);
-	} else if (world().map().traversable(
-			pos() + vector<double>(0, step.y), m_radius)) {
-		pos() += vector<double>(0, step.y);
-	}
-	if (m_lookat != pos()) {
-		const auto turn_speed = m_ai ? 32.f : 360.f;
-		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, dt);
-	}
-}
-
 void mark::unit::modular::tick_ai() {
 	auto enemy = world().find_one<unit::damageable>(
 		pos(),
@@ -195,10 +118,10 @@ void mark::unit::modular::tick_ai() {
 		return unit.team() != this->team();
 	});
 	if (enemy) {
-		m_moveto = enemy->pos();
 		m_lookat = enemy->pos();
+		mobile::command(command::move{ m_lookat });
 		for (auto& module : m_modules) {
-			module->command(command::guide{ m_moveto });
+			module->command(command::guide{ m_lookat });
 		}
 	}
 }
@@ -281,12 +204,6 @@ auto mark::unit::modular::p_reserved(vector<int8_t> user_pos) const noexcept
 void mark::unit::modular::ai(bool ai)
 { m_ai = ai; }
 
-void mark::unit::modular::stop()
-{
-	m_velocity = { };
-	m_moveto = pos();
-}
-
 auto mark::unit::modular::radius() const -> double
 { return m_radius; }
 
@@ -316,7 +233,11 @@ void mark::unit::modular::tick(tick_context& context)
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);
 	}
-	this->tick_movement(context.dt, modifiers);
+	this->tick_movement(context.dt, (m_ai ? 64.0 : 320.0) + modifiers.velocity, m_ai);
+	if (m_lookat != pos()) {
+		const auto turn_speed = m_ai ? 32.f : 360.f;
+		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, context.dt);
+	}
 	if (m_ai) {
 		this->tick_ai();
 	}
@@ -502,7 +423,8 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 }
 
 namespace {
-static auto ability_id(const mark::command::any& any) -> std::optional<mark::command::type>
+static auto ability_id(const mark::command::any& any)
+	-> std::optional<mark::command::type>
 {
 	using namespace mark;
 	if (const auto release = std::get_if<command::release>(&any)) {
@@ -520,14 +442,8 @@ static auto ability_id(const mark::command::any& any) -> std::optional<mark::com
 
 void mark::unit::modular::command(const command::any& any)
 {
-	if (const auto move = std::get_if<command::move>(&any)) {
-		m_moveto = move->to;
-		m_path_cache = world().map().find_path(pos(), m_moveto, m_radius);
-		if (!m_path_cache.empty()
-			&& length(m_path_cache.front() - m_moveto) > map::tile_size) {
-			m_moveto = m_path_cache.front();
-		}
-	} else if (const auto guide = std::get_if<command::guide>(&any)) {
+	mobile::command(any);
+	if (const auto guide = std::get_if<command::guide>(&any)) {
 		m_lookat = guide->pos;
 		for (auto& module : m_modules) {
 			module->command(command::guide{ guide->pos });
@@ -698,9 +614,7 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t {
 // Serializer / Deserializer
 
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
-	: unit::damageable(world, node)
-	, m_moveto(node["moveto"].as<vector<double>>())
-	, m_lookat(node["lookat"].as<vector<double>>())
+	: unit::mobile(world, node)
 	, m_ai(node["ai"].as<bool>())
 {
 	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
@@ -736,11 +650,6 @@ void mark::unit::modular::serialise(YAML::Emitter& out) const {
 		module->serialise(out);
 	}
 	out << EndSeq;
-
-	out << Key << "moveto" << Value << BeginMap;
-	out << Key << "x" << Value << m_moveto.x;
-	out << Key << "y" << Value << m_moveto.y;
-	out << EndMap;
 
 	out << Key << "lookat" << Value << BeginMap;
 	out << Key << "x" << Value << m_lookat.x;

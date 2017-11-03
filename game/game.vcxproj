@@ -159,6 +159,7 @@
     <ClCompile Include="hid.cpp" />
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="unit_mobile.cpp" />
     <ClCompile Include="model_animated.cpp" />
     <ClCompile Include="model_shield.cpp" />
     <ClCompile Include="module_base.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="unit_gate.h" />
     <ClInclude Include="unit_landing_pad.h" />
     <ClInclude Include="unit_minion.h" />
+    <ClInclude Include="unit_mobile.h" />
     <ClInclude Include="unit_modular.h" />
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="vector.h" />

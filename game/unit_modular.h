@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "unit_damageable.h"
+#include "unit_mobile.h"
 #include "command.h"
 #include "interface_has_bindings.h"
 #include "interface_container.h"
@@ -21,7 +21,7 @@ class world;
 
 namespace unit {
 class modular final:
-	public unit::damageable,
+	public unit::mobile,
 	public interface::container,
 	public interface::has_bindings {
 public:
@@ -78,7 +78,6 @@ public:
 	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;
 	void ai(bool);
 	// Set velocity (and acceleration) of this vessel to zero
-	void stop();
 	auto radius() const -> double override;
 private:
 	void tick(tick_context& context) override;
@@ -96,9 +95,9 @@ private:
 	void unbind(const module::base& module);
 	auto modifiers() const -> module::modifiers;
 	void tick_modules(tick_context& context);
-	void tick_movement(double dt, const module::modifiers& mods);
 	void tick_ai();
 	auto p_connected_to_core(const module::base&) const -> bool;
+
 	// get pointer in reference to the center of the grid
 	auto p_at(vector<int8_t> pos) noexcept -> module::base*&;
 	auto p_at(vector<int8_t> pos) const noexcept -> const module::base*;
@@ -112,12 +111,11 @@ private:
 		m_grid = { std::pair<module::base*, bool>(nullptr, false) };
 	module::core* m_core = nullptr;
 	float m_rotation = 0.f;
-	vector<double> m_moveto;
-	vector<double> m_lookat;
 	bool m_ai = false;
-	std::unordered_multimap<enum class command::type, std::reference_wrapper<module::base>> m_bindings;
-	std::vector<vector<double>> m_path_cache; // path cache
-	float m_path_age = 0.f;
+	vector<double> m_lookat;
+	std::unordered_multimap<
+		enum class command::type,
+		std::reference_wrapper<module::base>> m_bindings;
 	double m_velocity = 0;
 	double m_radius = 0.;
 };
