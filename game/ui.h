@@ -52,7 +52,7 @@ public:
 	std::unique_ptr<module::base> grabbed;
 	vector<int> grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
-	std::vector<enum class command::type> grabbed_bind;
+	std::vector<int8_t> grabbed_bind;
 	// Release module held by UI
 	void release();
 private:

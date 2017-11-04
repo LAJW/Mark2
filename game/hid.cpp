@@ -48,21 +48,21 @@ const std::unordered_map<std::string, mark::hid::button> key_dict {
 	{ "mouse-scroll-down", mark::hid::button{ 6 } }
 };
 
-auto make_make_command(enum class mark::command::type type) -> mark::hid::make_command_type
+auto make_make_command(int8_t id) -> mark::hid::make_command_type
 { 
 	return [=](
 		const mark::vector<double>& mouse_pos, bool shift, bool release)
 		-> mark::command::any {
 		if (shift) {
 			if (release) {
-				return mark::command::release{ type, mouse_pos };
+				return mark::command::release{ id, mouse_pos };
 			}
-			return mark::command::queue{ type, mouse_pos };
+			return mark::command::queue{ id, mouse_pos };
 		}
 		if (release) {
-			return mark::command::release{ type, mouse_pos };
+			return mark::command::release{ id, mouse_pos };
 		}
-		return mark::command::activate{ type, mouse_pos };
+		return mark::command::activate{ id, mouse_pos };
 	};
 }
 
@@ -89,17 +89,17 @@ const std::unordered_map<std::string, mark::hid::make_command_type>
 command_dict {
 	{ "move", make_command_move },
 	{ "guide", make_command_guide },
-	{ "ability", make_make_command(mark::command::type::shoot) },
-	{ "ability-0", make_make_command(mark::command::type::ability_0) },
-	{ "ability-1", make_make_command(mark::command::type::ability_1) },
-	{ "ability-2", make_make_command(mark::command::type::ability_2) },
-	{ "ability-3", make_make_command(mark::command::type::ability_3) },
-	{ "ability-4", make_make_command(mark::command::type::ability_4) },
-	{ "ability-5", make_make_command(mark::command::type::ability_5) },
-	{ "ability-6", make_make_command(mark::command::type::ability_6) },
-	{ "ability-7", make_make_command(mark::command::type::ability_7) },
-	{ "ability-8", make_make_command(mark::command::type::ability_8) },
-	{ "ability-9", make_make_command(mark::command::type::ability_9) },
+	{ "ability", make_make_command(0) },
+	{ "ability-0", make_make_command(1) },
+	{ "ability-1", make_make_command(2) },
+	{ "ability-2", make_make_command(3) },
+	{ "ability-3", make_make_command(4) },
+	{ "ability-4", make_make_command(5) },
+	{ "ability-5", make_make_command(6) },
+	{ "ability-6", make_make_command(7) },
+	{ "ability-7", make_make_command(8) },
+	{ "ability-8", make_make_command(9) },
+	{ "ability-9", make_make_command(10) },
 	{ "activate", make_command_use }
 };
 }

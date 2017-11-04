@@ -424,17 +424,17 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 
 namespace {
 static auto ability_id(const mark::command::any& any)
-	-> std::optional<mark::command::type>
+	-> std::optional<int8_t>
 {
 	using namespace mark;
 	if (const auto release = std::get_if<command::release>(&any)) {
-		return release->type;
+		return release->id;
 	}
 	if (const auto activate = std::get_if<command::activate>(&any)) {
-		return activate->type;
+		return activate->id;
 	}
 	if (const auto queue = std::get_if<command::queue>(&any)) {
-		return queue->type;
+		return queue->id;
 	}
 	return { };
 }
@@ -556,21 +556,20 @@ auto mark::unit::modular::collide(vector<double> center, float radius)
 auto mark::unit::modular::lookat() const noexcept -> vector<double>
 { return m_lookat; }
 
-void mark::unit::modular::toggle_bind(
-	enum class command::type command, vector<int> user_pos)
+void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
 {
 	if (const auto module_ptr = this->at(user_pos)) {
 		auto& module = *module_ptr;
 		if (module.passive()) {
 			return;
 		}
-		const auto bindings = m_bindings.equal_range(command);
+		const auto bindings = m_bindings.equal_range(command_id);
 		const auto binding = std::find_if(
 			bindings.first, bindings.second, [&module](auto pair) {
 			return &module == &pair.second.get();
 		});
 		if (binding == bindings.second) {
-			m_bindings.insert({ command, module });
+			m_bindings.insert({ command_id, module });
 		} else {
 			m_bindings.erase(binding);
 		}
@@ -578,9 +577,9 @@ void mark::unit::modular::toggle_bind(
 }
 
 auto mark::unit::modular::binding(vector<int> user_pos) const
-	-> std::vector<enum class command::type>
+	-> std::vector<int8_t>
 {
-	std::vector<enum class command::type> out;
+	std::vector<int8_t> out;
 	if (const auto module = this->at(user_pos)) {
 		for (const auto& pair : m_bindings) {
 			if (module == &pair.second.get()) {
@@ -594,19 +593,10 @@ auto mark::unit::modular::binding(vector<int> user_pos) const
 auto mark::unit::modular::bindings() const -> modular::bindings_t {
 	modular::bindings_t out;
 	for (const auto& binding : m_bindings) {
-		const auto&[command, module] = binding;
-		uint8_t slot;
-		if (command == command::type::shoot) {
-			slot = 0;
-		} else if (command == command::type::ability_0) {
-			slot = 10;
-		} else {
-			slot = static_cast<uint8_t>(command) -
-				static_cast<uint8_t>(command::type::ability_1) + 1;
-		}
-		out[slot].total++;
-		out[slot].thumbnail = module.get().thumbnail();
-		out[slot].modules.push_back(module.get());
+		const auto&[command_id, module] = binding;
+		out[command_id].total++;
+		out[command_id].thumbnail = module.get().thumbnail();
+		out[command_id].modules.push_back(module.get());
 	}
 	return out;
 }
@@ -629,12 +619,9 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 		id_map.insert({ id, *m_modules.back() });
 	}
 	for (const auto& binding_node : node["bindings"]) {
-		const auto key = binding_node["key"].as<int>();
+		const auto key = static_cast<int8_t>(binding_node["key"].as<int>());
 		const auto module_id = binding_node["module_id"].as<uint64_t>();
-		m_bindings.insert({
-			static_cast<enum class command::type>(key),
-			id_map.at(module_id)
-		});
+		m_bindings.insert({ key, id_map.at(module_id) });
 	}
 }
 

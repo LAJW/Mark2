@@ -109,7 +109,7 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 		} else {
 			const auto relative = (activate->pos - landing_pad->pos()) / double(module::size);
 			const auto pick_pos = floor(relative);
-			ship->toggle_bind(activate->type, pick_pos);
+			ship->toggle_bind(activate->id, pick_pos);
 		}
 	} else if (const auto move = std::get_if<command::move>(&any)) {
 		if (move->release) {

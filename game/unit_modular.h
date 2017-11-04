@@ -67,11 +67,10 @@ public:
 		std::vector<std::reference_wrapper<interface::damageable>> override;
 	auto lookat() const noexcept -> vector<double>;
 	// bind module at position to command
-	void toggle_bind(enum class command::type, vector<int> pos);
+	void toggle_bind(int8_t, vector<int> pos);
 	auto bindings() const -> bindings_t;
 	// Get vector of commands controlling this module
-	auto binding(vector<int> pos) const
-		-> std::vector<enum class command::type>;
+	auto binding(vector<int> pos) const -> std::vector<int8_t>;
 	void serialise(YAML::Emitter&) const;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
@@ -113,9 +112,7 @@ private:
 	float m_rotation = 0.f;
 	bool m_ai = false;
 	vector<double> m_lookat;
-	std::unordered_multimap<
-		enum class command::type,
-		std::reference_wrapper<module::base>> m_bindings;
+	std::unordered_multimap<int8_t, std::reference_wrapper<module::base>> m_bindings;
 	double m_velocity = 0;
 	double m_radius = 0.;
 };
