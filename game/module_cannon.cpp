@@ -62,11 +62,12 @@ void mark::module::cannon::tick(tick_context& context) {
 				spray.direction = m_rotation + 180.f;
 				spray.cone = 180.f;
 				spray.color = sf::Color::Red;
-				// context.render(spray);
+				context.render(spray);
 				break;
 			}
 		}
 		if (collision_pos) {
+			context.lights.push_back({ *collision_pos, sf::Color::Red });
 			for (int i = 1; i < len; i++) {
 				const auto cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
 				sprite ray_sprite;
