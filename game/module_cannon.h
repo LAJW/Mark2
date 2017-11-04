@@ -7,9 +7,6 @@
 #include "resource_image.h"
 
 namespace mark {
-namespace resource {
-class manager;
-}
 namespace module {
 class cannon final : public module::base_turret {
 public:

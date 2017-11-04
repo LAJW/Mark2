@@ -30,8 +30,8 @@ mark::world::world(
 	const bool inital)
 	: m_resource_manager(resource_manager)
 	, m_map(empty
-		? map::make_square(resource_manager)
-		: map::make_cavern(resource_manager))
+		? std::make_unique<mark::map>(map::make_square(resource_manager))
+		: std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
@@ -43,7 +43,7 @@ mark::world::world(
 	}
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
 				m_units.push_back(std::make_shared<unit::landing_pad>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
 				goto end;
 			}
@@ -52,7 +52,7 @@ mark::world::world(
 	end:;
 	for (int x = 999; x >= 0; x--) {
 		for (int y = 999; y >= 0; y--) {
-			if (m_map.traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
+			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
 				m_units.push_back(std::make_shared<unit::gate>(
 					*this, vector<double>(32 * (x - 500), 32 * (y - 500)), false));
 				goto end2;
@@ -63,7 +63,7 @@ mark::world::world(
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
-			if (m_map.traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
+			if (m_map->traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
 				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
 				m_units.push_back(unit::deserialise(*this, templates.at("ship")));
 				std::dynamic_pointer_cast<unit::modular>(m_units.back())->ai(true);
@@ -89,7 +89,7 @@ mark::world::world(
 mark::world::~world() = default;
 
 auto mark::world::map() const -> const mark::map&
-{ return m_map; }
+{ return *m_map; }
 
 auto mark::world::resource_manager() -> resource::manager&
 { return m_resource_manager; }
@@ -103,7 +103,7 @@ void mark::world::tick(
 	const auto camera = vmap(m_camera, std::round);
 	const auto offset = screen_size / 2.0
 		+ vector<double>(map::tile_size, map::tile_size) * 2.;
-	m_map.tick(camera - offset, camera + offset, context);
+	m_map->tick(camera - offset, camera + offset, context);
 
 	for (auto& unit : m_units) {
 		// ticking can damage other units and they may become dead in the process
@@ -200,7 +200,7 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 auto mark::world::collide(const segment_t& ray)
 	-> std::variant<std::monostate, vector<double>, collision_type>
 {
-	auto maybe_min = m_map.collide(ray);
+	auto maybe_min = m_map->collide(ray);
 	double min_length = maybe_min
 		? length(ray.first - maybe_min.value())
 		: INFINITY;
@@ -276,7 +276,7 @@ mark::world::world(
 	resource::manager& rm,
 	const YAML::Node& node)
 	: m_resource_manager(rm)
-	, m_map(rm, node["map"])
+	, m_map(std::make_unique<mark::map>(rm, node["map"]))
 	, m_camera(
 		node["camera"]["x"].as<double>(),
 		node["camera"]["y"].as<double>())
@@ -331,7 +331,7 @@ void mark::world::serialise(YAML::Emitter& out) const
 	out << EndSeq;
 
 	out << Key << "map" << Value;
-	m_map.serialise(out);
+	m_map->serialise(out);
 
 	out << EndMap;
 }

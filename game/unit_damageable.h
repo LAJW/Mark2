@@ -5,7 +5,6 @@
 
 namespace mark {
 namespace unit {
-
 class damageable:
 	public unit::base,
 	public interface::damageable {
@@ -22,5 +21,4 @@ protected:
 	inline damageable(Args&&... args)
 		: base(std::forward<Args>(args)...) {}
 };
-
 } }

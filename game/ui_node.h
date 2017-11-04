@@ -2,10 +2,7 @@
 #include "stdafx.h"
 
 namespace mark {
-struct tick_context;
-
 namespace ui {
-
 struct event;
 class node {
 public:

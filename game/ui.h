@@ -4,26 +4,8 @@
 #include "action_bar.h"
 
 namespace mark {
-namespace interface{
-class container;
-}
-namespace resource {
-class image;
-class manager;
-}
-namespace module {
-class base;
-}
-namespace unit {
-class landing_pad;
-class modular;
-}
-struct tick_context;
-class world;
-
 namespace ui {
 class window;
-
 class ui final {
 public:
 	explicit ui(resource::manager& rm);

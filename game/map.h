@@ -1,15 +1,7 @@
 #pragma once
 #include "stdafx.h"
-#include "vector.h"
 
 namespace mark {
-namespace resource {
-	class manager;
-}
-struct sprite;
-class world;
-struct tick_context;
-
 class map final {
 public:
 	static constexpr const double tile_size = 32.0;

@@ -3,10 +3,6 @@
 #include "module_base.h"
 
 namespace mark {
-namespace resource {
-class manager;
-class image;
-}
 namespace module {
 class flamethrower final : public module::base {
 public:

@@ -3,10 +3,6 @@
 #include "unit_base.h"
 
 namespace mark {
-class world;
-namespace module {
-class base;
-}
 namespace unit {
 class bucket final : public unit::base {
 public:

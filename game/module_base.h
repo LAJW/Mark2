@@ -3,23 +3,9 @@
 #include "interface_damageable.h"
 #include "command.h"
 
-namespace sf {
-	class Color;
-}
-
 namespace mark {
-namespace resource {
-class image;
-class manager;
-}
-struct sprite;
-namespace unit {
-class modular;
-}
-struct tick_context;
-class world;
-
 namespace module {
+
 // grid size - width/height of an 1x1 module
 static constexpr float size = 16.f;
 
@@ -31,18 +17,10 @@ struct modifiers {
 	float velocity = 0.f;
 };
 
-class base;
-
 auto deserialise(resource::manager&, const YAML::Node&) ->
 	std::unique_ptr<module::base>;
 
-enum class reserved_type {
-	none,
-	front,
-	back
-};
-
-class cargo;
+enum class reserved_type { none, front, back };
 
 // Part of the base modifiable by the modular and cargo
 class base_ref {

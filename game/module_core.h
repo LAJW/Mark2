@@ -4,11 +4,6 @@
 #include "resource_image.h"
 
 namespace mark {
-namespace resource {
-class manager;
-class sprite;
-};
-
 namespace module {
 class core final : public base {
 public:

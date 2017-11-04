@@ -6,7 +6,6 @@
 #include "model_shield.h"
 
 namespace mark {
-class world;
 namespace unit {
 class minion final : public unit::mobile {
 public:

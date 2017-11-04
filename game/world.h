@@ -1,20 +1,9 @@
 #pragma once
 #include "stdafx.h"
 #include "interface_damageable.h"
-#include "map.h"
 #include "command.h"
 
 namespace mark {
-struct tick_context;
-class particle;
-class world_stack;
-namespace resource {
-class manager;
-class image;
-}
-namespace unit {
-class base;
-}
 class world final {
 public:
 	world(
@@ -106,7 +95,7 @@ private:
 		-> std::variant<std::monostate, vector<double>, collision_type>;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
-	mark::map m_map;
+	std::unique_ptr<mark::map> m_map;
 	std::vector<std::shared_ptr<unit::base>> m_units;
 	resource::manager& m_resource_manager;
 	std::weak_ptr<unit::base> m_camera_target;

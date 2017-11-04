@@ -4,10 +4,6 @@
 #include "lfo.h"
 
 namespace mark {
-namespace resource {
-class manager;
-class image;
-}
 namespace module {
 class battery final : public module::base {
 public:

@@ -4,14 +4,7 @@
 #include "ui_event.h"
 
 namespace mark {
-namespace resource {
-class manager;
-class image;
-}
-
-struct tick_context;
 namespace ui {
-
 class window;
 class button final : public node {
 public:

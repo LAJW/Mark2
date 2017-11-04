@@ -4,7 +4,6 @@
 
 namespace mark {
 namespace ui {
-
 struct event;
 class window : public node {
 public:

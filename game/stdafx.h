@@ -4,6 +4,7 @@
 #include <array>
 #include <assert.h>
 #include <cmath>
+#include <deque>
 #include <functional>
 #include <math.h>
 #include <memory>
@@ -18,3 +19,4 @@
 #include <SFML/Graphics/Color.hpp>
 #include "vector.h"
 #include "yaml.h"
+#include "declarations.h"

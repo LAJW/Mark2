@@ -4,6 +4,8 @@
 #include "tick_context.h"
 #include "world.h"
 #include "resource_image.h"
+#include "resource_manager.h"
+#include "sprite.h"
 #include "unit_modular.h"
 
 mark::module::base_ref::base_ref(const YAML::Node& node)

@@ -5,12 +5,6 @@
 #include "model_shield.h"
 
 namespace mark {
-
-namespace resource {
-class manager;
-class sprite;
-};
-
 namespace module {
 class shield_generator final : public base {
 public:

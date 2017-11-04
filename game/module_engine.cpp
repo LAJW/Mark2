@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "module_engine.h"
 #include "resource_manager.h"
+#include "sprite.h"
 #include "tick_context.h"
 
 mark::module::engine::engine(resource::manager& manager)

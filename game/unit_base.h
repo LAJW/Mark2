@@ -5,13 +5,8 @@
 #include "command.h"
 
 namespace mark {
-
-struct sprite;
-class world;
-struct tick_context;
-
 namespace unit {
-class base;
+
 auto deserialise(
 	world& world,
 	const YAML::Node& node) ->

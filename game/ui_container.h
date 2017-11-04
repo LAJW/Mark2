@@ -5,20 +5,9 @@
 
 namespace mark {
 
-namespace resource {
-class manager;
-class image;
-};
-
-namespace module {
-class base;
-class cargo;
-}
-
 namespace ui {
 class ui;
 struct event;
-
 class container final : public window {
 public:
 	struct info {

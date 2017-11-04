@@ -2,11 +2,12 @@
 #include "ui_container.h"
 #include "algorithm.h"
 #include "module_cargo.h"
+#include "resource_manager.h"
+#include "sprite.h"
+#include "tick_context.h"
 #include "ui_button.h"
 #include "ui.h"
 #include "ui_event.h"
-#include "resource_manager.h"
-#include "tick_context.h"
 
 mark::ui::container::container(const info& info)
 	: window(info.pos)

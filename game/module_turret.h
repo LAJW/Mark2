@@ -7,10 +7,6 @@
 #include "module_base_turret.h"
 
 namespace mark {
-namespace resource {
-class manager;
-class image;
-}
 namespace module {
 class turret final : public module::base_turret {
 public:

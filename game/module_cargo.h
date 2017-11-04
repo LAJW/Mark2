@@ -7,10 +7,6 @@
 #include "interface_container.h"
 
 namespace mark {
-struct tick_context;
-namespace resource {
-class manager;
-}
 namespace module {
 class cargo final :
 	public module::base,

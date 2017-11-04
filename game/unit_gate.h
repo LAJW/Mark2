@@ -3,13 +3,6 @@
 #include "unit_activable.h"
 
 namespace mark {
-namespace resource {
-class image;
-}
-class world;
-namespace module {
-class base;
-}
 namespace unit {
 class gate final : public activable {
 public:

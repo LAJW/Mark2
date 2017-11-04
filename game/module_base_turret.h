@@ -1,14 +1,10 @@
 #pragma once
 #include "stdafx.h"
 #include "module_base.h"
-#include <deque>
-#include <variant>
 
 namespace mark {
-namespace unit {
-class base;
-}
 namespace module {
+
 class base_turret : public module::base {
 public:
 	auto passive() const noexcept -> bool override;

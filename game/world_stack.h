@@ -2,10 +2,7 @@
 #include "stdafx.h"
 
 namespace mark {
-namespace resource {
-class manager;
-}
-class world;
+
 class world_stack final {
 public:
 	world_stack(
@@ -27,4 +24,5 @@ private:
 	resource::manager& m_resource_manager;
 	const std::unordered_map<std::string, YAML::Node>& m_templates;
 };
+
 }

@@ -3,8 +3,6 @@
 
 namespace mark {
 namespace unit {
-
-class modular;
 // Represents a unit that can be activated by the modular
 class activable : public base {
 public:

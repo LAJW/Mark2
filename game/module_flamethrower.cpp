@@ -4,6 +4,7 @@
 #include "tick_context.h"
 #include "world.h"
 #include "resource_manager.h"
+#include "sprite.h"
 #include "unit_modular.h"
 
 mark::module::flamethrower::flamethrower(resource::manager& manager) :

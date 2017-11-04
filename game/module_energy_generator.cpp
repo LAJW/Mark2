@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "module_energy_generator.h"
 #include "resource_manager.h"
+#include "sprite.h"
 #include "tick_context.h"
 #include "world.h"
 

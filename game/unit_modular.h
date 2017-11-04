@@ -6,20 +6,8 @@
 #include "interface_container.h"
 
 namespace mark {
-
-namespace resource {
-class image;
-}
-
-namespace module {
-class base;
-class core;
-class cargo;
-struct modifiers;
-};
-class world;
-
 namespace unit {
+
 class modular final:
 	public unit::mobile,
 	public interface::container,

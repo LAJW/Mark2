@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "particle.h"
+#include "sprite.h"
 #include "tick_context.h"
 
 namespace {
@@ -97,6 +99,8 @@ void mark::tick_context::render(const text_info& info)
 mark::tick_context::tick_context(resource::manager& rm):
 	m_resource_manager(rm) {
 }
+
+mark::tick_context::~tick_context() = default;
 
 void mark::tick_context::render(const bar_info & info) {
 	auto& image = info.image;

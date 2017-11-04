@@ -2,6 +2,7 @@
 #include "unit_mobile.h"
 #include "world.h"
 #include "resource_manager.h"
+#include "map.h"
 
 static auto start_breaking(
 	const double length,
