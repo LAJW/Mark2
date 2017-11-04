@@ -58,7 +58,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	pos() += step;
 	world::damage_info info;
 	info.context = &context;
-	info.segment = { pos() - step, pos() };
+	info.segment = { pos() - step * 1.2, pos() };
 	info.aoe_radius = m_aoe_radius;
 	info.piercing = m_piercing;
 	info.damage.damaged = &m_damaged;
