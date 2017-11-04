@@ -39,7 +39,7 @@ public:
 		int f = 0; // distance from starting + distance from ending (h)
 		const Node* parent = nullptr;
 	};
-	auto map_to_world(vector<int>) const noexcept
+	auto map_to_world(const vector<int>&) const noexcept
 		-> vector<double>;
 private:
 	struct terrain {
@@ -60,13 +60,13 @@ private:
 	static std::string serialize_terrain_type(enum class terrain::type);
 	static enum class terrain::type deserialize_terrain_type(const std::string&);
 
-	map(resource::manager&, vector<size_t> size);
+	map(resource::manager&, const vector<size_t>& size);
 
 	auto size() const noexcept -> const vector<size_t>&;
-	auto get(vector<int> pos) const noexcept -> enum class terrain::type;
-	auto get_variant(vector<int> pos) const noexcept -> unsigned;
-	void set(vector<int> pos, enum class terrain::type) noexcept;
-	auto world_to_map(vector<double>) const noexcept
+	auto get(const vector<int>& pos) const noexcept -> enum class terrain::type;
+	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
+	void set(const vector<int>& pos, enum class terrain::type) noexcept;
+	auto world_to_map(const vector<double>&) const noexcept
 		-> vector<int>;
 	void calculate_traversable();
 

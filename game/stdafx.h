@@ -8,6 +8,7 @@
 #include <functional>
 #include <math.h>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <random>
 #include <string>

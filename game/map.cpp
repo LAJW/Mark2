@@ -1,7 +1,4 @@
 #include "stdafx.h"
-#include <algorithm>
-#include <numeric>
-#include <random>
 #include "algorithm.h"
 #include "map.h"
 #include "resource_manager.h"
@@ -15,7 +12,8 @@
 
 using Node = mark::map::Node;
 
-mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
+mark::map mark::map::make_cavern(mark::resource::manager& resource_manager)
+{
 	map map(resource_manager, { 1000, 1000 });
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
@@ -41,7 +39,8 @@ mark::map mark::map::make_cavern(mark::resource::manager& resource_manager) {
 	return map;
 }
 
-mark::map mark::map::make_square(resource::manager& resource_manager) {
+mark::map mark::map::make_square(resource::manager& resource_manager)
+{
 	mark::map map(resource_manager, { 20, 20 });
 	for (int x = 1; x < 20 - 1; x++) {
 		for (int y = 1; y < 20 - 1; y++) {
@@ -54,8 +53,9 @@ mark::map mark::map::make_square(resource::manager& resource_manager) {
 
 // Map functionality
 
-auto mark::map::world_to_map(vector<double> pos) const noexcept ->
-	vector<int> {
+auto mark::map::world_to_map(const vector<double>& pos) const noexcept ->
+	vector<int>
+{
 	return round(pos / map::tile_size)
 		+ vector<int>(this->size() / size_t(2));
 }
@@ -77,15 +77,17 @@ void mark::map::calculate_traversable()
 	}
 }
 
-auto mark::map::map_to_world(vector<int> pos) const noexcept ->
-	vector<double> {
+auto mark::map::map_to_world(const vector<int>& pos) const noexcept ->
+	vector<double>
+{
 	const auto center = vector<int>(this->size() / size_t(2));
 	return vector<double>(pos - center) * map::tile_size;
 }
 
 auto mark::map::traversable(
 	const vector<double>& pos,
-	const double radius_) const -> bool {
+	const double radius_) const -> bool
+{
 	const auto radius = size_t(std::ceil(radius_ / map::tile_size));
 	return this->traversable(this->world_to_map(pos), radius);
 }
@@ -100,7 +102,8 @@ auto mark::map::traversable(
 
 auto mark::map::p_traversable(
 	const vector<int>& i_pos,
-	const size_t uradius) const -> bool {
+	const size_t uradius) const -> bool
+{
 	if (uradius > 1) {
 		const auto radius = static_cast<int>(uradius);
 		const auto offset = vector<int>(radius, radius);
@@ -126,8 +129,8 @@ auto mark::map::p_traversable(
 void mark::map::tick(
 	vector<double> world_tl,
 	vector<double> world_br,
-	tick_context& context) {
-
+	tick_context& context)
+{
 	m_find_count = 0;
 	const auto size = vector<int>(this->size());
 	const auto tl_ = this->world_to_map(world_tl);
@@ -154,7 +157,8 @@ void mark::map::tick(
 	}
 }
 
-std::string mark::map::serialize_terrain_type(enum class terrain::type t) {
+std::string mark::map::serialize_terrain_type(enum class terrain::type t)
+{
 	switch (t) {
 	case terrain::type::null:
 		return "null";
@@ -174,7 +178,8 @@ std::string mark::map::serialize_terrain_type(enum class terrain::type t) {
 }
 
 auto mark::map::deserialize_terrain_type(const std::string& str)
-	-> enum class map::terrain::type {
+	-> enum class map::terrain::type
+{
 	if (str == "null") {
 		return terrain::type::null;
 	} else if (str == "abyss") {
@@ -192,21 +197,24 @@ auto mark::map::deserialize_terrain_type(const std::string& str)
 	}
 }
 
-mark::map::map(resource::manager& rm, vector<size_t> size):
-	m_rm(rm),
-	m_size(size),
-	m_terrain(size.x * size.y) {
+mark::map::map(resource::manager& rm, const vector<size_t>& size)
+	: m_rm(rm)
+	, m_size(size)
+	, m_terrain(size.x * size.y)
+{
 	for (auto& terrain : m_terrain) {
 		terrain.variant = rm.random<unsigned>(0, 2);
 	}
 }
 
-auto mark::map::size() const noexcept -> const vector<size_t>& {
+auto mark::map::size() const noexcept -> const vector<size_t>&
+{
 	return m_size;
 }
 
-auto mark::map::get(vector<int> pos) const noexcept
-	-> enum class terrain::type {
+auto mark::map::get(const vector<int>& pos) const noexcept
+	-> enum class terrain::type
+{
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].type;
 	} else {
@@ -214,7 +222,8 @@ auto mark::map::get(vector<int> pos) const noexcept
 	}
 }
 
-auto mark::map::get_variant(vector<int> pos) const noexcept -> unsigned {
+auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
+{
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].variant;
 	} else {
@@ -222,7 +231,9 @@ auto mark::map::get_variant(vector<int> pos) const noexcept -> unsigned {
 	}
 }
 
-void mark::map::set(vector<int> pos, enum class terrain::type type) noexcept {
+void mark::map::set(
+	const vector<int>& pos, enum class terrain::type type) noexcept
+{
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		m_terrain[pos.x + m_size.x * pos.y].type = type;
 	}
@@ -511,7 +522,9 @@ auto mark::map::find_path(
 auto mark::map::can_find() const -> bool
 { return m_find_count <= 5; }
 
-auto mark::map::collide(segment_t segment_) const -> std::optional<vector<double>> {
+auto mark::map::collide(segment_t segment_) const
+	-> std::optional<vector<double>>
+{
 	const auto direction = normalize(segment_.second - segment_.first);
 	constexpr const auto a = map::tile_size / 2.0;
 	// floating point error margin for comparing segments
@@ -554,7 +567,8 @@ auto mark::map::collide(segment_t segment_) const -> std::optional<vector<double
 	return { };
 }
 
-void mark::map::serialise(YAML::Emitter& out) const {
+void mark::map::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << "map";
@@ -572,8 +586,9 @@ void mark::map::serialise(YAML::Emitter& out) const {
 
 mark::map::map(
 	resource::manager& resource_manager,
-	const YAML::Node& node) :
-	map(resource_manager, node["size"].as<vector<size_t>>()) {
+	const YAML::Node& node)
+	: map(resource_manager, node["size"].as<vector<size_t>>())
+{
 	if (node["type"].as<std::string>() != "map") {
 		std::runtime_error("BAD_DESERIALIZE");
 	}
