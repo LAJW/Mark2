@@ -5,7 +5,7 @@ namespace mark {
 namespace command {
 struct move { vector<double> to; bool release; };
 struct guide { vector<double> pos; };
-struct activate { };
+struct use { };
 enum class type {
 	shoot,
 	ability_0,
@@ -20,9 +20,9 @@ enum class type {
 	ability_9
 };
 struct queue { type type; vector<double> pos; };
-struct use { type type; vector<double> pos; };
+struct activate { type type; vector<double> pos; };
 struct release { type type; vector<double> pos; };
 using any = std::variant<
-	move, guide, activate, release, queue, use, std::monostate>;
+	move, guide, use, release, queue, activate, std::monostate>;
 }
 };

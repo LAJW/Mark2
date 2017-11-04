@@ -18,7 +18,7 @@ public:
 	gate(mark::world& world, const YAML::Node&);
 	gate(mark::world& world, vector<double> pos, bool inverted);
 	auto dead() const -> bool override { return false; };
-	[[nodiscard]] auto activate(
+	[[nodiscard]] auto use(
 		const std::shared_ptr<unit::modular>& by)
 		-> std::error_code override;
 	void serialise(YAML::Emitter&) const override;

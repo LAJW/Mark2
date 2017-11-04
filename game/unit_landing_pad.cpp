@@ -50,7 +50,7 @@ void mark::unit::landing_pad::tick(mark::tick_context& context)
 	context.sprites[0].emplace_back(info);
 }
 
-auto mark::unit::landing_pad::activate(
+auto mark::unit::landing_pad::use(
 	const std::shared_ptr<unit::modular>& ship)
 	-> std::error_code
 {
@@ -62,7 +62,7 @@ auto mark::unit::landing_pad::activate(
 }
 
 void mark::unit::landing_pad::command(const mark::command::any& any) {
-	if (std::holds_alternative<command::activate>(any)) {
+	if (std::holds_alternative<command::use>(any)) {
 		if (auto ship = m_ship.lock()) {
 			world().target(std::move(ship));
 			m_ship.reset();

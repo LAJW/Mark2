@@ -430,8 +430,8 @@ static auto ability_id(const mark::command::any& any)
 	if (const auto release = std::get_if<command::release>(&any)) {
 		return release->type;
 	}
-	if (const auto use = std::get_if<command::use>(&any)) {
-		return use->type;
+	if (const auto activate = std::get_if<command::activate>(&any)) {
+		return activate->type;
 	}
 	if (const auto queue = std::get_if<command::queue>(&any)) {
 		return queue->type;
@@ -448,10 +448,10 @@ void mark::unit::modular::command(const command::any& any)
 		for (auto& module : m_modules) {
 			module->command(command::guide{ guide->pos });
 		}
-	} else if (std::holds_alternative<command::activate>(any)) {
+	} else if (std::holds_alternative<command::use>(any)) {
 		if (const auto pad = world().find_one<activable>(pos(), 150.0)) {
 			// TODO Propagate error
-			(void)pad->activate(
+			(void)pad->use(
 				std::dynamic_pointer_cast<modular>(this->shared_from_this()));
 		}
 	} else if (const auto id = ability_id(any)) {

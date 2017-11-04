@@ -21,7 +21,7 @@ public:
 	landing_pad(mark::world& world, const YAML::Node&);
 	landing_pad(mark::world& world, vector<double> pos);
 	auto dead() const -> bool override { return false; };
-	[[nodiscard]] auto activate(
+	[[nodiscard]] auto use(
 		const std::shared_ptr<unit::modular>& by) -> std::error_code override;
 	void command(const mark::command::any& command) override;
 	void serialise(YAML::Emitter&) const override;

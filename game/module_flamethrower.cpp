@@ -12,7 +12,7 @@ mark::module::flamethrower::flamethrower(resource::manager& manager) :
 
 void mark::module::flamethrower::command(const command::any & any)
 {
-	if (std::holds_alternative<command::use>(any)) {
+	if (std::holds_alternative<command::activate>(any)) {
 		m_shoot = true;
 	} else if (std::holds_alternative<command::release>(any)) {
 		m_shoot = false;

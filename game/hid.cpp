@@ -2,7 +2,7 @@
 #include "hid.h"
 
 namespace {
-const std::unordered_map<std::string, mark::hid::button> key_dict{
+const std::unordered_map<std::string, mark::hid::button> key_dict {
 	{ "a", mark::hid::button{ sf::Keyboard::A } },
 	{ "b", mark::hid::button{ sf::Keyboard::B } },
 	{ "c", mark::hid::button{ sf::Keyboard::C } },
@@ -62,7 +62,7 @@ auto make_make_command(enum class mark::command::type type) -> mark::hid::make_c
 		if (release) {
 			return mark::command::release{ type, mouse_pos };
 		}
-		return mark::command::use{ type, mouse_pos };
+		return mark::command::activate{ type, mouse_pos };
 	};
 }
 
@@ -75,13 +75,13 @@ auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool)
 	-> mark::command::any
 { return mark::command::guide{ mouse_pos }; };
 
-auto make_command_activate(const mark::vector<double>&, bool, bool release)
+auto make_command_use(const mark::vector<double>&, bool, bool release)
 	-> mark::command::any
 {
 	if (release) {
 		return std::monostate();
 	}
-	return mark::command::activate();
+	return mark::command::use();
 };
 
 
@@ -100,7 +100,7 @@ command_dict {
 	{ "ability-7", make_make_command(mark::command::type::ability_7) },
 	{ "ability-8", make_make_command(mark::command::type::ability_8) },
 	{ "ability-9", make_make_command(mark::command::type::ability_9) },
-	{ "activate", make_command_activate }
+	{ "activate", make_command_use }
 };
 }
 

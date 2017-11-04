@@ -115,8 +115,8 @@ auto mark::module::base_turret::passive() const noexcept -> bool
 
 void mark::module::base_turret::command(const command::any& any)
 {
-	if (const auto use = std::get_if<command::use>(&any)) {
-		m_target = std::make_pair(true, use->pos);
+	if (const auto activate = std::get_if<command::activate>(&any)) {
+		m_target = std::make_pair(true, activate->pos);
 	} else if (const auto release = std::get_if<command::release>(&any)) {
 		if (std::holds_alternative<target_type>(m_target)) {
 			m_target = std::make_pair(false, release->pos);

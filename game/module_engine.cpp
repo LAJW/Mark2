@@ -34,7 +34,7 @@ auto mark::module::engine::global_modifiers() const->module::modifiers {
 
 void mark::module::engine::command(const command::any& any)
 {
-	if (std::holds_alternative<command::use>(any)) {
+	if (std::holds_alternative<command::activate>(any)) {
 		m_active = true;
 	} else if (std::holds_alternative<command::release>(any)) {
 		m_active = false;
