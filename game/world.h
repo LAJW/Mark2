@@ -87,12 +87,10 @@ private:
 	using collision_type = std::pair<
 		std::reference_wrapper<interface::damageable>, vector<double>>;
 	// Collide with units and terrain
-	// Returns collision position if collided with the terrain
-	// Returns collision position and reference to damageable if collided with
-	// a unit (but doesn't damage the object)
+	// Returns all collisions in a line stopping at the first terrain collision
 	// Returns monostate if didn't collide with anything
 	auto collide(const segment_t&)
-		-> std::variant<std::monostate, vector<double>, collision_type>;
+		-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	std::unique_ptr<mark::map> m_map;

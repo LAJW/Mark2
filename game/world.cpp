@@ -198,32 +198,31 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 }
 
 auto mark::world::collide(const segment_t& ray)
-	-> std::variant<std::monostate, vector<double>, collision_type>
+	-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>
 {
-	auto maybe_min = m_map->collide(ray);
-	double min_length = maybe_min
-		? length(ray.first - maybe_min.value())
+	auto map_collision = m_map->collide(ray);
+	const double min_length = map_collision
+		? length(*map_collision - ray.first)
 		: INFINITY;
-	interface::damageable* out = nullptr;
+	std::deque<collision_type> collisions;
 	for (auto& unit_ : m_units) {
 		if (const auto unit = dynamic_cast<unit::damageable*>(unit_.get())) {
 			if (const auto result = unit->collide(ray)) {
 				auto[damageable, pos] = *result;
-				const auto length = mark::length(ray.first - pos);
+				const auto length = mark::length(pos - ray.first);
 				if (length < min_length) {
-					min_length = length;
-					maybe_min = pos;
-					out = &damageable.get();
+					collisions.push_back({ damageable, pos });
 				}
 			}
 		}
 	}
-	if (out) {
-		return std::make_pair(std::ref(*out), *maybe_min);
-	} else if (maybe_min) {
-		return *maybe_min;
-	}
-	return std::monostate();
+	std::sort(
+		collisions.begin(),
+		collisions.end(),
+		[&](const auto& a, const auto& b) {
+		return length(a.second - ray.first) < length(b.second - ray.first);
+	});
+	return { std::move(collisions), map_collision };
 }
 
 auto mark::world::collide(vector<double> center, float radius)
@@ -244,29 +243,32 @@ auto mark::world::damage(world::damage_info& info)
 	-> std::optional<vector<double>>
 {
 	assert(info.context);
-	const auto result = this->collide(info.segment);
-	if (std::holds_alternative<std::monostate>(result)) {
+	auto result = this->collide(info.segment);
+	if (result.first.empty() && !result.second) {
 		return { };
 	}
-	const auto[pos, connected] = [&]() {
-		if (const auto pos = std::get_if<vector<double>>(&result)) {
-			return std::make_pair(*pos, true);
+	const auto collision = [&]() -> std::optional<vector<double>> {
+		while (!result.first.empty()) {
+			const auto&[damageable, pos] = result.first.front();
+			info.damage.pos = pos;
+			if (damageable.get().damage(info.damage)) {
+				return pos;
+			}
+			result.first.pop_front();
 		}
-		const auto&[damageable, pos] = std::get<collision_type>(result);
-		info.damage.pos = pos;
-		return std::make_pair(pos, damageable.get().damage(info.damage));
+		return result.second;
 	}();
-	if (!connected) {
+	if (!collision) {
 		return { };
 	}
 	if (info.aoe_radius > 0.f) {
-		const auto damageables = this->collide(pos, info.aoe_radius);
+		const auto damageables = this->collide(*collision, info.aoe_radius);
 		for (const auto aoe_damageable : damageables) {
-			info.damage.pos = pos;
+			info.damage.pos = *collision;
 			aoe_damageable.get().damage(info.damage);
 		}
 	}
-	return pos;
+	return *collision;
 }
 
 // Serializer / Deserializer
