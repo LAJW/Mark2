@@ -36,37 +36,33 @@ void mark::module::cannon::tick(tick_context& context) {
 		std::unordered_set<interface::damageable*> damaged;
 
 		std::optional<vector<double>> collision_pos;
-		int len;
 		const auto dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
-		for (len = 1; len < 200; len++) {
-			const auto cur_len = module::size * static_cast<double>(len);
-			const auto prev = pos + dir * (cur_len - module::size);
-			const auto cur = pos + dir * (cur_len + 2.0);
-			world::damage_info info;
-			info.context = &context;
-			info.aoe_radius = 0.f;
-			info.piercing = 1;
-			info.segment = { prev, cur };
-			info.damage.damaged = &damaged;
-			info.damage.physical = 100.f * static_cast<float>(context.dt);
-			info.damage.team = parent().team();
-			if (const auto result = world.damage(info)) {
-				collision_pos = result;
-				tick_context::spray_info spray;
-				spray.image = m_im_ray;
-				spray.pos = *collision_pos;
-				spray.velocity(25.f, 50.f);
-				spray.lifespan(1.f);
-				spray.diameter(8.f);
-				spray.count = 4;
-				spray.direction = m_rotation + 180.f;
-				spray.cone = 180.f;
-				spray.color = sf::Color::Red;
-				context.render(spray);
-				break;
-			}
+		const auto prev = pos;
+		const auto cur = pos + dir * static_cast<double>(module::size * 200);
+		world::damage_info info;
+		info.context = &context;
+		info.aoe_radius = 0.f;
+		info.piercing = 1;
+		info.segment = { prev, cur };
+		info.damage.damaged = &damaged;
+		info.damage.physical = 100.f * static_cast<float>(context.dt);
+		info.damage.team = parent().team();
+		if (const auto result = world.damage(info)) {
+			collision_pos = result;
+			tick_context::spray_info spray;
+			spray.image = m_im_ray;
+			spray.pos = *collision_pos;
+			spray.velocity(25.f, 50.f);
+			spray.lifespan(1.f);
+			spray.diameter(8.f);
+			spray.count = 4;
+			spray.direction = m_rotation + 180.f;
+			spray.cone = 180.f;
+			spray.color = sf::Color::Red;
+			context.render(spray);
 		}
 		if (collision_pos) {
+			const auto len = int(length(*collision_pos - pos) / double(module::size));
 			context.lights.push_back({ *collision_pos, sf::Color::Red });
 			for (int i = 1; i < len; i++) {
 				const auto cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
@@ -80,7 +76,7 @@ void mark::module::cannon::tick(tick_context& context) {
 			}
 		} else {
 			for (int i = 1; i < 200; i++) {
-				const auto cur_len = module::size * static_cast<double>(len);
+				const auto cur_len = module::size * static_cast<double>(200);
 				sprite ray_sprite;
 				ray_sprite.image = m_im_ray;
 				ray_sprite.pos = pos + dir * (cur_len + 2.0);
