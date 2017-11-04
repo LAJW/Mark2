@@ -239,37 +239,36 @@ void mark::map::set(
 	}
 }
 
-static auto make_directions()
-{
-	using namespace mark;
-	std::array<vector<int>, 8> out;
-	int j = 0;
-	for (const auto i : range(9)) {
-		if (i != 4) {
-			out[j] = vector<int>(i % 3 - 1, i / 3 - 1);
-			++j;
-		}
-	}
-	return out;
-}
-
-const auto directions = make_directions();
+// 16-point star
+std::array<mark::vector<int>, 16> directions{ mark::vector<int>
+	{ -2, -1 }, { -1, -1 }, { -1, -2 },
+	{ 2, -1 }, { 1, -1 }, { 1, -2 },
+	{ -2, 1 }, { -1, 1 }, { -1, 2 },
+	{ 2, 1 }, { 1, 1 }, { 1, 2 },
+	{ 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 },
+};
 
 auto nearest_traversable(
-	const mark::map& map, const mark::vector<int>& pos, const size_t radius)
+	const mark::map& map,
+	const mark::vector<int>& start,
+	const mark::vector<int>& end,
+	const size_t radius)
 	-> mark::vector<int>
 {
-	if (!map.traversable(pos, radius)) {
-		for (const auto i : mark::range(100)) {
+	using namespace mark;
+	if (!map.traversable(end, radius)) {
+		for (const auto i : range(100)) {
 			for (const auto neighbour : directions) {
-				const auto cur = neighbour * i + pos;
+				const auto cur = neighbour * i + end;
 				if (map.traversable(cur, radius)) {
-					return cur;
+					if (length(cur - end) <= length(start - end)) {
+						return cur;
+					}
 				}
 			}
 		}
 	}
-	return pos;
+	return end;
 }
 
 static auto straight_exists(
@@ -512,8 +511,9 @@ auto mark::map::find_path(
 		return { world_end };
 	}
 	const auto radius = static_cast<int>(std::ceil(world_radius / map::tile_size));
-	const auto end = ::nearest_traversable(*this, world_to_map(world_end), radius);
 	const auto start = world_to_map(world_start);
+	const auto end = ::nearest_traversable(
+		*this, start, world_to_map(world_end), radius);
 	const auto f = static_cast<int>(length(end - start));
 	m_find_count++;
 	return ::find_path(*this, end, radius, { Node{ start, f, nullptr } }, { });
