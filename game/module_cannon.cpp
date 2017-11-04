@@ -6,15 +6,15 @@
 #include "world.h"
 #include "unit_modular.h"
 
-mark::module::cannon::cannon(resource::manager& resource_manager):
-	module::base_turret({ 4, 2 }, resource_manager.image("cannon.png")),
-	m_model(resource_manager.image("cannon.png")),
-	m_im_ray(resource_manager.image("ray.png")) {
-
-}
+mark::module::cannon::cannon(resource::manager& rm)
+	: module::base_turret({ 4, 2 }, rm.image("cannon.png"))
+	, m_model(rm.image("cannon.png"))
+	, m_im_ray(rm.image("ray.png"))
+	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f)) { }
 
 void mark::module::cannon::tick(tick_context& context) {
 	this->module::base::tick(context);
+	m_randomiser.tick(context.dt);
 	m_model.tick(context.dt);
 	auto pos = this->pos();
 	const auto rotation = parent().rotation();
@@ -37,7 +37,7 @@ void mark::module::cannon::tick(tick_context& context) {
 
 		std::optional<vector<double>> collision_pos;
 		int len;
-		const auto dir = rotate(vector<double>(1, 0), m_rotation);
+		const auto dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
 		for (len = 1; len < 200; len++) {
 			const auto cur_len = module::size * static_cast<double>(len);
 			const auto prev = pos + dir * (cur_len - module::size);
@@ -100,10 +100,11 @@ std::string mark::module::cannon::describe() const {
 
 // Serialize / Deserialize
 
-mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node):
-	module::base_turret(rm, node),
-	m_model(rm.image("cannon.png")),
-	m_im_ray(rm.image("ray.png")) { }
+mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node)
+	: module::base_turret(rm, node)
+	, m_model(rm.image("cannon.png"))
+	, m_im_ray(rm.image("ray.png"))
+	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f)) { }
 
 
 void mark::module::cannon::serialise(YAML::Emitter& out) const {
