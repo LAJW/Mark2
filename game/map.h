@@ -28,8 +28,7 @@ public:
 	// Can find be called in this tick (limit find count per frame)
 	auto can_find() const -> bool;
 
-	auto collide(segment_t) const
-		-> std::optional<vector<double>>;
+	auto collide(const segment_t&) const -> std::optional<vector<double>>;
 
 	void serialise(YAML::Emitter&) const;
 

@@ -522,35 +522,31 @@ auto mark::map::find_path(
 auto mark::map::can_find() const -> bool
 { return m_find_count <= 5; }
 
-auto mark::map::collide(segment_t segment_) const
+const std::array<mark::segment_t, 4> square { mark::segment_t
+	{ { -1, -1 }, { -1, 1 } },
+	{ { -1, 1 }, { 1, 1 } },
+	{ { 1, 1 }, { 1, -1 } },
+	{ { 1, -1 }, { -1, -1 } }
+};
+
+auto mark::map::collide(const segment_t& segment) const
 	-> std::optional<vector<double>>
 {
-	const auto direction = normalize(segment_.second - segment_.first);
+	const auto direction = normalize(segment.second - segment.first);
 	constexpr const auto a = map::tile_size / 2.0;
 	// floating point error margin for comparing segments
-	constexpr const auto margin = 8.;
-	const segment_t segment {
-		segment_.first - direction * margin,
-		segment_.second + direction * margin };
 	const auto length = mark::length(segment.second - segment.first);
-	auto prev = this->get(this->world_to_map(segment.first));
+	std::optional<vector<double>> min;
 	for (double i = a; i < length + a; i += a) {
 		const auto cur_pos = this->world_to_map(segment.first + i * direction);
 		const auto cur = this->get(cur_pos);
-		if (prev != cur) {
+		if (cur != terrain::type::floor_1) {
 			const auto center = this->map_to_world(cur_pos);
-			const std::array<segment_t, 4> borders {
-				segment_t{ { -a, -a - margin }, { -a, a + margin } },
-				{ { -a - margin, a }, { a + margin, a } },
-				{ { a, a + margin }, { a, -a - margin } },
-				{ { a + margin, -a }, { -a - margin, -a } }
-			};
-			auto min = segment.second;
 			double min_len = INFINITY;
-			for (const auto& border : borders) {
+			for (const auto& border : square) {
 				const auto intersection = intersect(segment, {
-					border.first + center,
-					border.second + center
+					border.first * a + center,
+					border.second * a + center
 				});
 				if (intersection) {
 					const auto len = mark::length(*intersection - segment.first);
@@ -560,9 +556,10 @@ auto mark::map::collide(segment_t segment_) const
 					}
 				}
 			}
+		}
+		if (min) {
 			return min;
 		}
-		prev = cur;
 	}
 	return { };
 }
