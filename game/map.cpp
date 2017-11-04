@@ -250,6 +250,25 @@ std::array<mark::vector<int>, 16> directions{ mark::vector<int>
 
 auto nearest_traversable(
 	const mark::map& map,
+	const mark::vector<int>& end,
+	const size_t radius)
+	-> mark::vector<int>
+{
+	if (!map.traversable(end, radius)) {
+		for (const auto i : mark::range(100)) {
+			for (const auto neighbour : directions) {
+				const auto cur = neighbour * i + end;
+				if (map.traversable(cur, radius)) {
+					return cur;
+				}
+			}
+		}
+	}
+	return end;
+}
+
+auto nearest_traversable(
+	const mark::map& map,
 	const mark::vector<int>& start,
 	const mark::vector<int>& end,
 	const size_t radius)
@@ -512,11 +531,18 @@ auto mark::map::find_path(
 	}
 	const auto radius = static_cast<int>(std::ceil(world_radius / map::tile_size));
 	const auto start = world_to_map(world_start);
-	const auto end = ::nearest_traversable(
-		*this, start, world_to_map(world_end), radius);
-	const auto f = static_cast<int>(length(end - start));
-	m_find_count++;
-	return ::find_path(*this, end, radius, { Node{ start, f, nullptr } }, { });
+	// Start not traversable - get as quickly to the world as possible
+	if (!this->traversable(start, radius)) {
+		const auto end = ::nearest_traversable(
+			*this, start, radius);
+		return { this->map_to_world(end) };
+	} else {
+		const auto end = ::nearest_traversable(
+			*this, start, world_to_map(world_end), radius);
+		const auto f = static_cast<int>(length(end - start));
+		m_find_count++;
+		return ::find_path(*this, end, radius, { Node{ start, f, nullptr } }, { });
+	}
 }
 
 auto mark::map::can_find() const -> bool

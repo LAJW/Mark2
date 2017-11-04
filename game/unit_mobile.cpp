@@ -3,17 +3,26 @@
 #include "world.h"
 #include "resource_manager.h"
 #include "map.h"
+#include "algorithm.h"
 
-static auto start_breaking(
+// Calculate acceleration, given current velocity and distance to target
+// Returns negative acceleration (can be greater than supplied acceleration)
+// if distance is small enough, that supplied acceleration is not enough to
+// stop a ship in that distance
+static auto acceleration(
 	const double length,
 	const double velocity,
-	const double acceleration) -> bool
+	const double acceleration) -> double
 {
-	const auto v = velocity, a = acceleration;
-	const auto s = std::pow(v, 2.0) / a - 0.5 * std::pow(v, 3.) / std::pow(a, 2.);
-	return length <= s;
+	const auto v = velocity;
+	const auto a = acceleration;
+	const auto T = v / a;
+	const auto s = v * T - 0.5 * a * T * T;
+	if (length <= s) {
+		return -0.5 * v * v / s;
+	}
+	return acceleration;
 }
-
 
 mark::unit::mobile::mobile(mark::world& world, const YAML::Node& node)
 	: damageable(world, node)
@@ -25,10 +34,12 @@ void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
 	vector<double> step;
 	const auto distance = length(m_moveto - pos());
 	if (distance > m_velocity * dt) {
-		const auto acceleration = 500.0;
-		if (start_breaking(distance, m_velocity, acceleration)
-			|| m_velocity > max_velocity) {
-			m_velocity = std::max(0., m_velocity - acceleration * dt);
+		auto acceleration = ::acceleration(distance, m_velocity, 500.0);
+		if (max_velocity <= m_velocity) {
+			acceleration = std::abs(acceleration) * -1.0;
+		}
+		if (acceleration <= 0.) {
+			m_velocity = std::max(0., m_velocity + acceleration * dt);
 		} else {
 			m_velocity = std::min(max_velocity, m_velocity + acceleration * dt);
 		}
@@ -67,8 +78,10 @@ void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
 			}
 		}
 	}
-	// TODO: intersect radius with terrain, stick to the wall, follow x/y axis
-	if (world().map().traversable(pos() + step, radius)) {
+	// If current position is not traversable, go to the nearest traversable,
+	// as pointed by map.find_path, even if next position is not traversable
+	if (!world().map().traversable(pos(), radius)
+		|| world().map().traversable(pos() + step, radius)) {
 		pos() += step;
 	} else if (world().map().traversable(
 			pos() + vector<double>(step.x, 0), radius)) {
