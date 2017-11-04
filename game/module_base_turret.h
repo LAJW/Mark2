@@ -16,7 +16,7 @@ protected:
 	base_turret(resource::manager&, const YAML::Node& node);
 
 	void tick();
-	auto shoot() const -> bool;
+	auto can_shoot() const -> bool;
 	auto target() const -> std::optional<vector<double>>;
 	void serialise(YAML::Emitter&) const;
 private:

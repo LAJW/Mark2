@@ -46,7 +46,7 @@ void mark::module::base_turret::tick()
 	}
 }
 
-auto mark::module::base_turret::shoot() const -> bool
+auto mark::module::base_turret::can_shoot() const -> bool
 {
 	if (const auto pair = std::get_if<target_type>(&m_target)) {
 		return pair->first;

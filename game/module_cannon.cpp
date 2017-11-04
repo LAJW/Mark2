@@ -32,7 +32,7 @@ void mark::module::cannon::tick(tick_context& context) {
 	} else if (const auto target = this->target()) {
 		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
-	if (shoot()) {
+	if (this->can_shoot()) {
 		std::unordered_set<interface::damageable*> damaged;
 
 		std::optional<vector<double>> collision_pos;

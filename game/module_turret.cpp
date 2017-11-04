@@ -68,7 +68,7 @@ void mark::module::turret::tick(tick_context& context) {
 	}
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (shoot()) {
+	} else if (this->can_shoot()) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
 		unit::projectile::info info;
