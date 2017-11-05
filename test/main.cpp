@@ -1,4 +1,4 @@
-#define CATCH_CONFIG_MAIN
+﻿#define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include "../game/resource_manager.h"
 #include "../game/map.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <sstream>
 #include "module_cargo.h"
 #include "sprite.h"

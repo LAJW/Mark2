@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "exception.h"
 #include "module_base.h"
 #include "unit_bucket.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "unit_modular.h"
 #include "module_base.h"
 #include "module_core.h"

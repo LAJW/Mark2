@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "world.h"
 #include "world_stack.h"
 #include "exception.h"
@@ -27,7 +27,7 @@ void mark::world_stack::next()
 	if (m_current_world_id == m_worlds.size()) {
 		world_data data;
 		data.world = std::make_unique<mark::world>(
-			*this, m_resource_manager, false, false);
+			*this, m_resource_manager, false);
 		m_worlds.push_back(std::move(data));
 		target->pos({ 0., 0. });
 		target->stop();

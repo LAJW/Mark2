@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ui_window.h"
 #include "algorithm.h"
 

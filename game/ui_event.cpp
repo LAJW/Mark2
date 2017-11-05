@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ui_event.h"
 
 void mark::ui::callback_group::insert(std::function<bool(const event&)> callback)

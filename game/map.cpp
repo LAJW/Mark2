@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "algorithm.h"
 #include "map.h"
 #include "resource_manager.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <sstream>
 #include "module_shield_generator.h"
 #include "resource_manager.h"

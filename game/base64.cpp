@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "base64.h"
 
 constexpr static const auto base64_chars =

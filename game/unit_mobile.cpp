@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "unit_mobile.h"
 #include "world.h"
 #include "resource_manager.h"

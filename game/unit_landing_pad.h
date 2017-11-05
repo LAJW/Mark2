@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "interface_has_bindings.h"
 #include "unit_activable.h"

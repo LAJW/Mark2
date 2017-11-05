@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "unit_gate.h"
 #include "world.h"
 #include "sprite.h"

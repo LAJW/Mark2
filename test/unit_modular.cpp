@@ -1,15 +1,16 @@
-#include "../game/resource_manager.h"
-#include "../game/world.h"
-#include "../game/unit_modular.h"
+﻿#include "../game/resource_manager.h"
+#include "../game/exception.h"
 #include "../game/module_core.h"
 #include "../game/module_turret.h"
-#include "../game/exception.h"
 #include "../game/tick_context.h"
+#include "../game/unit_modular.h"
+#include "../game/world.h"
+#include "../game/world_stack.h"
 #include <catch.hpp>
 
 TEST_CASE("Create an empty modular") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 1, 2 }, 3);
 	REQUIRE(modular.pos() == mark::vector<double>(1, 2));
 	REQUIRE(modular.rotation() == 3.0);
@@ -17,7 +18,7 @@ TEST_CASE("Create an empty modular") {
 
 TEST_CASE("Create modular with a core") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 1, 2 }, 3);
 	std::unique_ptr<mark::module::base> core =
 		std::make_unique<mark::module::core>(rm);
@@ -35,7 +36,7 @@ TEST_CASE("Create modular with a core") {
 
 TEST_CASE("Try creating modular with two cores") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 1, 2 }, 3);
 	std::unique_ptr<mark::module::base> core1 =
 		std::make_unique<mark::module::core>(rm);
@@ -47,7 +48,7 @@ TEST_CASE("Try creating modular with two cores") {
 
 TEST_CASE("Create modular with a turret to the right") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 0, 0 }, 0);
 	std::unique_ptr<mark::module::base> core =
 		std::make_unique<mark::module::core>(rm);
@@ -67,7 +68,7 @@ TEST_CASE("Create modular with a turret to the right") {
 
 TEST_CASE("Attach turret in all possible positions") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 0, 0 }, 0);
 	std::unique_ptr<mark::module::base> core =
 		std::make_unique<mark::module::core>(rm);
@@ -122,7 +123,7 @@ TEST_CASE("Attach turret in all possible positions") {
 
 TEST_CASE("Failed detached attach should not set internal map") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
+	mark::world world(rm);
 	mark::unit::modular modular(world, { 0, 0 }, 0);
 	std::unique_ptr<mark::module::base> core =
 		std::make_unique<mark::module::core>(rm);
@@ -142,20 +143,21 @@ TEST_CASE("Failed detached attach should not set internal map") {
 
 TEST_CASE("Remove dead modules") {
 	mark::resource::manager_stub rm;
-	mark::world world(rm, true);
-	mark::unit::modular modular(world, { 0, 0 }, 0);
+	mark::world world(rm);
+	auto modular = std::make_shared<mark::unit::modular>(world);
+	world.attach(modular);
 	std::unique_ptr<mark::module::base> core =
 		std::make_unique<mark::module::core>(rm);
-	REQUIRE(mark::error::code::success == modular.attach({ -1, -1 }, core));
+	REQUIRE(mark::error::code::success == modular->attach({ -1, -1 }, core));
 
 	mark::module::turret::info info;
 	info.cur_health = 0.f;
 	info.resource_manager = &rm;
 	std::unique_ptr<mark::module::base> turret =
 		std::make_unique<mark::module::turret>(info);
-	REQUIRE(mark::error::code::success == modular.attach({ 1, -1 }, turret));
+	REQUIRE(mark::error::code::success == modular->attach({ 1, -1 }, turret));
 	mark::tick_context context(rm);
 	context.dt = 0.15;
-	modular.tick(context);
-	REQUIRE(modular.at({ 1, -1 }) == nullptr);
+	world.tick(context, { });
+	REQUIRE(modular->at({ 1, -1 }) == nullptr);
 }

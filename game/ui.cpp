@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ui.h"
 #include "algorithm.h"
 #include "module_cargo.h"

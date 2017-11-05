@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "exception.h"
 #include "unit_bucket.h"
 #include "sprite.h"

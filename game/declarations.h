@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 // Common forward declarations
 
 namespace sf {

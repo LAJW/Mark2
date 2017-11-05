@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ui_button.h"
 #include "resource_manager.h"
 #include "tick_context.h"

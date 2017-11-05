@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "command.h"
 #include "map.h"
 #include "module_cargo.h"

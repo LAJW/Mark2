@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "model_animated.h"
 #include "sprite.h"
 #include "resource_manager.h"

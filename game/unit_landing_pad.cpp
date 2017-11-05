@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "algorithm.h"
 #include "unit_landing_pad.h"
 #include "world.h"

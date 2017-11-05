@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "action_bar.h"
 #include "world.h"
 #include "resource_manager.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "interface_damageable.h"
 #include "command.h"
@@ -6,10 +6,11 @@
 namespace mark {
 class world final {
 public:
+	// Small empty world with square map for testing purposes
+	world(resource::manager& resource_manager);
 	world(
 		world_stack& stack,
 		resource::manager& resource_manager,
-		bool empty = false,
 		bool initial = true);
 	world(
 		world_stack& stack,
@@ -104,6 +105,6 @@ private:
 	vector<double> m_prev_target_pos;
 	double m_a = 0.;
 	std::vector<particle> m_particles;
-	world_stack& m_stack;
+	world_stack* m_stack = nullptr;
 };
 }

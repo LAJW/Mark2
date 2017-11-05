@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <deque>
 #include "stdafx.h"
 #include "adsr.h"

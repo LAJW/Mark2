@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "algorithm.h"
 #include "command.h"
 #include "map.h"
@@ -23,24 +23,24 @@
 #include "world.h"
 #include "world_stack.h"
 
+mark::world::world(resource::manager& rm)
+	: m_resource_manager(rm)
+	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
+	, image_bar(rm.image("bar.png"))
+	, image_font(rm.image("font.png"))
+	, image_stun(rm.image("stun.png")) { }
+
+
 mark::world::world(
-	world_stack& stack,
-	resource::manager& resource_manager,
-	const bool empty,
-	const bool inital)
+	world_stack& stack, resource::manager& resource_manager, bool initial)
 	: m_resource_manager(resource_manager)
-	, m_map(empty
-		? std::make_unique<mark::map>(map::make_square(resource_manager))
-		: std::make_unique<mark::map>(map::make_cavern(resource_manager)))
+	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
-	, m_stack(stack)
+	, m_stack(&stack)
 {
 	const auto& templates = stack.templates();
-	if (empty) {
-		return;
-	}
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
@@ -71,7 +71,7 @@ mark::world::world(
 			}
 		}
 	}
-	if (inital) {
+	if (initial) {
 		auto vessel = std::dynamic_pointer_cast<unit::modular>(
 			unit::deserialise(*this, templates.at("ship")));
 		vessel->ai(false);
@@ -288,7 +288,7 @@ mark::world::world(
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
-	, m_stack(stack)
+	, m_stack(&stack)
 {
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
@@ -306,10 +306,10 @@ mark::world::world(
 }
 
 void mark::world::next()
-{ m_stack.next(); }
+{ m_stack->next(); }
 
 void mark::world::prev()
-{ m_stack.prev(); }
+{ m_stack->prev(); }
 
 void mark::world::serialise(YAML::Emitter& out) const
 {

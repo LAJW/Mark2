@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "exception.h"
 
 class custom_category_t : public std::error_category {

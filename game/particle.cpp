@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "resource_image.h"
 #include "particle.h"
 #include "sprite.h"

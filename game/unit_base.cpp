@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "unit_base.h"
 
 auto mark::unit::base_ref::world() noexcept -> mark::world&

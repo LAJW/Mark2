@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "renderer.h"
 #include "resource_image.h"
 #include "sprite.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "resource_image.h"
 #include <SFML/Graphics/Texture.hpp>
 

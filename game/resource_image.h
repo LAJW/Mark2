@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "vector.h"
 #include <SFML/Graphics/Texture.hpp>

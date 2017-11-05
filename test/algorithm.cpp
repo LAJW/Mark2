@@ -1,4 +1,4 @@
-#include "../game/stdafx.h"
+﻿#include "../game/stdafx.h"
 #include <catch.hpp>
 #include "../game/algorithm.h"
 

@@ -1,4 +1,4 @@
-#include "../game/stdafx.h"
+﻿#include "../game/stdafx.h"
 #include <catch.hpp>
 #include "../game/vector.h"
 
@@ -56,26 +56,26 @@ TEST_CASE("get_line diagonal") {
 
 TEST_CASE("intersect horizontal and vertical on 0, 0") {
 	const auto result = mark::intersect({ 0, 0 }, { 0, NAN });
-	REQUIRE(result.x == Approx(0));
-	REQUIRE(result.y == Approx(0));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(0));
+	REQUIRE(result->y == Approx(0));
 }
 
 TEST_CASE("Intersect 2 different parallel lines") {
 	const auto result = mark::intersect({ 3, 7 }, { 3, 8 });
-	REQUIRE(isnan(result.x));
-	REQUIRE(isnan(result.y));
+	REQUIRE(!result.has_value());
 }
 
 TEST_CASE("Intersect the same line") {
 	const auto result = mark::intersect({ 3, 7 }, { 3, 7 });
-	REQUIRE(isnan(result.x));
-	REQUIRE(isnan(result.y));
+	REQUIRE(!result.has_value());
 }
 
 TEST_CASE("Crossing lines") {
 	const auto result = mark::intersect({ 1, 3 }, { -1, 5 });
-	REQUIRE(result.x == Approx(1));
-	REQUIRE(result.y == Approx(4));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(1));
+	REQUIRE(result->y == Approx(4));
 }
 
 // intersec(section, section)
@@ -85,8 +85,9 @@ TEST_CASE("Crossing sections, 45 degrees") {
 		{ { -1, -1 }, { 1, 1 } },
 		{ { -1, 1 }, { 1, -1 } }
 	);
-	REQUIRE(result.x == Approx(0));
-	REQUIRE(result.y == Approx(0));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(0));
+	REQUIRE(result->y == Approx(0));
 }
 
 TEST_CASE("Crossing sections at 90 degrees") {
@@ -94,8 +95,9 @@ TEST_CASE("Crossing sections at 90 degrees") {
 		{ { 1, 1 }, { 1, -1 } },
 		{ { -1, 0 }, { 1, 0 } }
 	);
-	REQUIRE(result.x == Approx(1));
-	REQUIRE(result.y == Approx(0));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(1));
+	REQUIRE(result->y == Approx(0));
 }
 
 TEST_CASE("Divergent sections should return [ NAN, NAN ]") {
@@ -103,8 +105,7 @@ TEST_CASE("Divergent sections should return [ NAN, NAN ]") {
 		{ { -1, 1 }, { -1, -1 } },
 		{ { 1, 1 }, { 0, 0 } }
 	);
-	REQUIRE(std::isnan(result.x));
-	REQUIRE(std::isnan(result.y));
+	REQUIRE(!result.has_value());
 }
 
 // Intersection(section, circle)
@@ -115,8 +116,9 @@ TEST_CASE("horizontal line and a circle at [ 0, 0 ]") {
 		{ 0, 0 },
 		1
 	);
-	REQUIRE(result.x == Approx(-1));
-	REQUIRE(result.y == Approx(0));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(-1));
+	REQUIRE(result->y == Approx(0));
 }
 
 TEST_CASE("horizontal segment and a circle at [ 5, 3 ]") {
@@ -125,8 +127,9 @@ TEST_CASE("horizontal segment and a circle at [ 5, 3 ]") {
 		{ 5, 3 },
 		1
 	);
-	REQUIRE(result.x == Approx(6));
-	REQUIRE(result.y == Approx(3));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(6));
+	REQUIRE(result->y == Approx(3));
 }
 
 TEST_CASE("vertical line and a circle at [ 0, 0 ]") {
@@ -135,8 +138,9 @@ TEST_CASE("vertical line and a circle at [ 0, 0 ]") {
 		{ 0, 0 },
 		1
 	);
-	REQUIRE(result.x == Approx(0));
-	REQUIRE(result.y == Approx(-1));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(0));
+	REQUIRE(result->y == Approx(-1));
 }
 
 TEST_CASE("45 deg line and a circle at [ 2, 2 ]") {
@@ -145,8 +149,9 @@ TEST_CASE("45 deg line and a circle at [ 2, 2 ]") {
 		{ 2, 2 },
 		2
 	);
-	REQUIRE(result.x == Approx(2.0 - std::sqrt(2)));
-	REQUIRE(result.y == Approx(2.0 - std::sqrt(2)));
+	REQUIRE(result.has_value());
+	REQUIRE(result->x == Approx(2.0 - std::sqrt(2)));
+	REQUIRE(result->y == Approx(2.0 - std::sqrt(2)));
 }
 
 TEST_CASE("no collision (range check)") {
@@ -155,6 +160,5 @@ TEST_CASE("no collision (range check)") {
 		{ 2, 2 },
 		2
 	);
-	REQUIRE(std::isnan(result.x));
-	REQUIRE(std::isnan(result.y));
+	REQUIRE(!result.has_value());
 }
