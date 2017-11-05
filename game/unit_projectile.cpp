@@ -68,11 +68,16 @@ void mark::unit::projectile::tick(tick_context& context) {
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
-	if (const auto collision_pos = world().damage(info)) {
+	const auto[collisions, terrain_hit] = world().damage(info);
+	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;
+	} else {
+		m_piercing -= collisions.size();
+	}
+	for (const auto collision : collisions) {
 		tick_context::spray_info spray;
 		spray.image = m_im_tail;
-		spray.pos = *collision_pos;
+		spray.pos = collision;
 		spray.velocity(5.f, 75.f);
 		spray.lifespan(0.3f);
 		spray.diameter(8.f);
@@ -80,54 +85,53 @@ void mark::unit::projectile::tick(tick_context& context) {
 		spray.cone = 360.f;
 		spray.color = { 125, 125, 125, 75 };
 		context.render(spray);
-	} else {
-		// tail: grey dust
-		{
-			tick_context::spray_info spray;
-			spray.image = m_im_tail;
-			spray.pos = pos();
-			spray.velocity(100.f);
-			spray.lifespan(0.3f);
-			spray.diameter(8.f);
-			spray.count = 4;
-			spray.step = mark::length(step);
-			spray.direction = m_rotation + 180.f;
-			spray.cone = 30.f;
-			spray.color = { 175, 175, 175, 75 };
-			context.render(spray);
-		}
-		// tail: white overlay
-		{
-			tick_context::spray_info spray;
-			spray.image = m_im_tail;
-			spray.pos = pos();
-			spray.velocity(75.f);
-			spray.lifespan(0.15f);
-			spray.diameter(8.f);
-			spray.count = 4;
-			spray.step = mark::length(step);
-			spray.direction = m_rotation + 180.f;
-			spray.cone = 30.f;
-			context.render(spray);
-		}
-		{
-			sprite args;
-			args.image = m_im_tail;
-			args.pos = pos() - step;
-			args.size = 32.f;
-			args.color = sf::Color(255, 200, 150, 255);
-			context.sprites[0].emplace_back(args);
-		}
-		{
-			sprite args;
-			args.image = m_image;
-			args.pos = pos();
-			args.size = 10.f;
-			args.rotation = m_rotation;
-			context.sprites[1].emplace_back(args);
-		}
-		context.lights.emplace_back(pos(), sf::Color::White);
 	}
+	// tail: grey dust
+	{
+		tick_context::spray_info spray;
+		spray.image = m_im_tail;
+		spray.pos = pos();
+		spray.velocity(100.f);
+		spray.lifespan(0.3f);
+		spray.diameter(8.f);
+		spray.count = 4;
+		spray.step = mark::length(step);
+		spray.direction = m_rotation + 180.f;
+		spray.cone = 30.f;
+		spray.color = { 175, 175, 175, 75 };
+		context.render(spray);
+	}
+	// tail: white overlay
+	{
+		tick_context::spray_info spray;
+		spray.image = m_im_tail;
+		spray.pos = pos();
+		spray.velocity(75.f);
+		spray.lifespan(0.15f);
+		spray.diameter(8.f);
+		spray.count = 4;
+		spray.step = mark::length(step);
+		spray.direction = m_rotation + 180.f;
+		spray.cone = 30.f;
+		context.render(spray);
+	}
+	{
+		sprite args;
+		args.image = m_im_tail;
+		args.pos = pos() - step;
+		args.size = 32.f;
+		args.color = sf::Color(255, 200, 150, 255);
+		context.sprites[0].emplace_back(args);
+	}
+	{
+		sprite args;
+		args.image = m_image;
+		args.pos = pos();
+		args.size = 10.f;
+		args.rotation = m_rotation;
+		context.sprites[1].emplace_back(args);
+	}
+	context.lights.emplace_back(pos(), sf::Color::White);
 }
 
 auto mark::unit::projectile::dead() const -> bool {

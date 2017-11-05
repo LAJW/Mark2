@@ -240,35 +240,38 @@ auto mark::world::collide(vector<double> center, float radius)
 }
 
 auto mark::world::damage(world::damage_info& info)
-	-> std::optional<vector<double>>
+	-> std::pair<std::vector<vector<double>>, bool>
 {
 	assert(info.context);
-	auto result = this->collide(info.segment);
-	if (result.first.empty() && !result.second) {
+	auto[potential_collisions, crash_pos] = this->collide(info.segment);
+	if (potential_collisions.empty() && !crash_pos) {
 		return { };
 	}
-	const auto collision = [&]() -> std::optional<vector<double>> {
-		while (!result.first.empty()) {
-			const auto&[damageable, pos] = result.first.front();
-			info.damage.pos = pos;
-			if (damageable.get().damage(info.damage)) {
-				return pos;
+	std::vector<vector<double>> collisions;
+	while (!potential_collisions.empty()) {
+		const auto&[damageable, pos] = potential_collisions.front();
+		info.damage.pos = pos;
+		if (damageable.get().damage(info.damage)) {
+			collisions.push_back(pos);
+			if (collisions.size() >= info.piercing) {
+				break;
 			}
-			result.first.pop_front();
 		}
-		return result.second;
-	}();
-	if (!collision) {
-		return { };
+		potential_collisions.pop_front();
+	}
+	if (crash_pos && (info.piercing < collisions.size() || collisions.empty())) {
+		collisions.push_back(*crash_pos);
 	}
 	if (info.aoe_radius > 0.f) {
-		const auto damageables = this->collide(*collision, info.aoe_radius);
-		for (const auto aoe_damageable : damageables) {
-			info.damage.pos = *collision;
-			aoe_damageable.get().damage(info.damage);
+		for (const auto& collision : collisions) {
+			const auto damageables = this->collide(collision, info.aoe_radius);
+			for (const auto aoe_damageable : damageables) {
+				info.damage.pos = collision;
+				aoe_damageable.get().damage(info.damage);
+			}
 		}
 	}
-	return *collision;
+	return { collisions, crash_pos.has_value() };
 }
 
 // Serializer / Deserializer

@@ -70,11 +70,13 @@ public:
 		interface::damageable::info damage;
 		tick_context* context = nullptr;
 		segment_t segment;
-		size_t piercing = 1;
+		size_t piercing = 1; // Number of objects to pierce
 		float aoe_radius = 0.f;
 	};
-	// Returns position where and if collision occured
-	auto damage(world::damage_info&) -> std::optional<vector<double>>;
+	// Returns pair containing list of collision points and boolean signaling 
+	// whether or not terrain was hit
+	auto damage(world::damage_info&)
+		-> std::pair<std::vector<vector<double>>, bool>;
 	// go to the next map
 	void next();
 	void prev();

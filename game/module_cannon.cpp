@@ -35,7 +35,6 @@ void mark::module::cannon::tick(tick_context& context) {
 	if (this->can_shoot()) {
 		std::unordered_set<interface::damageable*> damaged;
 
-		std::optional<vector<double>> collision_pos;
 		const auto dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
 		const auto prev = pos;
 		const auto cur = pos + dir * static_cast<double>(module::size * 200);
@@ -47,11 +46,11 @@ void mark::module::cannon::tick(tick_context& context) {
 		info.damage.damaged = &damaged;
 		info.damage.physical = 100.f * static_cast<float>(context.dt);
 		info.damage.team = parent().team();
-		if (const auto result = world.damage(info)) {
-			collision_pos = result;
+		const auto collisions = world.damage(info).first;
+		for (const auto& collision : collisions) {
 			tick_context::spray_info spray;
 			spray.image = m_im_ray;
-			spray.pos = *collision_pos;
+			spray.pos = collision;
 			spray.velocity(25.f, 50.f);
 			spray.lifespan(1.f);
 			spray.diameter(8.f);
@@ -61,14 +60,15 @@ void mark::module::cannon::tick(tick_context& context) {
 			spray.color = sf::Color::Red;
 			context.render(spray);
 		}
-		if (collision_pos) {
-			const auto len = int(length(*collision_pos - pos) / double(module::size));
-			context.lights.push_back({ *collision_pos, sf::Color::Red });
+		if (!collisions.empty()) {
+			const auto collision = collisions.back();
+			const auto len = int(length(collision - pos) / double(module::size));
+			context.lights.push_back({ collision, sf::Color::Red });
 			for (int i = 1; i < len; i++) {
 				const auto cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
 				sprite ray_sprite;
 				ray_sprite.image = m_im_ray;
-				ray_sprite.pos = *collision_pos - dir * cur_len;
+				ray_sprite.pos = collision - dir * cur_len;
 				ray_sprite.size = module::size;
 				ray_sprite.rotation = m_rotation;
 				ray_sprite.color = sf::Color::Red;
