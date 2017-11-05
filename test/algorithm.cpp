@@ -35,3 +35,50 @@ TEST_CASE("Enumerate an area")
 	}
 	REQUIRE(i == 3 * 2);
 }
+
+TEST_CASE("Diff two identical lists")
+{
+	std::list<int> old_vec{ 1, 2, 5, 7 };
+	std::list<int> new_vec{ 1, 2, 5, 7 };
+	const auto[removed, added] = mark::diff(old_vec, new_vec);
+	REQUIRE(removed.empty());
+	REQUIRE(added.empty());
+}
+
+TEST_CASE("Diff lists, last element missing")
+{
+	std::list<int> old_list{ 1, 2, 5, 7 };
+	std::list<int> new_list{ 1, 2, 5 };
+	const auto[removed, added] = mark::diff(old_list, new_list);
+	REQUIRE(removed == decltype(removed){ std::prev(old_list.end()) });
+	REQUIRE(added.empty());
+}
+
+TEST_CASE("Diff lists, additional element added to the end")
+{
+	std::list<int> old_list{ 1, 2, 5 };
+	std::list<int> new_list{ 1, 2, 5, 7 };
+	const auto[removed, added] = mark::diff(old_list, new_list);
+	REQUIRE(removed.empty());
+	REQUIRE(added == decltype(added){ std::make_pair(old_list.end(), 7) });
+}
+
+TEST_CASE("Diff lists, middle element missing")
+{
+	std::list<int> old_list{ 1, 2, 5, 7 };
+	std::list<int> new_list{ 1, 5, 7 };
+	const auto[removed, added] = mark::diff(old_list, new_list);
+	REQUIRE(removed == decltype(removed){ std::next(old_list.begin()) });
+	REQUIRE(added.empty());
+}
+
+TEST_CASE("Diff lists, new middle element")
+{
+	std::list<int> old_list{ 1, 2, 7 };
+	std::list<int> new_list{ 1, 2, 5, 7 };
+	const auto[removed, added] = mark::diff(old_list, new_list);
+	REQUIRE(removed.empty());
+	REQUIRE(added == decltype(added){
+		std::make_pair(std::prev(old_list.end()), 5)
+	});
+}

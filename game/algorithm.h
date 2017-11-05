@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include <list>
 #include <iterator>
 
 namespace mark {
@@ -202,4 +203,47 @@ auto drop(vector_t& vector, iterator_t it) {
 	vector.pop_back();
 	return std::move(owner);
 }
+
+
+// Diff two lists. Return list of iterators to elements to be removed from
+// the old list and a list of elements to be added to the old list
+inline auto diff(
+	const std::list<int>& old_list, const std::list<int>& new_list)
+	-> std::pair<
+		std::vector<std::list<int>::const_iterator>,
+		std::vector<std::pair<std::list<int>::const_iterator, int>>>
+{
+	std::vector<std::list<int>::const_iterator> removed;
+	std::vector<std::pair<std::list<int>::const_iterator, int>> added;
+	auto old_it = old_list.begin();
+	const auto old_end = old_list.end();
+	auto new_it = new_list.begin();
+	const auto new_end = new_list.end();
+	while (old_it != old_end || new_it != new_end) {
+		if (old_it == old_end) {
+			added.push_back({ old_end, *new_it });
+			++new_it;
+		} else if (new_it == new_end) {
+			removed.push_back(old_it);
+			++old_it;
+		} else if (*old_it == *new_it) {
+			++new_it;
+			++old_it;
+		} else {
+			const auto found_new = std::find(new_it, new_end, *old_it);
+			if (found_new == new_end) {
+				removed.push_back(old_it);
+				++old_it;
+			} else {
+				for (auto it = new_it; it != found_new; ++it) {
+					added.push_back({ old_it, *it });
+				}
+				new_it = std::next(found_new);
+				++old_it;
+			}
+		}
+	}
+	return { removed, added };
+}
+
 }
