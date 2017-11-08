@@ -74,6 +74,9 @@ void mark::unit::projectile::tick(tick_context& context) {
 	} else {
 		m_piercing -= collisions.size();
 	}
+	if (!collisions.empty() && terrain_hit) {
+		pos(collisions.back());
+	}
 	for (const auto collision : collisions) {
 		tick_context::spray_info spray;
 		spray.image = m_im_tail;
