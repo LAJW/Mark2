@@ -118,6 +118,11 @@ void mark::unit::mobile::serialise(YAML::Emitter& out) const
 
 void mark::unit::mobile::stop()
 {
+	// Resets all queues and all modules
+	for (int8_t i = 0; i < 11; i++) {
+		this->command(command::activate{ });
+		this->command(command::release{ });
+	}
 	m_velocity = { };
 	m_moveto = pos();
 }
