@@ -7,6 +7,7 @@
 #include "interface_has_bindings.h"
 #include "unit_landing_pad.h"
 #include "module_base.h"
+#include "algorithm.h"
 
 mark::ui::action_bar::action_bar(resource::manager& rm)
 	: m_font(rm.image("font.png"))
@@ -52,9 +53,8 @@ void mark::ui::action_bar::tick(
 		= std::dynamic_pointer_cast<const interface::has_bindings>(world.target())) {
 		const auto icon_size = 64.0;
 		const auto bindings = unit->bindings();
-		for (size_t i = 0; i < bindings.size(); ++i) {
-			const auto binding = bindings[i];
-			// const auto&[i, binding] = pair;
+		for (const auto& pair : mark::enumerate(bindings)) {
+			const auto&[i, binding] = pair;
 			const auto di = static_cast<double>(i);
 			const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
 			const auto y = resolution.y - 64;;
