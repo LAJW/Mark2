@@ -58,6 +58,12 @@ bool mark::ui::container::click(const event& event)
 	return false;
 }
 
+auto mark::ui::container::cargo() const -> const module::cargo&
+{ return m_container; }
+
+auto mark::ui::container::size() const -> vector<int>
+{ return vector<int>(m_container.interior_size()) * static_cast<int>(mark::module::size * 1.5f); }
+
 void mark::ui::container::attach(
 	vector<int> pos,
 	module::base& module)

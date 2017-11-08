@@ -22,7 +22,10 @@ mark::ui::ui::ui(resource::manager& rm)
 	, m_font(rm.image("font.png"))
 	, m_tooltip_bg(rm.image("floor.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
-	, m_rm(rm) { }
+	, m_rm(rm)
+{
+	m_windows.push_back(std::make_unique<mark::ui::window>());
+}
 
 mark::ui::ui::~ui() = default;
 
@@ -47,17 +50,29 @@ void mark::ui::ui::tick(
 			world.target())) {
 		if (const auto ship = landing_pad->ship()) {
 			this->container_ui(context, mouse_pos, *landing_pad, *ship);
-			if (m_windows.empty()
-				|| ship->containers().size() != m_container_count
-				|| m_redraw_ui) {
-				m_redraw_ui = false;
-				m_container_count = ship->containers().size();
-				this->hide_ship_editor();
-				this->show_ship_editor(*ship);
+			const auto containers = ship->containers();
+			auto& window = m_windows.back();
+			const auto[removed, added] = diff(
+				window->children(), containers, [](const auto& a, const auto& b) {
+				return &dynamic_cast<const mark::ui::container*>(a.get())->cargo() == &b.get();
+			});
+			for (const auto& it : removed) {
+				window->children().erase(it);
+			}
+			for (const auto& pair : added) {
+				auto&[it, container] = pair;
+				mark::ui::container::info info;
+				info.rm = &m_rm;
+				info.container = &container.get();
+				info.ui = this;
+				window->children().insert(it, std::make_unique<mark::ui::container>(info));
+			}
+			int top = 0;
+			for (const auto& child : window->children()) {
+				child->pos({ 0, top });
+				top += child->size().y;
 			}
 		}
-	} else {
-		this->hide_ship_editor();
 	}
 	if (!m_tooltip_text.empty()) {
 		this->tooltip(context, m_tooltip_text, m_tooltip_pso);
@@ -300,27 +315,11 @@ void mark::ui::ui::container_ui(
 	}
 }
 
-void mark::ui::ui::show_ship_editor(unit::modular& modular)
-{
-	auto window_ptr = std::make_unique<mark::ui::window>();
-	auto& window = *window_ptr;
-	int top = 0;
-	for (auto& container : modular.containers()) {
-		mark::ui::container::info info;
-		info.rm = &m_rm;
-		info.container = &container.get();
-		info.pos = { 0, top };
-		info.ui = this;
-		window.insert(std::make_unique<mark::ui::container>(info));
-		top += 24 * container.get().interior_size().y;
-	}
-	m_windows.push_back(std::move(window_ptr));
-}
+void mark::ui::ui::show_ship_editor(unit::modular&)
+{ }
 
 void mark::ui::ui::hide_ship_editor()
-{
-	m_windows.clear();
-}
+{ }
 
 void mark::ui::ui::tooltip(mark::vector<int> pos, const std::string& str)
 {

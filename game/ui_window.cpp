@@ -2,8 +2,10 @@
 #include "ui_window.h"
 #include "algorithm.h"
 
-mark::ui::window::window(vector<int> pos)
-	: m_pos(pos) { }
+mark::ui::window::window(const vector<int>& pos)
+{
+	m_pos = pos;
+}
 
 void mark::ui::window::insert(std::unique_ptr<node> node)
 {
@@ -50,11 +52,13 @@ void mark::ui::window::tick(tick_context& context)
 	}
 }
 
+auto mark::ui::window::children() -> std::list<std::unique_ptr<node>>&
+{ return m_nodes; }
+
 auto mark::ui::window::pos() const noexcept -> vector<int>
 {
 	if (m_parent) {
 		return m_parent->pos() + m_pos;
-	} else {
-		return m_pos;
 	}
+	return m_pos;
 }

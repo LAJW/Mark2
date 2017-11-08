@@ -54,7 +54,7 @@ private:
 	const std::shared_ptr<const resource::image> m_grid_bg;
 
 	// Used to detect container change
-	size_t m_container_count = 0;
+	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
 	std::vector<std::unique_ptr<window>> m_windows;
 
 	resource::manager& m_rm;

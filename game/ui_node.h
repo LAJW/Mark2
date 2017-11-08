@@ -12,6 +12,12 @@ public:
 	virtual bool hover(const event&) = 0;
 	// get absolute pos
 	virtual auto pos() const noexcept -> vector<int> = 0;
+	void pos(const vector<int>& pos)
+	{ m_pos = pos; }
+	virtual vector<int> size() const
+	{ return { 0, 0 }; }
+protected:
+	vector<int> m_pos;
 };
 
 } }

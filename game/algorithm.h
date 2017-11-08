@@ -207,14 +207,21 @@ auto drop(vector_t& vector, iterator_t it) {
 
 // Diff two lists. Return list of iterators to elements to be removed from
 // the old list and a list of elements to be added to the old list
-inline auto diff(
-	const std::list<int>& old_list, const std::list<int>& new_list)
+template<typename old_container_t, typename new_container_t, typename equals_t>
+auto diff(
+	const old_container_t& old_list,
+	const new_container_t& new_list,
+	const equals_t& equals)
 	-> std::pair<
-		std::vector<std::list<int>::const_iterator>,
-		std::vector<std::pair<std::list<int>::const_iterator, int>>>
+		std::vector<typename old_container_t::const_iterator>,
+		std::vector<std::pair<
+			typename old_container_t::const_iterator,
+			typename new_container_t::value_type>>>
 {
-	std::vector<std::list<int>::const_iterator> removed;
-	std::vector<std::pair<std::list<int>::const_iterator, int>> added;
+	std::vector<typename old_container_t::const_iterator> removed;
+	std::vector<std::pair<
+		typename old_container_t::const_iterator,
+		typename new_container_t::value_type>> added;
 	auto old_it = old_list.begin();
 	const auto old_end = old_list.end();
 	auto new_it = new_list.begin();
@@ -226,11 +233,14 @@ inline auto diff(
 		} else if (new_it == new_end) {
 			removed.push_back(old_it);
 			++old_it;
-		} else if (*old_it == *new_it) {
+		} else if (equals(*old_it, *new_it)) {
 			++new_it;
 			++old_it;
 		} else {
-			const auto found_new = std::find(new_it, new_end, *old_it);
+			const auto found_new = std::find_if(
+				new_it, new_end, [&](const auto& value) {
+				return equals(*old_it, value);
+			});
 			if (found_new == new_end) {
 				removed.push_back(old_it);
 				++old_it;
