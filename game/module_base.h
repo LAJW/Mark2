@@ -125,6 +125,7 @@ protected:
 	float m_cur_heat = 0.f;
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
+	std::shared_ptr<const resource::image> m_im_shadow;
 	const vector<unsigned> m_size;
 	float m_stun_lfo;
 };

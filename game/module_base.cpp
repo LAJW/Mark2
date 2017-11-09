@@ -104,6 +104,13 @@ void mark::module::base::tick(tick_context & context) {
 			context.render(info);
 		}
 	}
+	sprite shadow_sprite;
+	shadow_sprite.image = m_im_shadow;
+	shadow_sprite.pos = pos;
+	shadow_sprite.rotation = parent().rotation();
+	shadow_sprite.size = module::size * 1.1f * std::max(m_size.y, m_size.x);
+	shadow_sprite.color = { 255, 255, 255, 100 };
+	context.sprites[0].emplace_back(shadow_sprite);
 	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);
 		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
@@ -225,14 +232,26 @@ auto mark::module::base::size() const -> vector<unsigned> {
 
 // Serializer / Deserializer
 
-mark::module::base::base(resource::manager& rm, const YAML::Node& node):
-	base_ref(node),
-	m_cur_health(node["cur_health"].as<float>()),
-	m_max_health(node["max_health"].as<float>()),
-	m_stunned(node["stunned"].as<float>()),
-	m_cur_heat(node["cur_heat"].as<float>()),
-	m_size(node["size"].as<vector<unsigned>>()),
-	m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png"))) { }
+static auto size_to_image_file_name(const mark::vector<unsigned>& size) -> std::string
+{
+	if (size == mark::vector<unsigned>{ 2, 2 }) {
+		return "shadow-2x2.png";
+	}
+	if (size == mark::vector<unsigned>{ 4, 2 }) {
+		return "shadow-4x2.png";
+	}
+	std::terminate();
+}
+
+mark::module::base::base(resource::manager& rm, const YAML::Node& node)
+	: base_ref(node)
+	, m_cur_health(node["cur_health"].as<float>())
+	, m_max_health(node["max_health"].as<float>())
+	, m_stunned(node["stunned"].as<float>())
+	, m_cur_heat(node["cur_heat"].as<float>())
+	, m_size(node["size"].as<vector<unsigned>>())
+	, m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png")))
+	, m_im_shadow(rm.image(size_to_image_file_name(node["size"].as<vector<unsigned>>()))) { }
 
 void mark::module::base::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
