@@ -20,7 +20,7 @@ constexpr const auto font_size = 14.f;
 mark::ui::ui::ui(resource::manager& rm)
 	: m_action_bar(rm)
 	, m_font(rm.image("font.png"))
-	, m_tooltip_bg(rm.image("floor.png"))
+	, m_tooltip_bg(rm.image("white.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
 {
@@ -172,6 +172,7 @@ void mark::ui::ui::tooltip(
 	info.size = tooltip_size;
 	info.world = false;
 	info.centred = false;
+	info.color = { 50, 50, 50, 200 };
 	context.sprites[110].emplace_back(info);
 
 	tick_context::text_info text_info;
@@ -196,6 +197,7 @@ void mark::ui::ui::world_tooltip(
 	info.image = m_tooltip_bg;
 	info.pos = pos + vector<double>(150, 150),
 	info.size = tooltip_size;
+	info.color = { 50, 50, 50, 200 };
 	context.sprites[100].emplace_back(info);
 
 	tick_context::text_info text_info;
