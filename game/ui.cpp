@@ -73,6 +73,8 @@ void mark::ui::ui::tick(
 				top += child->size().y;
 			}
 		}
+	} else {
+		m_windows.back()->children().clear();
 	}
 	if (!m_tooltip_text.empty()) {
 		this->tooltip(context, m_tooltip_text, m_tooltip_pso);
