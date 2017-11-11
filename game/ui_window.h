@@ -10,7 +10,6 @@ public:
 	window(const vector<int>& pos = { 0, 0 });
 	void insert(std::unique_ptr<node> node);
 	void remove(node& node);
-	auto pos() const noexcept -> vector<int> override;
 	bool click(const event&) override;
 	bool hover(const event&) override;
 	void tick(tick_context&) override;

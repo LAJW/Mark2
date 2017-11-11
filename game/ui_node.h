@@ -11,7 +11,8 @@ public:
 	virtual bool click(const event&) = 0;
 	virtual bool hover(const event&) = 0;
 	// get absolute pos
-	virtual auto pos() const noexcept -> vector<int> = 0;
+	virtual auto pos() const noexcept -> vector<int>
+	{ return m_pos; }
 	void pos(const vector<int>& pos)
 	{ m_pos = pos; }
 	virtual vector<int> size() const

@@ -15,9 +15,13 @@ static bool validate(const mark::ui::button::info& info) noexcept
 
 mark::ui::button::button(const info& info, bool)
 	: m_parent(*info.parent)
-	, m_pos(info.pos)
 	, m_size(info.size)
-	, m_image(info.image) { }
+	, m_image(info.image)
+	, m_font(info.font)
+	, m_title(info.title)
+{
+	m_pos = info.pos;
+}
 
 mark::ui::button::button(const info& info)
 	:button(info, validate(info)) { }
@@ -25,6 +29,11 @@ mark::ui::button::button(const info& info)
 auto mark::ui::button::pos() const noexcept -> vector<int>
 {
 	return m_pos + m_parent.pos();
+}
+
+auto mark::ui::button::size() const noexcept -> vector<int>
+{
+	return vector<int>(m_size);
 }
 
 void mark::ui::button::tick(tick_context& context)
@@ -41,7 +50,22 @@ void mark::ui::button::render(tick_context& context)
 	info.size = static_cast<float>(std::max(m_size.x, m_size.y));
 	info.world = false;
 	info.centred = false;
+	// info.color = { 50, 50, 50, 200 };
 	context.sprites[102].emplace_back(info);
+
+	if (!m_title.empty()) {
+		tick_context::text_info text;
+		text.box = { 300., 50. };
+		text.pos = vector<double>(this->pos());
+		text.font = m_font;
+		text.text = m_title;
+		text.world = false;
+		text.centred = false;
+		text.layer = 103;
+		text.color = sf::Color::Black;
+		text.size = 17.f;
+		context.render(text);
+	}
 }
 
 bool mark::ui::button::click(const event& event)

@@ -50,7 +50,7 @@ void mark::ui::window::tick(tick_context& context)
 	int top = 0;
 	for (const auto& node : m_nodes) {
 		if (node->relative()) {
-			node->pos({ node->pos().x, top });
+			node->pos({ 0, top });
 			node->tick(context);
 			top += node->size().y;
 		} else {
@@ -61,11 +61,3 @@ void mark::ui::window::tick(tick_context& context)
 
 auto mark::ui::window::children() -> std::list<std::unique_ptr<node>>&
 { return m_nodes; }
-
-auto mark::ui::window::pos() const noexcept -> vector<int>
-{
-	if (m_parent) {
-		return m_parent->pos() + m_pos;
-	}
-	return m_pos;
-}

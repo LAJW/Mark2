@@ -24,7 +24,29 @@ mark::ui::ui::ui(resource::manager& rm)
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
 {
+	m_windows.push_back(std::make_unique<mark::ui::window>(vector<int>{ 300, 300 }));
 	m_windows.push_back(std::make_unique<mark::ui::window>());
+	auto& menu = *m_windows.front();
+	{
+		button::info play_button;
+		play_button.image = rm.image("white.png");
+		play_button.size = { 250, 50 };
+		play_button.parent = &menu;
+		play_button.font = rm.image("font.png");
+		play_button.title = "Solitary Traveller";
+		menu.insert(std::make_unique<mark::ui::button>(play_button));
+		menu.children().back()->m_relative = true;
+	}
+	{
+		button::info quit_button;
+		quit_button.image = rm.image("white.png");
+		quit_button.size = { 250, 50 };
+		quit_button.parent = &menu;
+		quit_button.font = rm.image("font.png");
+		quit_button.title = "Abandon Expedition";
+		menu.insert(std::make_unique<mark::ui::button>(quit_button));
+		menu.children().back()->m_relative = true;
+	}
 }
 
 mark::ui::ui::~ui() = default;
