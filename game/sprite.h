@@ -26,4 +26,10 @@ struct sprite {
 	// Should sprite transformation origin be its centre or top-left corner
 	bool centred = true;
 };
+
+struct path {
+	std::vector<vector<double>> points;
+	sf::Color color = sf::Color::White;
+	bool world = true;
+};
 }

@@ -8,38 +8,61 @@ namespace {
 
 // Render sprite using world coordinates
 void render(
-	const mark::sprite& sprite,
+	const std::variant<mark::sprite, mark::path>& any,
 	const mark::vector<double>& camera,
 	sf::RenderTexture& buffer,
-	mark::vector<double> resolution)
+	const mark::vector<double>& resolution)
 {
-	sf::Sprite tmp;
-	const auto texture_size = static_cast<float>(sprite.image->size().y);
-	const auto scale = sprite.size / texture_size;
-	tmp.setTexture(sprite.image->texture());
-	if (sprite.frame != mark::sprite::all) {
-		tmp.setTextureRect({
-			static_cast<int>(texture_size) * static_cast<int>(sprite.frame),
-			0,
-			static_cast<int>(texture_size),
-			static_cast<int>(texture_size) });
-		tmp.scale(scale, scale);
+	using namespace mark;
+	if (const auto sprite = std::get_if<mark::sprite>(&any)) {
+		sf::Sprite tmp;
+		const auto texture_size = static_cast<float>(sprite->image->size().y);
+		const auto scale = sprite->size / texture_size;
+		tmp.setTexture(sprite->image->texture());
+		if (sprite->frame != mark::sprite::all) {
+			tmp.setTextureRect({
+				static_cast<int>(texture_size) * static_cast<int>(sprite->frame),
+				0,
+				static_cast<int>(texture_size),
+				static_cast<int>(texture_size) });
+			tmp.scale(scale, scale);
+		}
+		if (sprite->centred) {
+			tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
+		}
+		tmp.rotate(sprite->rotation);
+		tmp.setColor(sprite->color);
+		if (sprite->world) {
+			tmp.move(
+				static_cast<float>(sprite->pos.x - camera.x + resolution.x / 2.0),
+				static_cast<float>(sprite->pos.y - camera.y + resolution.y / 2.0));
+		} else {
+			tmp.move(
+				static_cast<float>(sprite->pos.x),
+				static_cast<float>(sprite->pos.y));
+		}
+		buffer.draw(tmp);
+	} else if (const auto path = std::get_if<mark::path>(&any)) {
+		std::vector<sf::Vertex> points;
+		if (path->world) {
+			std::transform(
+				path->points.begin(),
+				path->points.end(),
+				std::back_inserter(points),
+				[&](const auto& point) {
+				return sf::Vertex(vector<float>(point - camera));
+			});
+		} else {
+			std::transform(
+				path->points.begin(),
+				path->points.end(),
+				std::back_inserter(points),
+				[](const auto& point) {
+				return sf::Vertex(vector<float>(point));
+			});
+		}
+		buffer.draw(points.data(), points.size(), sf::Lines);
 	}
-	if (sprite.centred) {
-		tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
-	}
-	tmp.rotate(sprite.rotation);
-	tmp.setColor(sprite.color);
-	if (sprite.world) {
-		tmp.move(
-			static_cast<float>(sprite.pos.x - camera.x + resolution.x / 2.0),
-			static_cast<float>(sprite.pos.y - camera.y + resolution.y / 2.0));
-	} else {
-		tmp.move(
-			static_cast<float>(sprite.pos.x),
-			static_cast<float>(sprite.pos.y));
-	}
-	buffer.draw(tmp);
 }
 
 } // anonymous namespace
@@ -114,8 +137,8 @@ sf::Sprite mark::renderer::render(const render_info& info)
 
 	for (const auto& layer : info.sprites) {
 		if (layer.first < 0) {
-			for (const auto& sprite : layer.second) {
-				::render(sprite, camera, *m_occlusion_map, resolution);
+			for (const auto& sprites : layer.second) {
+				::render(sprites, camera, *m_occlusion_map, resolution);
 			}
 		} else if (layer.first < 100) {
 			for (const auto& sprite : layer.second) {

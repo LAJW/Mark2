@@ -8,6 +8,7 @@ class Color;
 namespace mark {
 struct tick_context;
 struct sprite;
+struct path;
 class particle;
 class world;
 class world_stack;

@@ -82,19 +82,12 @@ void mark::ui::action_bar::tick(
 					circle_sprite.world = false;
 					circle_sprite.centred = false;
 					context.sprites[101].push_back(circle_sprite);
-					const auto diff = vector<double>(x + 32, y + 32) - module_pos_;
-					const auto dir = normalize(diff);
-					const auto dist = length(diff);
-					for (auto s = 0.; s < dist; s += 16.) {
-						sprite line_sprite;
-						line_sprite.pos = module_pos_ + dir * s + vector<double>(16, 16);
-						line_sprite.image = image_ray;
-						line_sprite.frame = std::numeric_limits<size_t>::max();
-						line_sprite.rotation = static_cast<float>(atan(dir));
-						line_sprite.world = false;
-						line_sprite.centred = false;
-						context.sprites[101].push_back(line_sprite);
-					}
+					const auto line_end = vector<double>(x + 32, y + 32);
+					path line;
+					line.world = false;
+					line.points.push_back(line_end);
+					line.points.push_back(module_pos + vector<double>(16, 16));
+					context.sprites[101].push_back(line);
 				}
 			}
 

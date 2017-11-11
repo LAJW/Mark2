@@ -28,7 +28,7 @@ mark::particle::particle(const particle::info& attr, bool) :
 	m_color(attr.color),
 	m_layer(attr.layer) { }
 
-void mark::particle::tick(double dt, std::map<int, std::vector<sprite>>& sprites) {
+void mark::particle::tick(double dt, std::map<int, std::vector<std::variant<sprite, path>>>& sprites) {
 	const auto direction = rotate(vector<float>(1.f, 0.f), m_direction);
 	m_pos += vector<double>(direction) * dt * static_cast<double>(m_velocity);
 	const auto image_size = m_image->size();
