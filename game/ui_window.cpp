@@ -47,8 +47,15 @@ bool mark::ui::window::hover(const event& event)
 
 void mark::ui::window::tick(tick_context& context)
 {
+	int top = 0;
 	for (const auto& node : m_nodes) {
-		node->tick(context);
+		if (node->relative()) {
+			node->pos({ node->pos().x, top });
+			node->tick(context);
+			top += node->size().y;
+		} else {
+			node->tick(context);
+		}
 	}
 }
 

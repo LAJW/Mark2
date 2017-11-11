@@ -66,11 +66,7 @@ void mark::ui::ui::tick(
 				info.container = &container.get();
 				info.ui = this;
 				window->children().insert(it, std::make_unique<mark::ui::container>(info));
-			}
-			int top = 0;
-			for (const auto& child : window->children()) {
-				child->pos({ 0, top });
-				top += child->size().y;
+				window->children().back()->m_relative = true;
 			}
 		}
 	} else {

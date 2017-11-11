@@ -16,6 +16,9 @@ public:
 	{ m_pos = pos; }
 	virtual vector<int> size() const
 	{ return { 0, 0 }; }
+	bool m_relative = false;
+	auto relative() const noexcept -> bool
+	{ return m_relative; }
 protected:
 	vector<int> m_pos;
 };
