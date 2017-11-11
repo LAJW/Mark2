@@ -15,7 +15,6 @@ namespace mark {
 			vector<double> resolution;
 			std::vector<std::pair<vector<double>, sf::Color>> lights;
 			std::map<int, std::vector<sprite>> sprites;
-			std::map<int, std::vector<sprite>> ui_sprites;
 			std::map<int, std::vector<sprite>> normals;
 		};
 		sf::Sprite render(const render_info& info);

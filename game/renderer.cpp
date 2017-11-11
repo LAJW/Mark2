@@ -127,15 +127,6 @@ sf::Sprite mark::renderer::render(const render_info& info)
 			}
 		}
 	}
-	for (const auto& layer : info.ui_sprites) {
-		for (const auto& sprite : layer.second) {
-			auto copy = sprite;
-			copy.centred = false;
-			copy.world = false;
-			::render(copy, camera, *m_ui_layer, resolution);
-		}
-	}
-
 	for (const auto& layer : info.normals) {
 		for (const auto& sprite : layer.second) {
 			::render(sprite, camera, *m_normal_map, resolution);
