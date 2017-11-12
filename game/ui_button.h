@@ -42,6 +42,8 @@ private:
 	const std::shared_ptr<const resource::image> m_image;
 	const std::shared_ptr<const resource::image> m_font;
 	std::string m_title;
+	double m_opacity = .5;
+	bool m_hovering = false;
 };
 
 } }

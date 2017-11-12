@@ -44,22 +44,23 @@ void render(
 		buffer.draw(tmp);
 	} else if (const auto path = std::get_if<mark::path>(&any)) {
 		std::vector<sf::Vertex> points;
+		if (path->points.size() <= 1) {
+			return;
+		}
 		if (path->world) {
-			std::transform(
-				path->points.begin(),
-				path->points.end(),
-				std::back_inserter(points),
-				[&](const auto& point) {
-				return sf::Vertex(vector<float>(point - camera));
-			});
+			for (size_t i = 0; i < path->points.size() - 1; ++i) {
+				const auto cur = path->points[i];
+				const auto next = path->points[i + 1];
+				points.push_back(sf::Vertex(vector<float>(cur - camera)));
+				points.push_back(sf::Vertex(vector<float>(next - camera)));
+			}
 		} else {
-			std::transform(
-				path->points.begin(),
-				path->points.end(),
-				std::back_inserter(points),
-				[](const auto& point) {
-				return sf::Vertex(vector<float>(point));
-			});
+			for (size_t i = 0; i < path->points.size() - 1; ++i) {
+				const auto cur = path->points[i];
+				const auto next = path->points[i + 1];
+				points.push_back(sf::Vertex(vector<float>(cur)));
+				points.push_back(sf::Vertex(vector<float>(next)));
+			}
 		}
 		buffer.draw(points.data(), points.size(), sf::Lines);
 	} else if (const auto rect = std::get_if<mark::rectangle>(&any)) {

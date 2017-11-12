@@ -52,7 +52,7 @@ void mark::ui::window::tick(tick_context& context)
 		if (node->relative()) {
 			node->pos({ 0, top });
 			node->tick(context);
-			top += node->size().y;
+			top += node->size().y + 10;
 		} else {
 			node->tick(context);
 		}

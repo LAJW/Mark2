@@ -38,11 +38,34 @@ auto mark::ui::button::size() const noexcept -> vector<int>
 
 void mark::ui::button::tick(tick_context& context)
 {
+	if (m_hovering) {
+		m_opacity = std::min(1., m_opacity + context.dt * 3.);
+	} else {
+		m_opacity = std::max(.0, m_opacity - context.dt * 3.);
+	}
 	this->render(context);
 }
 
 void mark::ui::button::render(tick_context& context)
 {
+	const double total = size().x * 2 + size().y * 2;
+	int cur = int(total * m_opacity);
+	mark::path path;
+	path.world = false;
+	if (cur > size().y * 2 + size().x) {
+		path.points.push_back(vector<double>(pos()) + vector<double>(size().x - (cur - size().y * 2 - size().x), 0));
+	}
+	if (cur > size().y + size().x) {
+		path.points.push_back(vector<double>(pos()) + vector<double>(size().x, std::max(0, size().y - (cur - size().y - size().x))));
+	}
+	if (cur > size().y) {
+		path.points.push_back(vector<double>(pos()) + vector<double>(std::min(size().x, cur - size().y), size().y));
+	}
+	if (cur > 0) {
+		path.points.push_back(vector<double>(pos()) + vector<double>(0, std::min(size().y, cur)));
+		path.points.push_back(vector<double>(pos()));
+	}
+	context.sprites[103].push_back(path);
 	if (m_image) {
 		sprite info;
 		info.image = m_image;
@@ -56,7 +79,7 @@ void mark::ui::button::render(tick_context& context)
 		rectangle info;
 		info.pos = vector<double>(this->pos());
 		info.size = vector<double>(m_size);
-		info.background_color = { 50, 50, 50, 200 };
+		info.background_color = { 50, 50, 50, uint8_t(255. * m_opacity) };
 		context.sprites[102].emplace_back(info);
 
 	}
@@ -97,7 +120,9 @@ bool mark::ui::button::hover(const event& event)
 		&& event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y
 		&& event.cursor.y < bottom_right.y) {
+		m_hovering = true;
 		return on_hover.dispatch(event);
 	}
+	m_hovering = false;
 	return false;
 }

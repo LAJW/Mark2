@@ -37,7 +37,9 @@ mark::renderer::render_info tick(
 {
 	mark::tick_context context(rm);
 	context.dt = dt;
-	world.tick(context, resolution);
+	if (false) {
+		world.tick(context, resolution);
+	}
 	ui.tick(world, context, rm, resolution, mouse_pos);
 
 	mark::renderer::render_info info;
