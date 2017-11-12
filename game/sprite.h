@@ -6,7 +6,7 @@ namespace mark {
 namespace resource {
 	class image;
 }
-struct sprite {
+struct sprite final {
 	// Display everything frame
 	static constexpr const auto all = std::numeric_limits<size_t>::max();
 	// Image of the sprite
@@ -27,9 +27,17 @@ struct sprite {
 	bool centred = true;
 };
 
-struct path {
+struct path final {
 	std::vector<vector<double>> points;
 	sf::Color color = sf::Color::White;
+	bool world = true;
+};
+
+struct rectangle final {
+	vector<double> pos;
+	vector<double> size;
+	sf::Color border_color = sf::Color::White;
+	sf::Color background_color = sf::Color::White;
 	bool world = true;
 };
 }

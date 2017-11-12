@@ -14,7 +14,7 @@ namespace mark {
 			vector<double> camera;
 			vector<double> resolution;
 			std::vector<std::pair<vector<double>, sf::Color>> lights;
-			std::map<int, std::vector<std::variant<sprite, path>>> sprites;
+			std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
 			std::map<int, std::vector<sprite>> normals;
 		};
 		sf::Sprite render(const render_info& info);

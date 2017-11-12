@@ -29,7 +29,6 @@ mark::ui::ui::ui(resource::manager& rm)
 	auto& menu = *m_windows.front();
 	{
 		button::info play_button;
-		play_button.image = rm.image("white.png");
 		play_button.size = { 250, 50 };
 		play_button.parent = &menu;
 		play_button.font = rm.image("font.png");
@@ -39,7 +38,6 @@ mark::ui::ui::ui(resource::manager& rm)
 	}
 	{
 		button::info quit_button;
-		quit_button.image = rm.image("white.png");
 		quit_button.size = { 250, 50 };
 		quit_button.parent = &menu;
 		quit_button.font = rm.image("font.png");

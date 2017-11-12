@@ -43,15 +43,23 @@ void mark::ui::button::tick(tick_context& context)
 
 void mark::ui::button::render(tick_context& context)
 {
-	sprite info;
-	info.image = m_image;
-	const auto pos = vector<double>(this->pos());
-	info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
-	info.size = static_cast<float>(std::max(m_size.x, m_size.y));
-	info.world = false;
-	info.centred = false;
-	// info.color = { 50, 50, 50, 200 };
-	context.sprites[102].emplace_back(info);
+	if (m_image) {
+		sprite info;
+		info.image = m_image;
+		const auto pos = vector<double>(this->pos());
+		info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
+		info.size = static_cast<float>(std::max(m_size.x, m_size.y));
+		info.world = false;
+		info.centred = false;
+		context.sprites[102].emplace_back(info);
+	} else {
+		rectangle info;
+		info.pos = vector<double>(this->pos());
+		info.size = vector<double>(m_size);
+		info.background_color = { 50, 50, 50, 200 };
+		context.sprites[102].emplace_back(info);
+
+	}
 
 	if (!m_title.empty()) {
 		tick_context::text_info text;
@@ -62,7 +70,7 @@ void mark::ui::button::render(tick_context& context)
 		text.world = false;
 		text.centred = false;
 		text.layer = 103;
-		text.color = sf::Color::Black;
+		text.color = sf::Color::White;
 		text.size = 17.f;
 		context.render(text);
 	}

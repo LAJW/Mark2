@@ -23,7 +23,9 @@ namespace mark {
 			int layer = 0;
 		};
 		particle(const particle::info& info);
-		void tick(double dt, std::map<int, std::vector<std::variant<sprite, path>>>& sprites);
+		void tick(
+			double dt,
+			std::map<int, std::vector<std::variant<sprite, path, rectangle>>>& sprites);
 		inline bool dead() const { return m_cur_lifespan <= 0; }
 	private:
 		particle(const particle::info& info, bool);

@@ -8,7 +8,7 @@ namespace {
 
 // Render sprite using world coordinates
 void render(
-	const std::variant<mark::sprite, mark::path>& any,
+	const std::variant<mark::sprite, mark::path, mark::rectangle>& any,
 	const mark::vector<double>& camera,
 	sf::RenderTexture& buffer,
 	const mark::vector<double>& resolution)
@@ -62,6 +62,13 @@ void render(
 			});
 		}
 		buffer.draw(points.data(), points.size(), sf::Lines);
+	} else if (const auto rect = std::get_if<mark::rectangle>(&any)) {
+		sf::RectangleShape rectangle;
+		rectangle.setPosition(sf::Vector2f(rect->pos));
+		rectangle.setSize(sf::Vector2f(rect->size));
+		rectangle.setFillColor(rect->background_color);
+		rectangle.setOutlineColor(rect->border_color);
+		buffer.draw(rectangle);
 	}
 }
 

@@ -7,7 +7,7 @@ struct tick_context {
 	tick_context(resource::manager&);
 	~tick_context();
 	double dt;
-	std::map<int, std::vector<std::variant<sprite, path>>> sprites;
+	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
 	std::map<int, std::vector<sprite>> normals;
 	std::vector<std::pair<vector<double>, sf::Color>> lights;
 	std::vector<std::shared_ptr<unit::base>> units;

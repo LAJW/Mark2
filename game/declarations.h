@@ -9,6 +9,7 @@ namespace mark {
 struct tick_context;
 struct sprite;
 struct path;
+struct rectangle;
 class particle;
 class world;
 class world_stack;
