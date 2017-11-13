@@ -33,11 +33,12 @@ mark::renderer::render_info tick(
 	mark::resource::manager& rm,
 	mark::world& world,
 	mark::vector<double> resolution,
-	mark::vector<double> mouse_pos)
+	mark::vector<double> mouse_pos,
+	bool paused)
 {
 	mark::tick_context context(rm);
 	context.dt = dt;
-	if (false) {
+	if (!paused) {
 		world.tick(context, resolution);
 	}
 	ui.tick(world, context, rm, resolution, mouse_pos);
@@ -75,7 +76,8 @@ void event_loop(
 	std::string window_title,
 	mark::vector<unsigned> res,
 	std::function<void(on_event_info)> on_event,
-	std::function<mark::renderer::render_info(on_tick_info)> on_tick)
+	std::function<mark::renderer::render_info(on_tick_info)> on_tick,
+	bool& alive)
 {
 	assert(on_event);
 	assert(on_tick);
@@ -84,6 +86,9 @@ void event_loop(
 
 	auto last = std::chrono::system_clock::now();
 	while (m_window.isOpen()) {
+		if (!alive) {
+			m_window.close();
+		}
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(
 			std::chrono::duration_cast<std::chrono::microseconds>(now - last)
@@ -129,6 +134,16 @@ void mark::main(std::vector<std::string> args)
 {
 	mark::resource::manager_impl rm;
 	mark::ui::ui ui(rm);
+	bool paused = true;
+	bool alive = true;
+	ui.on_play.insert([&](const auto&) {
+		paused = false;
+		return true;
+	});
+	ui.on_quit.insert([&](const auto&) {
+		alive = false;
+		return true;
+	});
 	const auto options = YAML::LoadFile("options.yml");
 	mark::hid hid(options["keybindings"]);
 	std::unordered_map<std::string, YAML::Node> templates;
@@ -164,9 +179,9 @@ void mark::main(std::vector<std::string> args)
 		}
 		mark::tick_context context(rm);
 		return tick(
-			info.dt, ui, rm, world_stack.world(), info.window_res, info.mouse_pos);
+			info.dt, ui, rm, world_stack.world(), info.window_res, info.mouse_pos, paused);
 	};
-	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick);
+	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick, alive);
 	ui.release();
 	save_world(world_stack.world(), "state.yml");
 }

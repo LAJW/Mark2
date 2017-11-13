@@ -2,10 +2,13 @@
 #include "stdafx.h"
 #include "command.h"
 #include "action_bar.h"
+#include "ui_event.h"
 
 namespace mark {
 namespace ui {
 class window;
+
+
 class ui final {
 public:
 	explicit ui(resource::manager& rm);
@@ -37,6 +40,8 @@ public:
 	std::vector<int8_t> grabbed_bind;
 	// Release module held by UI
 	void release();
+	callback_group on_quit;
+	callback_group on_play;
 private:
 	void container_ui(
 		tick_context& context,

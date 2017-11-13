@@ -8,7 +8,6 @@
 static bool validate(const mark::ui::button::info& info) noexcept
 {
 	assert(info.parent);
-	assert(info.image);
 	(void)info;
 	return true;
 }

@@ -33,8 +33,13 @@ mark::ui::ui::ui(resource::manager& rm)
 		play_button.parent = &menu;
 		play_button.font = rm.image("font.png");
 		play_button.title = "Solitary Traveller";
-		menu.insert(std::make_unique<mark::ui::button>(play_button));
-		menu.children().back()->m_relative = true;
+		auto button = std::make_unique<mark::ui::button>(play_button);
+		button->m_relative = true;
+		button->on_click.insert([=](const auto& ev) {
+			this->on_play.dispatch(ev);
+			return true;
+		});
+		menu.insert(std::move(button));
 	}
 	{
 		button::info quit_button;
@@ -42,8 +47,13 @@ mark::ui::ui::ui(resource::manager& rm)
 		quit_button.parent = &menu;
 		quit_button.font = rm.image("font.png");
 		quit_button.title = "Abandon Expedition";
-		menu.insert(std::make_unique<mark::ui::button>(quit_button));
-		menu.children().back()->m_relative = true;
+		auto button = std::make_unique<mark::ui::button>(quit_button);
+		button->m_relative = true;
+		button->on_click.insert([=](const auto& ev) {
+			this->on_quit.dispatch(ev);
+			return true;
+		});
+		menu.insert(std::move(button));
 	}
 }
 
