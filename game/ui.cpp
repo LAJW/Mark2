@@ -35,7 +35,8 @@ mark::ui::ui::ui(resource::manager& rm)
 		play_button.title = "Solitary Traveller";
 		auto button = std::make_unique<mark::ui::button>(play_button);
 		button->m_relative = true;
-		button->on_click.insert([=](const auto& ev) {
+		button->on_click.insert([&](const auto& ev) {
+			menu.visibility(false);
 			this->on_play.dispatch(ev);
 			return true;
 		});
@@ -136,27 +137,33 @@ bool mark::ui::ui::hover(vector<int> screen_pos)
 	return false;
 }
 
-void mark::ui::ui::command(world& world, const mark::command::any &any)
+bool mark::ui::ui::command(world& world, const mark::command::any &any)
 {
+	if (std::holds_alternative<command::cancel>(any)) {
+		m_windows.front()->visibility(true);
+		return true;
+	}
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());
 	if (!landing_pad) {
-		return;
+		return false;
 	}
 	auto ship = landing_pad->ship();
 	if (!ship) {
-		return;
+		return false;
 	}
 	if (const auto activate = std::get_if<command::activate>(&any)) {
 		if (grabbed) {
 			this->release();
+			return true;
 		} else {
 			const auto relative = (activate->pos - landing_pad->pos()) / double(module::size);
 			const auto pick_pos = floor(relative);
 			ship->toggle_bind(activate->id, pick_pos);
 		}
+		return true;
 	} else if (const auto move = std::get_if<command::move>(&any)) {
 		if (move->release) {
-			return;
+			return false;
 		}
 		const auto relative = (move->to - landing_pad->pos()) / double(module::size);
 		const auto module_pos = round(relative);
@@ -184,7 +191,9 @@ void mark::ui::ui::command(world& world, const mark::command::any &any)
 				}
 			}
 		}
+		return true;
 	}
+	return false;
 }
 
 void mark::ui::ui::tooltip(

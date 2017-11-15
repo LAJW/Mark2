@@ -166,11 +166,18 @@ void mark::main(std::vector<std::string> args)
 		const auto target = world_stack.world().camera()
 			+ info.mouse_pos - info.window_res / 2.;
 		for (const auto command : hid.commands(target)) {
-			ui.command(world_stack.world(), command);
+			if (std::holds_alternative<command::cancel>(command)) {
+				paused = true;
+			}
+			if (ui.command(world_stack.world(), command)) {
+				continue;
+			}
+			if (paused) {
+				continue;
+			}
 			if (const auto move = std::get_if<command::move>(&command)) {
 				moving = !move->release;
-			}
-			if (const auto move = std::get_if<command::guide>(&command)) {
+			} else if (const auto move = std::get_if<command::guide>(&command)) {
 				if (moving) {
 					world_stack.world().command(command::move{ move->pos, true });
 				}

@@ -19,7 +19,7 @@ public:
 		resource::manager& rm,
 		vector<double> resolution,
 		vector<double> mouse_pos_);
-	void command(world& world, const command::any& command);
+	[[nodiscard]] auto command(world& world, const command::any& command) -> bool;
 	bool click(vector<int> screen_pos);
 	bool hover(vector<int> screen_pos);
 	void show_ship_editor(unit::modular&);

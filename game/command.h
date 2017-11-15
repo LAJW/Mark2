@@ -9,7 +9,8 @@ struct use { };
 struct queue { int8_t id; vector<double> pos; };
 struct activate { int8_t id; vector<double> pos; };
 struct release { int8_t id; vector<double> pos; };
+struct cancel { };
 using any = std::variant<
-	move, guide, use, release, queue, activate, std::monostate>;
+	move, guide, use, release, queue, activate, cancel, std::monostate>;
 }
 };

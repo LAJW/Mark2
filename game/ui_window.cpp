@@ -25,6 +25,9 @@ void mark::ui::window::remove(node& to_remove)
 
 bool mark::ui::window::click(const event& event)
 {
+	if (!m_visible) {
+		return false;
+	}
 	for (const auto& node : m_nodes) {
 		const auto handled = node->click(event);
 		if (handled) {
@@ -36,6 +39,9 @@ bool mark::ui::window::click(const event& event)
 
 bool mark::ui::window::hover(const event& event)
 {
+	if (!m_visible) {
+		return false;
+	}
 	for (const auto& node : m_nodes) {
 		const auto handled = node->hover(event);
 		if (handled) {
@@ -47,6 +53,9 @@ bool mark::ui::window::hover(const event& event)
 
 void mark::ui::window::tick(tick_context& context)
 {
+	if (!m_visible) {
+		return;
+	}
 	int top = 0;
 	for (const auto& node : m_nodes) {
 		if (node->relative()) {
@@ -61,3 +70,6 @@ void mark::ui::window::tick(tick_context& context)
 
 auto mark::ui::window::children() -> std::list<std::unique_ptr<node>>&
 { return m_nodes; }
+
+void mark::ui::window::visibility(bool value) noexcept
+{ m_visible = value; }

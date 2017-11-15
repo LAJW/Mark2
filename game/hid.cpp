@@ -140,6 +140,10 @@ auto mark::hid::commands(const mark::vector<double>& mouse_pos)
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
 			out.push_back(it->second(mouse_pos, m_shift, false));
+		} else if (const auto key = std::get_if<sf::Keyboard::Key>(&button)) {
+			if (*key == sf::Keyboard::Escape) {
+				out.push_back(command::cancel());
+			}
 		}
 	}
 	m_pressed.clear();

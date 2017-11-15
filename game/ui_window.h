@@ -14,9 +14,11 @@ public:
 	bool hover(const event&) override;
 	void tick(tick_context&) override;
 	auto children() -> std::list<std::unique_ptr<node>>&;
+	void visibility(bool) noexcept;
 private:
 	std::list<std::unique_ptr<node>> m_nodes;
 	window* m_parent = nullptr;
+	bool m_visible = true;
 };
 
 } }
