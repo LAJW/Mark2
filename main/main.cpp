@@ -51,14 +51,14 @@ struct event_loop_info {
 	mark::vector<unsigned> res;
 	std::function<void(on_event_info)> on_event;
 	std::function<mark::renderer::render_info(on_tick_info)> on_tick;
-	bool* alive = nullptr;
+	mark::mode_stack* stack;
 };
 
 void event_loop(event_loop_info& info)
 {
 	assert(info.on_event);
 	assert(info.on_tick);
-	assert(info.alive);
+	assert(info.stack);
 	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
 	mark::renderer renderer(info.res);
 	const auto& on_tick = info.on_tick;
@@ -66,9 +66,6 @@ void event_loop(event_loop_info& info)
 
 	auto last = std::chrono::system_clock::now();
 	while (window.isOpen()) {
-		if (!*info.alive) {
-			window.close();
-		}
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(
 			std::chrono::duration_cast<std::chrono::microseconds>(now - last)
@@ -92,6 +89,10 @@ void event_loop(event_loop_info& info)
 				on_event(info);
 			}
 		}
+		if (info.stack->get().empty()) {
+			break;
+			window.close();
+		}
 
 		if (dt >= 1.0 / 60.0) {
 			last = now;
@@ -112,18 +113,9 @@ namespace mark {
 
 void mark::main(std::vector<std::string> args)
 {
+	mode_stack stack;
 	mark::resource::manager_impl rm;
-	mark::ui::ui ui(rm);
-	bool paused = true;
-	bool alive = true;
-	ui.on_play.insert([&](const auto&) {
-		paused = false;
-		return true;
-	});
-	ui.on_quit.insert([&](const auto&) {
-		alive = false;
-		return true;
-	});
+	mark::ui::ui ui(rm, stack);
 	const auto options = YAML::LoadFile("options.yml");
 	mark::hid hid(options["keybindings"]);
 	std::unordered_map<std::string, YAML::Node> templates;
@@ -131,7 +123,7 @@ void mark::main(std::vector<std::string> args)
 	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
 	event_loop_info event_loop_info;
 	event_loop_info.window_title = "mark 2";
-	event_loop_info.alive = &alive;
+	event_loop_info.stack = &stack;
 	event_loop_info.res = { 1920, 1080 };
 	event_loop_info.on_event = [&](const on_event_info& info) {
 		if (info.event.type == sf::Event::MouseMoved) {
@@ -148,16 +140,12 @@ void mark::main(std::vector<std::string> args)
 		const auto target = world.camera()
 			+ info.mouse_pos - info.window_res / 2.;
 		for (const auto command : hid.commands(target)) {
-			if (std::holds_alternative<command::cancel>(command)) {
-				paused = true;
-			}
 			if (ui.command(world, command)) {
 				continue;
 			}
-			if (paused) {
-				continue;
+			if (!stack.paused()) {
+				world.command(command);
 			}
-			world.command(command);
 		}
 	};
 	event_loop_info.on_tick = [&](const on_tick_info& info) {
@@ -165,7 +153,7 @@ void mark::main(std::vector<std::string> args)
 		const auto resolution = info.window_res;
 		mark::tick_context context(rm);
 		context.dt = info.dt;
-		if (!paused) {
+		if (!stack.paused()) {
 			world.tick(context, resolution);
 		}
 		ui.tick(world, context, rm, resolution, info.mouse_pos);

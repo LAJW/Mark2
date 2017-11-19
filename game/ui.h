@@ -3,15 +3,15 @@
 #include "command.h"
 #include "action_bar.h"
 #include "ui_event.h"
+#include "mode_stack.h"
 
 namespace mark {
 namespace ui {
 class window;
 
-
 class ui final {
 public:
-	explicit ui(resource::manager& rm);
+	explicit ui(resource::manager& rm, mode_stack& stack);
 	~ui();
 	void tick(
 		world& world,
@@ -40,8 +40,6 @@ public:
 	std::vector<int8_t> grabbed_bind;
 	// Release module held by UI
 	void release();
-	callback_group on_quit;
-	callback_group on_play;
 private:
 	void container_ui(
 		tick_context& context,
@@ -60,10 +58,11 @@ private:
 
 	// Used to detect container change
 	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
+
 	std::vector<std::unique_ptr<window>> m_windows;
 
 	resource::manager& m_rm;
-	bool m_redraw_ui = false;
+	mode_stack& m_stack;
 };
 
 }

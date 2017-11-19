@@ -17,8 +17,9 @@ constexpr const auto tooltip_size = 300.f;
 constexpr const auto tooltip_margin = 7.f;
 constexpr const auto font_size = 14.f;
 
-mark::ui::ui::ui(resource::manager& rm)
-	: m_action_bar(rm)
+mark::ui::ui::ui(resource::manager& rm, mode_stack& stack)
+	: m_stack(stack)
+	, m_action_bar(rm)
 	, m_font(rm.image("font.png"))
 	, m_tooltip_bg(rm.image("white.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
@@ -35,9 +36,8 @@ mark::ui::ui::ui(resource::manager& rm)
 		play_button.title = "Solitary Traveller";
 		auto button = std::make_unique<mark::ui::button>(play_button);
 		button->m_relative = true;
-		button->on_click.insert([&](const auto& ev) {
-			menu.visibility(false);
-			this->on_play.dispatch(ev);
+		button->on_click.insert([&](const auto&) {
+			m_stack.push(mode::world);
 			return true;
 		});
 		menu.insert(std::move(button));
@@ -50,8 +50,8 @@ mark::ui::ui::ui(resource::manager& rm)
 		quit_button.title = "Abandon Expedition";
 		auto button = std::make_unique<mark::ui::button>(quit_button);
 		button->m_relative = true;
-		button->on_click.insert([=](const auto& ev) {
-			this->on_quit.dispatch(ev);
+		button->on_click.insert([=](const auto&) {
+			m_stack.clear();
 			return true;
 		});
 		menu.insert(std::move(button));
@@ -67,6 +67,7 @@ void mark::ui::ui::tick(
 	vector<double> resolution,
 	vector<double> mouse_pos_)
 {
+	m_windows.front()->visibility(m_stack.paused());
 	m_action_bar.tick(world, context, rm, resolution, mouse_pos_);
 	const auto image_circle = rm.image("circle.png");
 	const auto image_ray = rm.image("ray.png");
@@ -140,7 +141,7 @@ bool mark::ui::ui::hover(vector<int> screen_pos)
 bool mark::ui::ui::command(world& world, const mark::command::any &any)
 {
 	if (std::holds_alternative<command::cancel>(any)) {
-		m_windows.front()->visibility(true);
+		m_stack.pop();
 		return true;
 	}
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());
@@ -284,7 +285,6 @@ void mark::ui::ui::release()
 			}
 		}
 		grabbed_bind.clear();
-		m_redraw_ui = true;
 	}
 }
 

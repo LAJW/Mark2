@@ -211,6 +211,7 @@
     <ClInclude Include="declarations.h" />
     <ClInclude Include="hid.h" />
     <ClInclude Include="interface_container.h" />
+    <ClInclude Include="mode_stack.h" />
     <ClInclude Include="unit_activable.h" />
     <ClInclude Include="unit_damageable.h" />
     <ClInclude Include="module_base_turret.h" />
