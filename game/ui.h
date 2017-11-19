@@ -11,10 +11,9 @@ class window;
 
 class ui final {
 public:
-	explicit ui(resource::manager& rm, mode_stack& stack);
+	explicit ui(resource::manager& rm, mode_stack& stack, world_stack& world_stack);
 	~ui();
 	void tick(
-		world& world,
 		tick_context& context,
 		resource::manager& rm,
 		vector<double> resolution,
@@ -63,6 +62,7 @@ private:
 
 	resource::manager& m_rm;
 	mode_stack& m_stack;
+	world_stack& m_world_stack;
 };
 
 }

@@ -77,8 +77,7 @@ void event_loop(event_loop_info& info)
 			if (event.type == sf::Event::Resized) {
 				const auto width = static_cast<float>(event.size.width);
 				const auto height = static_cast<float>(event.size.height);
-				const auto view = sf::View(sf::FloatRect(0, 0, width, height));
-				window.setView(view);
+				window.setView(sf::View({ 0.f, 0.f, width, height }));
 			} if (event.type == sf::Event::Closed) {
 				window.close();
 			} else {
@@ -115,12 +114,12 @@ void mark::main(std::vector<std::string> args)
 {
 	mode_stack stack;
 	mark::resource::manager_impl rm;
-	mark::ui::ui ui(rm, stack);
-	const auto options = YAML::LoadFile("options.yml");
-	mark::hid hid(options["keybindings"]);
 	std::unordered_map<std::string, YAML::Node> templates;
 	templates["ship"] = YAML::LoadFile("ship.yml");
 	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
+	mark::ui::ui ui(rm, stack, world_stack);
+	const auto options = YAML::LoadFile("options.yml");
+	mark::hid hid(options["keybindings"]);
 	event_loop_info event_loop_info;
 	event_loop_info.window_title = "mark 2";
 	event_loop_info.stack = &stack;
@@ -145,7 +144,7 @@ void mark::main(std::vector<std::string> args)
 		if (!stack.paused()) {
 			world.tick(context, resolution);
 		}
-		ui.tick(world, context, rm, resolution, info.mouse_pos);
+		ui.tick(context, rm, resolution, info.mouse_pos);
 
 		mark::renderer::render_info render_info;
 		render_info.camera = world.camera();

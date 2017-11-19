@@ -1,24 +1,26 @@
 ﻿#include "stdafx.h"
 #include "ui.h"
 #include "algorithm.h"
+#include "interface_has_bindings.h"
 #include "module_cargo.h"
 #include "resource_manager.h"
 #include "sprite.h"
 #include "tick_context.h"
-#include "unit_landing_pad.h"
-#include "unit_modular.h"
-#include "world.h"
-#include "interface_has_bindings.h"
 #include "ui_window.h"
 #include "ui_button.h"
 #include "ui_container.h"
+#include "unit_landing_pad.h"
+#include "unit_modular.h"
+#include "world.h"
+#include "world_stack.h"
 
 constexpr const auto tooltip_size = 300.f;
 constexpr const auto tooltip_margin = 7.f;
 constexpr const auto font_size = 14.f;
 
-mark::ui::ui::ui(resource::manager& rm, mode_stack& stack)
-	: m_stack(stack)
+mark::ui::ui::ui(resource::manager& rm, mode_stack& stack, world_stack& world_stack)
+	: m_world_stack(world_stack)
+	, m_stack(stack)
 	, m_action_bar(rm)
 	, m_font(rm.image("font.png"))
 	, m_tooltip_bg(rm.image("white.png"))
@@ -61,12 +63,12 @@ mark::ui::ui::ui(resource::manager& rm, mode_stack& stack)
 mark::ui::ui::~ui() = default;
 
 void mark::ui::ui::tick(
-	world& world,
 	tick_context& context,
 	resource::manager& rm,
 	vector<double> resolution,
 	vector<double> mouse_pos_)
 {
+	auto& world = m_world_stack.world();
 	m_windows.front()->visibility(m_stack.paused());
 	m_action_bar.tick(world, context, rm, resolution, mouse_pos_);
 	const auto image_circle = rm.image("circle.png");
