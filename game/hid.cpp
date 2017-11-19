@@ -154,6 +154,16 @@ auto mark::hid::commands(const mark::vector<double>& mouse_pos)
 		}
 	}
 	m_released.clear();
+
 	out.push_back(command_dict.at("guide")(mouse_pos, m_shift, true));
+
+	for (const auto& command : out) {
+		if (const auto move = std::get_if<command::move>(&command)) {
+			m_moving = !move->release;
+		}
+	}
+	if (m_moving) {
+		out.push_back(command::move{ mouse_pos, true });
+	}
 	return out;
 }

@@ -26,32 +26,6 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-
-mark::renderer::render_info tick(
-	double dt,
-	mark::ui::ui& ui,
-	mark::resource::manager& rm,
-	mark::world& world,
-	mark::vector<double> resolution,
-	mark::vector<double> mouse_pos,
-	bool paused)
-{
-	mark::tick_context context(rm);
-	context.dt = dt;
-	if (!paused) {
-		world.tick(context, resolution);
-	}
-	ui.tick(world, context, rm, resolution, mouse_pos);
-
-	mark::renderer::render_info info;
-	info.camera = world.camera();
-	info.resolution = resolution;
-	info.lights = std::move(context.lights);
-	info.sprites = std::move(context.sprites);
-	info.normals = std::move(context.normals);
-	return info;
-}
-
 void save_world(const mark::world& world, std::string filename)
 {
 	YAML::Emitter out;
@@ -72,22 +46,28 @@ struct on_tick_info {
 	mark::vector<double> mouse_pos;
 };
 
-void event_loop(
-	std::string window_title,
-	mark::vector<unsigned> res,
-	std::function<void(on_event_info)> on_event,
-	std::function<mark::renderer::render_info(on_tick_info)> on_tick,
-	bool& alive)
+struct event_loop_info {
+	std::string window_title;
+	mark::vector<unsigned> res;
+	std::function<void(on_event_info)> on_event;
+	std::function<mark::renderer::render_info(on_tick_info)> on_tick;
+	bool* alive = nullptr;
+};
+
+void event_loop(event_loop_info& info)
 {
-	assert(on_event);
-	assert(on_tick);
-	sf::RenderWindow m_window(sf::VideoMode(res.x, res.y), window_title);
-	mark::renderer renderer(res);
+	assert(info.on_event);
+	assert(info.on_tick);
+	assert(info.alive);
+	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
+	mark::renderer renderer(info.res);
+	const auto& on_tick = info.on_tick;
+	const auto& on_event = info.on_event;
 
 	auto last = std::chrono::system_clock::now();
-	while (m_window.isOpen()) {
-		if (!alive) {
-			m_window.close();
+	while (window.isOpen()) {
+		if (!*info.alive) {
+			window.close();
 		}
 		const auto now = std::chrono::system_clock::now();
 		const auto dt = static_cast<double>(
@@ -96,18 +76,18 @@ void event_loop(
 			/ 1000000.0;
 
 		sf::Event event;
-		while (m_window.pollEvent(event)) {
+		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Resized) {
 				const auto width = static_cast<float>(event.size.width);
 				const auto height = static_cast<float>(event.size.height);
 				const auto view = sf::View(sf::FloatRect(0, 0, width, height));
-				m_window.setView(view);
+				window.setView(view);
 			} if (event.type == sf::Event::Closed) {
-				m_window.close();
+				window.close();
 			} else {
 				on_event_info info;
-				info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(m_window));
-				info.window_res = mark::vector<double>(m_window.getSize());
+				info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(window));
+				info.window_res = mark::vector<double>(window.getSize());
 				info.event = event;
 				on_event(info);
 			}
@@ -118,10 +98,10 @@ void event_loop(
 
 			on_tick_info info;
 			info.dt = dt;
-			info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(m_window));
-			info.window_res = mark::vector<double>(m_window.getSize());
-			m_window.draw(renderer.render(on_tick(info)));
-			m_window.display();
+			info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(window));
+			info.window_res = mark::vector<double>(window.getSize());
+			window.draw(renderer.render(on_tick(info)));
+			window.display();
 		}
 	}
 }
@@ -149,7 +129,11 @@ void mark::main(std::vector<std::string> args)
 	std::unordered_map<std::string, YAML::Node> templates;
 	templates["ship"] = YAML::LoadFile("ship.yml");
 	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
-	const auto on_event = [&](const on_event_info& info) {
+	event_loop_info event_loop_info;
+	event_loop_info.window_title = "mark 2";
+	event_loop_info.alive = &alive;
+	event_loop_info.res = { 1920, 1080 };
+	event_loop_info.on_event = [&](const on_event_info& info) {
 		if (info.event.type == sf::Event::MouseMoved) {
 			ui.hover(round(info.mouse_pos));
 		}
@@ -160,35 +144,41 @@ void mark::main(std::vector<std::string> args)
 			}
 		}
 		hid.handle(info.event);
-	};
-	bool moving = false;
-	const auto on_tick = [&](const on_tick_info& info) {
-		const auto target = world_stack.world().camera()
+		auto& world = world_stack.world();
+		const auto target = world.camera()
 			+ info.mouse_pos - info.window_res / 2.;
 		for (const auto command : hid.commands(target)) {
 			if (std::holds_alternative<command::cancel>(command)) {
 				paused = true;
 			}
-			if (ui.command(world_stack.world(), command)) {
+			if (ui.command(world, command)) {
 				continue;
 			}
 			if (paused) {
 				continue;
 			}
-			if (const auto move = std::get_if<command::move>(&command)) {
-				moving = !move->release;
-			} else if (const auto move = std::get_if<command::guide>(&command)) {
-				if (moving) {
-					world_stack.world().command(command::move{ move->pos, true });
-				}
-			}
-			world_stack.world().command(command);
+			world.command(command);
 		}
-		mark::tick_context context(rm);
-		return tick(
-			info.dt, ui, rm, world_stack.world(), info.window_res, info.mouse_pos, paused);
 	};
-	event_loop("MARK 2", { 1920, 1080 }, on_event, on_tick, alive);
+	event_loop_info.on_tick = [&](const on_tick_info& info) {
+		auto& world = world_stack.world();
+		const auto resolution = info.window_res;
+		mark::tick_context context(rm);
+		context.dt = info.dt;
+		if (!paused) {
+			world.tick(context, resolution);
+		}
+		ui.tick(world, context, rm, resolution, info.mouse_pos);
+
+		mark::renderer::render_info render_info;
+		render_info.camera = world.camera();
+		render_info.resolution = resolution;
+		render_info.lights = std::move(context.lights);
+		render_info.sprites = std::move(context.sprites);
+		render_info.normals = std::move(context.normals);
+		return render_info;
+	};
+	event_loop(event_loop_info);
 	ui.release();
 	save_world(world_stack.world(), "state.yml");
 }

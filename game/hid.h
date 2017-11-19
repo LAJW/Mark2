@@ -25,5 +25,6 @@ private:
 	// Map from sfml device button to command (Loaded from file)
 	std::unordered_map<button, make_command_type> m_to_command;
 	bool m_shift;
+	bool m_moving = false;
 };
 }
