@@ -15,7 +15,6 @@ public:
 	~ui();
 	void tick(
 		tick_context& context,
-		resource::manager& rm,
 		vector<double> resolution,
 		vector<double> mouse_pos_);
 	[[nodiscard]] auto command(world& world, const command::any& command) -> bool;
@@ -59,6 +58,9 @@ private:
 	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
 
 	std::vector<std::unique_ptr<window>> m_windows;
+
+	// Used to detect stack state change
+	mode m_mode = mode::world;
 
 	resource::manager& m_rm;
 	mode_stack& m_stack;

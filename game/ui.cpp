@@ -18,6 +18,42 @@ constexpr const auto tooltip_size = 300.f;
 constexpr const auto tooltip_margin = 7.f;
 constexpr const auto font_size = 14.f;
 
+static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
+{
+	using namespace mark;
+	using namespace mark::ui;
+	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
+	{
+		button::info play_button;
+		play_button.size = { 250, 50 };
+		play_button.parent = menu.get();
+		play_button.font = rm.image("font.png");
+		play_button.title = "Solitary Traveller";
+		auto button = std::make_unique<mark::ui::button>(play_button);
+		button->m_relative = true;
+		button->on_click.insert([&](const auto&) {
+			stack.push(mode::world);
+			return true;
+		});
+		menu->insert(std::move(button));
+	}
+	{
+		button::info quit_button;
+		quit_button.size = { 250, 50 };
+		quit_button.parent = menu.get();
+		quit_button.font = rm.image("font.png");
+		quit_button.title = "Abandon Expedition";
+		auto button = std::make_unique<mark::ui::button>(quit_button);
+		button->m_relative = true;
+		button->on_click.insert([&](const auto&) {
+			stack.clear();
+			return true;
+		});
+		menu->insert(std::move(button));
+	}
+	return menu;
+}
+
 mark::ui::ui::ui(resource::manager& rm, mode_stack& stack, world_stack& world_stack)
 	: m_world_stack(world_stack)
 	, m_stack(stack)
@@ -27,52 +63,31 @@ mark::ui::ui::ui(resource::manager& rm, mode_stack& stack, world_stack& world_st
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
 {
-	m_windows.push_back(std::make_unique<mark::ui::window>(vector<int>{ 300, 300 }));
 	m_windows.push_back(std::make_unique<mark::ui::window>());
-	auto& menu = *m_windows.front();
-	{
-		button::info play_button;
-		play_button.size = { 250, 50 };
-		play_button.parent = &menu;
-		play_button.font = rm.image("font.png");
-		play_button.title = "Solitary Traveller";
-		auto button = std::make_unique<mark::ui::button>(play_button);
-		button->m_relative = true;
-		button->on_click.insert([&](const auto&) {
-			m_stack.push(mode::world);
-			return true;
-		});
-		menu.insert(std::move(button));
-	}
-	{
-		button::info quit_button;
-		quit_button.size = { 250, 50 };
-		quit_button.parent = &menu;
-		quit_button.font = rm.image("font.png");
-		quit_button.title = "Abandon Expedition";
-		auto button = std::make_unique<mark::ui::button>(quit_button);
-		button->m_relative = true;
-		button->on_click.insert([=](const auto&) {
-			m_stack.clear();
-			return true;
-		});
-		menu.insert(std::move(button));
-	}
+	m_windows.push_back(std::make_unique<mark::ui::window>());
 }
 
 mark::ui::ui::~ui() = default;
 
 void mark::ui::ui::tick(
 	tick_context& context,
-	resource::manager& rm,
 	vector<double> resolution,
 	vector<double> mouse_pos_)
 {
 	auto& world = m_world_stack.world();
-	m_windows.front()->visibility(m_stack.paused());
-	m_action_bar.tick(world, context, rm, resolution, mouse_pos_);
-	const auto image_circle = rm.image("circle.png");
-	const auto image_ray = rm.image("ray.png");
+	if (!m_stack.get().empty()) {
+		if (m_stack.get().back() != m_mode) {
+			m_mode = m_stack.get().back();
+			// router
+			if (m_mode == mode::main_menu) {
+				m_windows.front() = make_main_menu(m_rm, m_stack);
+			} else if (m_mode == mode::world) {
+				m_windows.front() = std::make_unique<mark::ui::window>();
+			}
+		}
+	}
+	m_action_bar.tick(world, context, m_rm, resolution, mouse_pos_);
+	const auto image_circle = m_rm.image("circle.png");
 	for (const auto& window : m_windows) {
 		window->tick(context);
 	}
