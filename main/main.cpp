@@ -126,24 +126,13 @@ void mark::main(std::vector<std::string> args)
 	event_loop_info.stack = &stack;
 	event_loop_info.res = { 1920, 1080 };
 	event_loop_info.on_event = [&](const on_event_info& info) {
-		if (info.event.type == sf::Event::MouseMoved) {
-			ui.hover(round(info.mouse_pos));
-		}
-		if (info.event.mouseButton.button == sf::Mouse::Button::Left
-			&& info.event.type == sf::Event::MouseButtonPressed) {
-			if (ui.click(round(info.mouse_pos))) {
-				return;
-			}
-		}
 		hid.handle(info.event);
 		auto& world = world_stack.world();
 		const auto target = world.camera()
 			+ info.mouse_pos - info.window_res / 2.;
-		for (const auto command : hid.commands(target)) {
-			if (ui.command(world, command)) {
-				continue;
-			}
-			if (!stack.paused()) {
+		for (const auto command : hid.commands(round(info.mouse_pos), target)) {
+			if (!ui.command(world, command)
+				&& !stack.paused()) {
 				world.command(command);
 			}
 		}

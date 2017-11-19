@@ -144,6 +144,13 @@ bool mark::ui::ui::command(world& world, const mark::command::any &any)
 		m_stack.pop();
 		return true;
 	}
+	if (const auto guide = std::get_if<command::guide>(&any)) {
+		return this->hover(guide->screen_pos);
+	}
+	if (const auto move = std::get_if<command::move>(&any)) {
+		return this->click(move->screen_pos);
+	}
+
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());
 	if (!landing_pad) {
 		return false;

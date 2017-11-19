@@ -51,7 +51,10 @@ const std::unordered_map<std::string, mark::hid::button> key_dict {
 auto make_make_command(int8_t id) -> mark::hid::make_command_type
 { 
 	return [=](
-		const mark::vector<double>& mouse_pos, bool shift, bool release)
+		const mark::vector<int>&,
+		const mark::vector<double>& mouse_pos,
+		bool shift,
+		bool release)
 		-> mark::command::any {
 		if (shift) {
 			if (release) {
@@ -67,16 +70,24 @@ auto make_make_command(int8_t id) -> mark::hid::make_command_type
 }
 
 auto make_command_move(
-	const mark::vector<double>& mouse_pos, bool, bool release)
-	-> mark::command::any
-{ return mark::command::move{ mouse_pos, release }; };
+	const mark::vector<int>& screen_pos,
+	const mark::vector<double>& mouse_pos,
+	bool,
+	bool release) -> mark::command::any
+{ return mark::command::move{ mouse_pos, release, screen_pos }; };
 
-auto make_command_guide(const mark::vector<double>& mouse_pos, bool, bool)
-	-> mark::command::any
-{ return mark::command::guide{ mouse_pos }; };
+auto make_command_guide(
+	const mark::vector<int>& screen_pos,
+	const mark::vector<double>& mouse_pos,
+	bool,
+	bool) -> mark::command::any
+{ return mark::command::guide{ mouse_pos, screen_pos }; };
 
-auto make_command_use(const mark::vector<double>&, bool, bool release)
-	-> mark::command::any
+auto make_command_use(
+	const mark::vector<int>&,
+	const mark::vector<double>&,
+	bool,
+	bool release) -> mark::command::any
 {
 	if (release) {
 		return std::monostate();
@@ -132,14 +143,16 @@ void mark::hid::handle(const sf::Event& event)
 	}
 }
 
-auto mark::hid::commands(const mark::vector<double>& mouse_pos)
+auto mark::hid::commands(
+	const mark::vector<int>& screen_pos,
+	const mark::vector<double>& world_pos)
 	-> std::vector<command::any>
 {
 	std::vector<command::any> out;
 	for (const auto& button : m_pressed) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
-			out.push_back(it->second(mouse_pos, m_shift, false));
+			out.push_back(it->second(screen_pos, world_pos, m_shift, false));
 		} else if (const auto key = std::get_if<sf::Keyboard::Key>(&button)) {
 			if (*key == sf::Keyboard::Escape) {
 				out.push_back(command::cancel());
@@ -150,12 +163,12 @@ auto mark::hid::commands(const mark::vector<double>& mouse_pos)
 	for (const auto& button : m_released) {
 		const auto it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
-			out.push_back(it->second(mouse_pos, m_shift, true));
+			out.push_back(it->second(screen_pos, world_pos, m_shift, true));
 		}
 	}
 	m_released.clear();
 
-	out.push_back(command_dict.at("guide")(mouse_pos, m_shift, true));
+	out.push_back(command_dict.at("guide")(screen_pos, world_pos, m_shift, true));
 
 	for (const auto& command : out) {
 		if (const auto move = std::get_if<command::move>(&command)) {
@@ -163,7 +176,7 @@ auto mark::hid::commands(const mark::vector<double>& mouse_pos)
 		}
 	}
 	if (m_moving) {
-		out.push_back(command::move{ mouse_pos, true });
+		out.push_back(command::move{ world_pos, true });
 	}
 	return out;
 }

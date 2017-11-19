@@ -3,8 +3,8 @@
 
 namespace mark {
 namespace command {
-struct move { vector<double> to; bool release; };
-struct guide { vector<double> pos; };
+struct move { vector<double> to; bool release; vector<int> screen_pos; };
+struct guide { vector<double> pos; vector<int> screen_pos; };
 struct use { };
 struct queue { int8_t id; vector<double> pos; };
 struct activate { int8_t id; vector<double> pos; };
