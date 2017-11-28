@@ -21,7 +21,7 @@ constexpr const auto font_size = 14.f;
 static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
-	using namespace mark::ui;
+	using namespace ui;
 	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
 	{
 		button::info play_button;
@@ -46,7 +46,43 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		auto button = std::make_unique<mark::ui::button>(quit_button);
 		button->m_relative = true;
 		button->on_click.insert([&](const auto&) {
+			stack.push(mode::prompt);
+			return true;
+		});
+		menu->insert(std::move(button));
+	}
+	return menu;
+}
+
+static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
+{
+	using namespace mark;
+	using namespace ui;
+	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
+	{
+		button::info play_button;
+		play_button.size = { 250, 50 };
+		play_button.parent = menu.get();
+		play_button.font = rm.image("font.png");
+		play_button.title = "Yes";
+		auto button = std::make_unique<mark::ui::button>(play_button);
+		button->m_relative = true;
+		button->on_click.insert([&](const auto&) {
 			stack.clear();
+			return true;
+		});
+		menu->insert(std::move(button));
+	}
+	{
+		button::info quit_button;
+		quit_button.size = { 250, 50 };
+		quit_button.parent = menu.get();
+		quit_button.font = rm.image("font.png");
+		quit_button.title = "No";
+		auto button = std::make_unique<mark::ui::button>(quit_button);
+		button->m_relative = true;
+		button->on_click.insert([&](const auto&) {
+			stack.pop();
 			return true;
 		});
 		menu->insert(std::move(button));
@@ -83,6 +119,8 @@ void mark::ui::ui::tick(
 				m_windows.front() = make_main_menu(m_rm, m_stack);
 			} else if (m_mode == mode::world) {
 				m_windows.front() = std::make_unique<mark::ui::window>();
+			} else if (m_mode == mode::prompt) {
+				m_windows.front() = make_prompt(m_rm, m_stack);
 			}
 		}
 	}
@@ -165,7 +203,10 @@ bool mark::ui::ui::command(world& world, const mark::command::any &any)
 		return this->hover(guide->screen_pos);
 	}
 	if (const auto move = std::get_if<command::move>(&any)) {
-		return this->click(move->screen_pos);
+		if (!move->release) {
+			return this->click(move->screen_pos);
+		}
+		return false;
 	}
 
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());

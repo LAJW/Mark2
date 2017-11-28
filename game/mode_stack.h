@@ -6,6 +6,7 @@ namespace mark {
 enum class mode {
 	main_menu,
 	world,
+	prompt,
 };
 
 // Stack of modes - manages in which mode the game should be
