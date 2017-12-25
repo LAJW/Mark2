@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "unit_activable.h"
+#include "model_animated.h"
 
 namespace mark {
 namespace unit {
@@ -17,7 +18,9 @@ public:
 	void serialise(YAML::Emitter&) const override;
 private:
 	void tick(tick_context& context) override;
-	std::shared_ptr<const resource::image> m_image;
+	std::shared_ptr<const resource::image> m_im_base;
+	std::shared_ptr<const resource::image> m_im_enclosure;
+	mark::model::animated m_rotor;
 	// If set to true, gate leads to the previous world
 	bool m_inverted;
 };
