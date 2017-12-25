@@ -20,7 +20,7 @@ mark::sprite mark::model::animated::render(vector<double> pos, float size, float
 	const auto frame_count = image_size.x / image_size.y;
 	sprite info;
 	info.image = m_image;
-	info.frame = static_cast<unsigned>(std::floor(m_state)) * frame_count;
+	info.frame = static_cast<unsigned>(std::floor(m_state * static_cast<float>(frame_count)));
 	info.pos = pos;
 	info.size = size;
 	info.rotation = rotation;
