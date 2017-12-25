@@ -16,8 +16,8 @@
 mark::module::turret::turret(module::turret::info& info):
 	base_turret(vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png")),
-	m_im_base(info.resource_manager->image("turret-base.png")),
-	m_im_cannon(info.resource_manager->image("turret-cannon.png")),
+	m_image(info.resource_manager->image("turret.png")),
+	m_image_variant(info.resource_manager->random(0, 12)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
 	m_rate_of_fire(info.rate_of_fire),
 	m_rotation(info.rotation),
@@ -102,20 +102,22 @@ void mark::module::turret::tick(tick_context& context) {
 	const auto heat_color = this->heat_color();
 	{
 		sprite info;
-		info.image = m_im_cannon;
-		info.pos = pos - rotate(vector<double>(m_adsr.get() - 16.0, 0.0), m_rotation);
+		info.image = m_image;
+		info.pos = pos - rotate(vector<double>(m_adsr.get() - 32.0, 0.0), m_rotation);
 		info.size = 32.f;
 		info.rotation = m_rotation;
 		info.color = heat_color;
+		info.frame = 1 + m_image_variant * 2;
 		context.sprites[2].emplace_back(info);
 	}
 	{
 		sprite info;
-		info.image = m_im_base;
+		info.image = m_image;
 		info.pos = pos;
 		info.size = 32.f;
-		info.rotation = parent().rotation();
+		info.rotation = m_rotation;
 		info.color = heat_color;
+		info.frame = m_image_variant * 2;
 		context.sprites[2].emplace_back(info);
 	}
 }
@@ -144,8 +146,8 @@ auto mark::module::turret::describe() const -> std::string {
 
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	module::base_turret(rm, node),
-	m_im_base(rm.image("turret-base.png")),
-	m_im_cannon(rm.image("turret-cannon.png")),
+	m_image(rm.image("turret.png")),
+	m_image_variant(rm.random(0, 12)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
 	m_cur_cooldown(node["cur_cooldown"].as<float>()),
 	m_rate_of_fire(node["rate_of_fire"].as<float>()),

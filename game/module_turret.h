@@ -76,8 +76,8 @@ public:
 private:
 	void tick(tick_context& context) override;
 
-	std::shared_ptr<const resource::image> m_im_base;
-	std::shared_ptr<const resource::image> m_im_cannon;
+	std::shared_ptr<const resource::image> m_image;
+	size_t     m_image_variant;
 	adsr       m_adsr;
 	std::shared_ptr<vector<double>> m_shared_target
 		= std::make_shared<vector<double>>();
