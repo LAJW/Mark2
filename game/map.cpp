@@ -137,7 +137,7 @@ void mark::map::tick(
 	const auto br_ = this->world_to_map(world_br);
 	const auto tl = vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
 	const auto br = vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
-	const auto floor = m_rm.get().image("ice-16.png");
+	const auto floor = m_rm.get().image("jungle-1.png");
 	for (const auto pos : range(tl, br)) {
 		const auto ctl = this->get(pos - vector<int>(1, 1));
 		const auto cbl = this->get(pos - vector<int>(1, 0));

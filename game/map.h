@@ -4,7 +4,7 @@
 namespace mark {
 class map final {
 public:
-	static constexpr const double tile_size = 32.0;
+	static constexpr const double tile_size = 64.0;
 
 	static map make_cavern(resource::manager&);
 	static map make_square(resource::manager&);
