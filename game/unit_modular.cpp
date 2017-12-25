@@ -139,7 +139,7 @@ auto mark::unit::modular::p_connected_to_core(
 	std::vector<std::unique_ptr<Node>> closed;
 
 	while (!open.empty()) {
-		auto min_it = std::min_element(open.begin(), open.end());
+		auto min_it = min_element(open.begin(), open.end());
 		closed.push_back(std::make_unique<Node>(*min_it));
 		auto& current = closed.back();
 		// TODO replace with the last element and pop back, instead of erase
@@ -158,16 +158,16 @@ auto mark::unit::modular::p_connected_to_core(
 				&& neighbour_pos.y > 0 && neighbour_pos.x < size
 				&& neighbour_pos.y < size
 				&& m_grid[neighbour_pos.y * size + neighbour_pos.x].first;
-			const auto isClosed = closed.end() != std::find_if(
-				closed.begin(),
-				closed.end(),
+			const auto isClosed = closed.end() != find_if(
+				closed.cbegin(),
+				closed.cend(),
 				[&neighbour_pos](const auto& node) {
 				return node->pos == neighbour_pos;
 			});
 			if (!traversable || isClosed) {
 				continue;
 			}
-			auto neighbour_it = std::find_if(
+			auto neighbour_it = find_if(
 				open.begin(),
 				open.end(),
 				[&neighbour_pos](const auto& node) {
@@ -307,7 +307,7 @@ auto mark::unit::modular::p_attach(
 		m_radius,
 		length(module->pos() - this->pos())
 		/* + length(module->size()) * static_cast<double>(module::size) / 2. */);
-	m_modules.emplace_back(std::move(module));
+	m_modules.emplace_back(move(module));
 	return error::code::success;
 }
 
@@ -382,7 +382,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 		this->p_at(grid_pos) = nullptr;
 	}
 	const auto neighbours = this->neighbours_of(module);
-	const auto disconnected = std::find_if(
+	const auto disconnected = find_if(
 		neighbours.begin(), neighbours.end(),
 		[this](const auto& neighbour) {
 		return !this->p_connected_to_core(neighbour.first.get());
@@ -407,7 +407,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 		}
 	}
 	this->unbind(module);
-	const auto module_it = std::find_if(
+	const auto module_it = find_if(
 		m_modules.begin(), m_modules.end(), [=](const auto& ptr) {
 		return ptr.get() == module_ptr;
 	});
@@ -419,7 +419,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos) ->
 			/* + length(module->size()) * static_cast<double>(module::size) / 2. */);
 
 	}
-	return std::move(drop(m_modules, module_it));
+	return move(drop(m_modules, module_it));
 }
 
 namespace {
@@ -456,7 +456,7 @@ void mark::unit::modular::command(const command::any& any)
 		}
 	} else if (const auto id = ability_id(any)) {
 		auto bindings = m_bindings.equal_range(*id);
-		std::for_each(bindings.first, bindings.second, [&](auto module) {
+		for_each(bindings.first, bindings.second, [&](auto module) {
 			module.second.get().command(any);
 		});
 	}
@@ -472,7 +472,7 @@ void mark::unit::modular::on_death(tick_context& context) {
 			context.units.emplace_back(std::make_shared<unit::bucket>(
 				world(),
 				pos(),
-				std::move(module)));
+				move(module)));
 		}
 	}
 }
@@ -545,10 +545,10 @@ auto mark::unit::modular::collide(vector<double> center, float radius)
 	outer_continue:;
 	}
 	std::vector<std::reference_wrapper<interface::damageable>> tmp;
-	std::transform(
+	transform(
 		out.cbegin(),
 		out.cend(),
-		std::back_inserter(tmp),
+		back_inserter(tmp),
 		[](const auto ptr) { return std::ref(*ptr); });
 	return tmp;
 }
@@ -564,7 +564,7 @@ void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
 			return;
 		}
 		const auto bindings = m_bindings.equal_range(command_id);
-		const auto binding = std::find_if(
+		const auto binding = find_if(
 			bindings.first, bindings.second, [&module](auto pair) {
 			return &module == &pair.second.get();
 		});
@@ -682,14 +682,14 @@ auto mark::unit::modular::landed() const noexcept -> bool {
 }
 
 void mark::unit::modular::remove_dead(tick_context& context) {
-	const auto first_dead_it = std::partition(
+	const auto first_dead_it = partition(
 		m_modules.begin(),
 		m_modules.end(),
 		[](const std::unique_ptr<module::base>& module) {
 			return !module->dead();
 	});
 	if (first_dead_it != m_modules.end()) {
-		std::for_each(
+		for_each(
 			first_dead_it,
 			m_modules.end(),
 			[this, &context](std::unique_ptr<module::base>& module) {
@@ -704,13 +704,13 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 				this->p_at(module_pos + i) = nullptr;
 			}
 		});
-		const auto first_detached_it = std::partition(
+		const auto first_detached_it = partition(
 			m_modules.begin(),
 			first_dead_it,
 			[this](const auto& module) {
 				return this->p_connected_to_core(*module);
 		});
-		std::for_each(
+		for_each(
 			first_detached_it,
 			m_modules.end(),
 			[this](const auto& module) {
@@ -721,13 +721,13 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 				this->p_at(module_pos + i) = nullptr;
 			}
 		});
-		std::transform(
-			std::make_move_iterator(first_detached_it),
-			std::make_move_iterator(first_dead_it),
-			std::back_inserter(context.units),
+		transform(
+			make_move_iterator(first_detached_it),
+			make_move_iterator(first_dead_it),
+			back_inserter(context.units),
 			[this](auto module) {
 			return std::make_shared<unit::bucket>(
-				world(), this->pos(), std::move(module));
+				world(), this->pos(), move(module));
 		});
 		m_modules.erase(first_detached_it, m_modules.end());
 	}
@@ -747,7 +747,7 @@ void mark::unit::modular::pick_up(tick_context&)
 			}
 		}
 		if (module) {
-			bucket->insert(std::move(module));
+			bucket->insert(move(module));
 		}
 	}
 }

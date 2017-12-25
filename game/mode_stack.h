@@ -18,7 +18,7 @@ public:
 	}
 	void push(mode mode)
 	{
-		if (std::find(m_stack.begin(), m_stack.end(), mode) == m_stack.end()) {
+		if (find(m_stack.begin(), m_stack.end(), mode) == m_stack.end()) {
 			m_stack.push_back(mode);
 		}
 	}

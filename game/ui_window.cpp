@@ -9,12 +9,12 @@ mark::ui::window::window(const vector<int>& pos)
 
 void mark::ui::window::insert(std::unique_ptr<node> node)
 {
-	m_nodes.push_back(std::move(node));
+	m_nodes.push_back(move(node));
 }
 
 void mark::ui::window::remove(node& to_remove)
 {
-	const auto it = std::find_if(
+	const auto it = find_if(
 		m_nodes.begin(),
 		m_nodes.end(),
 		[&](const auto& node) {
