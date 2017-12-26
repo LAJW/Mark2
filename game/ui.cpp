@@ -202,11 +202,13 @@ bool mark::ui::ui::command(world& world, const mark::command::any &any)
 	if (const auto guide = std::get_if<command::guide>(&any)) {
 		return this->hover(guide->screen_pos);
 	}
-	if (const auto move = std::get_if<command::move>(&any)) {
-		if (!move->release) {
-			return this->click(move->screen_pos);
+	if (this->m_stack.paused()) {
+		if (auto move = std::get_if<command::move>(&any)) {
+			if (!move->release) {
+				return this->click(move->screen_pos);
+			}
+			return false;
 		}
-		return false;
 	}
 
 	auto landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(world.target());
@@ -230,6 +232,9 @@ bool mark::ui::ui::command(world& world, const mark::command::any &any)
 	} else if (const auto move = std::get_if<command::move>(&any)) {
 		if (move->release) {
 			return false;
+		}
+		if (this->click(move->screen_pos)) {
+			return true;
 		}
 		const auto relative = (move->to - landing_pad->pos()) / double(module::size);
 		const auto module_pos = round(relative);
