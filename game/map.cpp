@@ -132,29 +132,38 @@ void mark::map::tick(
 	tick_context& context)
 {
 	m_find_count = 0;
-	const auto size = vector<int>(this->size());
-	const auto tl_ = this->world_to_map(world_tl);
-	const auto br_ = this->world_to_map(world_br);
-	const auto tl = vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
-	const auto br = vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
+	const auto range = [&] {
+		const auto size = vector<int>(this->size());
+		const auto tl_ = this->world_to_map(world_tl);
+		const auto br_ = this->world_to_map(world_br);
+		const auto tl = vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
+		const auto br = vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
+		return mark::range(tl, br);
+	}();
 	const auto floor = m_rm.get().image("jungle-1.png");
-	for (const auto pos : range(tl, br)) {
-		const auto ctl = this->get(pos - vector<int>(1, 1));
-		const auto cbl = this->get(pos - vector<int>(1, 0));
-		const auto ctr = this->get(pos - vector<int>(0, 1));
-		const auto cbr = this->get(pos);
-		const auto frame =
-			((ctl == terrain::type::floor_1) & 1)
-			| ((cbl == terrain::type::floor_1) & 1) << 1
-			| ((ctr == terrain::type::floor_1) & 1) << 2
-			| ((cbr == terrain::type::floor_1) & 1) << 3;
+	transform(
+		range.begin(),
+		range.end(),
+		back_inserter(context.sprites[-1]),
+		[&] (const auto pos) {
+		const auto frame = [&] {
+			const auto ctl = this->get(pos - vector<int>(1, 1));
+			const auto cbl = this->get(pos - vector<int>(1, 0));
+			const auto ctr = this->get(pos - vector<int>(0, 1));
+			const auto cbr = this->get(pos);
+			return ((ctl == terrain::type::floor_1) & 1)
+				| ((cbl == terrain::type::floor_1) & 1) << 1
+				| ((ctr == terrain::type::floor_1) & 1) << 2
+				| ((cbr == terrain::type::floor_1) & 1) << 3;
+
+		}();
 		sprite info;
 		info.image = floor;
 		info.frame = frame + get_variant(pos) * 16;
 		info.size = map::tile_size;
 		info.pos = map_to_world(pos) - vector<double>(0.5, 0.5) * tile_size;
-		context.sprites[-1].emplace_back(info);
-	}
+		return info;
+	});
 }
 
 std::string mark::map::serialize_terrain_type(enum class terrain::type t)
