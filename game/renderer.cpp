@@ -32,15 +32,10 @@ void render(
 		}
 		tmp.rotate(sprite->rotation);
 		tmp.setColor(sprite->color);
-		if (sprite->world) {
-			tmp.move(
-				static_cast<float>(sprite->pos.x - camera.x + resolution.x / 2.0),
-				static_cast<float>(sprite->pos.y - camera.y + resolution.y / 2.0));
-		} else {
-			tmp.move(
-				static_cast<float>(sprite->pos.x),
-				static_cast<float>(sprite->pos.y));
-		}
+		const auto offset = sprite->world
+			? sprite->pos - camera + resolution / 2.
+			: sprite->pos;
+		tmp.move(vector<float>(offset));
 		buffer.draw(tmp);
 	} else if (const auto path = std::get_if<mark::path>(&any)) {
 		std::vector<sf::Vertex> points;
