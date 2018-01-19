@@ -100,10 +100,12 @@ void mark::world::tick(
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
 	}
-	const auto camera = vmap(m_camera, std::round);
-	const auto offset = screen_size / 2.0
-		+ vector<double>(map::tile_size, map::tile_size) * 2.;
-	m_map->tick(camera - offset, camera + offset, context);
+	{
+		const auto camera = vmap(m_camera, std::round);
+		const auto offset = screen_size / 2.0
+			+ vector<double>(map::tile_size, map::tile_size) * 2.;
+		m_map->tick(camera - offset, camera + offset, context);
+	}
 
 	for (auto& unit : m_units) {
 		// ticking can damage other units and they may become dead in the process
@@ -117,34 +119,32 @@ void mark::world::tick(
 	}
 	// Add/Remove units
 	{
-		auto last = std::remove_if(
-			m_units.begin(), m_units.end(), [&context](auto& unit) {
-			const auto dead = unit->dead();
-			if (dead) {
+		const auto last = remove_if(
+			begin(m_units), end(m_units), [&](auto& unit) {
+			if (unit->dead()) {
 				unit->on_death(context);
+				return true;
 			}
-			return dead;
+			return false;
 		});
 		m_units.erase(last, m_units.end());
 		m_units.insert(
 			m_units.end(),
-			std::make_move_iterator(context.units.begin()),
-			std::make_move_iterator(context.units.end())
+			make_move_iterator(begin(context.units)),
+			make_move_iterator(end(context.units))
 		);
 	}
 	// Add/remove particles
 	{
-		auto last = std::remove_if(
-			m_particles.begin(),
-			m_particles.end(),
-			[](const particle& particle) {
-			return particle.dead();
-		});
-		m_particles.erase(last, m_particles.end());
+		const auto last = remove_if(
+			begin(m_particles),
+			end(m_particles),
+			[](const particle& particle) { return particle.dead(); });
+		m_particles.erase(last, end(m_particles));
 		m_particles.insert(
-			m_particles.end(),
-			std::make_move_iterator(context.particles.begin()),
-			std::make_move_iterator(context.particles.end())
+			end(m_particles),
+			make_move_iterator(begin(context.particles)),
+			make_move_iterator(end(context.particles))
 		);
 	}
 
@@ -194,7 +194,7 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 	if (std::find(m_units.cbegin(), m_units.cend(), unit) == m_units.cend()) {
 		m_units.push_back(unit);
 	}
-	unit->m_world=*this;
+	unit->m_world = *this;
 }
 
 auto mark::world::collide(const segment_t& ray)
@@ -216,13 +216,13 @@ auto mark::world::collide(const segment_t& ray)
 			}
 		}
 	}
-	std::sort(
-		collisions.begin(),
-		collisions.end(),
+	sort(
+		begin(collisions),
+		end(collisions),
 		[&](const auto& a, const auto& b) {
 		return length(a.second - ray.first) < length(b.second - ray.first);
 	});
-	return { std::move(collisions), map_collision };
+	return { move(collisions), map_collision };
 }
 
 auto mark::world::collide(vector<double> center, float radius)
@@ -233,7 +233,7 @@ auto mark::world::collide(vector<double> center, float radius)
 		if (const auto unit
 			= dynamic_cast<unit::damageable*>(unit_.get())) {
 			const auto tmp = unit->collide(center, radius);
-			std::copy(tmp.begin(), tmp.end(), std::back_inserter(out));
+			copy(begin(tmp), end(tmp), back_inserter(out));
 		}
 	}
 	return out;
@@ -291,7 +291,7 @@ mark::world::world(
 	, m_stack(&stack)
 {
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
-	uint64_t camera_target_id = node["camera_target_id"].as<uint64_t>();
+	const auto camera_target_id = node["camera_target_id"].as<uint64_t>();
 	for (const auto& unit_node : node["units"]) {
 		m_units.push_back(unit::deserialise(*this, unit_node));
 		const auto unit_id = unit_node["id"].as<uint64_t>();
@@ -302,7 +302,6 @@ mark::world::world(
 		unit_map[unit_id].lock()->resolve_ref(unit_node, unit_map);
 	}
 	m_camera_target = unit_map.at(camera_target_id);
-
 }
 
 void mark::world::next()
