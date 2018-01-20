@@ -4,12 +4,17 @@
 
 namespace mark {
 namespace unit {
-class bucket final : public unit::base {
+class bucket final : public unit::base
+{
 public:
 	static constexpr const char* type_name = "unit_bucket";
 
 	bucket(mark::world& world, const YAML::Node&);
-	bucket(mark::world& world, vector<double> pos, std::unique_ptr<module::base>);
+	struct info : unit::base::info
+	{
+		std::unique_ptr<module::base> module;
+	};
+	bucket(info);
 	auto dead() const -> bool override;
 	auto release() -> std::unique_ptr<module::base>;
 	void insert(std::unique_ptr<module::base>);

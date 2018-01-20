@@ -11,8 +11,11 @@ public:
 protected:
 	void command(const command::any&) override;
 	mobile(mark::world& world, const YAML::Node&);
-	template<typename...Ts>
-	mobile(Ts&&... ts): damageable(std::forward<Ts>(ts)...) { }
+	struct info : base::info {
+		std::optional<vector<double>> moveto;
+		double velocity = 0.0;
+	};
+	mobile(const info& info);
 	void tick_movement(double dt, double velocity, bool ai);
 private:
 	double m_velocity = 0.0;

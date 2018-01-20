@@ -10,12 +10,12 @@
 
 constexpr const auto UNIT_GATE_SIZE = 256.f;
 
-mark::unit::gate::gate(mark::world& world, vector<double> pos, bool inverted)
-	: activable(world, pos)
-	, m_im_base(world.resource_manager().image("gate-base.png"))
-	, m_rotor(world.resource_manager().image("gate-rotor.png"))
-	, m_im_enclosure(world.resource_manager().image("gate-enclosure.png"))
-	, m_inverted(inverted)
+mark::unit::gate::gate(const info& info)
+	: activable(info)
+	, m_im_base(info.world->resource_manager().image("gate-base.png"))
+	, m_rotor(info.world->resource_manager().image("gate-rotor.png"))
+	, m_im_enclosure(info.world->resource_manager().image("gate-enclosure.png"))
+	, m_inverted(info.inverted)
 { }
 
 void mark::unit::gate::tick(tick_context& context) {

@@ -8,11 +8,10 @@ class projectile final : public unit::base {
 public:
 	static constexpr const char* type_name = "unit_projectile";
 	// projectile constructor attributes
-	struct info {
-		mark::world* world = nullptr;
+	struct info : base::info
+	{
 		// for mouse-guided missiles
 		std::shared_ptr<const vector<double>> guide;
-		vector<double> pos;
 		float rotation = NAN;
 		float velocity = NAN;
 		float seek_radius = 0.f;
@@ -23,7 +22,6 @@ public:
 		// 0 - infinite targets
 		// 1, 2, 3 - 1, 2, 3 targets.
 		size_t piercing = 1;
-		size_t team = 0;
 	};
 	projectile(mark::world&, const YAML::Node&);
 	projectile(const projectile::info&);

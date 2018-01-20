@@ -11,7 +11,7 @@ class minion final : public unit::mobile {
 public:
 	static constexpr const char* type_name = "unit_minion";
 
-	minion(mark::world& world, vector<double> pos);
+	minion(const mobile::info&);
 	auto dead() const -> bool override;
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const segment_t&) ->

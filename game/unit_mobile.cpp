@@ -28,6 +28,11 @@ mark::unit::mobile::mobile(mark::world& world, const YAML::Node& node)
 	: damageable(world, node)
 	, m_moveto(node["moveto"].as<vector<double>>()) { }
 
+mark::unit::mobile::mobile(const info& info)
+	: damageable(info)
+	, m_velocity(info.velocity)
+	, m_moveto(info.moveto ? *info.moveto : info.pos) { }
+
 void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
 {
 	const auto radius = this->radius();

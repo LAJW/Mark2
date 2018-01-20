@@ -40,11 +40,26 @@ mark::world::world(
 	, image_stun(resource_manager.image("stun.png"))
 	, m_stack(&stack)
 {
+	const auto spawn_gate = [&](vector<int> pos, bool inverted) {
+		m_units.push_back(std::make_shared<unit::gate>([&] {
+			unit::gate::info info;
+			info.world = this;
+			info.pos = vector<double>(32 * (pos.x - 500), 32 * (pos.y - 500));
+			info.inverted = inverted;
+			return info;
+		}()));
+	};
 	const auto& templates = stack.templates();
+	// TODO: Convert that into area-range-find
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
 			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::landing_pad>(*this, vector<double>(32 * (x - 500), 32 * (y - 500))));
+				m_units.push_back(std::make_shared<unit::gate>([&] {
+					unit::gate::info info;
+					info.world = this;
+					info.pos = vector<double>(32 * (x - 500), 32 * (y - 500));
+					return info;
+				}()));
 				goto end;
 			}
 		}
@@ -52,9 +67,9 @@ mark::world::world(
 	end:;
 	for (int x = 999; x >= 0; x--) {
 		for (int y = 999; y >= 0; y--) {
-			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::gate>(
-					*this, vector<double>(32 * (x - 500), 32 * (y - 500)), false));
+			if (!m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0))
+			{
+				spawn_gate({ x, y }, false);
 				goto end2;
 			}
 		}
@@ -79,10 +94,9 @@ mark::world::world(
 		vessel->team(1);
 		vessel->pos({ 0., 0. });
 		m_camera_target = vessel;
-		m_units.push_back(vessel);
+		m_units.push_back(move(vessel));
 	} else {
-		m_units.push_back(std::make_shared<unit::gate>(
-			*this, vector<double>(), true));
+		spawn_gate({ 0, 0 }, true);
 	}
 }
 

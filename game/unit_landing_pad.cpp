@@ -13,10 +13,9 @@
 
 constexpr const auto LANDING_PAD_SIZE = 320.f;
 
-mark::unit::landing_pad::landing_pad(
-	mark::world& world, vector<double> pos)
-	: activable(world, pos)
-	, m_image(world.resource_manager().image("landing-pad.png")) { }
+mark::unit::landing_pad::landing_pad(const info &info)
+	: activable(info)
+	, m_image(info.world->resource_manager().image("landing-pad.png")) { }
 
 // Serialize / Deserialize
 

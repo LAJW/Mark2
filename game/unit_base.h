@@ -33,7 +33,7 @@ class base:
 public:
 	virtual ~base() = default;
 	virtual void serialise(YAML::Emitter&) const;
-	virtual void command(const command::any&) { };
+	virtual void command(const command::any&) { /* no-op */ };
 	virtual auto dead() const -> bool = 0;
 	// Resolve references after deserializing
 	virtual void resolve_ref(
@@ -42,8 +42,13 @@ public:
 
 	Property<int> team = 0;
 	Property<vector<double>> pos;
+	struct info {
+		mark::world* world = nullptr;
+		vector<double> pos;
+		int team = 0;
+	};
 protected:
-	base(mark::world& world, vector<double> pos);
+	base(const info&);
 	base(mark::world& world, const YAML::Node&);
 };
 }

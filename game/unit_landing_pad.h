@@ -12,7 +12,7 @@ public:
 	static constexpr const char* type_name = "unit_landing_pad";
 
 	landing_pad(mark::world& world, const YAML::Node&);
-	landing_pad(mark::world& world, vector<double> pos);
+	landing_pad(const info &);
 	auto dead() const -> bool override { return false; };
 	[[nodiscard]] auto use(
 		const std::shared_ptr<unit::modular>& by) -> std::error_code override;

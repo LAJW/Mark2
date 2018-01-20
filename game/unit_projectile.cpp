@@ -22,7 +22,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args) :
 	unit::projectile::projectile(::validate(args), true) { }
 
 mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
-	unit::base(*args.world, args.pos),
+	unit::base(args),
 	m_image(args.world->resource_manager().image("shell.png")),
 	m_im_tail(args.world->resource_manager().image("glare.png")),
 	m_velocity(args.velocity),
@@ -32,9 +32,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
 	m_critical_chance(args.critical_chance),
 	m_critical_multiplier(args.critical_multiplier),
 	m_piercing(args.piercing),
-	m_guide(args.guide) {
-	this->team(static_cast<int>(args.team));
-}
+	m_guide(args.guide) { }
 
 void mark::unit::projectile::tick(tick_context& context) {
 	double dt = context.dt;

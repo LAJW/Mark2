@@ -9,8 +9,11 @@ class gate final : public activable {
 public:
 	static constexpr const char* type_name = "gate";
 
+	struct info : base::info {
+		bool inverted;
+	};
+	gate(const info&);
 	gate(mark::world& world, const YAML::Node&);
-	gate(mark::world& world, vector<double> pos, bool inverted);
 	auto dead() const -> bool override { return false; };
 	[[nodiscard]] auto use(
 		const std::shared_ptr<unit::modular>& by)

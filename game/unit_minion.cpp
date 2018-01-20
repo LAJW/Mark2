@@ -6,12 +6,12 @@
 #include "tick_context.h"
 #include "unit_projectile.h"
 
-mark::unit::minion::minion(mark::world& world, vector<double> pos):
-	unit::mobile(world, pos),
-	m_model(world.resource_manager().image("mark1.png")),
-	m_gun_cooldown(0.5f),
-	m_model_shield(world.resource_manager(), static_cast<float>(this->radius()) * 2.f),
-	m_image_explosion(world.resource_manager().image("explosion.png")) { }
+mark::unit::minion::minion(const unit::mobile::info &info)
+	: unit::mobile(info)
+	, m_model(info.world->resource_manager().image("mark1.png"))
+	, m_gun_cooldown(0.5f)
+	, m_model_shield(info.world->resource_manager(), static_cast<float>(this->radius()) * 2.f)
+	, m_image_explosion(info.world->resource_manager().image("explosion.png")) { }
 
 void mark::unit::minion::tick(tick_context& context) {
 	double dt = context.dt;

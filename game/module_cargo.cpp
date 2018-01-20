@@ -227,12 +227,19 @@ std::string mark::module::cargo::describe() const {
 	return os.str();
 }
 
-void mark::module::cargo::on_death(tick_context & context) {
+void mark::module::cargo::on_death(tick_context & context)
+{
 	module::base::on_death(context);
 	for (auto& module : m_modules) {
 		if (module) {
-			context.units.push_back(std::make_shared<unit::bucket>(
-				world(), pos(), std::move(module)));
+			context.units.push_back(
+				std::make_shared<unit::bucket>([&] {
+				unit::bucket::info info;
+				info.world = &world();
+				info.pos = pos();
+				info.module = std::move(module);
+				return info;
+			}()));
 		}
 	}
 }

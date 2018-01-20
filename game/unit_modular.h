@@ -20,7 +20,8 @@ public:
 	static constexpr unsigned max_size = 40;
 
 	modular(mark::world& world, const YAML::Node&);
-	modular(mark::world& world, vector<double> pos = { 0, 0 }, float rotation = 0.0f);
+	struct info : mobile::info { float rotation; };
+	modular(info info);
 	void command(const command::any& command) override;
 	[[nodiscard]] auto attach(
 		const vector<int>& pos, std::unique_ptr<module::base>& module)

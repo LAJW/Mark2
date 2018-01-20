@@ -11,11 +11,11 @@ mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node):
 	unit::base(world, node),
 	m_module(module::deserialise(world.resource_manager(), node["module"])) { }
 
-mark::unit::bucket::bucket(mark::world& world, vector<double> pos, std::unique_ptr<module::base> module) :
-	unit::base(world, pos),
-	m_module(std::move(module)) {
-	assert(m_module != nullptr);
-	if (m_module->dead()) {
+mark::unit::bucket::bucket(info info)
+	: unit::base(info)
+	, m_module(std::move(info.module))
+{
+	if (!m_module || m_module->dead()) {
 		throw std::exception("DEAD_MODULE_IN_BUCKET");
 	}
 }

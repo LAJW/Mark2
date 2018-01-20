@@ -93,12 +93,10 @@ static auto filter_modules(vector_type& modules)
 
 }
 
-mark::unit::modular::modular(
-	mark::world& world,
-	vector<double> pos,
-	float rotation):
-	unit::mobile(world, pos),
-	m_rotation(rotation) {}
+mark::unit::modular::modular(info info):
+	unit::mobile(info),
+	m_rotation(info.rotation)
+{ }
 
 void mark::unit::modular::tick_modules(tick_context& context) {
 	this->remove_dead(context);
@@ -469,10 +467,13 @@ auto mark::unit::modular::dead() const -> bool {
 void mark::unit::modular::on_death(tick_context& context) {
 	for (auto& module : m_modules) {
 		if (!module->dead()) {
-			context.units.emplace_back(std::make_shared<unit::bucket>(
-				world(),
-				pos(),
-				move(module)));
+			context.units.emplace_back(std::make_shared<unit::bucket>([&] {
+				unit::bucket::info info;
+				info.world = &this->world();
+				info.pos = pos();
+				info.module = move(module);
+				return info;
+			}()));
 		}
 	}
 }
@@ -726,8 +727,11 @@ void mark::unit::modular::remove_dead(tick_context& context) {
 			make_move_iterator(first_dead_it),
 			back_inserter(context.units),
 			[this](auto module) {
-			return std::make_shared<unit::bucket>(
-				world(), this->pos(), move(module));
+				unit::bucket::info info;
+				info.world = &this->world();
+				info.pos = this->pos();
+				info.module = move(module);
+				return std::make_shared<unit::bucket>(std::move(info));
 		});
 		m_modules.erase(first_detached_it, m_modules.end());
 	}
