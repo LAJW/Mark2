@@ -83,7 +83,8 @@ private:
 	void unbind(const module::base& module);
 	auto modifiers() const -> module::modifiers;
 	void tick_modules(tick_context& context);
-	void tick_ai();
+	// Generate a list of commands for self
+	std::vector<command::any> tick_ai() const;
 	auto p_connected_to_core(const module::base&) const -> bool;
 
 	// get pointer in reference to the center of the grid

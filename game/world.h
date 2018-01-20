@@ -60,6 +60,25 @@ public:
 		}
 		return nullptr;
 	}
+
+	template<typename unit_type = const unit::base>
+	auto find_one(
+		const vector<double>& pos,
+		const double radius,
+		const std::function<bool(const unit::base&)>& pred
+			= [](const auto&) { return true; }) const
+		-> std::shared_ptr<const unit_type>
+	{
+		for (auto& unit : m_units) {
+			if (length(unit->pos() - pos) < radius && pred(*unit)) {
+				if (const auto derived
+					= std::dynamic_pointer_cast<const unit_type>(unit)) {
+					return derived;
+				}
+			}
+		}
+		return nullptr;
+	}
 	void command(const command::any& command);
 	// set target for commmands
 	void target(const std::shared_ptr<unit::base>& target);

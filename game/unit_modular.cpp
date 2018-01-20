@@ -108,20 +108,24 @@ void mark::unit::modular::tick_modules(tick_context& context) {
 	}
 }
 
-void mark::unit::modular::tick_ai() {
-	auto enemy = world().find_one<unit::damageable>(
-		pos(),
-		1000.f,
-		[this](const auto& unit) {
-		return unit.team() != this->team();
-	});
-	if (enemy) {
-		m_lookat = enemy->pos();
-		mobile::command(command::move{ m_lookat });
-		for (auto& module : m_modules) {
-			module->command(command::guide{ m_lookat });
-		}
+std::vector<mark::command::any> mark::unit::modular::tick_ai() const
+{
+	const auto enemy = world().find_one<unit::damageable>(
+		this->pos(), 1000.f,
+		[this](const auto& unit) { return unit.team() != this->team(); });
+	if (!enemy) {
+		return { };
 	}
+	const auto delta = enemy->pos() - this->pos();
+	const auto distance_to_enemy = length(delta);
+	const auto minimal_distance = std::max(
+		0., this->radius() + enemy->radius());
+	if (distance_to_enemy <= minimal_distance) {
+		return { command::guide{ enemy->pos() }, command::move{ this->pos() } };
+	}
+	const auto direction = delta / distance_to_enemy;
+	const auto target_pos = enemy->pos() - direction * minimal_distance;
+	return { command::guide{ enemy->pos() }, command::move{ target_pos } };
 }
 
 auto mark::unit::modular::p_connected_to_core(
@@ -237,7 +241,9 @@ void mark::unit::modular::tick(tick_context& context)
 		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, context.dt);
 	}
 	if (m_ai) {
-		this->tick_ai();
+		for (const auto &command : this->tick_ai()) {
+			this->command(command);
+		}
 	}
 }
 
