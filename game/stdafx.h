@@ -1,4 +1,7 @@
 ﻿#pragma once
+// The following macro has been defined, because yaml-cpp doesn't seem to want
+// to compile correctly because it violates C++17 deprecation warnings:
+// _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 
 #define _USE_MATH_DEFINES
 #include <algorithm>
 #include <array>
