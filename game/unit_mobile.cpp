@@ -33,68 +33,97 @@ mark::unit::mobile::mobile(const info& info)
 	, m_velocity(info.velocity)
 	, m_moveto(info.moveto ? *info.moveto : info.pos) { }
 
-void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
+auto mark::unit::mobile::tick_movement_impl(
+	const double dt,
+	const double max_velocity,
+	const bool ai,
+	const bool random_can_pathfind) const
+	-> std::tuple<vector<double>, double, std::vector<vector<double>>, float>
 {
 	const auto radius = this->radius();
-	vector<double> step;
-	const auto distance = length(m_moveto - pos());
-	if (distance > m_velocity * dt) {
-		auto acceleration = ::acceleration(distance, m_velocity, 500.0);
-		if (max_velocity <= m_velocity) {
-			acceleration = std::abs(acceleration) * -1.0;
-		}
-		if (acceleration <= 0.) {
-			m_velocity = std::max(0., m_velocity + acceleration * dt);
+	const auto [step, velocity, path_cache, path_age] = [&] {
+		const auto distance = length(m_moveto - pos());
+		if (distance > m_velocity * dt) {
+			const auto new_velocity = [&] {
+				auto acceleration = ::acceleration(distance, m_velocity, 500.0);
+				if (max_velocity <= m_velocity) {
+					acceleration = std::abs(acceleration) * -1.0;
+				}
+				return acceleration <= 0.
+					? std::max(0., m_velocity + acceleration * dt)
+					: std::min(max_velocity, m_velocity + acceleration * dt);
+			}();
+			auto [path_cache, path_age] = [&] {
+				if (team() != 1
+					&& (m_path_age <= 0.f
+						|| !m_path_cache.empty()
+						&& length(m_path_cache.front() - m_moveto) < radius)
+					&& world().map().can_find() && random_can_pathfind) {
+					return std::make_pair(
+						world().map().find_path(pos(), m_moveto, radius),
+						1.f);
+				}
+				return std::make_pair(
+					m_path_cache,
+					m_path_age - static_cast<float>(dt));
+			}();
+			while (!path_cache.empty() && length(path_cache.back() - pos()) <= map::tile_size) {
+				path_cache.pop_back();
+			}
+			const auto dir = path_cache.empty()
+				? normalize(m_moveto - pos())
+				: normalize(path_cache.back() - pos());
+			const auto step = dir * new_velocity * dt;
+			return std::make_tuple(step, new_velocity, path_cache, path_age);
 		} else {
-			m_velocity = std::min(max_velocity, m_velocity + acceleration * dt);
+			const auto step = m_moveto - pos();
+			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
-		if (team() != 1
-			&& (m_path_age <= 0.f
-				|| !m_path_cache.empty()
-					&& length(m_path_cache.front() - m_moveto) < radius)
-			&& world().map().can_find()
-			&& !world().resource_manager().random(0, 2)) {
-			m_path_cache = world().map().find_path(pos(), m_moveto, radius);
-			m_path_age = 1.f;
-		} else {
-			m_path_age -= static_cast<float>(dt);
-		}
-
-		while (!m_path_cache.empty() && length(m_path_cache.back() - pos()) <= map::tile_size) {
-			m_path_cache.pop_back();
-		}
-		const auto dir = m_path_cache.empty()
-			? normalize(m_moveto - pos())
-			: normalize(m_path_cache.back() - pos());
-		step = dir * m_velocity * dt;
-	} else {
-		step = m_moveto - pos();
-		m_velocity = 0.0;
-	}
-	if (ai) {
-		const auto allies = world().find<mobile>(
-			pos(), radius, [this](const auto& unit) {
-			return unit.team() == this->team();
-		});
-		for (const auto& ally : allies) {
-			if (length(pos() + step - ally->pos())
-				< length(pos() - ally->pos())) {
-				step = { 0, 0 };
+	}();
+	const auto should_stop = [&] {
+		if (ai) {
+			const auto allies = world().find<mobile>(
+				pos(), radius, [this](const auto& unit) {
+				return unit.team() == this->team();
+			});
+			for (const auto& ally : allies) {
+				if (length(pos() + step - ally->pos())
+					< length(pos() - ally->pos())) {
+					return true;
+				}
 			}
 		}
-	}
+		return false;
+	}();
 	// If current position is not traversable, go to the nearest traversable,
 	// as pointed by map.find_path, even if next position is not traversable
-	if (!world().map().traversable(pos(), radius)
-		|| world().map().traversable(pos() + step, radius)) {
-		pos() += step;
-	} else if (world().map().traversable(
+	const auto new_pos = [&] {
+		if (should_stop)
+			return pos();
+		if (!world().map().traversable(pos(), radius)
+			|| world().map().traversable(pos() + step, radius)) {
+			return pos() + step;
+		} else if (world().map().traversable(
 			pos() + vector<double>(step.x, 0), radius)) {
-		pos() += vector<double>(step.x, 0);
-	} else if (world().map().traversable(
+			return pos() + vector<double>(step.x, 0);
+		} else if (world().map().traversable(
 			pos() + vector<double>(0, step.y), radius)) {
-		pos() += vector<double>(0, step.y);
-	}
+			return pos() + vector<double>(0, step.y);
+		}
+		return pos();
+	}();
+	return { new_pos, velocity, path_cache, path_age };
+}
+
+void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
+{
+	const auto random_can_pathfind = world().resource_manager().random(0, 2);
+	auto [pos, velocity, path, m_path_age]
+		= this->tick_movement_impl(dt, max_velocity, ai, random_can_pathfind);
+	m_path_cache = std::move(path);
+	m_path_age = m_path_age;
+	this->pos(pos);
+	m_velocity = velocity;
 }
 
 void mark::unit::mobile::command(const command::any& any)
