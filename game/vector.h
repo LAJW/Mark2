@@ -62,12 +62,14 @@ namespace mark {
 	auto distance(float alpha, vector<double> point) noexcept -> double;
 
 	// Given 2 points, return [ a,b ] from y = ax + b
-	// Vertical line - [ x, NAN ]
-	auto get_line(vector<double> start, vector<double> end) noexcept->vector<double>;
+	// If vertical line, only double is returned
+	auto get_line(vector<double> start, vector<double> end) noexcept
+		-> std::variant<vector<double>, double>;
 
 	// given 2 lines, find intersection point
 	auto intersect(
-		const vector<double>& line1, const vector<double>& line2) noexcept
+		std::variant<vector<double>, double> line1,
+		std::variant<vector<double>, double> line2) noexcept
 		-> std::optional<vector<double>>;
 
 	// given 2 segments, find intersecting point

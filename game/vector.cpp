@@ -8,42 +8,44 @@ auto mark::distance(const float alpha, const vector<double> point) noexcept -> d
 
 auto mark::get_line(
 	const vector<double> start, const vector<double> end) noexcept
-	-> vector<double>
+	-> std::variant<vector<double>, double>
 {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
-			return { 0, start.y };
+			return vector<double>(0, start.y);
 		}
-		return { start.x, NAN };
+		return start.x;
 	}
 	const auto a = (start.y - end.y) / (start.x - end.x);
 	const auto b = start.y - a * start.x;
-	return { a, b };
+	return vector<double>(a, b);
 }
 
 auto mark::intersect(
-	const vector<double>& line1, const vector<double>& line2) noexcept
+	const std::variant<vector<double>, double> line1,
+	const std::variant<vector<double>, double> line2) noexcept
 	-> std::optional<vector<double>>
 {
-	if (isnan(line1.x) || isnan(line2.x)) {
-		return { };
-	}
-	if (isnan(line1.y)) {
-		if (isnan(line2.y)) {
-			return { };
+	const auto intersect_with_X = [](vector<double> line, double x) {
+		const auto y = x * line.x + line.y;
+		return vector<double>{ x, y };
+	};
+	if (const auto x = std::get_if<double>(&line1)) {
+		if (const auto line = std::get_if<vector<double>>(&line2)) {
+			return intersect_with_X(*line, *x);
 		}
-		const auto y = line1.x * line2.x + line2.y;
-		return { { line1.x, y } };
-	}
-	if (isnan(line2.y)) {
-		const auto y = line2.x * line1.x + line1.y;
-		return { { line2.x, y } };
-	}
-	if (line1.x == line2.x) {
 		return { };
 	}
-	const auto x = (line2.y - line1.y) / (line1.x - line2.x);
-	const auto y = line1.x * x + line1.y;
+	if (const auto x = std::get_if<double>(&line2)) {
+		return intersect_with_X(std::get<vector<double>>(line1), *x);
+	}
+	const auto l1 = std::get<vector<double>>(line1);
+	const auto l2 = std::get<vector<double>>(line2);
+	if (l1.x == l2.x) {
+		return { };
+	}
+	const auto x = (l2.y - l1.y) / (l1.x - l2.x);
+	const auto y = l1.x * x + l1.y;
 	return { { x, y } };
 }
 
@@ -92,10 +94,10 @@ auto mark::intersect(
 	const auto ux = std::max(segment.first.x, segment.second.x);
 	const auto ly = std::min(segment.first.y, segment.second.y);
 	const auto uy = std::max(segment.first.y, segment.second.y);
-	if (!std::isnan(line.y)) {
+	if (const auto line_nv = std::get_if<vector<double>>(&line)) {
 		// everything but vertical line
-		const auto c = line.x;
-		const auto d = line.y;
+		const auto c = line_nv->x;
+		const auto d = line_nv->y;
 		const auto [A, B, delta2] = [&] {
 			const auto a = center.x;
 			const auto b = center.y;
@@ -131,25 +133,28 @@ auto mark::intersect(
 		} else if (p2_in_range) {
 			return p2;
 		}
-	} else if (!std::isnan(line.x) && std::abs(line.x - center.x) <= radius) {
+	} else {
 		// vertical line
-		const auto [y1, y2] = [&] {
-			const auto r = static_cast<double>(radius);
-			const auto A = center.x - line.x;
-			const auto B = std::sqrt(A * A + r * r);
-			const auto y1 = center.y - B;
-			const auto y2 = center.y + B;
-			return std::make_pair(y1, y2);
-		}();
-		const auto length1 = std::abs(y1 - segment.first.y);
-		const auto length2 = std::abs(y2 - segment.first.y);
-		const auto y1_in_range = y1 >= ly && y1 <= uy;
-		const auto y2_in_range = y2 >= ly && y2 <= uy;
+		const auto x = std::get<double>(line);
+		if (std::abs(x - center.x) <= radius) {
+			const auto[y1, y2] = [&] {
+				const auto r = static_cast<double>(radius);
+				const auto A = center.x - x;
+				const auto B = std::sqrt(A * A + r * r);
+				const auto y1 = center.y - B;
+				const auto y2 = center.y + B;
+				return std::make_pair(y1, y2);
+			}();
+			const auto length1 = std::abs(y1 - segment.first.y);
+			const auto length2 = std::abs(y2 - segment.first.y);
+			const auto y1_in_range = y1 >= ly && y1 <= uy;
+			const auto y2_in_range = y2 >= ly && y2 <= uy;
 
-		if (y1_in_range && y2_in_range && length1 < length2 || !y2_in_range) {
-			return { { line.x, y1 } };
-		} else if (y2_in_range) {
-			return { { line.x, y2 } };
+			if (y1_in_range && y2_in_range && length1 < length2 || !y2_in_range) {
+				return { { x, y1 } };
+			} else if (y2_in_range) {
+				return { { x, y2 } };
+			}
 		}
 	}
 	return { };
