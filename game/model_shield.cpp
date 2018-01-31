@@ -16,22 +16,23 @@ void mark::model::shield::tick(tick_context& context, vector<double> pos) {
 	m_adsr.tick(context.dt);
 	context.sprites[1].emplace_back([&] {
 		let shield_opacity = static_cast<uint8_t>((m_lfo.get() * 0.5f + 0.5f) * 255.f);
-		sprite args;
-		args.image = m_image_shield;
-		args.pos = pos;
-		args.size = m_radius;
-		args.color = sf::Color(150, 255, 255, shield_opacity);
-		return args;
+		sprite _;
+		_.image = m_image_shield;
+		_.pos = pos;
+		_.size = m_radius;
+		_.color = { 150, 255, 255, shield_opacity };
+		return _;
 	}());
 	
 	context.sprites[1].emplace_back([&] {
-		sprite args;
-		args.image = m_image_shield;
-		args.image = m_image_reflection;
-		args.rotation = static_cast<float>(atan(m_trigger_pos - pos));
 		let reflection_opacity = static_cast<uint8_t>(m_adsr.get());
-		args.color = sf::Color(150, 255, 255, reflection_opacity);
-		return args;
+		sprite _;
+		_.image = m_image_reflection;
+		_.pos = pos;
+		_.rotation = static_cast<float>(atan(m_trigger_pos - pos));
+		_.size = m_radius;
+		_.color = { 150, 255, 255, reflection_opacity };
+		return _;
 	}());
 }
 
