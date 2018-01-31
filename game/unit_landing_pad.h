@@ -10,6 +10,7 @@ class landing_pad final:
 	public interface::has_bindings {
 public:
 	static constexpr const char* type_name = "unit_landing_pad";
+	static constexpr let radius = 300.0;
 
 	landing_pad(mark::world& world, const YAML::Node&);
 	landing_pad(const info &);

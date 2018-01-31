@@ -8,6 +8,7 @@ namespace unit {
 class gate final : public activable {
 public:
 	static constexpr const char* type_name = "gate";
+	static constexpr let radius = 300.0;
 
 	struct info : base::info {
 		bool inverted;

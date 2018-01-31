@@ -30,6 +30,56 @@ mark::world::world(resource::manager& rm)
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png")) { }
 
+// Helper function for finding positions for key locations using different 
+// over-the-area iterations
+template<typename T>
+static auto find_pos(const mark::map& map, mark::vector<int> size, double object_radius, T strategy)
+{
+	using namespace mark;
+	assert(size.x > 0);
+	assert(size.y > 0);
+	let center = size / 2;
+	return strategy([&](const vector<int> &point)
+		-> std::optional<vector<double>> {
+		let pos = vector<double>(point - center) * map::tile_size;
+		if (map.traversable(pos, object_radius)) {
+			return pos;
+		}
+		return { };
+	});
+}
+
+// Find a position matching gate size in the top left corner
+static auto find_gate_pos(const mark::map &map, mark::vector<int> size)
+	-> std::optional<mark::vector<double>>
+{
+	return find_pos(map, size, mark::unit::gate::radius, [&](auto proc)
+		-> std::optional<mark::vector<double>> {
+		for (let point : mark::range(size)) {
+			if (const auto result = proc(point)) {
+				return *result;
+			}
+		}
+		return { };
+	});
+}
+
+// Find a position matching gate size in the bottom right corner
+static auto find_landing_pad_pos(const mark::map &map, mark::vector<int> size)
+	-> std::optional<mark::vector<double>>
+{
+	return find_pos(map, size, mark::unit::landing_pad::radius, [&](auto proc)
+		-> std::optional<mark::vector<double>> {
+		for (int x = size.x - 1; x >= 0; --x) {
+			for (int y = size.y - 1; y >= 0; --y) {
+				if (const auto result = proc({ x, y })) {
+					return *result;
+				}
+			}
+		}
+		return { };
+	});
+}
 
 mark::world::world(
 	world_stack& stack, resource::manager& resource_manager, bool initial)
@@ -40,55 +90,48 @@ mark::world::world(
 	, image_stun(resource_manager.image("stun.png"))
 	, m_stack(&stack)
 {
-	let spawn_gate = [&](vector<int> pos, bool inverted) {
+	let map_size = vector<int>(1000, 1000);
+	let spawn_ship = [&] () {
+		return std::dynamic_pointer_cast<unit::modular>(
+			unit::deserialise(*this, stack.templates().at("ship")));
+	};
+	let spawn_gate = [&](vector<double> pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
-			unit::gate::info info;
-			info.world = this;
-			info.pos = vector<double>(32 * (pos.x - 500), 32 * (pos.y - 500));
-			info.inverted = inverted;
-			return info;
+			unit::gate::info _;
+			_.world = this;
+			_.pos = pos;
+			_.inverted = inverted;
+			return _;
 		}()));
 	};
-	let& templates = stack.templates();
-	// TODO: Convert that into area-range-find
-	for (int x = 0; x < 1000; x++) {
-		for (int y = 0; y < 1000; y++) {
-			if (m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0)) {
-				m_units.push_back(std::make_shared<unit::gate>([&] {
-					unit::gate::info info;
-					info.world = this;
-					info.pos = vector<double>(32 * (x - 500), 32 * (y - 500));
-					return info;
-				}()));
-				goto end;
-			}
-		}
-	}
-	end:;
-	for (int x = 999; x >= 0; x--) {
-		for (int y = 999; y >= 0; y--) {
-			if (!m_map->traversable(vector<double>(32 * (x - 500), 32 * (y - 500)), 100.0))
-			{
-				spawn_gate({ x, y }, false);
-				goto end2;
-			}
-		}
-	}
-	end2:;
-	for (int x = 0; x < 1000; x++) {
-		for (int y = 0; y < 1000; y++) {
-			let pos = vector<double>(32 * (x - 500), 32 * (y - 500));
-			if (m_map->traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
-				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
-				m_units.push_back(unit::deserialise(*this, templates.at("ship")));
-				std::dynamic_pointer_cast<unit::modular>(m_units.back())->ai(true);
-				m_units.back()->pos(pos);
-			}
+	let gate_spawn_point = find_gate_pos(map(), map_size);
+	assert(gate_spawn_point.has_value());
+	spawn_gate(*gate_spawn_point, false);
+	m_units.push_back(std::make_shared<unit::landing_pad>([&] {
+		let landing_pad_spawn_point = find_landing_pad_pos(map(), map_size);
+		assert(gate_spawn_point.has_value());
+		unit::gate::info _;
+		_.world = this;
+		_.pos = *landing_pad_spawn_point;
+		return _;
+	}()));
+	let ship_radius = [&] {
+		let unit = spawn_ship();
+		return unit->radius();
+	}();
+	for (let point : range(map_size)) {
+		let pos = vector<double>(point - map_size / 2) * map::tile_size;
+		if (m_map->traversable(pos, ship_radius)
+			&& this->find(pos, ship_radius * 4.).empty()) {
+			auto unit = spawn_ship();
+			unit->pos(pos);
+			unit->ai(true);
+			// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
+			m_units.push_back(move(unit));
 		}
 	}
 	if (initial) {
-		auto vessel = std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialise(*this, templates.at("ship")));
+		auto vessel = spawn_ship();
 		vessel->ai(false);
 		vessel->command(command::move{ vector<double>() });
 		vessel->team(1);
