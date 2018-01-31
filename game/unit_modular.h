@@ -20,7 +20,7 @@ public:
 	static constexpr unsigned max_size = 40;
 
 	modular(mark::world& world, const YAML::Node&);
-	struct info : mobile::info { float rotation; };
+	struct info : mobile::info { float rotation = 0.f; };
 	modular(info info);
 	void command(const command::any& command) override;
 	[[nodiscard]] auto attach(

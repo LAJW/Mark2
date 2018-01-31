@@ -38,9 +38,9 @@ TEST_CASE("Enumerate an area")
 
 TEST_CASE("Diff two identical lists")
 {
-	std::list<int> old_vec{ 1, 2, 5, 7 };
-	std::list<int> new_vec{ 1, 2, 5, 7 };
-	const auto[removed, added] = mark::diff(old_vec, new_vec);
+	std::list<int> old_list{ 1, 2, 5, 7 };
+	std::list<int> new_list{ 1, 2, 5, 7 };
+	const auto[removed, added] = mark::diff(old_list, new_list);
 	REQUIRE(removed.empty());
 	REQUIRE(added.empty());
 }
