@@ -58,28 +58,23 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 	if (!intersection) {
 		return { };
 	}
-	// lower x bound
-	const auto lx = std::max(
+	const auto lower_x_bound = std::max(
 		std::min(s1.first.x, s1.second.x), std::min(s2.first.x, s2.second.x));
-	// upper x bound
-	const auto ux = std::min(
+	const auto upper_x_bound = std::min(
 		std::max(s1.first.x, s1.second.x), std::max(s2.first.x, s2.second.x));
-	// lower y bound
-	const auto ly = std::max(
+	const auto lower_y_bound = std::max(
 		std::min(s1.first.y, s1.second.y), std::min(s2.first.y, s2.second.y));
-	// upper y bound
-	const auto uy = std::min(
+	const auto upper_y_bound = std::min(
 		std::max(s1.first.y, s1.second.y), std::max(s2.first.y, s2.second.y));
-
 	// Margin for error in a floating point operation
 	constexpr const auto flp_margin = 0.5;
 	// Margins are required here, because x >= C && x <= C evaluates to x == C
 	// Floating point comparison is imprecise, so an error margin is required
 	// Adding this makes intersection with horizontal lines work
-	if (intersection->x >= lx - flp_margin
-		&& intersection->x <= ux + flp_margin
-		&& intersection->y >= ly - flp_margin
-		&& intersection->y <= uy + flp_margin) {
+	if (intersection->x >= lower_x_bound - flp_margin
+		&& intersection->x <= upper_x_bound + flp_margin
+		&& intersection->y >= lower_y_bound - flp_margin
+		&& intersection->y <= upper_y_bound + flp_margin) {
 		return intersection;
 	}
 	return { };
