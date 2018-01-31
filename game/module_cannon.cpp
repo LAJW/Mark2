@@ -17,8 +17,8 @@ void mark::module::cannon::tick(tick_context& context) {
 	m_randomiser.tick(context.dt);
 	m_model.tick(context.dt);
 	auto pos = this->pos();
-	const auto rotation = parent().rotation();
-	const auto model_size = std::max(this->size().x, this->size().y)
+	let rotation = parent().rotation();
+	let model_size = std::max(this->size().x, this->size().y)
 		* module::size;
 	context.sprites[2].push_back(m_model.render(
 		pos,
@@ -29,15 +29,15 @@ void mark::module::cannon::tick(tick_context& context) {
 	base_turret::tick();
 	if (m_angular_velocity == 0.f) {
 		m_rotation = rotation;
-	} else if (const auto target = this->target()) {
+	} else if (let target = this->target()) {
 		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (this->can_shoot()) {
 		std::unordered_set<interface::damageable*> damaged;
 
-		const auto dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
-		const auto prev = pos;
-		const auto cur = pos + dir * static_cast<double>(module::size * 200);
+		let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
+		let prev = pos;
+		let cur = pos + dir * static_cast<double>(module::size * 200);
 		world::damage_info info;
 		info.context = &context;
 		info.aoe_radius = 0.f;
@@ -46,8 +46,8 @@ void mark::module::cannon::tick(tick_context& context) {
 		info.damage.damaged = &damaged;
 		info.damage.physical = 100.f * static_cast<float>(context.dt);
 		info.damage.team = parent().team();
-		const auto collisions = world.damage(info).first;
-		for (const auto& collision : collisions) {
+		let collisions = world.damage(info).first;
+		for (let& collision : collisions) {
 			tick_context::spray_info spray;
 			spray.image = m_im_ray;
 			spray.pos = collision;
@@ -61,11 +61,11 @@ void mark::module::cannon::tick(tick_context& context) {
 			context.render(spray);
 		}
 		if (!collisions.empty()) {
-			const auto collision = collisions.back();
-			const auto len = int(length(collision - pos) / double(module::size));
+			let collision = collisions.back();
+			let len = int(length(collision - pos) / double(module::size));
 			context.lights.push_back({ collision, sf::Color::Red });
 			for (int i = 1; i < len; i++) {
-				const auto cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
+				let cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
 				sprite ray_sprite;
 				ray_sprite.image = m_im_ray;
 				ray_sprite.pos = collision - dir * cur_len;
@@ -76,7 +76,7 @@ void mark::module::cannon::tick(tick_context& context) {
 			}
 		} else {
 			for (int i = 1; i < 200; i++) {
-				const auto cur_len = module::size * static_cast<double>(200);
+				let cur_len = module::size * static_cast<double>(200);
 				sprite ray_sprite;
 				ray_sprite.image = m_im_ray;
 				ray_sprite.pos = pos + dir * (cur_len + 2.0);

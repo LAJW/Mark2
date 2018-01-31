@@ -117,9 +117,9 @@ command_dict {
 
 mark::hid::hid(const YAML::Node& keybindings)
 {
-	for (const auto& pair : keybindings) {
-		const auto key = pair.first.as<std::string>();
-		const auto value = pair.second.as<std::string>();
+	for (let& pair : keybindings) {
+		let key = pair.first.as<std::string>();
+		let value = pair.second.as<std::string>();
 		m_to_command[key_dict.at(value)] = command_dict.at(key);
 	}
 }
@@ -149,19 +149,19 @@ auto mark::hid::commands(
 	-> std::vector<command::any>
 {
 	std::vector<command::any> out;
-	for (const auto& button : m_pressed) {
-		const auto it = m_to_command.find(button);
+	for (let& button : m_pressed) {
+		let it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
 			out.push_back(it->second(screen_pos, world_pos, m_shift, false));
-		} else if (const auto key = std::get_if<sf::Keyboard::Key>(&button)) {
+		} else if (let key = std::get_if<sf::Keyboard::Key>(&button)) {
 			if (*key == sf::Keyboard::Escape) {
 				out.push_back(command::cancel());
 			}
 		}
 	}
 	m_pressed.clear();
-	for (const auto& button : m_released) {
-		const auto it = m_to_command.find(button);
+	for (let& button : m_released) {
+		let it = m_to_command.find(button);
 		if (it != m_to_command.cend()) {
 			out.push_back(it->second(screen_pos, world_pos, m_shift, true));
 		}
@@ -170,8 +170,8 @@ auto mark::hid::commands(
 
 	out.push_back(command_dict.at("guide")(screen_pos, world_pos, m_shift, true));
 
-	for (const auto& command : out) {
-		if (const auto move = std::get_if<command::move>(&command)) {
+	for (let& command : out) {
+		if (let move = std::get_if<command::move>(&command)) {
 			m_moving = !move->release;
 		}
 	}

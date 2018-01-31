@@ -16,8 +16,8 @@ mark::ui::container::container(const info& info)
 	, m_cargo_bg(info.rm->image("cargo-background.png"))
 {
 	auto& container = *info.container;
-	const auto interior_size = container.interior_size();
-	for (const auto& pos : range(interior_size)) {
+	let interior_size = container.interior_size();
+	for (let& pos : range(interior_size)) {
 		if (auto& module_ptr = container.modules()[pos.x + pos.y * 16]) {
 			auto& module = *module_ptr;
 			this->attach(pos, module);
@@ -42,13 +42,13 @@ void mark::ui::container::tick(tick_context& context)
 
 bool mark::ui::container::click(const event& event)
 {
-	if (const auto handled = this->window::click(event)) {
+	if (let handled = this->window::click(event)) {
 		return true;
 	} else if (m_ui.grabbed) {
 		auto& module = *m_ui.grabbed;
 		const vector<int> module_size(module.size());
 		const vector<double> relative_pos(event.cursor - this->pos());
-		const auto pos = round(relative_pos / 16.) - module_size / 2;
+		let pos = round(relative_pos / 16.) - module_size / 2;
 		if (error::code::success ==
 			m_container.attach(pos, m_ui.grabbed)) {
 			this->attach(pos, module);
@@ -68,7 +68,7 @@ void mark::ui::container::attach(
 	vector<int> pos,
 	module::base& module)
 {
-	const auto button_pos = pos * 16;
+	let button_pos = pos * 16;
 	mark::ui::button::info info;
 	info.parent = this;
 	info.size = module.size() * 16U;
@@ -90,7 +90,7 @@ void mark::ui::container::attach(
 		}
 		return true;
 	});
-	const auto length = static_cast<int>(module.size().x) * 16;
+	let length = static_cast<int>(module.size().x) * 16;
 	button.on_hover.insert(
 		[this, &module, button_pos, length](const event&) {
 		m_ui.tooltip(

@@ -12,7 +12,7 @@ auto mark::unit::deserialise(
 	const YAML::Node& node) ->
 	std::shared_ptr<unit::base> {
 
-	const auto type = node["type"].as<std::string>();
+	let type = node["type"].as<std::string>();
 	if (type == unit::gate::type_name) {
 		return std::make_shared<unit::gate>(world, node);
 	} else if (type == unit::modular::type_name) {

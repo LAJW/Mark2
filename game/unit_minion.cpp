@@ -19,16 +19,16 @@ void mark::unit::minion::tick(tick_context& context) {
 	m_gun_cooldown.tick(dt);
 	m_model.tick(dt);
 	m_model_shield.tick(context, pos());
-	const auto velocity = 100.0;
-	const auto angular_velocity = 90.f;
+	let velocity = 100.0;
+	let angular_velocity = 90.f;
 
 	auto neighbours = world().find(pos(), this->radius());
-	if (const auto target = world().target()) {
-		const auto distance = target->pos() - pos();
+	if (let target = world().target()) {
+		let distance = target->pos() - pos();
 		if (length(distance) < 1000) {
-			const auto length = mark::length(distance);
+			let length = mark::length(distance);
 			auto direction2 = vector<double>(0, 0);
-			for (const auto& neighbour : neighbours) {
+			for (let& neighbour : neighbours) {
 				auto dist = (pos() - neighbour->pos());
 				auto len = mark::length(dist);
 				if (len) {
@@ -82,7 +82,7 @@ auto mark::unit::minion::collide(const segment_t& ray) ->
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
-	if (const auto intersection = intersect(ray, pos(), this->radius())) {
+	if (let intersection = intersect(ray, pos(), this->radius())) {
 		return { { *this, *intersection} };
 	}
 	return { };

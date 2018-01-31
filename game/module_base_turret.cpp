@@ -21,10 +21,10 @@ auto target(
 	-> std::optional<mark::vector<double>>
 {
 	using namespace mark;
-	const auto&[unit_wk, offset] = pair;
-	if (const auto unit = unit_wk.lock()) {
+	let&[unit_wk, offset] = pair;
+	if (let unit = unit_wk.lock()) {
 		if (!unit->dead() && length(unit->pos() - turret_pos) < 1000.) {
-			if (const auto modular
+			if (let modular
 				= std::dynamic_pointer_cast<unit::modular>(unit)) {
 				if (modular->at(round(offset / 16.))) {
 					return unit->pos() + rotate(offset, modular->rotation());
@@ -39,7 +39,7 @@ auto target(
 
 void mark::module::base_turret::tick()
 {
-	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+	if (let queue = std::get_if<queue_type>(&m_target)) {
 		while (!queue->empty() && !::target(this->pos(), queue->front())) {
 			queue->pop_front();
 		}
@@ -48,7 +48,7 @@ void mark::module::base_turret::tick()
 
 auto mark::module::base_turret::can_shoot() const -> bool
 {
-	if (const auto pair = std::get_if<target_type>(&m_target)) {
+	if (let pair = std::get_if<target_type>(&m_target)) {
 		return pair->first;
 	}
 	return !std::get<queue_type>(m_target).empty();
@@ -56,7 +56,7 @@ auto mark::module::base_turret::can_shoot() const -> bool
 
 auto mark::module::base_turret::target() const -> std::optional<vector<double>>
 {
-	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+	if (let queue = std::get_if<queue_type>(&m_target)) {
 		if (queue->empty()) {
 			return { };
 		}
@@ -71,7 +71,7 @@ void mark::module::base_turret::serialise(YAML::Emitter& out) const
 	base::serialise(out);
 	// TODO: This should serialise queue as well
 	out << Key << "target" << Value << BeginMap;
-	if (const auto target = this->target()) {
+	if (let target = this->target()) {
 		out << Key << "x" << target->x;
 		out << Key << "y" << target->y;
 	} else {
@@ -84,7 +84,7 @@ void mark::module::base_turret::serialise(YAML::Emitter& out) const
 
 void mark::module::base_turret::target(vector<double> pos)
 { 
-	if (const auto pair = std::get_if<target_type>(&m_target)) {
+	if (let pair = std::get_if<target_type>(&m_target)) {
 		pair->second = pos;
 	}
 }
@@ -100,9 +100,9 @@ void mark::module::base_turret::queue(vector<double> pos, bool)
 			m_target = queue_type();
 		}
 		auto& queue = std::get<queue_type>(m_target);
-		if (const auto modular
+		if (let modular
 			= std::dynamic_pointer_cast<unit::modular>(unit)) {
-			const auto offset = rotate(pos - unit->pos(), -modular->rotation());
+			let offset = rotate(pos - unit->pos(), -modular->rotation());
 			queue.push_back({ unit, offset });
 		} else {
 			queue.push_back({ unit, { } });
@@ -115,15 +115,15 @@ auto mark::module::base_turret::passive() const noexcept -> bool
 
 void mark::module::base_turret::command(const command::any& any)
 {
-	if (const auto activate = std::get_if<command::activate>(&any)) {
+	if (let activate = std::get_if<command::activate>(&any)) {
 		m_target = std::make_pair(true, activate->pos);
-	} else if (const auto release = std::get_if<command::release>(&any)) {
+	} else if (let release = std::get_if<command::release>(&any)) {
 		if (std::holds_alternative<target_type>(m_target)) {
 			m_target = std::make_pair(false, release->pos);
 		}
-	} else if (const auto guide = std::get_if<command::guide>(&any)) {
+	} else if (let guide = std::get_if<command::guide>(&any)) {
 		this->target(guide->pos);
-	} else if (const auto queue = std::get_if<command::queue>(&any)) {
+	} else if (let queue = std::get_if<command::queue>(&any)) {
 		this->queue(queue->pos, false);
 	}
 }

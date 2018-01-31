@@ -68,7 +68,7 @@ void mark::ui::button::render(tick_context& context)
 	if (m_image) {
 		sprite info;
 		info.image = m_image;
-		const auto pos = vector<double>(this->pos());
+		let pos = vector<double>(this->pos());
 		info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
 		info.size = static_cast<float>(std::max(m_size.x, m_size.y));
 		info.world = false;
@@ -100,8 +100,8 @@ void mark::ui::button::render(tick_context& context)
 
 bool mark::ui::button::click(const event& event)
 {
-	const auto top_left = this->pos();
-	const auto bottom_right = top_left + vector<int>(m_size);
+	let top_left = this->pos();
+	let bottom_right = top_left + vector<int>(m_size);
 	if (event.cursor.x >= top_left.x
 		&& event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y
@@ -113,8 +113,8 @@ bool mark::ui::button::click(const event& event)
 
 bool mark::ui::button::hover(const event& event)
 {
-	const auto top_left = this->pos();
-	const auto bottom_right = top_left + vector<int>(m_size);
+	let top_left = this->pos();
+	let bottom_right = top_left + vector<int>(m_size);
 	if (event.cursor.x >= top_left.x
 		&& event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y

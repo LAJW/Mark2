@@ -40,7 +40,7 @@ mark::world::world(
 	, image_stun(resource_manager.image("stun.png"))
 	, m_stack(&stack)
 {
-	const auto spawn_gate = [&](vector<int> pos, bool inverted) {
+	let spawn_gate = [&](vector<int> pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
 			unit::gate::info info;
 			info.world = this;
@@ -49,7 +49,7 @@ mark::world::world(
 			return info;
 		}()));
 	};
-	const auto& templates = stack.templates();
+	let& templates = stack.templates();
 	// TODO: Convert that into area-range-find
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
@@ -77,7 +77,7 @@ mark::world::world(
 	end2:;
 	for (int x = 0; x < 1000; x++) {
 		for (int y = 0; y < 1000; y++) {
-			const auto pos = vector<double>(32 * (x - 500), 32 * (y - 500));
+			let pos = vector<double>(32 * (x - 500), 32 * (y - 500));
 			if (m_map->traversable(pos, 64.0) && this->find(pos, 320.0).empty()) {
 				// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
 				m_units.push_back(unit::deserialise(*this, templates.at("ship")));
@@ -115,8 +115,8 @@ void mark::world::tick(
 		context.dt = 0.1;
 	}
 	{
-		const auto camera = vmap(m_camera, std::round);
-		const auto offset = screen_size / 2.0
+		let camera = vmap(m_camera, std::round);
+		let offset = screen_size / 2.0
 			+ vector<double>(map::tile_size, map::tile_size) * 2.;
 		m_map->tick(camera - offset, camera + offset, context);
 	}
@@ -133,7 +133,7 @@ void mark::world::tick(
 	}
 	// Add/Remove units
 	{
-		const auto last = remove_if(
+		let last = remove_if(
 			begin(m_units), end(m_units), [&](auto& unit) {
 			if (unit->dead()) {
 				unit->on_death(context);
@@ -150,7 +150,7 @@ void mark::world::tick(
 	}
 	// Add/remove particles
 	{
-		const auto last = remove_if(
+		let last = remove_if(
 			begin(m_particles),
 			end(m_particles),
 			[](const particle& particle) { return particle.dead(); });
@@ -162,18 +162,18 @@ void mark::world::tick(
 		);
 	}
 
-	if (const auto camera_target = m_camera_target.lock()) {
-		constexpr const auto T = .5;
-		const auto target_pos = camera_target->pos();
-		const auto diff = target_pos - m_camera;
-		const auto dist = length(diff);
+	if (let camera_target = m_camera_target.lock()) {
+		constexpr let T = .5;
+		let target_pos = camera_target->pos();
+		let diff = target_pos - m_camera;
+		let dist = length(diff);
 		if (target_pos != m_prev_target_pos) {
 			m_prev_target_pos = target_pos;
 			m_a = 2. * dist / T / T;
 			m_camera_velocity = m_a * T;
 		}
 		if (dist != 0.) {
-			const auto dir = diff / dist;
+			let dir = diff / dist;
 			m_camera_velocity -= m_a * context.dt;
 			if (m_camera_velocity * context.dt < dist
 				&& m_camera_velocity > 0) {
@@ -220,10 +220,10 @@ auto mark::world::collide(const segment_t& ray)
 		: INFINITY;
 	std::deque<collision_type> collisions;
 	for (auto& unit_ : m_units) {
-		if (const auto unit = dynamic_cast<unit::damageable*>(unit_.get())) {
-			if (const auto result = unit->collide(ray)) {
+		if (let unit = dynamic_cast<unit::damageable*>(unit_.get())) {
+			if (let result = unit->collide(ray)) {
 				auto[damageable, pos] = *result;
-				const auto length = mark::length(pos - ray.first);
+				let length = mark::length(pos - ray.first);
 				if (length < min_length) {
 					collisions.push_back({ damageable, pos });
 				}
@@ -233,7 +233,7 @@ auto mark::world::collide(const segment_t& ray)
 	sort(
 		begin(collisions),
 		end(collisions),
-		[&](const auto& a, const auto& b) {
+		[&](let& a, let& b) {
 		return length(a.second - ray.first) < length(b.second - ray.first);
 	});
 	return { move(collisions), map_collision };
@@ -244,9 +244,9 @@ auto mark::world::collide(vector<double> center, float radius)
 {
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit_ : m_units) {
-		if (const auto unit
+		if (let unit
 			= dynamic_cast<unit::damageable*>(unit_.get())) {
-			const auto tmp = unit->collide(center, radius);
+			let tmp = unit->collide(center, radius);
 			copy(begin(tmp), end(tmp), back_inserter(out));
 		}
 	}
@@ -263,7 +263,7 @@ auto mark::world::damage(world::damage_info& info)
 	}
 	std::vector<vector<double>> collisions;
 	while (!potential_collisions.empty()) {
-		const auto&[damageable, pos] = potential_collisions.front();
+		let&[damageable, pos] = potential_collisions.front();
 		info.damage.pos = pos;
 		if (damageable.get().damage(info.damage)) {
 			collisions.push_back(pos);
@@ -277,9 +277,9 @@ auto mark::world::damage(world::damage_info& info)
 		collisions.push_back(*crash_pos);
 	}
 	if (info.aoe_radius > 0.f) {
-		for (const auto& collision : collisions) {
-			const auto damageables = this->collide(collision, info.aoe_radius);
-			for (const auto aoe_damageable : damageables) {
+		for (let& collision : collisions) {
+			let damageables = this->collide(collision, info.aoe_radius);
+			for (let aoe_damageable : damageables) {
 				info.damage.pos = collision;
 				aoe_damageable.get().damage(info.damage);
 			}
@@ -305,14 +305,14 @@ mark::world::world(
 	, m_stack(&stack)
 {
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
-	const auto camera_target_id = node["camera_target_id"].as<uint64_t>();
-	for (const auto& unit_node : node["units"]) {
+	let camera_target_id = node["camera_target_id"].as<uint64_t>();
+	for (let& unit_node : node["units"]) {
 		m_units.push_back(unit::deserialise(*this, unit_node));
-		const auto unit_id = unit_node["id"].as<uint64_t>();
+		let unit_id = unit_node["id"].as<uint64_t>();
 		unit_map.emplace(unit_id, m_units.back());
 	}
-	for (const auto& unit_node : node["units"]) {
-		const auto unit_id = unit_node["id"].as<uint64_t>();
+	for (let& unit_node : node["units"]) {
+		let unit_id = unit_node["id"].as<uint64_t>();
 		unit_map[unit_id].lock()->resolve_ref(unit_node, unit_map);
 	}
 	m_camera_target = unit_map.at(camera_target_id);
@@ -331,7 +331,7 @@ void mark::world::serialise(YAML::Emitter& out) const
 
 	out << Key << "type" << Value << "world";
 
-	const auto camera_target = m_camera_target.lock();
+	let camera_target = m_camera_target.lock();
 	if (camera_target) {
 		out << Key << "camera_target_id"
 			<< Value << reinterpret_cast<size_t>(camera_target.get());
@@ -343,7 +343,7 @@ void mark::world::serialise(YAML::Emitter& out) const
 	out << EndMap;
 
 	out << Key << "units" << Value << BeginSeq;
-	for (const auto& unit : m_units) {
+	for (let& unit : m_units) {
 		unit->serialise(out);
 	}
 	out << EndSeq;

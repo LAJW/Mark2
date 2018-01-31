@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "base64.h"
 
-constexpr static const auto base64_chars =
+constexpr static let base64_chars =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 "abcdefghijklmnopqrstuvwxyz"
 "0123456789+/";
@@ -12,7 +12,7 @@ std::string base64_encode(const std::string &in)
 	std::string out;
 
 	int val = 0, valb = -6;
-	for (const auto c : in) {
+	for (let c : in) {
 		val = (val << 8) + c;
 		valb += 8;
 		while (valb >= 0) {
@@ -34,7 +34,7 @@ std::string base64_decode(const std::string &in)
 	for (int i = 0; i<64; i++) T[base64_chars[i]] = i;
 
 	int val = 0, valb = -8;
-	for (const auto c : in) {
+	for (let c : in) {
 		if (T[c] == -1) break;
 		val = (val << 6) + T[c];
 		valb += 6;

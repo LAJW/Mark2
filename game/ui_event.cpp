@@ -8,8 +8,8 @@ void mark::ui::callback_group::insert(std::function<bool(const event&)> callback
 
 bool mark::ui::callback_group::dispatch(const event& event) const
 {
-	for (const auto& callback : m_callbacks) {
-		if (const auto stop_propagation = callback(event)) {
+	for (let& callback : m_callbacks) {
+		if (let stop_propagation = callback(event)) {
 			return true;
 		}
 	}

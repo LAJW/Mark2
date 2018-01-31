@@ -27,8 +27,8 @@ mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
 	, m_lfo(0.5f, rm.random(0.f, 6.f))
 	, m_modules(64)
 {
-	for (const auto& slot_node : node["contents"]) {
-		const auto slot = slot_node["slot"].as<size_t>();
+	for (let& slot_node : node["contents"]) {
+		let slot = slot_node["slot"].as<size_t>();
 		auto module = module::deserialise(rm, slot_node["item"]);
 		m_modules[slot] = std::move(module);
 	}
@@ -45,7 +45,7 @@ void mark::module::cargo::serialise(YAML::Emitter& out) const
 
 	out << Key << "contents" << Value << BeginSeq;
 	for (size_t i = 0, size = m_modules.size(); i < size; i++) {
-		const auto& module = m_modules[i];
+		let& module = m_modules[i];
 		if (module) {
 			out << BeginMap;
 			out << Key << "slot" << Value << i;
@@ -136,20 +136,20 @@ auto mark::module::cargo::can_attach(
 	const vector<int>& pos, const module::base & module) const -> bool
 {
 	// Check if fits inside the container
-	const auto cargo_size = vector<size_t>(16, m_modules.size() / 16);
+	let cargo_size = vector<size_t>(16, m_modules.size() / 16);
 	if (pos.x < 0 || pos.y < 0
 		|| pos.x + module.size().x > cargo_size.x
 		|| pos.y + module.size().y > cargo_size.y) {
 		return false;
 	}
 	// Check if doesn't overlap with any of the existing modules
-	const auto incoming_pos = vector<unsigned>(pos);
-	const auto incoming_border = incoming_pos + module.size();
-	for (const auto pair : enumerate(m_modules)) {
-		if (const auto& cur_module = pair.second) {
-			const auto i = static_cast<unsigned>(pair.first);
-			const auto module_pos = vector<unsigned>(i % 16, i / 16);
-			const auto module_border = module_pos + cur_module->size();
+	let incoming_pos = vector<unsigned>(pos);
+	let incoming_border = incoming_pos + module.size();
+	for (let pair : enumerate(m_modules)) {
+		if (let& cur_module = pair.second) {
+			let i = static_cast<unsigned>(pair.first);
+			let module_pos = vector<unsigned>(i % 16, i / 16);
+			let module_border = module_pos + cur_module->size();
 			if (overlaps(
 				{ incoming_pos, incoming_border },
 				{ module_pos, module_border })) {
@@ -172,11 +172,11 @@ auto mark::module::cargo::at(const vector<int>& i_pos) const
 	if (i_pos.x < 0 || i_pos.y < 0) {
 		return nullptr;
 	}
-	const auto pos = vector<unsigned>(i_pos);
-	for (const auto pair : enumerate(m_modules)) {
-		const auto module_pos = modulo_vector(pair.first, 16LLU);
-		if (const auto& slot = pair.second) {
-			const auto border = module_pos + vector<size_t>(slot->size());
+	let pos = vector<unsigned>(i_pos);
+	for (let pair : enumerate(m_modules)) {
+		let module_pos = modulo_vector(pair.first, 16LLU);
+		if (let& slot = pair.second) {
+			let border = module_pos + vector<size_t>(slot->size());
 			if (pos.x + pos.x >= module_pos.x && pos.x < border.x
 				&& pos.y + pos.y >= module_pos.y && pos.y < border.y) {
 				return slot.get();
@@ -192,11 +192,11 @@ auto mark::module::cargo::detach(const vector<int>& pos) ->
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
-	for (const auto pair : enumerate(m_modules)) {
-		const auto i = static_cast<int>(pair.first);
-		const auto module_pos = modulo_vector(i, 16);
+	for (let pair : enumerate(m_modules)) {
+		let i = static_cast<int>(pair.first);
+		let module_pos = modulo_vector(i, 16);
 		if (auto& module = pair.second) {
-			const auto border = module_pos + vector<int>(module->size());
+			let border = module_pos + vector<int>(module->size());
 			if (pos.x >= module_pos.x && pos.x < border.x
 				&& pos.y >= module_pos.y && pos.y < border.y) {
 				return std::move(module);
@@ -212,7 +212,7 @@ auto mark::module::cargo::interior_size() const -> vector<int> {
 }
 
 auto mark::module::cargo::detachable() const -> bool {
-	for (const auto& module : m_modules) {
+	for (let& module : m_modules) {
 		if (module) {
 			return false;
 		}
@@ -247,8 +247,8 @@ void mark::module::cargo::on_death(tick_context & context)
 auto mark::module::cargo::push(
 	std::unique_ptr<module::base>& module) -> std::error_code
 {
-	for (const auto i : range(static_cast<int>(m_modules.size()))) {
-		const auto drop_pos = modulo_vector(i, 16);
+	for (let i : range(static_cast<int>(m_modules.size()))) {
+		let drop_pos = modulo_vector(i, 16);
 		if (this->attach(drop_pos, module) == error::code::success) {
 			return error::code::success;
 		}

@@ -22,7 +22,7 @@ void mark::module::flamethrower::command(const command::any & any)
 
 void mark::module::flamethrower::tick(tick_context& context) {
 	this->module::base::tick(context);
-	const auto pos = this->pos();
+	let pos = this->pos();
 
 	{
 		sprite info;
@@ -48,7 +48,7 @@ void mark::module::flamethrower::tick(tick_context& context) {
 
 		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
-			const auto cur = pos + rotate(vector<double>(300, 0), i + parent().rotation());
+			let cur = pos + rotate(vector<double>(300, 0), i + parent().rotation());
 			world::damage_info damage_info;
 			damage_info.context = &context;
 			damage_info.aoe_radius = 0.f;
@@ -57,7 +57,7 @@ void mark::module::flamethrower::tick(tick_context& context) {
 			damage_info.damage.damaged = &damaged;
 			damage_info.damage.physical = 200.f * static_cast<float>(context.dt);
 			damage_info.damage.team = parent().team();
-			const auto collision = parent().world().damage(damage_info);
+			let collision = parent().world().damage(damage_info);
 		}
 	}
 

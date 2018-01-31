@@ -10,14 +10,14 @@ mark::model::animated::animated(const std::shared_ptr<const resource::image>& im
 }
 
 void mark::model::animated::tick(double dt) {
-	const auto size = m_image->size();
-	const auto frame_count = size.x / size.y;
+	let size = m_image->size();
+	let frame_count = size.x / size.y;
 	m_state = std::fmod(m_state + static_cast<float>(dt), 1.f);
 }
 
 mark::sprite mark::model::animated::render(vector<double> pos, float size, float rotation, const sf::Color & color) {
-	const auto image_size = m_image->size();
-	const auto frame_count = image_size.x / image_size.y;
+	let image_size = m_image->size();
+	let frame_count = image_size.x / image_size.y;
 	sprite info;
 	info.image = m_image;
 	info.frame = static_cast<unsigned>(std::floor(m_state * static_cast<float>(frame_count)));

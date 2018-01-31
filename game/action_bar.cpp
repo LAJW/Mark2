@@ -24,9 +24,9 @@ void mark::ui::action_bar::tick(
 	vector<double> resolution,
 	vector<double> mouse_pos_)
 {
-	const auto image_circle = rm.image("circle.png");
-	const auto image_ray = rm.image("ray.png");
-	const auto mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
+	let image_circle = rm.image("circle.png");
+	let image_ray = rm.image("ray.png");
+	let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 	// Display Hotbar
 	{
 		sprite bg_sprite;
@@ -49,24 +49,24 @@ void mark::ui::action_bar::tick(
 		context.sprites[102].emplace_back(bg_sprite);
 	}
 
-	if (const auto unit
+	if (let unit
 		= std::dynamic_pointer_cast<const interface::has_bindings>(world.target())) {
-		const auto icon_size = 64.0;
-		const auto bindings = unit->bindings();
-		for (const auto& pair : mark::enumerate(bindings)) {
-			const auto&[i, binding] = pair;
-			const auto di = static_cast<double>(i);
-			const auto x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
-			const auto y = resolution.y - 64;;
+		let icon_size = 64.0;
+		let bindings = unit->bindings();
+		for (let& pair : mark::enumerate(bindings)) {
+			let&[i, binding] = pair;
+			let di = static_cast<double>(i);
+			let x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
+			let y = resolution.y - 64;;
 
 			// Highlight bindings
-			const auto center = resolution / 2.0;
+			let center = resolution / 2.0;
 			if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
-				for (const auto& module : binding.modules) {
-					const auto pos = module.get().grid_pos();
-					const auto module_pos = center
+				for (let& module : binding.modules) {
+					let pos = module.get().grid_pos();
+					let module_pos = center
 						+ vector<double>(pos) * static_cast<double>(module::size);
-					const auto module_size
+					let module_size
 						= vector<double>(module.get().size())
 							* static_cast<double>(module::size);
 					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64.
@@ -75,14 +75,14 @@ void mark::ui::action_bar::tick(
 							&& module_pos.y <= mouse_pos_.y && mouse_pos_.y < module_pos.y + module_size.y))
 						continue;
 					sprite circle_sprite;
-					const auto module_pos_ = module_pos + vector<double>(8, 8);
+					let module_pos_ = module_pos + vector<double>(8, 8);
 					circle_sprite.pos = module_pos_;
 					circle_sprite.image = image_circle;
 					circle_sprite.frame = std::numeric_limits<size_t>::max();
 					circle_sprite.world = false;
 					circle_sprite.centred = false;
 					context.sprites[101].push_back(circle_sprite);
-					const auto line_end = vector<double>(x + 32, y + 32);
+					let line_end = vector<double>(x + 32, y + 32);
 					path line;
 					line.world = false;
 					line.points.push_back(line_end);

@@ -233,8 +233,8 @@ auto has_if(iterator_t begin, iterator_t end, pred_t& pred)
 template <typename container_t, typename pred_t>
 auto has_if(container_t container, pred_t& pred)
 {
-	const auto begin = std::begin(container);
-	const auto end = std::end(container);
+	let begin = std::begin(container);
+	let end = std::end(container);
 	return std::find_if(begin, end, pred) != end;
 }
 
@@ -267,9 +267,9 @@ auto diff(
 		typename old_container_t::const_iterator,
 		typename new_container_t::value_type>> added;
 	auto old_it = old_list.begin();
-	const auto old_end = old_list.end();
+	let old_end = old_list.end();
 	auto new_it = new_list.begin();
-	const auto new_end = new_list.end();
+	let new_end = new_list.end();
 	while (old_it != old_end || new_it != new_end) {
 		if (old_it == old_end) {
 			added.push_back({ old_end, *new_it });
@@ -281,8 +281,8 @@ auto diff(
 			++new_it;
 			++old_it;
 		} else {
-			const auto found_new = std::find_if(
-				new_it, new_end, [&](const auto& value) {
+			let found_new = std::find_if(
+				new_it, new_end, [&](let& value) {
 				return equals(*old_it, value);
 			});
 			if (found_new == new_end) {
@@ -304,11 +304,6 @@ template<typename old_container_t, typename new_container_t>
 auto diff(
 	const old_container_t& old_list,
 	const new_container_t& new_list)
-{
-	return diff(
-		old_list,
-		new_list,
-		[](const auto& a, const auto& b) { return a == b; });
-}
+{ return diff(old_list, new_list, [](let& a, let& b) { return a == b; }); }
 
 } // namespace mark

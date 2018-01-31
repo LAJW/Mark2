@@ -52,7 +52,7 @@ void mark::module::turret::tick(tick_context& context) {
 	auto pos = this->pos();
 
 	base_turret::tick();
-	if (const auto target = this->target()) {
+	if (let target = this->target()) {
 		*m_shared_target = *target;
 	}
 
@@ -76,9 +76,9 @@ void mark::module::turret::tick(tick_context& context) {
 		if (m_guided) {
 			info.guide = m_shared_target;
 		}
-		for (const auto i : range(m_projectile_count)) {
+		for (let i : range(m_projectile_count)) {
 			info.pos = pos;
-			const auto heat_angle = m_cone
+			let heat_angle = m_cone
 				* m_cone_curve(m_cur_heat / 100.f)
 				* (m_angular_velocity != 0.f && m_cone_curve==curve::flat)
 					? context.random(-1.f, 1.f)
@@ -99,7 +99,7 @@ void mark::module::turret::tick(tick_context& context) {
 		}
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
-	const auto heat_color = this->heat_color();
+	let heat_color = this->heat_color();
 	{
 		sprite info;
 		info.image = m_image;

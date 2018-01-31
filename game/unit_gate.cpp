@@ -8,7 +8,7 @@
 #include "unit_modular.h"
 #include "model_animated.h"
 
-constexpr const auto UNIT_GATE_SIZE = 256.f;
+constexpr let UNIT_GATE_SIZE = 256.f;
 
 mark::unit::gate::gate(const info& info)
 	: activable(info)
@@ -19,8 +19,8 @@ mark::unit::gate::gate(const info& info)
 { }
 
 void mark::unit::gate::tick(tick_context& context) {
-	const auto target = world().target();
-	const auto angle = target ? static_cast<float>(atan(pos() - target->pos())) : 0.f;
+	let target = world().target();
+	let angle = target ? static_cast<float>(atan(pos() - target->pos())) : 0.f;
 	sprite info;
 	info.image = m_im_base;
 	info.pos = pos();

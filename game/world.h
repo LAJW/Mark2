@@ -27,13 +27,13 @@ public:
 		const vector<double>& pos,
 		const double radius,
 		const std::function<bool(const unit::base&)>& pred
-			= [](const auto&) { return true; })
+			= [](let&) { return true; })
 		-> std::vector<std::shared_ptr<unit_type>>
 	{
 		std::vector<std::shared_ptr<unit_type>> out;
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (const auto derived
+				if (let derived
 					= std::dynamic_pointer_cast<unit_type>(unit)) {
 					out.push_back(std::move(derived));
 				}
@@ -47,13 +47,13 @@ public:
 		const vector<double>& pos,
 		const double radius,
 		const std::function<bool(const unit::base&)>& pred
-			= [](const auto&) { return true; }) const
+			= [](let&) { return true; }) const
 		-> const std::vector<std::shared_ptr<const unit_type>>
 	{
 		std::vector<std::shared_ptr<const unit_type>> out;
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (const auto derived
+				if (let derived
 					= std::dynamic_pointer_cast<const unit_type>(unit)) {
 					out.push_back(std::move(derived));
 				}
@@ -67,12 +67,12 @@ public:
 		const vector<double>& pos,
 		const double radius,
 		const std::function<bool(const unit::base&)>& pred
-			= [](const auto&) { return true; })
+			= [](let&) { return true; })
 		-> std::shared_ptr<unit_type>
 	{
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (const auto derived
+				if (let derived
 					= std::dynamic_pointer_cast<unit_type>(unit)) {
 					return derived;
 				}
@@ -86,12 +86,12 @@ public:
 		const vector<double>& pos,
 		const double radius,
 		const std::function<bool(const unit::base&)>& pred
-			= [](const auto&) { return true; }) const
+			= [](let&) { return true; }) const
 		-> std::shared_ptr<const unit_type>
 	{
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (const auto derived
+				if (let derived
 					= std::dynamic_pointer_cast<const unit_type>(unit)) {
 					return derived;
 				}

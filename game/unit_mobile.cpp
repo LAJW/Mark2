@@ -14,10 +14,10 @@ static auto acceleration(
 	const double velocity,
 	const double acceleration) -> double
 {
-	const auto v = velocity;
-	const auto a = acceleration;
-	const auto T = v / a;
-	const auto s = v * T - 0.5 * a * T * T;
+	let v = velocity;
+	let a = acceleration;
+	let T = v / a;
+	let s = v * T - 0.5 * a * T * T;
 	if (length <= s) {
 		return -0.5 * v * v / s;
 	}
@@ -40,11 +40,11 @@ auto mark::unit::mobile::tick_movement_impl(
 	const bool random_can_pathfind) const
 	-> std::tuple<vector<double>, double, std::vector<vector<double>>, float>
 {
-	const auto radius = this->radius();
-	const auto [step, velocity, path_cache, path_age] = [&] {
-		const auto distance = length(m_moveto - pos());
+	let radius = this->radius();
+	let [step, velocity, path_cache, path_age] = [&] {
+		let distance = length(m_moveto - pos());
 		if (distance > m_velocity * dt) {
-			const auto new_velocity = [&] {
+			let new_velocity = [&] {
 				auto acceleration = ::acceleration(distance, m_velocity, 500.0);
 				if (max_velocity <= m_velocity) {
 					acceleration = std::abs(acceleration) * -1.0;
@@ -70,23 +70,23 @@ auto mark::unit::mobile::tick_movement_impl(
 			while (!path_cache.empty() && length(path_cache.back() - pos()) <= map::tile_size) {
 				path_cache.pop_back();
 			}
-			const auto dir = path_cache.empty()
+			let dir = path_cache.empty()
 				? normalize(m_moveto - pos())
 				: normalize(path_cache.back() - pos());
-			const auto step = dir * new_velocity * dt;
+			let step = dir * new_velocity * dt;
 			return std::make_tuple(step, new_velocity, path_cache, path_age);
 		} else {
-			const auto step = m_moveto - pos();
+			let step = m_moveto - pos();
 			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
 	}();
-	const auto should_stop = [&] {
+	let should_stop = [&] {
 		if (ai) {
-			const auto allies = world().find<mobile>(
-				pos(), radius, [this](const auto& unit) {
+			let allies = world().find<mobile>(
+				pos(), radius, [this](let& unit) {
 				return unit.team() == this->team();
 			});
-			for (const auto& ally : allies) {
+			for (let& ally : allies) {
 				if (length(pos() + step - ally->pos())
 					< length(pos() - ally->pos())) {
 					return true;
@@ -97,7 +97,7 @@ auto mark::unit::mobile::tick_movement_impl(
 	}();
 	// If current position is not traversable, go to the nearest traversable,
 	// as pointed by map.find_path, even if next position is not traversable
-	const auto new_pos = [&] {
+	let new_pos = [&] {
 		if (should_stop)
 			return pos();
 		if (!world().map().traversable(pos(), radius)
@@ -117,7 +117,7 @@ auto mark::unit::mobile::tick_movement_impl(
 
 void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
 {
-	const auto random_can_pathfind = world().resource_manager().random(0, 2);
+	let random_can_pathfind = world().resource_manager().random(0, 2);
 	auto [pos, velocity, path, m_path_age]
 		= this->tick_movement_impl(dt, max_velocity, ai, random_can_pathfind);
 	m_path_cache = std::move(path);
@@ -128,7 +128,7 @@ void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
 
 void mark::unit::mobile::command(const command::any& any)
 {
-	if (const auto move = std::get_if<command::move>(&any)) {
+	if (let move = std::get_if<command::move>(&any)) {
 		m_moveto = move->to;
 		m_path_cache = world().map().find_path(pos(), m_moveto, radius());
 		if (!m_path_cache.empty()
@@ -153,7 +153,7 @@ void mark::unit::mobile::serialise(YAML::Emitter& out) const
 void mark::unit::mobile::stop()
 {
 	// Resets all queues and all modules
-	for (const auto i : mark::range(11)) {
+	for (let i : mark::range(11)) {
 		this->command(command::activate{ });
 		this->command(command::release{ });
 	}

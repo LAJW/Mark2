@@ -14,7 +14,7 @@ bool mark::cooldown::ready() {
 }
 
 bool mark::cooldown::trigger() {
-	const auto ready = this->ready();
+	let ready = this->ready();
 	if (ready) {
 		m_now = m_max;
 	}

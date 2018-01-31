@@ -31,21 +31,21 @@ namespace {
 
 void mark::tick_context::render(const text_info& info)
 {
-	const auto& font = info.font;
+	let& font = info.font;
 	auto& out = sprites[info.layer];
-	const auto pos = info.pos;
-	const auto box = info.box;
-	const auto size = info.size;
-	const auto color = info.color;
-	const auto& text = info.text;
-	const auto world = info.world;
-	const auto centred = info.centred;
+	let pos = info.pos;
+	let box = info.box;
+	let size = info.size;
+	let color = info.color;
+	let& text = info.text;
+	let world = info.world;
+	let centred = info.centred;
 
 	auto offset = vector<double>(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {
-		const auto ch = text[i];
+		let ch = text[i];
 		char frame = -1;
-		const auto end = ('Z' - 'A' + 1) * 2 + '9' - '0' + 1;
+		let end = ('Z' - 'A' + 1) * 2 + '9' - '0' + 1;
 		if (ch >= 'A' && ch <= 'Z') {
 			frame = ch - 'A';
 		} else if (ch >= 'a' && ch <= 'z') {
@@ -107,10 +107,10 @@ void mark::tick_context::render(const bar_info & info) {
 	auto type = info.type;
 	auto pos = info.pos;
 	auto percentage = info.percentage;
-	const auto percent = 100.f * std::max(0.f, percentage);
-	const auto edge = static_cast<uint8_t>(std::floor(percent / 10.f));
+	let percent = 100.f * std::max(0.f, percentage);
+	let edge = static_cast<uint8_t>(std::floor(percent / 10.f));
 	for (int i = 0; i < 10; i++) {
-		const auto offset_x = 7.f * static_cast<float>(i - 5);
+		let offset_x = 7.f * static_cast<float>(i - 5);
 		uint8_t opacity = 255;
 		uint8_t frame = 0;
 		// render gray background
@@ -157,18 +157,18 @@ void mark::tick_context::render(const bar_info & info) {
 
 void mark::tick_context::render(const tick_context::spray_info& info) {
 	for (size_t i = 0; i < info.count; i++) {
-		const auto tmp_velocity = !std::isnan(info.max_velocity)
+		let tmp_velocity = !std::isnan(info.max_velocity)
 			? this->random(info.min_velocity, info.max_velocity)
 			: info.min_velocity;
-		const auto tmp_lifespan = !std::isnan(info.max_lifespan)
+		let tmp_lifespan = !std::isnan(info.max_lifespan)
 			? this->random(info.min_lifespan, info.max_lifespan)
 			: info.min_lifespan;
-		const auto tmp_diameter = !std::isnan(info.max_diameter)
+		let tmp_diameter = !std::isnan(info.max_diameter)
 			? this->random(info.min_diameter, info.max_diameter)
 			: info.min_diameter;
-		const auto tmp_pos = info.pos + rotate(
+		let tmp_pos = info.pos + rotate(
 			vector<double>(1, 0), info.direction) * (info.step * static_cast<double>(i) / static_cast<double>(info.count));
-		const auto rotation = info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
+		let rotation = info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
 		particle::info attr;
 		attr.image = info.image;
 		attr.color = info.color;

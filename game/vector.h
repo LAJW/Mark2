@@ -20,7 +20,7 @@ namespace mark {
 	}
 	template<typename T>
 	auto normalize(vector<T> vector) {
-		const auto length = mark::length(vector);
+		let length = mark::length(vector);
 		if (length) {
 			return vector / length;
 		} else {

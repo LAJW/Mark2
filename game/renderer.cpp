@@ -14,10 +14,10 @@ void render(
 	const mark::vector<double>& resolution)
 {
 	using namespace mark;
-	if (const auto sprite = std::get_if<mark::sprite>(&any)) {
+	if (let sprite = std::get_if<mark::sprite>(&any)) {
 		sf::Sprite tmp;
-		const auto texture_size = static_cast<float>(sprite->image->size().y);
-		const auto scale = sprite->size / texture_size;
+		let texture_size = static_cast<float>(sprite->image->size().y);
+		let scale = sprite->size / texture_size;
 		tmp.setTexture(sprite->image->texture());
 		if (sprite->frame != mark::sprite::all) {
 			tmp.setTextureRect({
@@ -32,33 +32,33 @@ void render(
 		}
 		tmp.rotate(sprite->rotation);
 		tmp.setColor(sprite->color);
-		const auto offset = sprite->world
+		let offset = sprite->world
 			? sprite->pos - camera + resolution / 2.
 			: sprite->pos;
 		tmp.move(vector<float>(offset));
 		buffer.draw(tmp);
-	} else if (const auto path = std::get_if<mark::path>(&any)) {
+	} else if (let path = std::get_if<mark::path>(&any)) {
 		std::vector<sf::Vertex> points;
 		if (path->points.size() <= 1) {
 			return;
 		}
 		if (path->world) {
 			for (size_t i = 0; i < path->points.size() - 1; ++i) {
-				const auto cur = path->points[i];
-				const auto next = path->points[i + 1];
+				let cur = path->points[i];
+				let next = path->points[i + 1];
 				points.push_back(sf::Vertex(vector<float>(cur - camera)));
 				points.push_back(sf::Vertex(vector<float>(next - camera)));
 			}
 		} else {
 			for (size_t i = 0; i < path->points.size() - 1; ++i) {
-				const auto cur = path->points[i];
-				const auto next = path->points[i + 1];
+				let cur = path->points[i];
+				let next = path->points[i + 1];
 				points.push_back(sf::Vertex(vector<float>(cur)));
 				points.push_back(sf::Vertex(vector<float>(next)));
 			}
 		}
 		buffer.draw(points.data(), points.size(), sf::Lines);
-	} else if (const auto rect = std::get_if<mark::rectangle>(&any)) {
+	} else if (let rect = std::get_if<mark::rectangle>(&any)) {
 		sf::RectangleShape rectangle;
 		rectangle.setPosition(sf::Vector2f(rect->pos));
 		rectangle.setSize(sf::Vector2f(rect->size));
@@ -92,12 +92,12 @@ mark::renderer::renderer(vector<unsigned> res)
 
 sf::Sprite mark::renderer::render(const render_info& info)
 {
-	const auto camera = info.camera;
-	const auto resolution = info.resolution;
-	const auto shadow_res = m_vbo->getSize().x;
+	let camera = info.camera;
+	let resolution = info.resolution;
+	let shadow_res = m_vbo->getSize().x;
 
 	if (vector<double>(m_buffer->getSize()) != resolution) {
-		const auto res = vector<unsigned>(resolution);
+		let res = vector<unsigned>(resolution);
 		m_buffer = std::make_unique<sf::RenderTexture>();
 		m_buffer->create(res.x, res.y);
 		m_buffer2 = std::make_unique<sf::RenderTexture>();
@@ -124,37 +124,37 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	std::vector<sf::Glsl::Vec2> lights_pos;
 	std::vector<sf::Glsl::Vec4> lights_color;
 
-	for (const auto& pair : info.lights) {
-		const auto pos = pair.first - camera;
-		const auto color = pair.second;
+	for (let& pair : info.lights) {
+		let pos = pair.first - camera;
+		let color = pair.second;
 		if (pos.x >= -resolution.x / 2.0 - 160.0 && pos.x <= resolution.x / 2.0 + 160.0
 			&& pos.y >= -resolution.y / 2.0 - 160.0 && pos.y <= resolution.y / 2.0 + 160.0) {
 			lights_color.push_back(color);
 			lights_pos.push_back(vector<float>(pos));
 		}
 	}
-	const auto lights_count = std::min(
+	let lights_count = std::min(
 		lights_pos.size(),
 		static_cast<size_t>(64)
 	);
 
-	for (const auto& layer : info.sprites) {
+	for (let& layer : info.sprites) {
 		if (layer.first < 0) {
-			for (const auto& sprites : layer.second) {
+			for (let& sprites : layer.second) {
 				::render(sprites, camera, *m_occlusion_map, resolution);
 			}
 		} else if (layer.first < 100) {
-			for (const auto& sprite : layer.second) {
+			for (let& sprite : layer.second) {
 				::render(sprite, camera, *m_buffer, resolution);
 			}
 		} else {
-			for (const auto& sprite : layer.second) {
+			for (let& sprite : layer.second) {
 				::render(sprite, camera, *m_ui_layer, resolution);
 			}
 		}
 	}
-	for (const auto& layer : info.normals) {
-		for (const auto& sprite : layer.second) {
+	for (let& layer : info.normals) {
+		for (let& sprite : layer.second) {
 			::render(sprite, camera, *m_normal_map, resolution);
 		}
 	}

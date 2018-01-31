@@ -33,10 +33,10 @@ void mark::particle::tick(
 	std::map<int, std::vector<std::variant<sprite, path, rectangle>>>& sprites)
 {
 	sprites[m_layer].emplace_back([&] {
-		const auto frame_count = m_image->size().x / m_image->size().y;
-		const auto progress = 1.f - m_cur_lifespan / m_lifespan;
-		const auto frame = static_cast<unsigned>(progress * static_cast<float>(frame_count));
-		const auto color =
+		let frame_count = m_image->size().x / m_image->size().y;
+		let progress = 1.f - m_cur_lifespan / m_lifespan;
+		let frame = static_cast<unsigned>(progress * static_cast<float>(frame_count));
+		let color =
 			frame_count == 1
 			? sf::Color(
 				m_color.r,
@@ -54,7 +54,7 @@ void mark::particle::tick(
 		return info;
 	}());
 	m_pos += [&] {
-		const auto direction = rotate(vector<float>(1.f, 0.f), m_direction);
+		let direction = rotate(vector<float>(1.f, 0.f), m_direction);
 		return vector<double>(direction) * dt * static_cast<double>(m_velocity);
 	}();
 	m_cur_lifespan -= static_cast<float>(dt);

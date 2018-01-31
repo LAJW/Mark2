@@ -10,7 +10,7 @@ mark::module::engine::engine(resource::manager& manager)
 
 void mark::module::engine::tick(tick_context& context) {
 	this->module::base::tick(context);
-	const auto pos = this->pos();
+	let pos = this->pos();
 
 	sprite info;
 	info.image = m_image_base;

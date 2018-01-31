@@ -32,8 +32,8 @@ auto mark::module::base_ref::parent() -> unit::modular& {
 auto mark::module::base_ref::grid_pos() const noexcept -> vector<int>
 { return vector<int>(m_grid_pos); }
 
-constexpr const auto HEAT_TRANSFER_RATE = 15.f;
-constexpr const auto HEAT_LOSS_RATE = 2.f;
+constexpr let HEAT_TRANSFER_RATE = 15.f;
+constexpr let HEAT_LOSS_RATE = 2.f;
 
 mark::module::base::base(
 	vector<unsigned> size,
@@ -48,22 +48,22 @@ mark::module::base::base(
 mark::module::base::~base() = default;
 
 void mark::module::base::tick(tick_context & context) {
-	const auto health_percentage = m_cur_health / m_max_health;
-	const auto pos = this->pos();
+	let health_percentage = m_cur_health / m_max_health;
+	let pos = this->pos();
 
 	auto neighbours = parent().neighbours_of(*this);
-	const auto total_surface = 2 * (m_size.x + m_size.y);
+	let total_surface = 2 * (m_size.x + m_size.y);
 	for (auto& pair : neighbours) {
-		const auto&[module, surface] = pair;
+		let&[module, surface] = pair;
 		auto& module_heat = module.get().m_cur_heat;
-		const auto delta_heat
+		let delta_heat
 			= static_cast<float>(surface) / static_cast<float>(total_surface)
 				* static_cast<float>(context.dt) * HEAT_TRANSFER_RATE;
 		if (module_heat - m_cur_heat > delta_heat) {
 			m_cur_heat += delta_heat;
 			module_heat -= delta_heat;
 		} else if (module_heat > m_cur_heat) {
-			const auto avg_heat = (module_heat + m_cur_heat) / 2.f;
+			let avg_heat = (module_heat + m_cur_heat) / 2.f;
 			m_cur_heat = avg_heat;
 			module_heat = avg_heat;
 		}
@@ -127,13 +127,13 @@ void mark::module::base::tick(tick_context & context) {
 auto mark::module::base::collide(const segment_t& ray) ->
 	std::optional<std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
 {
-	const auto size = this->size();
+	let size = this->size();
 	// half width
-	const auto hw = static_cast<double>(size.x) / 2.0 * module::size;
+	let hw = static_cast<double>(size.x) / 2.0 * module::size;
 	// half height
-	const auto hh = static_cast<double>(size.y) / 2.0 * module::size;
-	const auto pos = this->pos();
-	const auto rotation = parent().rotation();
+	let hh = static_cast<double>(size.y) / 2.0 * module::size;
+	let pos = this->pos();
+	let rotation = parent().rotation();
 	const std::array<segment_t, 4> segments {
 		segment_t{ { -hw, -hh }, { -hw, hh } },  // left
 		segment_t{ { -hw, hh },  { hw, hh } },   // bottom
@@ -142,13 +142,13 @@ auto mark::module::base::collide(const segment_t& ray) ->
 	};
 	std::optional<vector<double>> min;
 	double min_length = INFINITY;
-	for (const auto& raw : segments) {
-		const auto segment = std::make_pair(
+	for (let& raw : segments) {
+		let segment = std::make_pair(
 			rotate(raw.first, rotation) + pos,
 			rotate(raw.second, rotation) + pos
 		);
-		if (const auto intersection = intersect(segment, ray)) {
-			const auto length = mark::length(*intersection - pos);
+		if (let intersection = intersect(segment, ray)) {
+			let length = mark::length(*intersection - pos);
 			if (length < min_length) {
 				min_length = length;
 				min = *intersection;
@@ -170,8 +170,8 @@ bool mark::module::base::damage(const interface::damageable::info& attr) {
 	if (attr.team != parent().team() && m_cur_health > 0
 		&& attr.damaged->find(this) == attr.damaged->end()) {
 		auto& rm = parent().world().resource_manager();
-		const auto critical = rm.random(0.f, 1.f) <= attr.critical_chance;
-		const auto stun = rm.random(0.f, 1.f) <= attr.stun_chance;
+		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
 		attr.damaged->insert(this);
 		if (critical) {
 			m_cur_health -= attr.physical * attr.critical_multiplier;
@@ -212,12 +212,12 @@ auto mark::module::base::reserved() const noexcept -> reserved_type
 { return reserved_type::none; }
 
 auto mark::module::base::heat_color() const -> sf::Color {
-	const auto intensity = static_cast<uint8_t>((1.f - m_cur_heat / max_heat) * 255.f);
+	let intensity = static_cast<uint8_t>((1.f - m_cur_heat / max_heat) * 255.f);
 	return { 255, intensity, intensity, 255 };
 }
 
 auto mark::module::base::pos() const -> vector<double> {
-	const auto pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f)
+	let pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f)
 		* static_cast<float>(module::size);
 	return parent().pos() + vector<double>(rotate(pos, parent().rotation()));
 }

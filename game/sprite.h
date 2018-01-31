@@ -8,7 +8,7 @@ namespace resource {
 }
 struct sprite final {
 	// Display everything frame
-	static constexpr const auto all = std::numeric_limits<size_t>::max();
+	static constexpr let all = std::numeric_limits<size_t>::max();
 	// Image of the sprite
 	std::shared_ptr<const resource::image> image;
 	// position of the sprite in pixels/world coodinates

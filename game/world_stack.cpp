@@ -43,7 +43,7 @@ void mark::world_stack::prev()
 {
 	if (m_current_world_id == 0)
 		throw user_error("NO_PREV_WORLD_FOUND");
-	const auto target = std::dynamic_pointer_cast<unit::modular>(world().target());
+	let target = std::dynamic_pointer_cast<unit::modular>(world().target());
 	auto& old_data = m_worlds[m_current_world_id];
 	old_data.target_pos = target->pos();
 	--m_current_world_id;

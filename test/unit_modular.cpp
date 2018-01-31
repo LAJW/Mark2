@@ -36,7 +36,7 @@ TEST_CASE("Create modular with a core") {
 	}());
 	std::unique_ptr<module::base> core =
 		std::make_unique<module::core>(rm);
-	const auto& core_ref = *core;
+	let& core_ref = *core;
 	REQUIRE(modular.attach({ -1, -1 }, core) == error::code::success);
 	REQUIRE(core == nullptr);
 	REQUIRE(core_ref.pos() == vector<double>(1, 2));
@@ -81,7 +81,7 @@ TEST_CASE("Create modular with a turret to the right") {
 		_.resource_manager = &rm;
 		return _;
 	}());
-	const auto& turret_ref = *turret;
+	let& turret_ref = *turret;
 	REQUIRE(error::code::success == modular.attach({ 1, -1 }, turret));
 	REQUIRE(turret_ref.grid_pos() == vector<int>(1, -1));
 	REQUIRE(turret_ref.pos().x == Approx(module::size * 2));
@@ -105,7 +105,7 @@ TEST_CASE("Attach turret in all possible positions") {
 		_.resource_manager = &rm;
 		return _;
 	}());
-	const auto& turret_ref = *turret;
+	let& turret_ref = *turret;
 
 	// Right
 	REQUIRE(error::code::success == modular.attach({ 1, -1 }, turret));
@@ -165,7 +165,7 @@ TEST_CASE("Failed detached attach should not set internal map") {
 		_.resource_manager = &rm;
 		return _;
 	}());
-	const auto& turret_ref = *turret;
+	let& turret_ref = *turret;
 
 	REQUIRE(modular.at({ 3, -1 }) == nullptr);
 	REQUIRE(error::code::success != modular.attach({ 3, -1 }, turret));

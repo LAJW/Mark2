@@ -61,13 +61,13 @@ void event_loop(event_loop_info& info)
 	assert(info.stack);
 	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
 	mark::renderer renderer(info.res);
-	const auto& on_tick = info.on_tick;
-	const auto& on_event = info.on_event;
+	let& on_tick = info.on_tick;
+	let& on_event = info.on_event;
 
 	auto last = std::chrono::system_clock::now();
 	while (window.isOpen()) {
-		const auto now = std::chrono::system_clock::now();
-		const auto dt = static_cast<double>(
+		let now = std::chrono::system_clock::now();
+		let dt = static_cast<double>(
 			std::chrono::duration_cast<std::chrono::microseconds>(now - last)
 				.count())
 			/ 1000000.0;
@@ -75,8 +75,8 @@ void event_loop(event_loop_info& info)
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Resized) {
-				const auto width = static_cast<float>(event.size.width);
-				const auto height = static_cast<float>(event.size.height);
+				let width = static_cast<float>(event.size.width);
+				let height = static_cast<float>(event.size.height);
 				window.setView(sf::View({ 0.f, 0.f, width, height }));
 			} if (event.type == sf::Event::Closed) {
 				window.close();
@@ -118,7 +118,7 @@ void mark::main(std::vector<std::string> args)
 	templates["ship"] = YAML::LoadFile("ship.yml");
 	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
 	mark::ui::ui ui(rm, stack, world_stack);
-	const auto options = YAML::LoadFile("options.yml");
+	let options = YAML::LoadFile("options.yml");
 	mark::hid hid(options["keybindings"]);
 	event_loop_info event_loop_info;
 	event_loop_info.window_title = "mark 2";
@@ -127,9 +127,9 @@ void mark::main(std::vector<std::string> args)
 	event_loop_info.on_event = [&](const on_event_info& info) {
 		hid.handle(info.event);
 		auto& world = world_stack.world();
-		const auto target = world.camera()
+		let target = world.camera()
 			+ info.mouse_pos - info.window_res / 2.;
-		for (const auto command : hid.commands(round(info.mouse_pos), target)) {
+		for (let command : hid.commands(round(info.mouse_pos), target)) {
 			if (!ui.command(world, command)
 				&& !stack.paused()) {
 				world.command(command);
@@ -138,7 +138,7 @@ void mark::main(std::vector<std::string> args)
 	};
 	event_loop_info.on_tick = [&](const on_tick_info& info) {
 		auto& world = world_stack.world();
-		const auto resolution = info.window_res;
+		let resolution = info.window_res;
 		mark::tick_context context(rm);
 		context.dt = info.dt;
 		if (!stack.paused()) {

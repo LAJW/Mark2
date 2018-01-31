@@ -36,8 +36,8 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
 
 void mark::unit::projectile::tick(tick_context& context) {
 	double dt = context.dt;
-	const auto step = rotate(vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
-	const auto turn_speed = 500.f;
+	let step = rotate(vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
+	let turn_speed = 500.f;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
@@ -66,7 +66,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
-	const auto[collisions, terrain_hit] = world().damage(info);
+	let[collisions, terrain_hit] = world().damage(info);
 	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;
 	} else {
@@ -75,7 +75,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	if (!collisions.empty() && terrain_hit) {
 		pos(collisions.back());
 	}
-	for (const auto collision : collisions) {
+	for (let collision : collisions) {
 		tick_context::spray_info spray;
 		spray.image = m_im_tail;
 		spray.pos = collision;
@@ -168,7 +168,7 @@ void mark::unit::projectile::serialise(YAML::Emitter& out) const {
 	out << Key << "piercing" << Value << m_piercing;
 
 	out << Key << "damaged" << Value << BeginSeq;
-	for (const auto& damaged : m_damaged) {
+	for (let& damaged : m_damaged) {
 		out << reinterpret_cast<uint64_t>(damaged);
 	}
 	out << EndSeq;

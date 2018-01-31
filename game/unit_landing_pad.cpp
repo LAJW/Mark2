@@ -11,7 +11,7 @@
 #include "module_cargo.h"
 #include "exception.h"
 
-constexpr const auto LANDING_PAD_SIZE = 320.f;
+constexpr let LANDING_PAD_SIZE = 320.f;
 
 mark::unit::landing_pad::landing_pad(const info &info)
 	: activable(info)
@@ -31,7 +31,7 @@ void mark::unit::landing_pad::serialise(YAML::Emitter& out) const
 	out << BeginMap;
 	out << Key << "type" << Value << unit::landing_pad::type_name;
 	base::serialise(out);
-	if (const auto ship = m_ship.lock()) {
+	if (let ship = m_ship.lock()) {
 		out << Key << "ship_id" << Value << reinterpret_cast<size_t>(this);
 	}
 	out << EndMap;
@@ -75,7 +75,7 @@ void mark::unit::landing_pad::resolve_ref(
 		std::weak_ptr<unit::base>>& units)
 {
 	if (node["ship_id"]) {
-		const auto ship_id = node["ship_id"].as<uint64_t>();
+		let ship_id = node["ship_id"].as<uint64_t>();
 		m_ship = std::dynamic_pointer_cast<unit::modular>(
 			units.at(ship_id).lock());
 	}
@@ -84,7 +84,7 @@ void mark::unit::landing_pad::resolve_ref(
 auto mark::unit::landing_pad::bindings() const ->
 	unit::modular::bindings_t
 {
-	const auto ship = m_ship.lock();
+	let ship = m_ship.lock();
 	assert(ship != nullptr);
 	return ship->bindings();
 }

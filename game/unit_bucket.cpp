@@ -24,14 +24,14 @@ void mark::unit::bucket::tick(tick_context& context) {
 	if (this->dead()) { // dead bucket
 		return;
 	}
-	const auto size = static_cast<float>(m_module->size().y, m_module->size().x) * module::size;
-	const auto nearby_buckets = world().find<unit::bucket>(
+	let size = static_cast<float>(m_module->size().y, m_module->size().x) * module::size;
+	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
 		vector<double> diff;
-		for (const auto& bucket : nearby_buckets) {
-			const auto vec = bucket->pos() - pos();
-			const auto len = length(vec);
+		for (let& bucket : nearby_buckets) {
+			let vec = bucket->pos() - pos();
+			let len = length(vec);
 			if (len != 0) {
 				diff -= vec / (len * len);
 			}
@@ -41,7 +41,7 @@ void mark::unit::bucket::tick(tick_context& context) {
 		} else {
 			m_direction = static_cast<float>(atan(diff));
 		}
-		const auto ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);
+		let ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);
 		if (world().map().traversable(pos() + ds, size)) {
 			this->pos(pos() + ds);
 		}

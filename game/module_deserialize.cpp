@@ -12,7 +12,7 @@
 
 auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<module::base> {
-	const auto type = node["type"].as<std::string>();
+	let type = node["type"].as<std::string>();
 	if (type == module::battery::type_name) {
 		return std::make_unique<module::battery>(rm, node);
 	} else if (type == module::cannon::type_name) {

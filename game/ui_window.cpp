@@ -14,10 +14,10 @@ void mark::ui::window::insert(std::unique_ptr<node> node)
 
 void mark::ui::window::remove(node& to_remove)
 {
-	const auto it = find_if(
+	let it = find_if(
 		m_nodes.begin(),
 		m_nodes.end(),
-		[&](const auto& node) {
+		[&](let& node) {
 		return node.get() == &to_remove;
 	});
 	drop(m_nodes, it);
@@ -28,8 +28,8 @@ bool mark::ui::window::click(const event& event)
 	if (!m_visible) {
 		return false;
 	}
-	for (const auto& node : m_nodes) {
-		const auto handled = node->click(event);
+	for (let& node : m_nodes) {
+		let handled = node->click(event);
 		if (handled) {
 			return true;
 		}
@@ -42,8 +42,8 @@ bool mark::ui::window::hover(const event& event)
 	if (!m_visible) {
 		return false;
 	}
-	for (const auto& node : m_nodes) {
-		const auto handled = node->hover(event);
+	for (let& node : m_nodes) {
+		let handled = node->hover(event);
 		if (handled) {
 			return true;
 		}
@@ -57,7 +57,7 @@ void mark::ui::window::tick(tick_context& context)
 		return;
 	}
 	int top = 0;
-	for (const auto& node : m_nodes) {
+	for (let& node : m_nodes) {
 		if (node->relative()) {
 			node->pos({ 0, top });
 			node->tick(context);

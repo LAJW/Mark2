@@ -23,7 +23,7 @@ mark::module::shield_generator::shield_generator(
 void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
-	const auto pos = this->pos();
+	let pos = this->pos();
 	if (m_cur_shield > 0) {
 		m_model_shield.tick(context, pos);
 	}
@@ -77,8 +77,8 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		vector<double>>>
 {
 	if (m_cur_shield > 0.f) {
-		const auto shield_size = 64.f;
-		if (const auto intersection = intersect(ray, pos(), shield_size)) {
+		let shield_size = 64.f;
+		if (let intersection = intersect(ray, pos(), shield_size)) {
 			return { {
 				std::ref(static_cast<interface::damageable&>(*this)),
 				*intersection } };

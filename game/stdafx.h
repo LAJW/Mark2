@@ -3,6 +3,7 @@
 // to compile correctly because it violates C++17 deprecation warnings:
 // _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 
 #define _USE_MATH_DEFINES
+#define let const auto
 #include <algorithm>
 #include <array>
 #include <assert.h>
