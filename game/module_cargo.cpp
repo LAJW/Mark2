@@ -175,7 +175,7 @@ auto mark::module::cargo::at(const vector<int>& i_pos) const
 	}
 	let pos = vector<unsigned>(i_pos);
 	for (let pair : enumerate(m_modules)) {
-		let module_pos = modulo_vector(pair.first, 16LLU);
+		let module_pos = modulo_vector<size_t>(pair.first, 16LLU);
 		if (let& slot = pair.second) {
 			let border = module_pos + vector<size_t>(slot->size());
 			if (pos.x + pos.x >= module_pos.x && pos.x < border.x
@@ -195,7 +195,7 @@ auto mark::module::cargo::detach(const vector<int>& pos) ->
 	}
 	for (let pair : enumerate(m_modules)) {
 		let i = static_cast<int>(pair.first);
-		let module_pos = modulo_vector(i, 16);
+		let module_pos = modulo_vector<int>(i, 16);
 		if (auto& module = pair.second) {
 			let border = module_pos + vector<int>(module->size());
 			if (pos.x >= module_pos.x && pos.x < border.x
@@ -249,7 +249,7 @@ auto mark::module::cargo::push(
 	std::unique_ptr<module::base>& module) -> std::error_code
 {
 	for (let i : range(static_cast<int>(m_modules.size()))) {
-		let drop_pos = modulo_vector(i, 16);
+		let drop_pos = modulo_vector<int>(i, 16);
 		if (this->attach(drop_pos, module) == error::code::success) {
 			return error::code::success;
 		}
