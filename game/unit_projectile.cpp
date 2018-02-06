@@ -32,7 +32,8 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
 	m_critical_chance(args.critical_chance),
 	m_critical_multiplier(args.critical_multiplier),
 	m_piercing(args.piercing),
-	m_guide(args.guide) { }
+	m_guide(args.guide),
+	m_physical(args.physical) { }
 
 void mark::unit::projectile::tick(tick_context& context) {
 	double dt = context.dt;
@@ -61,7 +62,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	info.piercing = m_piercing;
 	info.damage.damaged = &m_damaged;
 	info.damage.team = this->team();
-	info.damage.physical = 10.f;
+	info.damage.physical = m_physical;
 	info.damage.critical_chance = m_critical_chance;
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
@@ -151,7 +152,8 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
 	m_aoe_radius(node["aoe_radius"].as<float>()),
 	m_critical_chance(node["critical_chance"].as<float>()),
 	m_critical_multiplier(node["critical_multiplier"].as<float>()),
-	m_piercing(node["piercing"].as<unsigned>()) { }
+	m_piercing(node["piercing"].as<unsigned>()),
+	m_physical(node["physical"].as<float>(10.f)) { }
 
 
 void mark::unit::projectile::serialise(YAML::Emitter& out) const {
@@ -166,6 +168,7 @@ void mark::unit::projectile::serialise(YAML::Emitter& out) const {
 	out << Key << "critical_chance" << Value << m_critical_chance;
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
 	out << Key << "piercing" << Value << m_piercing;
+	out << Key << "physical" << Value << m_physical;
 
 	out << Key << "damaged" << Value << BeginSeq;
 	for (let& damaged : m_damaged) {

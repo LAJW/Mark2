@@ -14,6 +14,7 @@ public:
 		std::shared_ptr<const vector<double>> guide;
 		float rotation = NAN;
 		float velocity = NAN;
+		float physical = 10.f;
 		float seek_radius = 0.f;
 		float aoe_radius = 0.f;
 		float critical_chance = 0.1f;
@@ -38,6 +39,7 @@ private:
 	std::shared_ptr<const resource::image> m_im_tail;
 	std::unordered_set<interface::damageable*> m_damaged;
 	std::shared_ptr<const vector<double>> m_guide;
+	float m_physical;
 	float m_rotation;
 	float m_velocity;
 	float m_seek_radius;

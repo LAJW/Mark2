@@ -7,7 +7,7 @@
 #include "unit_modular.h"
 
 mark::module::cannon::cannon(resource::manager& rm)
-	: module::base_turret({ 4, 2 }, rm.image("cannon.png"))
+	: module::base_turret({ 4, 2 }, rm.image("cannon.png"), false)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
 	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f)) { }
@@ -26,13 +26,13 @@ void mark::module::cannon::tick(tick_context& context) {
 		rotation,
 		this->heat_color()));
 	auto& world = parent().world();
-	base_turret::tick();
+	base_turret::tick(context.dt);
 	if (m_angular_velocity == 0.f) {
 		m_rotation = rotation;
 	} else if (let target = this->target()) {
 		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
-	if (this->can_shoot()) {
+	if (this->request_charge()) {
 		std::unordered_set<interface::damageable*> damaged;
 
 		let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );

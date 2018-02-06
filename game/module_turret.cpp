@@ -15,7 +15,8 @@
 
 mark::module::turret::turret(module::turret::info& info):
 	base_turret(vector<unsigned>(info.size),
-		info.resource_manager->image("turret-base.png")),
+		info.resource_manager->image("turret-base.png"),
+		false),
 	m_image(info.resource_manager->image("turret.png")),
 	m_image_variant(info.resource_manager->random(0, 12)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
@@ -39,8 +40,7 @@ mark::module::turret::turret(module::turret::info& info):
 	m_aoe_radius(info.aoe_radius),
 	m_seek_radius(info.seek_radius),
 	m_range(info.range),
-	m_piercing(info.piercing),
-	m_charged(info.charged)
+	m_piercing(info.piercing)
 {
 	assert(m_rate_of_fire > 0.f);
 	m_cur_health = info.cur_health;
@@ -53,7 +53,7 @@ void mark::module::turret::tick(tick_context& context) {
 	m_adsr.tick(context.dt);
 	let pos = this->pos();
 
-	base_turret::tick();
+	base_turret::tick(context.dt);
 	if (let target = this->target()) {
 		*m_shared_target = *target;
 	}
@@ -69,7 +69,7 @@ void mark::module::turret::tick(tick_context& context) {
 	}();
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (this->can_shoot()) {
+	} else if (this->request_charge()) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
 		let projectile_count = static_cast<float>(m_projectile_count);
@@ -89,6 +89,7 @@ void mark::module::turret::tick(tick_context& context) {
 				: 0.f;
 			_.rotation = m_rotation + cur_angle + heat_angle;
 			_.velocity = m_velocity;
+			_.physical = m_physical;
 			_.aoe_radius = m_aoe_radius;
 			_.seek_radius = m_seek_radius;
 			_.team = parent().team();

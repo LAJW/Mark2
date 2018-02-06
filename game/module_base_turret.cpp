@@ -4,16 +4,19 @@
 #include "world.h"
 
 mark::module::base_turret::base_turret(
-	vector<unsigned> size,
-	const std::shared_ptr<const resource::image>& image)
-	: module::base(size, image) { }
+	const vector<unsigned> size,
+	const std::shared_ptr<const resource::image>& image,
+	const bool charged)
+	: module::base(size, image), m_charged(charged) { }
+
 mark::module::base_turret::base_turret(
 	resource::manager & rm,
 	const YAML::Node & node)
 	: module::base(rm, node)
 	, m_target(std::make_pair(false, vector<double>(
 		node["target"]["x"].as<double>(),
-		node["target"]["y"].as<double>()))) { }
+		node["target"]["y"].as<double>())))
+	, m_charged(node["charged"].as<bool>(false)) { }
 
 auto target(
 	const mark::vector<double>& turret_pos,
@@ -37,17 +40,28 @@ auto target(
 	return { };
 }
 
-void mark::module::base_turret::tick()
+void mark::module::base_turret::tick(double dt)
 {
 	if (let queue = std::get_if<queue_type>(&m_target)) {
 		while (!queue->empty() && !::target(this->pos(), queue->front())) {
 			queue->pop_front();
 		}
 	}
+	if (m_charging) {
+		m_charge += static_cast<float>(dt);
+	}
 }
 
-auto mark::module::base_turret::can_shoot() const -> bool
+auto mark::module::base_turret::request_charge() -> bool
 {
+	if (m_charged) {
+		let pair = std::get_if<target_type>(&m_target);
+		if (m_charge >= 1.f && !m_charging && pair) {
+			m_charge = 0.f;
+			return true;
+		}
+		return { };
+	}
 	if (let pair = std::get_if<target_type>(&m_target)) {
 		return pair->first;
 	}
@@ -117,10 +131,12 @@ void mark::module::base_turret::command(const command::any& any)
 {
 	if (let activate = std::get_if<command::activate>(&any)) {
 		m_target = std::make_pair(true, activate->pos);
+		m_charging = true;
 	} else if (let release = std::get_if<command::release>(&any)) {
 		if (std::holds_alternative<target_type>(m_target)) {
 			m_target = std::make_pair(false, release->pos);
 		}
+		m_charging = false;
 	} else if (let guide = std::get_if<command::guide>(&any)) {
 		this->target(guide->pos);
 	} else if (let queue = std::get_if<command::queue>(&any)) {

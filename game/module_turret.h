@@ -67,7 +67,6 @@ public:
 		// damage multiplier for critical
 		float critical_multiplier = 1.5f;
 		size_t piercing = 1;
-		bool charged = false;
 	};
 	turret(resource::manager&, const YAML::Node&);
 	turret(module::turret::info&);
@@ -107,7 +106,6 @@ private:
 	float      m_seek_radius = 500.f;
 	float      m_range = 2000.f;
 	size_t     m_piercing;
-	bool       m_charged;
 };
 }
 }
