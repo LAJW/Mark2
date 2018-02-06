@@ -39,8 +39,10 @@ mark::module::turret::turret(module::turret::info& info):
 	m_aoe_radius(info.aoe_radius),
 	m_seek_radius(info.seek_radius),
 	m_range(info.range),
-	m_piercing(info.piercing)
+	m_piercing(info.piercing),
+	m_charged(info.charged)
 {
+	assert(m_rate_of_fire > 0.f);
 	m_cur_health = info.cur_health;
 	m_max_health = info.max_health;
 }
@@ -49,77 +51,75 @@ mark::module::turret::turret(module::turret::info& info):
 void mark::module::turret::tick(tick_context& context) {
 	this->module::base::tick(context);
 	m_adsr.tick(context.dt);
-	auto pos = this->pos();
+	let pos = this->pos();
 
 	base_turret::tick();
 	if (let target = this->target()) {
 		*m_shared_target = *target;
 	}
 
-	if (m_angular_velocity == 0.f) {
-		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
-			m_rotation = (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
-		} else {
-			m_rotation = (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
+	m_rotation = [&] {
+		if (m_angular_velocity != 0.f) {
+			return turn(*m_shared_target - pos, m_rotation, m_angular_velocity, context.dt);
 		}
-	} else {
-		m_rotation = turn(
-			*m_shared_target - pos, m_rotation, m_angular_velocity, context.dt);
-	}
+		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
+			return (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
+		}
+		return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
+	}();
 	if (m_cur_cooldown >= 0) {
 		m_cur_cooldown -= static_cast<float>(context.dt);
 	} else if (this->can_shoot()) {
 		m_cur_cooldown = 1.f / m_rate_of_fire;
 		m_adsr.trigger();
-		unit::projectile::info info;
-		info.world = &parent().world();
-		if (m_guided) {
-			info.guide = m_shared_target;
-		}
-		for (let i : range(m_projectile_count)) {
-			info.pos = pos;
+		let projectile_count = static_cast<float>(m_projectile_count);
+		let range = mark::range(projectile_count);
+		std::transform(range.begin(), range.end(), std::back_inserter(context.units), [&](let i) {
+			unit::projectile::info _;
+			_.world = &parent().world();
+			_.guide = m_guided ? m_shared_target : nullptr;
+			_.pos = pos;
 			let heat_angle = m_cone
 				* m_cone_curve(m_cur_heat / 100.f)
-				* (m_angular_velocity != 0.f && m_cone_curve==curve::flat)
+				* m_angular_velocity != 0.f && m_cone_curve == curve::flat
 					? context.random(-1.f, 1.f)
 					: 0.f;
-			float cur_angle = 0.f;
-			if (m_projectile_count != 1) {
-				cur_angle = (static_cast<float>(i) / static_cast<float>(m_projectile_count - 1) - 0.5f) * m_cone;
-			}
-			info.rotation = m_rotation + cur_angle + heat_angle;
-			info.velocity = m_velocity;
-			info.aoe_radius = m_aoe_radius;
-			info.seek_radius = m_seek_radius;
-			info.team = parent().team();
-			info.piercing = m_piercing;
-			info.critical_chance = m_critical_chance;
-			info.critical_multiplier = m_critical_multiplier;
-			context.units.emplace_back(std::make_shared<unit::projectile>(info));
-		}
+			let cur_angle = projectile_count != 1.f
+				? (i / (projectile_count - 1.f) - 0.5f) * m_cone
+				: 0.f;
+			_.rotation = m_rotation + cur_angle + heat_angle;
+			_.velocity = m_velocity;
+			_.aoe_radius = m_aoe_radius;
+			_.seek_radius = m_seek_radius;
+			_.team = parent().team();
+			_.piercing = m_piercing;
+			_.critical_chance = m_critical_chance;
+			_.critical_multiplier = m_critical_multiplier;
+			return std::make_shared<unit::projectile>(_);
+		});
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
 	let heat_color = this->heat_color();
-	{
-		sprite info;
-		info.image = m_image;
-		info.pos = pos - rotate(vector<double>(m_adsr.get() - 32.0, 0.0), m_rotation);
-		info.size = 32.f;
-		info.rotation = m_rotation;
-		info.color = heat_color;
-		info.frame = 1 + m_image_variant * 2;
-		context.sprites[2].emplace_back(info);
-	}
-	{
-		sprite info;
-		info.image = m_image;
-		info.pos = pos;
-		info.size = 32.f;
-		info.rotation = m_rotation;
-		info.color = heat_color;
-		info.frame = m_image_variant * 2;
-		context.sprites[2].emplace_back(info);
-	}
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image;
+		_.pos = pos - rotate(vector<double>(m_adsr.get() - 32.0, 0.0), m_rotation);
+		_.size = 32.f;
+		_.rotation = m_rotation;
+		_.color = heat_color;
+		_.frame = 1 + m_image_variant * 2;
+		return _;
+	}());
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image;
+		_.pos = pos;
+		_.size = 32.f;
+		_.rotation = m_rotation;
+		_.color = heat_color;
+		_.frame = m_image_variant * 2;
+		return _;
+	}());
 }
 
 auto mark::module::turret::describe() const -> std::string {
