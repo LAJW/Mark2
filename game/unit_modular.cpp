@@ -446,6 +446,10 @@ static auto ability_id(const mark::command::any& any)
 
 void mark::unit::modular::command(const command::any& any)
 {
+	if (dead()) {
+		// TODO Propagate error
+		return;
+	}
 	mobile::command(any);
 	if (let guide = std::get_if<command::guide>(&any)) {
 		m_lookat = guide->pos;
