@@ -96,6 +96,11 @@ void mark::module::base_turret::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
+auto mark::module::base_turret::charge() const -> float
+{
+	return m_charged ? std::min(1.f, std::max(0.f, m_charge)) : 0.f;
+}
+
 void mark::module::base_turret::target(vector<double> pos)
 { 
 	if (let pair = std::get_if<target_type>(&m_target)) {

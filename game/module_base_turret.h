@@ -24,6 +24,8 @@ protected:
 	// Target at which turret is pointing
 	auto target() const -> std::optional<vector<double>>;
 	void serialise(YAML::Emitter&) const;
+	// Level of turret's charge (between 0 and 1)
+	auto charge() const -> float;
 private:
 	void target(vector<double> pos);
 	void queue(vector<double> pos, bool release);

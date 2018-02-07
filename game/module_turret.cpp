@@ -12,12 +12,14 @@
 #include "unit_modular.h"
 #include "world.h"
 #include "exception.h"
+#include "particle.h"
 
 mark::module::turret::turret(module::turret::info& info):
 	base_turret(vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png"),
 		false),
 	m_image(info.resource_manager->image("turret.png")),
+	m_im_orb(info.resource_manager->image("orb.png")),
 	m_image_variant(info.resource_manager->random(0, 12)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
 	m_rate_of_fire(info.rate_of_fire),
@@ -121,6 +123,30 @@ void mark::module::turret::tick(tick_context& context) {
 		_.frame = m_image_variant * 2;
 		return _;
 	}());
+	const auto charge = this->charge();
+	if (charge) {
+		const auto fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
+		context.sprites[3].emplace_back([&] {
+			sprite _;
+			_.image = m_im_orb;
+			_.pos = fx_pos;
+			_.size = 64.f * charge;
+			_.frame = 0;
+			return _;
+		}());
+		context.particles.push_back([&] {
+			let direction = context.random(-180.f, 180.f);
+			mark::particle::info _;
+			_.pos = fx_pos + rotate(vector<double>(32, 0), -direction) * static_cast<double>(charge + 1.f);
+			_.direction = direction;
+			_.velocity = charge * 16.f;
+			_.image = m_im_orb;
+			_.lifespan = 1.f;
+			_.size = 8.;
+			_.layer = 3;
+			return _;
+		}());
+	}
 }
 
 auto mark::module::turret::describe() const -> std::string {
@@ -148,6 +174,7 @@ auto mark::module::turret::describe() const -> std::string {
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	module::base_turret(rm, node),
 	m_image(rm.image("turret.png")),
+	m_im_orb(rm.image("orb.png")),
 	m_image_variant(rm.random(0, 12)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
 	m_cur_cooldown(node["cur_cooldown"].as<float>()),
