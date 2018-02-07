@@ -25,6 +25,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
 	unit::base(args),
 	m_image(args.world->resource_manager().image("shell.png")),
 	m_im_tail(args.world->resource_manager().image("glare.png")),
+	m_im_explosion(args.world->resource_manager().image("explosion.png")),
 	m_velocity(args.velocity),
 	m_rotation(args.rotation),
 	m_seek_radius(args.seek_radius),
@@ -76,14 +77,15 @@ void mark::unit::projectile::tick(tick_context& context) {
 	if (!collisions.empty() && terrain_hit) {
 		pos(collisions.back());
 	}
+	const auto is_heavy_damage = m_physical > 100;
 	for (let collision : collisions) {
 		tick_context::spray_info spray;
-		spray.image = m_im_tail;
+		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
 		spray.pos = collision;
-		spray.velocity(5.f, 75.f);
-		spray.lifespan(0.3f);
-		spray.diameter(8.f);
-		spray.count = 80;
+		spray.velocity(5.f, is_heavy_damage ? 500.f : 75.f);
+		spray.lifespan(is_heavy_damage ? .7f : .3f);
+		spray.diameter(is_heavy_damage ? 32.f : 8.f);
+		spray.count = is_heavy_damage ? 80 : 40;
 		spray.cone = 360.f;
 		spray.color = { 125, 125, 125, 75 };
 		context.render(spray);
@@ -91,7 +93,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 	// tail: grey dust
 	{
 		tick_context::spray_info spray;
-		spray.image = m_im_tail;
+		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
 		spray.pos = pos();
 		spray.velocity(100.f);
 		spray.lifespan(0.3f);
@@ -146,6 +148,7 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
 	unit::base(world, node),
 	m_image(world.resource_manager().image("shell.png")),
 	m_im_tail(world.resource_manager().image("glare.png")),
+	m_im_explosion(world.resource_manager().image("explosion.png")),
 	m_velocity(node["velocity"].as<float>()),
 	m_rotation(node["rotation"].as<float>()),
 	m_seek_radius(node["seek_radius"].as<float>()),

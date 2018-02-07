@@ -37,6 +37,7 @@ private:
 
 	std::shared_ptr<const resource::image> m_image;
 	std::shared_ptr<const resource::image> m_im_tail;
+	std::shared_ptr<const resource::image> m_im_explosion;
 	std::unordered_set<interface::damageable*> m_damaged;
 	std::shared_ptr<const vector<double>> m_guide;
 	float m_physical;
