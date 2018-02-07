@@ -2,6 +2,7 @@
 #include "module_base_turret.h"
 #include "unit_modular.h"
 #include "world.h"
+#include "resource_manager.h"
 
 mark::module::base_turret::base_turret(
 	const vector<unsigned> size,
@@ -42,6 +43,16 @@ auto target(
 
 void mark::module::base_turret::tick(double dt)
 {
+	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+		if (queue->empty()) {
+			auto unit = parent().world().find_one<unit::damageable>(
+				this->pos(), 1000.0, [&](const auto& unit) {
+				return !unit.dead() && unit.team() != parent().team()
+					&& parent().world().resource_manager().random(0, 3) == 0;
+			});
+			queue->push_back({ move(unit), { } });
+		}
+	}
 	if (let queue = std::get_if<queue_type>(&m_target)) {
 		while (!queue->empty() && !::target(this->pos(), queue->front())) {
 			queue->pop_front();
@@ -49,6 +60,8 @@ void mark::module::base_turret::tick(double dt)
 	}
 	if (m_charging) {
 		m_charge += static_cast<float>(dt);
+	} else if (m_charge < 1.f) {
+		m_charge = std::max(m_charge - static_cast<float>(dt), 0.f);
 	}
 }
 
@@ -63,6 +76,8 @@ auto mark::module::base_turret::request_charge() -> bool
 		return { };
 	}
 	if (let pair = std::get_if<target_type>(&m_target)) {
+		const auto result = pair->first;
+		m_target = queue_type();
 		return pair->first;
 	}
 	return !std::get<queue_type>(m_target).empty();
@@ -93,6 +108,7 @@ void mark::module::base_turret::serialise(YAML::Emitter& out) const
 		out << Key << "x" << 0;
 		out << Key << "y" << 0;
 	}
+	out << Key << "charged" << Value << m_charged;
 	out << EndMap;
 }
 
