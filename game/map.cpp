@@ -321,17 +321,15 @@ static bool has_one(
 	const std::vector<std::unique_ptr<Node>>& nodes,
 	mark::vector<int> pos)
 {
-	return nodes.end() != std::find_if(
+	return any_of(
 		nodes.begin(), nodes.end(),
-		[&pos](let& node) {
-		return node->pos == pos;
-	});
+		[&pos](let& node) { return node->pos == pos; });
 }
 
 static auto find_one(
 	std::vector<Node>& nodes, const mark::vector<int>& pos) -> Node*
 {
-	auto node_it = std::find_if(
+	auto node_it = find_if(
 		nodes.begin(), nodes.end(), [&pos](let& node) {
 			return pos == node.pos;
 	});
@@ -347,7 +345,7 @@ static auto make_path(
 {
 	if (node) {
 		out.push_back(map.map_to_world(node->pos));
-		return make_path(map, node->parent, std::move(out));
+		return make_path(map, node->parent, move(out));
 	}
 	return out;
 }
@@ -496,7 +494,7 @@ static auto find_path(
 	if (open.empty()) {
 		return { };
 	}
-	let open_min_it = std::min_element(
+	let open_min_it = min_element(
 		open.begin(), open.end(), [](let& n1, let& n2) {
 		return n1.f < n2.f;
 	});
@@ -510,8 +508,8 @@ static auto find_path(
 	}
 
 	let successors = identify_successors(map, current, end, radius);
-	open = std::accumulate(
-		successors.begin(), successors.end(), std::move(open),
+	open = accumulate(
+		successors.begin(), successors.end(), move(open),
 		[&](auto& open, let& successor) {
 		auto neighbour_pos = successor.pos;
 		if (has_one(closed, neighbour_pos)) {
@@ -524,9 +522,9 @@ static auto find_path(
 			neighbour->f = successor.f;
 			neighbour->parent = successor.parent;
 		}
-		return open;
+		return move(open);
 	});
-	return find_path(map, end, radius, std::move(open), std::move(closed));
+	return find_path(map, end, radius, move(open), move(closed));
 }
 
 auto mark::map::find_path(
