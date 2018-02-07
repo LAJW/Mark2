@@ -11,6 +11,7 @@ class minion final : public unit::mobile {
 public:
 	static constexpr const char* type_name = "unit_minion";
 
+	using unit::mobile::info;
 	minion(const mobile::info&);
 	auto dead() const -> bool override;
 	auto damage(const interface::damageable::info&) -> bool override;
@@ -31,7 +32,6 @@ private:
 	cooldown m_gun_cooldown;
 	float m_rotation = 0.f;
 	float m_health = 100.f;
-	bool m_dead = false;
 };
 }
 }

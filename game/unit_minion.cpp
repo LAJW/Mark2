@@ -63,7 +63,7 @@ void mark::unit::minion::tick(tick_context& context) {
 
 
 auto mark::unit::minion::dead() const -> bool {
-	return m_dead;
+	return m_health <= 0.;
 }
 
 auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool {
@@ -99,17 +99,14 @@ auto mark::unit::minion::collide(vector<double> center, float radius) ->
 }
 
 void mark::unit::minion::on_death(tick_context & context) {
-	if (m_health < 0) {
-		tick_context::spray_info spray;
-		spray.image = m_image_explosion;
-		spray.pos = pos();
-		spray.velocity(50.f, 350.f);
-		spray.lifespan(0.5f);
-		spray.diameter(32.f);
-		spray.count = 80;
-		context.render(spray);
-		m_dead = true;
-	}
+	tick_context::spray_info spray;
+	spray.image = m_image_explosion;
+	spray.pos = pos();
+	spray.velocity(50.f, 350.f);
+	spray.lifespan(0.5f);
+	spray.diameter(32.f);
+	spray.count = 80;
+	context.render(spray);
 }
 
 auto mark::unit::minion::radius() const -> double
