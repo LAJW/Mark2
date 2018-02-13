@@ -6,9 +6,8 @@
 
 mark::module::base_turret::base_turret(
 	const vector<unsigned> size,
-	const std::shared_ptr<const resource::image>& image,
-	const bool charged)
-	: module::base(size, image), m_charged(charged) { }
+	const std::shared_ptr<const resource::image>& image)
+	: module::base(size, image) { }
 
 mark::module::base_turret::base_turret(
 	resource::manager & rm,
@@ -16,8 +15,7 @@ mark::module::base_turret::base_turret(
 	: module::base(rm, node)
 	, m_target(std::make_pair(false, vector<double>(
 		node["target"]["x"].as<double>(),
-		node["target"]["y"].as<double>())))
-	, m_charged(node["charged"].as<bool>(false)) { }
+		node["target"]["y"].as<double>()))) { }
 
 auto target(
 	const mark::vector<double>& turret_pos,
@@ -41,7 +39,7 @@ auto target(
 	return { };
 }
 
-void mark::module::base_turret::tick(double dt)
+void mark::module::base_turret::tick()
 {
 	if (const auto queue = std::get_if<queue_type>(&m_target)) {
 		if (queue->empty()) {
@@ -58,26 +56,11 @@ void mark::module::base_turret::tick(double dt)
 			queue->pop_front();
 		}
 	}
-	if (m_charging) {
-		m_charge += static_cast<float>(dt);
-	} else if (m_charge < 1.f) {
-		m_charge = std::max(m_charge - static_cast<float>(dt), 0.f);
-	}
 }
 
 auto mark::module::base_turret::request_charge() -> bool
 {
-	if (m_charged) {
-		let pair = std::get_if<target_type>(&m_target);
-		if (m_charge >= 1.f && !m_charging && pair) {
-			m_charge = 0.f;
-			return true;
-		}
-		return { };
-	}
 	if (let pair = std::get_if<target_type>(&m_target)) {
-		const auto result = pair->first;
-		m_target = queue_type();
 		return pair->first;
 	}
 	return !std::get<queue_type>(m_target).empty();
@@ -108,13 +91,7 @@ void mark::module::base_turret::serialise(YAML::Emitter& out) const
 		out << Key << "x" << 0;
 		out << Key << "y" << 0;
 	}
-	out << Key << "charged" << Value << m_charged;
 	out << EndMap;
-}
-
-auto mark::module::base_turret::charge() const -> float
-{
-	return m_charged ? std::min(1.f, std::max(0.f, m_charge)) : 0.f;
 }
 
 void mark::module::base_turret::target(vector<double> pos)
@@ -152,12 +129,10 @@ void mark::module::base_turret::command(const command::any& any)
 {
 	if (let activate = std::get_if<command::activate>(&any)) {
 		m_target = std::make_pair(true, activate->pos);
-		m_charging = true;
 	} else if (let release = std::get_if<command::release>(&any)) {
 		if (std::holds_alternative<target_type>(m_target)) {
 			m_target = std::make_pair(false, release->pos);
 		}
-		m_charging = false;
 	} else if (let guide = std::get_if<command::guide>(&any)) {
 		this->target(guide->pos);
 	} else if (let queue = std::get_if<command::queue>(&any)) {

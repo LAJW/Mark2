@@ -50,6 +50,7 @@ public:
 		vector<uint8_t> size = { 2, 2 };
 		// turret current rotation (for deserializer)
 		float rotation = 0.f;
+		bool is_chargeable = false;
 
 		// projectile info
 		float physical = 10.f;
@@ -73,6 +74,7 @@ public:
 	auto describe() const -> std::string;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
+	void command(const command::any&) override;
 private:
 	void tick(tick_context& context) override;
 
@@ -85,6 +87,8 @@ private:
 
 	float      m_cur_cooldown = 0;
 	float      m_rate_of_fire = 1.f;
+	const bool m_is_chargeable = false; // Is this turret chargeable
+	bool       m_is_charging = false; // Is this turret currently charging
 	curve::ptr m_rate_of_fire_curve = curve::flat;
 	float      m_rotation = 0.f;
 	float      m_angular_velocity = 360.f;

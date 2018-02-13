@@ -16,8 +16,7 @@
 
 mark::module::turret::turret(module::turret::info& info):
 	base_turret(vector<unsigned>(info.size),
-		info.resource_manager->image("turret-base.png"),
-		false),
+		info.resource_manager->image("turret-base.png")),
 	m_image(info.resource_manager->image("turret.png")),
 	m_im_orb(info.resource_manager->image("orb.png")),
 	m_image_variant(info.resource_manager->random(0, 12)),
@@ -42,7 +41,8 @@ mark::module::turret::turret(module::turret::info& info):
 	m_aoe_radius(info.aoe_radius),
 	m_seek_radius(info.seek_radius),
 	m_range(info.range),
-	m_piercing(info.piercing)
+	m_piercing(info.piercing),
+	m_is_chargeable(info.is_chargeable)
 {
 	assert(m_rate_of_fire > 0.f);
 	m_cur_health = info.cur_health;
@@ -52,27 +52,39 @@ mark::module::turret::turret(module::turret::info& info):
 
 void mark::module::turret::tick(tick_context& context) {
 	this->module::base::tick(context);
-	m_adsr.tick(context.dt);
+	let dt = context.dt;
+	let fdt = static_cast<float>(dt);
+	m_adsr.tick(dt);
 	let pos = this->pos();
 
-	base_turret::tick(context.dt);
+	base_turret::tick();
 	if (let target = this->target()) {
 		*m_shared_target = *target;
 	}
 
 	m_rotation = [&] {
 		if (m_angular_velocity != 0.f) {
-			return turn(*m_shared_target - pos, m_rotation, m_angular_velocity, context.dt);
+			return turn(*m_shared_target - pos, m_rotation, m_angular_velocity, dt);
 		}
 		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
 			return (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
 		}
 		return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
 	}();
-	if (m_cur_cooldown >= 0) {
-		m_cur_cooldown -= static_cast<float>(context.dt);
-	} else if (this->request_charge()) {
-		m_cur_cooldown = 1.f / m_rate_of_fire;
+	const auto cooldown = 1.f / m_rate_of_fire;
+	m_cur_cooldown = [&] {
+		if (m_is_chargeable && m_cur_cooldown != 0.f) {
+			return m_is_charging
+				? std::max(m_cur_cooldown - fdt, 0.f)
+				: std::min(m_cur_cooldown + fdt, cooldown);
+		}
+		return m_cur_cooldown - fdt;
+	}();
+	if (m_cur_cooldown <= 0.f
+		&& (!m_is_chargeable && this->request_charge()
+			|| m_is_chargeable && !m_is_charging))
+	{
+		m_cur_cooldown = cooldown;
 		m_adsr.trigger();
 		let projectile_count = static_cast<float>(m_projectile_count);
 		let range = mark::range(projectile_count);
@@ -123,9 +135,9 @@ void mark::module::turret::tick(tick_context& context) {
 		_.frame = m_image_variant * 2;
 		return _;
 	}());
-	const auto charge = this->charge();
-	if (charge) {
-		const auto fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
+	if (m_is_chargeable) {
+		let charge = 1.f - m_cur_cooldown / cooldown;
+		let fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
 		context.sprites[3].emplace_back([&] {
 			sprite _;
 			_.image = m_im_orb;
@@ -197,7 +209,9 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	m_aoe_radius(node["aoe_radius"].as<float>()),
 	m_seek_radius(node["seek_radius"].as<float>()),
 	m_range(node["range"].as<float>()),
-	m_piercing(node["piercing"].as<size_t>()) { }
+	m_piercing(node["piercing"].as<size_t>()),
+	m_is_chargeable(node["is_chargeable"].as<bool>(false))
+ { }
 
 void mark::module::turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
@@ -235,3 +249,13 @@ void mark::module::turret::serialise(YAML::Emitter& out) const {
 
 auto mark::module::turret::passive() const noexcept -> bool
 { return false; }
+
+void mark::module::turret::command(const command::any& any)
+{
+	if (std::holds_alternative<command::activate>(any)) {
+		m_is_charging = true;
+	} else if (std::holds_alternative<command::release>(any)) {
+		m_is_charging = false;
+	}
+	module::base_turret::command(any);
+}
