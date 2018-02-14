@@ -135,7 +135,7 @@ void mark::module::turret::tick(tick_context& context) {
 		_.frame = m_image_variant * 2;
 		return _;
 	}());
-	if (m_is_chargeable) {
+	if (m_is_chargeable && m_cur_cooldown < cooldown) {
 		let charge = 1.f - m_cur_cooldown / cooldown;
 		let fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
 		context.sprites[3].emplace_back([&] {
@@ -149,12 +149,14 @@ void mark::module::turret::tick(tick_context& context) {
 		context.particles.push_back([&] {
 			let direction = context.random(-180.f, 180.f);
 			mark::particle::info _;
-			_.pos = fx_pos + rotate(vector<double>(32, 0), -direction) * static_cast<double>(charge + 1.f);
+			_.pos = fx_pos
+				+ rotate(vector<double>(64, 0), direction)
+					* static_cast<double>(charge) * context.random(.5, 1.);
 			_.direction = direction;
-			_.velocity = charge * 16.f;
+			_.velocity = -charge * 64.f;
 			_.image = m_im_orb;
-			_.lifespan = 1.f;
-			_.size = 8.;
+			_.lifespan = .5f;
+			_.size = 12.f * charge;
 			_.layer = 3;
 			return _;
 		}());
