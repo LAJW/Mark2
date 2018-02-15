@@ -139,6 +139,9 @@
     <ClCompile Include="unit_mobile.cpp">
       <Filter>Unit</Filter>
     </ClCompile>
+    <ClCompile Include="module_healing_turret.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="mode_stack.h">
       <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="module_healing_turret.h">
+      <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
