@@ -30,9 +30,13 @@ auto mark::module::energy_generator::describe() const->std::string {
 	return "Energy Generator";
 }
 
-auto mark::module::energy_generator::harvest_energy() -> float {
-	m_cur_energy -= 1.0;
-	return 1.0;
+auto mark::module::energy_generator::harvest_energy(double dt) -> float {
+	let delta = 1.0 * dt;
+	if (delta <= m_cur_energy) {
+		m_cur_energy -= delta;
+		return delta;
+	}
+	return 0.f;
 }
 
 auto mark::module::energy_generator::energy_ratio() const -> float {

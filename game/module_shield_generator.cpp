@@ -12,13 +12,13 @@ mark::module::shield_generator::shield_generator(
 	resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
-	, m_model_shield(rm, 128.f) { }
+	, m_model_shield(rm, 512.f) { }
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& resource_manager)
 	: base({ 2, 2 }, resource_manager.image("shield-generator.png"))
 	, m_im_generator(resource_manager.image("shield-generator.png"))
-	, m_model_shield(resource_manager, 128.f) { }
+	, m_model_shield(resource_manager, 512.f) { }
 
 void mark::module::shield_generator::tick(tick_context& context)
 {
@@ -26,6 +26,17 @@ void mark::module::shield_generator::tick(tick_context& context)
 	let pos = this->pos();
 	if (m_cur_shield > 0) {
 		m_model_shield.tick(context, pos);
+	}
+	// Recharge
+	let constexpr recharge_efficiency = 10.f;
+	for (auto& module : this->neighbours()) {
+		if (m_cur_shield < m_max_shield) {
+			m_cur_shield = std::min(
+				m_max_shield,
+				m_cur_shield
+				+ module.first.get().harvest_energy(context.dt)
+					* recharge_efficiency);
+		}
 	}
 	sprite info;
 	info.image = m_im_generator;
@@ -77,7 +88,7 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		vector<double>>>
 {
 	if (m_cur_shield > 0.f) {
-		let shield_size = 64.f;
+		let shield_size = 256.f;
 		if (let intersection = intersect(ray, pos(), shield_size)) {
 			return { {
 				std::ref(static_cast<interface::damageable&>(*this)),

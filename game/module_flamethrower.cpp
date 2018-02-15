@@ -67,14 +67,6 @@ auto mark::module::flamethrower::describe() const->std::string {
 	return "Battery";
 }
 
-auto mark::module::flamethrower::harvest_energy() -> float {
-	return 0.f;
-}
-
-auto mark::module::flamethrower::energy_ratio() const -> float {
-	return 0.f;
-}
-
 // Serialize / Deserialize
 
 mark::module::flamethrower::flamethrower(resource::manager& rm, const YAML::Node& node):

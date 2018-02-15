@@ -243,6 +243,21 @@ static auto size_to_image_file_name(const mark::vector<unsigned>& size) -> std::
 	std::terminate();
 }
 
+auto mark::module::base::cur_health() const -> float
+{
+	return m_cur_health;
+}
+
+auto mark::module::base::needs_healing() const -> bool
+{
+	return m_cur_health < m_max_health;
+}
+
+void mark::module::base::heal(float amount)
+{
+	m_cur_health = std::min(m_cur_health + amount, m_max_health);
+}
+
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 	: base_ref(node)
 	, m_cur_health(node["cur_health"].as<float>())

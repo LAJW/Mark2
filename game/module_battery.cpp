@@ -24,7 +24,7 @@ void mark::module::battery::tick(tick_context& context) {
 	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
 			&& module.first.get().energy_ratio() > this->energy_ratio()) {
-			m_cur_energy += module.first.get().harvest_energy();
+			m_cur_energy += module.first.get().harvest_energy(context.dt);
 		}
 	}
 }
@@ -33,10 +33,11 @@ auto mark::module::battery::describe() const->std::string {
 	return "Battery";
 }
 
-auto mark::module::battery::harvest_energy() -> float {
-	if (m_cur_energy > 1.f) {
-		m_cur_energy -= 1.f;
-		return 1.f;
+auto mark::module::battery::harvest_energy(double dt) -> float {
+	let delta = 1.0 * dt;
+	if (m_cur_energy > delta) {
+		m_cur_energy -= delta;
+		return delta;
 	}
 	return 0.f;
 }

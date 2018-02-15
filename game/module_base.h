@@ -80,7 +80,7 @@ public:
 	virtual auto describe() const -> std::string = 0;
 
 	// Obtain energy from the module
-	virtual auto harvest_energy() -> float { return 0.f; }
+	virtual auto harvest_energy(double) -> float { return 0.f; }
 
 	// Current / Maximum energy stored in the module
 	virtual auto energy_ratio() const -> float { return 0.f; }
@@ -103,6 +103,14 @@ public:
 
 	// Specifiy whether module has no abilities
 	virtual auto passive() const noexcept -> bool = 0;
+
+	// Get module's cur health
+	auto cur_health() const -> float;
+	
+	auto needs_healing() const -> bool;
+
+	// Replenish module's health
+	void heal(float amount);
 
 protected:
 	base(resource::manager&, const YAML::Node&);

@@ -12,8 +12,6 @@ public:
 	flamethrower(resource::manager& manager);
 	void command(const command::any& any) override;
 	auto describe() const -> std::string override;
-	auto harvest_energy() -> float override;
-	auto energy_ratio() const -> float override;
 	void serialise(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;

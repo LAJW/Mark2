@@ -189,7 +189,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
 	module::base_turret(rm, node),
 	m_image(rm.image("turret.png")),
 	m_im_orb(rm.image("orb.png")),
-	m_image_variant(rm.random(0, 12)),
+	m_image_variant(rm.random(0, 11)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
 	m_cur_cooldown(node["cur_cooldown"].as<float>()),
 	m_rate_of_fire(node["rate_of_fire"].as<float>()),
