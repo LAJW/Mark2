@@ -26,7 +26,7 @@ void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
 	let pos = this->pos();
-	if (m_cur_shield > 0) {
+	if (m_cur_shield > 0 && m_on) {
 		m_model_shield.tick(context, pos);
 	}
 	// Recharge
@@ -89,7 +89,7 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
-	if (m_cur_shield > 0.f) {
+	if (m_cur_shield > 0.f && m_on) {
 		let shield_size = shield_diameter / 2.f;
 		if (let intersection = intersect(ray, pos(), shield_size)) {
 			return { {
@@ -116,4 +116,11 @@ void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 }
 
 auto mark::module::shield_generator::passive() const noexcept -> bool
-{ return true; }
+{ return false; }
+
+void mark::module::shield_generator::command(const command::any& any)
+{
+	if (std::holds_alternative<command::queue>(any)) {
+		m_on = !m_on;
+	}
+}
