@@ -78,6 +78,9 @@ void mark::unit::projectile::tick(tick_context& context) {
 		pos(collisions.back());
 	}
 	const auto is_heavy_damage = m_physical > 100;
+	if (is_heavy_damage && !collisions.empty()) {
+		context.crit = true;
+	}
 	for (let collision : collisions) {
 		tick_context::spray_info spray;
 		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;

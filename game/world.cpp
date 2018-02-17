@@ -157,6 +157,10 @@ void mark::world::tick(
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
 	}
+	m_camera_adsr.tick(context.dt);
+	m_camera_x_lfo.tick(context.dt);
+	m_camera_y_lfo.tick(context.dt);
+
 	{
 		let camera = vmap(m_camera, std::round);
 		let offset = screen_size / 2.0
@@ -203,6 +207,9 @@ void mark::world::tick(
 			make_move_iterator(begin(context.particles)),
 			make_move_iterator(end(context.particles))
 		);
+	}
+	if (context.crit == true) {
+		m_camera_adsr.trigger();
 	}
 
 	if (let camera_target = m_camera_target.lock()) {

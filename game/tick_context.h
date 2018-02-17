@@ -72,6 +72,7 @@ struct tick_context {
 		bool centred = false;
 	};
 	void render(const text_info&);
+	bool crit = false;
 private:
 	resource::manager& m_resource_manager;
 };

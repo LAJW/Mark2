@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "interface_damageable.h"
 #include "command.h"
+#include "lfo.h"
+#include "adsr.h"
 
 namespace mark {
 class world final {
@@ -20,7 +22,11 @@ public:
 	auto resource_manager() -> resource::manager&;
 	void tick(tick_context&, vector<double> screen_size);
 	auto map() const -> const map&;
-	auto camera() const -> vector<double> { return m_camera; }
+	auto camera() const -> vector<double> {
+		return m_camera
+			+ vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get())
+				* std::pow(m_camera_adsr.get(), 3.f) * 10.;
+	}
 
 	template<typename unit_type = unit::base>
 	auto find(
@@ -136,6 +142,9 @@ private:
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	std::unique_ptr<mark::map> m_map;
+	lfo m_camera_x_lfo = lfo(6.f, .5f);
+	lfo m_camera_y_lfo = lfo(10.f, .0f);
+	adsr m_camera_adsr = adsr(0, 1, .5f, .3f);
 	std::vector<std::shared_ptr<unit::base>> m_units;
 	resource::manager& m_resource_manager;
 	std::weak_ptr<unit::base> m_camera_target;

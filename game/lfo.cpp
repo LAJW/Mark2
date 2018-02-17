@@ -12,6 +12,6 @@ void mark::lfo::tick(double dt) {
 	m_phase = std::fmod(m_phase + static_cast<float>(dt), 1 / m_frequency);
 }
 
-auto mark::lfo::get() -> float {
+auto mark::lfo::get() const -> float {
 	return std::sin(m_phase * m_frequency * static_cast<float>(M_PI * 2.0));
 }
