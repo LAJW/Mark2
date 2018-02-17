@@ -20,7 +20,8 @@ private:
 	void tick(tick_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
-	bool m_active = false;
+	enum class state { off, manual, toggled };
+	state m_state = state::off;
 };
 }
 }
