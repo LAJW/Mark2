@@ -8,17 +8,19 @@
 #include "unit_modular.h"
 #include "world.h"
 
+constexpr const auto shield_diameter = 256.f;
+
 mark::module::shield_generator::shield_generator(
 	resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
-	, m_model_shield(rm, 512.f) { }
+	, m_model_shield(rm, shield_diameter) { }
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& resource_manager)
 	: base({ 2, 2 }, resource_manager.image("shield-generator.png"))
 	, m_im_generator(resource_manager.image("shield-generator.png"))
-	, m_model_shield(resource_manager, 512.f) { }
+	, m_model_shield(resource_manager, shield_diameter) { }
 
 void mark::module::shield_generator::tick(tick_context& context)
 {
@@ -88,7 +90,7 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		vector<double>>>
 {
 	if (m_cur_shield > 0.f) {
-		let shield_size = 256.f;
+		let shield_size = shield_diameter / 2.f;
 		if (let intersection = intersect(ray, pos(), shield_size)) {
 			return { {
 				std::ref(static_cast<interface::damageable&>(*this)),

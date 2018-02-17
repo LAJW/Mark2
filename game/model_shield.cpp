@@ -14,7 +14,7 @@ mark::model::shield::shield(resource::manager& rm, float radius)
 void mark::model::shield::tick(tick_context& context, vector<double> pos) {
 	m_lfo.tick(context.dt);
 	m_adsr.tick(context.dt);
-	context.sprites[1].emplace_back([&] {
+	context.sprites[3].emplace_back([&] {
 		let shield_opacity = static_cast<uint8_t>((m_lfo.get() * 0.5f + 0.5f) * 255.f);
 		sprite _;
 		_.image = m_image_shield;
@@ -24,7 +24,7 @@ void mark::model::shield::tick(tick_context& context, vector<double> pos) {
 		return _;
 	}());
 	
-	context.sprites[1].emplace_back([&] {
+	context.sprites[3].emplace_back([&] {
 		let reflection_opacity = static_cast<uint8_t>(m_adsr.get());
 		sprite _;
 		_.image = m_image_reflection;
