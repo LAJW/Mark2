@@ -8,52 +8,64 @@
 #include "unit_modular.h"
 #include "world.h"
 
-constexpr const auto shield_diameter = 256.f;
-
 mark::module::shield_generator::shield_generator(
 	resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
-	, m_model_shield(rm, shield_diameter) { }
+	, m_model_shield(rm, node["radius"].as<float>(default_radius) * 2.f)
+	, m_cur_shield(node["cur_shield"].as<float>())
+	, m_max_shield(node["max_shield"].as<float>())
+	, m_radius(node["radius"].as<float>(default_radius))
+	, m_shield_per_energy(node["shield_per_energy"].as<float>(default_shield_per_energy))
+{ }
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& resource_manager)
 	: base({ 2, 2 }, resource_manager.image("shield-generator.png"))
 	, m_im_generator(resource_manager.image("shield-generator.png"))
-	, m_model_shield(resource_manager, shield_diameter) { }
+	, m_model_shield(resource_manager, m_radius)
+{ }
 
 void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
-	let pos = this->pos();
 	if (m_cur_shield > 0 && m_on) {
-		m_model_shield.tick(context, pos);
+		m_model_shield.tick(context, this->pos());
 	}
 	// Recharge
-	let constexpr recharge_efficiency = 10.f;
 	for (auto& module : this->neighbours()) {
-		if (m_cur_shield < m_max_shield) {
-			m_cur_shield = std::min(
-				m_max_shield,
-				m_cur_shield
-				+ module.first.get().harvest_energy(context.dt)
-					* recharge_efficiency);
-		}
+		if (m_cur_shield >= m_max_shield)
+			break;
+		m_cur_shield = std::min(
+			m_max_shield,
+			m_cur_shield
+			+ module.first.get().harvest_energy(context.dt)
+				* m_shield_per_energy);
 	}
-	sprite info;
-	info.image = m_im_generator;
-	info.pos = pos;
-	info.size = module::size * 2.f;
-	info.rotation = parent().rotation();
-	info.color = this->heat_color();
-	context.sprites[2].emplace_back(info);
+	this->render(context);
+}
 
-	tick_context::bar_info shield_bar;
-	shield_bar.image = parent().world().resource_manager().image("bar.png");
-	shield_bar.pos = pos + vector<double>(0, -module::size * 2);
-	shield_bar.type = tick_context::bar_type::shield;
-	shield_bar.percentage = m_cur_shield / m_max_shield;
-	context.render(shield_bar);
+void mark::module::shield_generator::render(tick_context& context) const
+{
+	let pos = this->pos();
+	let module_size = module::size * 2.f;
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_im_generator;
+		_.pos = pos;
+		_.size = module_size;
+		_.rotation = parent().rotation();
+		_.color = this->heat_color();
+		return _;
+	}());
+	context.render([&] {
+		tick_context::bar_info _;
+		_.image = parent().world().image_bar;
+		_.pos = pos + vector<double>(0, -module_size);
+		_.type = tick_context::bar_type::shield;
+		_.percentage = m_cur_shield / m_max_shield;
+		return _;
+	}());
 }
 
 auto mark::module::shield_generator::damage(
@@ -81,6 +93,9 @@ auto mark::module::shield_generator::describe() const -> std::string
 		<< " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
 	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield))
 		<< " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
+	os << "Radius: " << static_cast<int>(std::ceil(m_radius)) << std::endl;
+	os << "Shield Per Energy: "
+		<< static_cast<int>(std::ceil(m_shield_per_energy)) << std::endl;
 	return os.str();
 }
 
@@ -90,8 +105,7 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		vector<double>>>
 {
 	if (m_cur_shield > 0.f && m_on) {
-		let shield_size = shield_diameter / 2.f;
-		if (let intersection = intersect(ray, pos(), shield_size)) {
+		if (let intersection = intersect(ray, pos(), m_radius)) {
 			return { {
 				std::ref(static_cast<interface::damageable&>(*this)),
 				*intersection } };
@@ -112,6 +126,8 @@ void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 	base::serialise(out);
 	out << Key << "cur_shield" << Value << m_cur_shield;
 	out << Key << "max_shield" << Value << m_max_shield;
+	out << Key << "radius" << Value << m_radius;
+	out << Key << "shield_per_energy" << Value << m_shield_per_energy;
 	out << EndMap;
 }
 

@@ -12,7 +12,7 @@ public:
 
 	shield_generator(resource::manager&, const YAML::Node&);
 	shield_generator(resource::manager& resource_manager);
-	bool damage(const interface::damageable::info&) override;
+	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string;
 	auto collide(const segment_t&) ->
 		std::optional<std::pair<
@@ -24,11 +24,17 @@ public:
 	void command(const command::any& any);
 private:
 	void tick(tick_context& context) override;
+	void render(tick_context& context) const;
 
-	std::shared_ptr<const resource::image> m_im_generator;
+	static constexpr let default_radius = 128.f;
+	static constexpr let default_shield_per_energy = 10.f;
+
+	const std::shared_ptr<const resource::image> m_im_generator;
+	const float m_max_shield = 1000.f;
+	const float m_radius = default_radius;
+	const float m_shield_per_energy = 10.f;
 	model::shield m_model_shield;
 	float m_cur_shield = 1000.f;
-	float m_max_shield = 1000.f;
 	bool m_on = true;
 };
 }
