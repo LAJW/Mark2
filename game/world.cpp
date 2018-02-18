@@ -123,11 +123,17 @@ mark::world::world(
 		let pos = vector<double>(point - map_size / 2) * map::tile_size;
 		if (m_map->traversable(pos, ship_radius)
 			&& this->find(pos, ship_radius * 4.).empty()) {
+			/*
 			auto unit = spawn_ship();
 			unit->pos(pos);
 			unit->ai(true);
-			// m_units.push_back(std::make_shared<unit::minion>(*this, pos));
-			m_units.push_back(move(unit));
+			m_units.push_back(move(unit)); */
+			m_units.push_back(std::make_shared<unit::minion>([&] {
+				unit::minion::info _;
+				_.pos = pos;
+				_.world = this;
+				return _;
+			}()));
 		}
 	}
 	if (initial) {

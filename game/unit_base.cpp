@@ -11,7 +11,7 @@ mark::unit::base_ref::base_ref(mark::world& world)
 	: m_world(world) { }
 
 mark::unit::base::base(const info& info)
-	: base_ref(*info.world), pos(info.pos), team(info.team)
+	: base_ref(*info.world), m_pos(info.pos), m_team(info.team)
 {
 	assert(info.world);
 }
@@ -39,3 +39,16 @@ void mark::unit::base::serialise(YAML::Emitter& out) const {
 	out << Key << "y" << Value << pos().y;
 	out << EndMap;
 }
+
+auto mark::unit::base::pos() const -> vector<double>
+{ return m_pos; }
+
+void mark::unit::base::pos(const vector<double>& value)
+{ m_pos = value; }
+
+auto mark::unit::base::team() const -> size_t
+{ return m_team; }
+
+void mark::unit::base::team(size_t team)
+{ m_team = team; }
+

@@ -3,6 +3,7 @@
 #include "interface_damageable.h"
 #include "property.h"
 #include "command.h"
+#include "interface_world_object.h"
 
 namespace mark {
 namespace unit {
@@ -13,11 +14,11 @@ auto deserialise(
 	std::shared_ptr<unit::base>;
 
 // Part of the unit modifiable by world and nothing else
-class base_ref {
+class base_ref : public interface::world_object {
 public:
-	friend world;
+	friend mark::world;
 	auto world() noexcept -> mark::world&;
-	auto world() const noexcept -> const mark::world&;
+	auto world() const noexcept -> const mark::world& override;
 protected:
 	base_ref(mark::world&);
 	~base_ref() = default;
@@ -39,9 +40,11 @@ public:
 	virtual void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
+	auto pos() const -> vector<double> override final;
+	void pos(const vector<double> &);
+	auto team() const -> size_t final override;
+	void team(size_t);
 
-	Property<int> team = 0;
-	Property<vector<double>> pos;
 	struct info {
 		mark::world* world = nullptr;
 		vector<double> pos;
@@ -50,6 +53,9 @@ public:
 protected:
 	base(const info&);
 	base(mark::world& world, const YAML::Node&);
+private:
+	vector<double> m_pos;
+	size_t m_team;
 };
 }
 }

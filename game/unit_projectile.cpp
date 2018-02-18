@@ -55,7 +55,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 			m_rotation = turn(target->pos() - pos(), m_rotation, turn_speed, dt);
 		}
 	}
-	pos() += step;
+	pos(pos() + step);
 	world::damage_info info;
 	info.context = &context;
 	info.segment = { pos() - step * 1.2, pos() };

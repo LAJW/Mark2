@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "interface_damageable.h"
+#include "interface_world_object.h"
 #include "command.h"
 
 namespace mark {
@@ -45,7 +46,8 @@ private:
 
 class base:
 	public base_ref,
-	public interface::damageable {
+	public interface::damageable,
+	public interface::world_object {
 public:
 	virtual void serialise(YAML::Emitter&) const;
 
@@ -54,7 +56,9 @@ public:
 	virtual ~base();
 
 	// Module's position in the world
-	auto pos() const -> vector<double>;
+	auto pos() const -> vector<double> override;
+
+	auto world() const -> const mark::world& override;
 
 	// Module's image in the inventory
 	auto thumbnail() const -> std::shared_ptr<const resource::image>;
@@ -111,6 +115,9 @@ public:
 
 	// Replenish module's health
 	void heal(float amount);
+
+	// Get team ID, to satisfy world object interface
+	auto team() const -> size_t override final;
 
 protected:
 	base(resource::manager&, const YAML::Node&);

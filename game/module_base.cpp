@@ -222,6 +222,11 @@ auto mark::module::base::pos() const -> vector<double> {
 	return parent().pos() + vector<double>(rotate(pos, parent().rotation()));
 }
 
+auto mark::module::base::world() const -> const mark::world&
+{
+	return parent().world();
+}
+
 auto mark::module::base::thumbnail() const -> std::shared_ptr<const resource::image> {
 	return m_thumbnail;
 }
@@ -256,6 +261,11 @@ auto mark::module::base::needs_healing() const -> bool
 void mark::module::base::heal(float amount)
 {
 	m_cur_health = std::min(m_cur_health + amount, m_max_health);
+}
+
+auto mark::module::base::team() const -> size_t
+{
+	return parent().team();
 }
 
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)

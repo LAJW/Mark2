@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "module_base.h"
+#include "targeting_system.h"
 
 namespace mark {
 namespace module {
@@ -25,16 +26,6 @@ protected:
 	void serialise(YAML::Emitter&) const;
 	// Level of turret's charge (between 0 and 1)
 private:
-	void target(vector<double> pos);
-	void queue(vector<double> pos, bool release);
-
-	// Queued modules to shoot (units with offset) or a world position for
-	// dumb fire
-	using target_type = std::pair<bool, vector<double>>;
-	using queue_type = std::deque<
-		std::pair<
-			std::weak_ptr<unit::base>,
-			vector<double>>>;
-	std::variant<target_type, queue_type> m_target;
+	targeting_system m_targeting_system;
 };
 } }

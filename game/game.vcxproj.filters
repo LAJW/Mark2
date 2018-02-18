@@ -142,6 +142,9 @@
     <ClCompile Include="module_healing_turret.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="targeting_system.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -337,6 +340,12 @@
     </ClInclude>
     <ClInclude Include="module_healing_turret.h">
       <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="targeting_system.h">
+      <Filter>General</Filter>
+    </ClInclude>
+    <ClInclude Include="interface_world_object.h">
+      <Filter>Interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

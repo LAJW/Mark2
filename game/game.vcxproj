@@ -160,6 +160,7 @@
     <ClCompile Include="lfo.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="module_healing_turret.cpp" />
+    <ClCompile Include="targeting_system.cpp" />
     <ClCompile Include="unit_mobile.cpp" />
     <ClCompile Include="model_animated.cpp" />
     <ClCompile Include="model_shield.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="interface_container.h" />
     <ClInclude Include="mode_stack.h" />
     <ClInclude Include="module_healing_turret.h" />
+    <ClInclude Include="targeting_system.h" />
     <ClInclude Include="unit_activable.h" />
     <ClInclude Include="unit_damageable.h" />
     <ClInclude Include="module_base_turret.h" />
@@ -260,6 +262,7 @@
     <ClInclude Include="unit_projectile.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="world.h" />
+    <ClInclude Include="interface_world_object.h" />
     <ClInclude Include="world_stack.h" />
     <ClInclude Include="yaml.h" />
   </ItemGroup>
