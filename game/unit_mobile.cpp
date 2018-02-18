@@ -34,24 +34,23 @@ mark::unit::mobile::mobile(const info& info)
 	, m_moveto(info.moveto ? *info.moveto : info.pos) { }
 
 auto mark::unit::mobile::tick_movement_impl(
-	const double dt,
-	const double max_velocity,
-	const bool ai,
+	const tick_movement_info& info,
 	const bool random_can_pathfind) const
 	-> std::tuple<vector<double>, double, std::vector<vector<double>>, float>
 {
+	let dt = info.dt;
 	let radius = this->radius();
 	let [step, velocity, path_cache, path_age] = [&] {
 		let distance = length(m_moveto - pos());
 		if (distance > m_velocity * dt) {
 			let new_velocity = [&] {
-				auto acceleration = ::acceleration(distance, m_velocity, 500.0);
-				if (max_velocity <= m_velocity) {
+				auto acceleration = ::acceleration(distance, m_velocity, info.acceleration);
+				if (info.max_velocity <= m_velocity) {
 					acceleration = std::abs(acceleration) * -1.0;
 				}
 				return acceleration <= 0.
 					? std::max(0., m_velocity + acceleration * dt)
-					: std::min(max_velocity, m_velocity + acceleration * dt);
+					: std::min(info.max_velocity, m_velocity + acceleration * dt);
 			}();
 			auto [path_cache, path_age] = [&] {
 				if (team() != 1
@@ -81,7 +80,7 @@ auto mark::unit::mobile::tick_movement_impl(
 		}
 	}();
 	let should_stop = [&] {
-		if (ai) {
+		if (info.ai) {
 			let allies = world().find<mobile>(
 				pos(), radius, [this](let& unit) {
 				return unit.team() == this->team();
@@ -115,11 +114,11 @@ auto mark::unit::mobile::tick_movement_impl(
 	return { new_pos, velocity, path_cache, path_age };
 }
 
-void mark::unit::mobile::tick_movement(double dt, double max_velocity, bool ai)
+void mark::unit::mobile::tick_movement(const tick_movement_info& info)
 {
 	let random_can_pathfind = world().resource_manager().random(0, 2);
 	auto [pos, velocity, path, m_path_age]
-		= this->tick_movement_impl(dt, max_velocity, ai, random_can_pathfind);
+		= this->tick_movement_impl(info, random_can_pathfind);
 	m_path_cache = std::move(path);
 	m_path_age = m_path_age;
 	this->pos(pos);

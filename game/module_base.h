@@ -16,6 +16,7 @@ const unsigned max_dimension = 4;
 // stats altering behavior of parent/adjacent modules
 struct modifiers {
 	float velocity = 0.f;
+	float mass = 1.f;
 };
 
 auto deserialise(resource::manager&, const YAML::Node&) ->

@@ -203,7 +203,7 @@ void mark::module::base::on_death(tick_context& context) {
 	context.render(spray);
 }
 
-auto mark::module::base::global_modifiers() const->module::modifiers
+auto mark::module::base::global_modifiers() const -> module::modifiers
 {
 	return module::modifiers();
 }

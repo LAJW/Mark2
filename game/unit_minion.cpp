@@ -37,7 +37,13 @@ void mark::unit::minion::tick(tick_context& context) {
 				}
 			}
 			mobile::command(command::move{ target->pos() });
-			mobile::tick_movement(dt, velocity, true);
+			mobile::tick_movement([&] {
+				mobile::tick_movement_info _;
+				_.ai = true;
+				_.acceleration = 500.;
+				_.max_velocity = velocity;
+				return _;
+			}());
 			m_rotation = turn(
 				normalize(distance), m_rotation, angular_velocity, dt);
 			if (m_gun_cooldown.trigger()) {

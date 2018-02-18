@@ -224,6 +224,7 @@ auto mark::unit::modular::modifiers() const -> module::modifiers
 	for (auto& module : m_modules) {
 		let cur_mod = module->global_modifiers();
 		mods.velocity += cur_mod.velocity;
+		mods.mass += cur_mod.mass;
 	}
 	return mods;
 }
@@ -235,7 +236,15 @@ void mark::unit::modular::tick(tick_context& context)
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);
 	}
-	this->tick_movement(context.dt, (m_ai ? 64.0 : 320.0) + modifiers.velocity, m_ai);
+	this->tick_movement(
+		[&] {
+		tick_movement_info _;
+		_.ai = m_ai;
+		_.max_velocity = m_ai ? 64.0 : 320.0 + modifiers.velocity;
+		_.acceleration = modifiers.mass > 1.f ? 5000.f / modifiers.mass : 500.f;
+		_.dt = context.dt;
+		return _;
+	}());
 	if (m_lookat != pos()) {
 		let turn_speed = m_ai ? 32.f : 360.f;
 		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, context.dt);
