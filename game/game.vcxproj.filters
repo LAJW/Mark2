@@ -145,6 +145,9 @@
     <ClCompile Include="targeting_system.cpp">
       <Filter>General</Filter>
     </ClCompile>
+    <ClCompile Include="module_warp_drive.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="interface_world_object.h">
       <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="module_warp_drive.h">
+      <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@
 #include "module_healing_turret.h"
 #include "module_shield_generator.h"
 #include "module_turret.h"
+#include "module_warp_drive.h"
 
 auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<module::base> {
@@ -34,6 +35,8 @@ auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node) ->
 		return std::make_unique<module::shield_generator>(rm, node);
 	} else if (type == module::turret::type_name) {
 		return std::make_unique<module::turret>(rm, node);
+	} else if (type == module::warp_drive::type_name) {
+		return std::make_unique<module::warp_drive>(rm, node);
 	} else {
 		throw exception("UNKNOWN_MODULE");
 	}
