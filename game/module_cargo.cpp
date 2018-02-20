@@ -66,36 +66,37 @@ void mark::module::cargo::tick(tick_context& context)
 {
 	this->module::base::tick(context);
 	m_lfo.tick(context.dt);
-	auto pos = this->pos();
-	auto light_offset = rotate(vector<double>(24.f, 8.f), parent_rotation());
-	auto light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
-	{
-		sprite info;
-		info.image = m_im_body;
-		info.pos = pos;
-		info.size = 64.f;
-		info.rotation = parent_rotation();
-		info.color = this->heat_color();
-		context.sprites[2].emplace_back(info);
-	}
-	{
-		sprite info;
-		info.image = m_im_light;
-		info.pos = pos + light_offset;
-		info.size = 32.f;
-		info.rotation = parent_rotation();
-		info.color = { 255, 200, 150, light_strength };
-		context.sprites[4].emplace_back(info);
-	}
-	{
-		sprite info;
-		info.image = m_im_light;
-		info.pos = pos + light_offset;
-		info.size = 16.f;
-		info.rotation = parent_rotation();
-		info.color = { 255, 200, 150, light_strength };
-		context.sprites[4].emplace_back(info);
-	}
+	let pos = this->pos();
+	let light_offset = rotate(vector<double>(24.f, 8.f), parent_rotation());
+	let light_strength = static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_im_body;
+		_.pos = pos;
+		_.size = 64.f;
+		_.rotation = parent_rotation();
+		_.color = this->heat_color();
+		return _;
+	}());
+	context.sprites[4].emplace_back([&] {
+		sprite _;
+		_.image = m_im_light;
+		_.pos = pos + light_offset;
+		_.size = 32.f;
+		_.rotation = parent_rotation();
+		_.color = { 255, 200, 150, light_strength };
+		return _;
+	}());
+	context.sprites[4].emplace_back([&] {
+		sprite _;
+		_.image = m_im_light;
+		_.pos = pos + light_offset;
+		_.size = 16.f;
+		_.rotation = parent_rotation();
+		_.color = { 255, 200, 150, light_strength };
+		context.sprites[4].emplace_back(_);
+		return _;
+	}());
 }
 
 auto mark::module::cargo::modules() ->

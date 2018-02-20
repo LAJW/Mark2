@@ -77,49 +77,57 @@ void mark::module::base::tick(tick_context & context) {
 	}
 	if (!this->parent().landed()) {
 		if (health_percentage <= 0.5f) {
-			tick_context::spray_info info;
-			info.image = parent().world().resource_manager().image("glare.png");
-			info.lifespan(.3f, 1.f);
-			info.direction = -45.f;
-			info.cone = 90.f;
-			info.color = { 200, 200, 200, 25 };
-			info.velocity(64.f, 128.f);
-			info.pos = pos;
-			info.diameter(16.f, 32.f);
-			info.count = 4;
-			info.layer = 5;
-			context.render(info);
+			context.render([&] {
+				tick_context::spray_info _;
+				_.image = world().resource_manager().image("glare.png");
+				_.lifespan(.3f, 1.f);
+				_.direction = -45.f;
+				_.cone = 90.f;
+				_.color = { 200, 200, 200, 25 };
+				_.velocity(64.f, 128.f);
+				_.pos = pos;
+				_.diameter(16.f, 32.f);
+				_.count = 4;
+				_.layer = 5;
+				return _;
+			}());
 		} else if (health_percentage <= 0.25f) {
-			tick_context::spray_info info;
-			info.image = parent().world().resource_manager().image("glare.png");
-			info.lifespan(.3f, 1.f);
-			info.direction = -45.f;
-			info.cone = 90.f;
-			info.color = { 0, 0, 0, 75 };
-			info.velocity(64.f, 128.f);
-			info.diameter(16.f, 32.f);
-			info.pos = pos;
-			info.count = 4;
-			info.layer = 5;
-			context.render(info);
+			context.render([&] {
+				tick_context::spray_info _;
+				_.image = world().resource_manager().image("glare.png");
+				_.lifespan(.3f, 1.f);
+				_.direction = -45.f;
+				_.cone = 90.f;
+				_.color = { 0, 0, 0, 75 };
+				_.velocity(64.f, 128.f);
+				_.diameter(16.f, 32.f);
+				_.pos = pos;
+				_.count = 4;
+				_.layer = 5;
+				return _;
+			}());
 		}
 	}
-	sprite shadow_sprite;
-	shadow_sprite.image = m_im_shadow;
-	shadow_sprite.pos = pos;
-	shadow_sprite.rotation = parent().rotation();
-	shadow_sprite.size = module::size * 1.1f * std::max(m_size.y, m_size.x);
-	shadow_sprite.color = { 255, 255, 255, 100 };
-	context.sprites[0].emplace_back(shadow_sprite);
+	context.sprites[0].emplace_back([&] {
+		sprite _;
+		_.image = m_im_shadow;
+		_.pos = pos;
+		_.rotation = parent().rotation();
+		_.size = module::size * 1.1f * std::max(m_size.y, m_size.x);
+		_.color = { 255, 255, 255, 100 };
+		return _;
+	}());
 	if (m_stunned > 0) {
 		m_stun_lfo = std::fmod(m_stun_lfo + static_cast<float>(context.dt), 1.f);
 		m_stunned = std::max(m_stunned - static_cast<float>(context.dt), 0.f);
-		sprite stun_sprite;
-		stun_sprite.image = parent().world().image_stun;
-		stun_sprite.pos = pos;
-		stun_sprite.rotation = m_stun_lfo * 360.f;
-		stun_sprite.size = module::size * 2;
-		context.sprites[3].emplace_back(stun_sprite);
+		context.sprites[3].emplace_back([&] {
+			sprite _;
+			_.image = parent().world().image_stun;
+			_.pos = pos;
+			_.rotation = m_stun_lfo * 360.f;
+			_.size = module::size * 2;
+			return _;
+		}());
 	}
 
 }
@@ -193,14 +201,16 @@ void mark::module::base::command(const command::any&)
 {}
 
 void mark::module::base::on_death(tick_context& context) {
-	tick_context::spray_info spray;
-	spray.image = parent().world().resource_manager().image("explosion.png");
-	spray.pos = pos();
-	spray.velocity(75.f, 150.f);
-	spray.lifespan(0.3f);
-	spray.diameter(24.f);
-	spray.count = 20;
-	context.render(spray);
+	context.render([&] {
+		tick_context::spray_info _;
+		_.image = parent().world().resource_manager().image("explosion.png");
+		_.pos = pos();
+		_.velocity(75.f, 150.f);
+		_.lifespan(0.3f);
+		_.diameter(24.f);
+		_.count = 20;
+		return _;
+	}());
 }
 
 auto mark::module::base::global_modifiers() const -> module::modifiers

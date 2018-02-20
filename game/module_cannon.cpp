@@ -33,32 +33,35 @@ void mark::module::cannon::tick(tick_context& context) {
 		m_rotation = turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	if (this->request_charge()) {
-		std::unordered_set<interface::damageable*> damaged;
-
 		let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get() );
-		let prev = pos;
-		let cur = pos + dir * static_cast<double>(module::size * 200);
-		world::damage_info info;
-		info.context = &context;
-		info.aoe_radius = 0.f;
-		info.piercing = 1;
-		info.segment = { prev, cur };
-		info.damage.damaged = &damaged;
-		info.damage.physical = 100.f * static_cast<float>(context.dt);
-		info.damage.team = parent().team();
-		let collisions = world.damage(info).first;
+		std::unordered_set<interface::damageable*> damaged;
+		let collisions = world.damage([&] {
+			world::damage_info _;
+			_.context = &context;
+			_.aoe_radius = 0.f;
+			_.piercing = 1;
+			let prev = pos;
+			let cur = pos + dir * static_cast<double>(module::size * 200);
+			_.segment = { prev, cur };
+			_.damage.damaged = &damaged;
+			_.damage.physical = 100.f * static_cast<float>(context.dt);
+			_.damage.team = parent().team();
+			return _;
+		}()).first;
 		for (let& collision : collisions) {
-			tick_context::spray_info spray;
-			spray.image = m_im_ray;
-			spray.pos = collision;
-			spray.velocity(25.f, 50.f);
-			spray.lifespan(1.f);
-			spray.diameter(8.f);
-			spray.count = 4;
-			spray.direction = m_rotation + 180.f;
-			spray.cone = 180.f;
-			spray.color = sf::Color::Red;
-			context.render(spray);
+			context.render([&] {
+				tick_context::spray_info _;
+				_.image = m_im_ray;
+				_.pos = collision;
+				_.velocity(25.f, 50.f);
+				_.lifespan(1.f);
+				_.diameter(8.f);
+				_.count = 4;
+				_.direction = m_rotation + 180.f;
+				_.cone = 180.f;
+				_.color = sf::Color::Red;
+				return _;
+			}());
 		}
 		if (!collisions.empty()) {
 			let collision = collisions.back();
@@ -66,24 +69,28 @@ void mark::module::cannon::tick(tick_context& context) {
 			context.lights.push_back({ collision, sf::Color::Red });
 			for (int i = 1; i < len; i++) {
 				let cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
-				sprite ray_sprite;
-				ray_sprite.image = m_im_ray;
-				ray_sprite.pos = collision - dir * cur_len;
-				ray_sprite.size = module::size;
-				ray_sprite.rotation = m_rotation;
-				ray_sprite.color = sf::Color::Red;
-				context.sprites[0].emplace_back(ray_sprite);
+				context.sprites[0].emplace_back([&] {
+					sprite _;
+					_.image = m_im_ray;
+					_.pos = collision - dir * cur_len;
+					_.size = module::size;
+					_.rotation = m_rotation;
+					_.color = sf::Color::Red;
+					return _;
+				}());
 			}
 		} else {
 			for (int i = 1; i < 200; i++) {
 				let cur_len = module::size * static_cast<double>(200);
-				sprite ray_sprite;
-				ray_sprite.image = m_im_ray;
-				ray_sprite.pos = pos + dir * (cur_len + 2.0);
-				ray_sprite.size = module::size;
-				ray_sprite.rotation = m_rotation;
-				ray_sprite.color = sf::Color::Red;
-				context.sprites[0].emplace_back(ray_sprite);
+				context.sprites[0].emplace_back([&] {
+					sprite _;
+					_.image = m_im_ray;
+					_.pos = pos + dir * (cur_len + 2.0);
+					_.size = module::size;
+					_.rotation = m_rotation;
+					_.color = sf::Color::Red;
+					return _;
+				}());
 			}
 		}
 	}

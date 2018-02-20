@@ -16,14 +16,16 @@ void mark::module::energy_generator::tick(tick_context& context) {
 	this->module::base::tick(context);
 	m_cur_energy = std::min(m_cur_energy + m_energy_regen * static_cast<float>(context.dt), m_max_energy);
 	let pos = this->pos();
-	sprite info;
-	info.image = m_image_base;
-	info.pos = pos;
-	info.size = module::size * 2.f;
-	info.rotation = parent_rotation();
-	info.frame = static_cast<uint8_t>(std::round(m_cur_energy / m_max_energy * 4.f));
-	info.color = this->heat_color();
-	context.sprites[2].emplace_back(info);
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image_base;
+		_.pos = pos;
+		_.size = module::size * 2.f;
+		_.rotation = parent_rotation();
+		_.frame = static_cast<uint8_t>(std::round(m_cur_energy / m_max_energy * 4.f));
+		_.color = this->heat_color();
+		return _;
+	}());
 }
 
 auto mark::module::energy_generator::describe() const->std::string {

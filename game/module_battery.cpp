@@ -12,15 +12,17 @@ mark::module::battery::battery(resource::manager& manager) :
 
 void mark::module::battery::tick(tick_context& context) {
 	this -> module::base::tick(context);
-	sprite info;
-	info.image = m_image_base;
-	info.pos = this->pos();
-	info.size = module::size * 2.f;
-	info.rotation = parent_rotation();
-	info.frame = static_cast<uint8_t>(std::round((1.f - m_cur_energy / m_max_energy) * 4.f));
-	info.color = this->heat_color();
-	context.sprites[2].emplace_back(info);
-
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image_base;
+		_.pos = this->pos();
+		_.size = module::size * 2.f;
+		_.rotation = parent_rotation();
+		let frame = (1.f - m_cur_energy / m_max_energy) * 4.f;
+		_.frame = static_cast<uint8_t>(std::round(frame));
+		_.color = this->heat_color();
+		return _;
+	}());
 	for (auto& module : this->neighbours()) {
 		if (m_cur_energy < m_max_energy
 			&& module.first.get().energy_ratio() > this->energy_ratio()) {

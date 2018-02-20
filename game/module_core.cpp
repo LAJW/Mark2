@@ -17,13 +17,15 @@ mark::module::core::core(resource::manager& resource_manager):
 
 void mark::module::core::tick(tick_context& context) {
 	this->module::base::tick(context);
-	sprite info;
-	info.image = m_image;
-	info.pos = this->pos();
-	info.size = 32.f;
-	info.rotation = parent_rotation();
-	info.color = this->heat_color();
-	context.sprites[2].emplace_back(info);
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image;
+		_.pos = this->pos();
+		_.size = 32.f;
+		_.rotation = parent_rotation();
+		_.color = this->heat_color();
+		return _;
+	}());
 }
 
 auto mark::module::core::detachable() const -> bool {

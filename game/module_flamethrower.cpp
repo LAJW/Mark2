@@ -23,41 +23,43 @@ void mark::module::flamethrower::command(const command::any & any)
 void mark::module::flamethrower::tick(tick_context& context) {
 	this->module::base::tick(context);
 	let pos = this->pos();
-
-	{
-		sprite info;
-		info.image = m_image_base;
-		info.pos = pos;
-		info.size = module::size * 2.f;
-		info.rotation = parent().rotation();
-		info.color = this->heat_color();
-		context.sprites[2].emplace_back(info);
-	}
-
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image_base;
+		_.pos = pos;
+		_.size = module::size * 2.f;
+		_.rotation = parent().rotation();
+		_.color = this->heat_color();
+		return _;
+	}());
 	if (m_shoot) {
-		tick_context::spray_info spray_info;
-		spray_info.image = parent().world().resource_manager().image("explosion.png");
-		spray_info.pos = pos;
-		spray_info.lifespan(0.2f, 0.5f);
-		spray_info.diameter(16.f, 64.f);
-		spray_info.direction = parent().rotation();
-		spray_info.cone = 30.f;
-		spray_info.velocity(700.f, 1000.f);
-		spray_info.count = 4;
-		context.render(spray_info);
+		context.render([&] {
+			tick_context::spray_info _;
+			_.image = parent().world().resource_manager().image("explosion.png");
+			_.pos = pos;
+			_.lifespan(0.2f, 0.5f);
+			_.diameter(16.f, 64.f);
+			_.direction = parent().rotation();
+			_.cone = 30.f;
+			_.velocity(700.f, 1000.f);
+			_.count = 4;
+			return _;
+		}());
 
 		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
 			let cur = pos + rotate(vector<double>(300, 0), i + parent().rotation());
-			world::damage_info damage_info;
-			damage_info.context = &context;
-			damage_info.aoe_radius = 0.f;
-			damage_info.piercing = 1;
-			damage_info.segment = { pos, cur };
-			damage_info.damage.damaged = &damaged;
-			damage_info.damage.physical = 200.f * static_cast<float>(context.dt);
-			damage_info.damage.team = parent().team();
-			let collision = parent().world().damage(damage_info);
+			let collision = parent().world().damage([&] {
+				world::damage_info _;
+				_.context = &context;
+				_.aoe_radius = 0.f;
+				_.piercing = 1;
+				_.segment = { pos, cur };
+				_.damage.damaged = &damaged;
+				_.damage.physical = 200.f * static_cast<float>(context.dt);
+				_.damage.team = parent().team();
+				return _;
+			}());
 		}
 	}
 

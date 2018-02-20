@@ -6,26 +6,28 @@
 
 mark::module::engine::engine(resource::manager& manager)
 	: m_image_base(manager.image("engine.png"))
-	, module::base({ 4, 2 }, manager.image("engine.png")) { }
+	, module::base({ 4, 2 }, manager.image("engine.png"))
+{ }
 
 void mark::module::engine::tick(tick_context& context) {
 	this->module::base::tick(context);
 	let pos = this->pos();
-
-	sprite info;
-	info.image = m_image_base;
-	info.pos = pos;
-	info.size = module::size * 4.f;
-	info.rotation = parent_rotation();
-	info.color = this->heat_color();
-	context.sprites[2].emplace_back(info);
+	context.sprites[2].emplace_back([&] {
+		sprite _;
+		_.image = m_image_base;
+		_.pos = pos;
+		_.size = module::size * 4.f;
+		_.rotation = parent_rotation();
+		_.color = this->heat_color();
+		return _;
+	}());
 }
 
-auto mark::module::engine::describe() const->std::string {
-	return "Engine";
-}
+auto mark::module::engine::describe() const -> std::string
+{ return "Engine"; }
 
-auto mark::module::engine::global_modifiers() const->module::modifiers {
+auto mark::module::engine::global_modifiers() const -> module::modifiers
+{
 	module::modifiers mods;
 	if (m_state != state::off) {
 		mods.velocity = 150.f;
@@ -48,9 +50,11 @@ void mark::module::engine::command(const command::any& any)
 
 mark::module::engine::engine(resource::manager& rm, const YAML::Node& node):
 	module::base(rm, node),
-	m_image_base(rm.image("engine.png")) { }
+	m_image_base(rm.image("engine.png"))
+{ }
 
-void mark::module::engine::serialise(YAML::Emitter& out) const {
+void mark::module::engine::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
