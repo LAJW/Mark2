@@ -24,11 +24,7 @@ void mark::module::healing_turret::tick(tick_context& context) {
 		model_size,
 		parent().rotation(),
 		this->heat_color()));
-	// TODO: Pop getting current target into a function, as we're calling it 
-	// twice here in two different ways
-	if (!m_target
-		|| !parent().at(*m_target)
-		|| !parent().at(*m_target)->needs_healing())
+	if (let target = this->target())
 	{
 		let neighbours = [&] {
 			std::unordered_set<mark::module::base*> neighbours;
@@ -58,10 +54,8 @@ void mark::module::healing_turret::tick(tick_context& context) {
 			m_target = (*min_health_neighbour)->grid_pos();
 		}
 	}
-	if (!m_target)
-		return;
-	let target = parent().at(*m_target);
-	if (!target || !target->needs_healing())
+	let target = this->target();
+	if (!target)
 		return;
 	target->heal(static_cast<float>(10. * context.dt));
 	let collision = target->pos();
@@ -97,6 +91,18 @@ void mark::module::healing_turret::tick(tick_context& context) {
 		_.color = sf::Color::Green;
 		return _;
 	});
+}
+
+auto mark::module::healing_turret::target() -> mark::module::base*
+{
+	if (m_stunned || !m_target) {
+		return nullptr;
+	}
+	let target = parent().at(*m_target);
+	if (!target || !target->needs_healing()) {
+		return nullptr;
+	}
+	return target;
 }
 
 std::string mark::module::healing_turret::describe() const {

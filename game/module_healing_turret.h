@@ -20,6 +20,7 @@ public:
 	auto passive() const noexcept -> bool override;
 private:
 	void tick(tick_context& context) override;
+	module::base* target();
 	model::animated m_model;
 	std::shared_ptr<const resource::image> m_im_ray;
 	std::optional<vector<int>> m_target;

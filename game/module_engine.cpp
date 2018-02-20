@@ -29,7 +29,7 @@ auto mark::module::engine::describe() const -> std::string
 auto mark::module::engine::global_modifiers() const -> module::modifiers
 {
 	module::modifiers mods;
-	if (m_state != state::off) {
+	if (!m_stunned && m_state != state::off) {
 		mods.velocity = 150.f;
 	}
 	return mods;

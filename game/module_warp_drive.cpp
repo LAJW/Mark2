@@ -31,7 +31,7 @@ auto mark::module::warp_drive::describe() const->std::string {
 void mark::module::warp_drive::command(const command::any& any)
 {
 	if (let activate = std::get_if<command::activate>(&any)) {
-		if (m_cur_heat > 5.f) {
+		if (this->m_stunned || m_cur_heat > 5.f) {
 			return;
 		}
 		let path = world().map().find_path(

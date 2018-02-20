@@ -32,7 +32,7 @@ void mark::module::flamethrower::tick(tick_context& context) {
 		_.color = this->heat_color();
 		return _;
 	}());
-	if (m_shoot) {
+	if (!m_stunned && m_shoot) {
 		context.render([&] {
 			tick_context::spray_info _;
 			_.image = parent().world().resource_manager().image("explosion.png");

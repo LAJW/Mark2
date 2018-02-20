@@ -29,13 +29,14 @@ mark::module::shield_generator::shield_generator(
 void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
-	if (m_cur_shield > 0 && m_on) {
+	if (!m_stunned && m_cur_shield > 0 && m_on) {
 		m_model_shield.tick(context, this->pos());
 	}
 	// Recharge
 	for (auto& module : this->neighbours()) {
-		if (m_cur_shield >= m_max_shield)
+		if (m_cur_shield >= m_max_shield) {
 			break;
+		}
 		m_cur_shield = std::min(
 			m_max_shield,
 			m_cur_shield
@@ -104,15 +105,15 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
-	if (m_cur_shield > 0.f && m_on) {
-		if (let intersection = intersect(ray, pos(), m_radius)) {
-			return { {
-				std::ref(static_cast<interface::damageable&>(*this)),
-				*intersection } };
-		}
-		return { };
+	if (m_stunned || m_cur_shield <= 0.f || !m_on) {
+		return module::base::collide(ray);
 	}
-	return module::base::collide(ray);
+	if (let intersection = intersect(ray, pos(), m_radius)) {
+		return { {
+			std::ref(static_cast<interface::damageable&>(*this)),
+			*intersection } };
+	}
+	return { };
 }
 
 auto mark::module::shield_generator::shield() const noexcept -> float

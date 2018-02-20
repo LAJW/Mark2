@@ -26,7 +26,7 @@ void mark::module::base_turret::tick()
 
 auto mark::module::base_turret::request_charge() -> bool
 {
-	return m_targeting_system.request_charge();
+	return !m_stunned && m_targeting_system.request_charge();
 }
 
 auto mark::module::base_turret::target() const -> std::optional<vector<double>>
