@@ -4,12 +4,11 @@
 #include "lfo.h"
 #include "model_animated.h"
 #include "module_base.h"
-#include "module_base_turret.h"
 #include "resource_image.h"
 
 namespace mark {
 namespace module {
-class healing_turret final : public module::base_turret {
+class healing_turret final : public module::base {
 public:
 	static constexpr const char* type_name = "module_healing_turret";
 

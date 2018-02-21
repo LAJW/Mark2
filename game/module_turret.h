@@ -2,13 +2,13 @@
 #include <deque>
 #include "stdafx.h"
 #include "adsr.h"
-#include "module_base.h"
 #include "curve.h"
-#include "module_base_turret.h"
+#include "module_base.h"
+#include "targeting_system.h"
 
 namespace mark {
 namespace module {
-class turret final : public module::base_turret {
+class turret final : public module::base {
 public:
 	static constexpr const char* type_name = "module_turret";
 
@@ -78,6 +78,7 @@ public:
 private:
 	void tick(tick_context& context) override;
 
+	targeting_system m_targeting_system;
 	std::shared_ptr<const resource::image> m_image;
 	std::shared_ptr<const resource::image> m_im_orb;
 	size_t     m_image_variant;

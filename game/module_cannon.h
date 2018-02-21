@@ -4,12 +4,12 @@
 #include "lfo.h"
 #include "model_animated.h"
 #include "module_base.h"
-#include "module_base_turret.h"
+#include "targeting_system.h"
 #include "resource_image.h"
 
 namespace mark {
 namespace module {
-class cannon final : public module::base_turret {
+class cannon final : public module::base {
 public:
 	static constexpr const char* type_name = "module_cannon";
 
@@ -23,6 +23,7 @@ private:
 
 	model::animated m_model;
 	std::shared_ptr<const resource::image> m_im_ray;
+	targeting_system m_targeting_system;
 	float m_rotation = 0.f;
 	float m_angular_velocity = 90.f;
 	lfo m_randomiser;

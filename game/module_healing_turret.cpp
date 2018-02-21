@@ -8,7 +8,7 @@
 #include "algorithm.h"
 
 mark::module::healing_turret::healing_turret(resource::manager& rm)
-	: module::base_turret({ 4, 2 }, rm.image("cannon.png"))
+	: module::base({ 4, 2 }, rm.image("cannon.png"))
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
 { }
@@ -24,7 +24,7 @@ void mark::module::healing_turret::tick(tick_context& context) {
 		model_size,
 		parent().rotation(),
 		this->heat_color()));
-	if (let target = this->target())
+	if (!this->target())
 	{
 		let neighbours = [&] {
 			std::unordered_set<mark::module::base*> neighbours;
@@ -113,7 +113,7 @@ std::string mark::module::healing_turret::describe() const {
 // Serialize / Deserialize
 
 mark::module::healing_turret::healing_turret(resource::manager& rm, const YAML::Node& node)
-	: module::base_turret(rm, node)
+	: module::base(rm, node)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
 { }
@@ -123,7 +123,7 @@ void mark::module::healing_turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base_turret::serialise(out);
+	base::serialise(out);
 	out << EndMap;
 }
 

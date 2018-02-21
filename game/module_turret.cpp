@@ -1,6 +1,4 @@
 ﻿#include "stdafx.h"
-#include <sstream>
-#include <optional>
 #include <utility>
 #include "algorithm.h"
 #include "module_turret.h"
@@ -15,8 +13,9 @@
 #include "particle.h"
 
 mark::module::turret::turret(module::turret::info& info):
-	base_turret(vector<unsigned>(info.size),
+	base(vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png")),
+	m_targeting_system(*this),
 	m_image(info.resource_manager->image("turret.png")),
 	m_im_orb(info.resource_manager->image("orb.png")),
 	m_image_variant(info.resource_manager->random(0, 12)),
@@ -56,9 +55,9 @@ void mark::module::turret::tick(tick_context& context) {
 	let fdt = static_cast<float>(dt);
 	m_adsr.tick(dt);
 	let pos = this->pos();
+	m_targeting_system.tick();
 
-	base_turret::tick();
-	if (let target = this->target()) {
+	if (let target = m_targeting_system.target()) {
 		*m_shared_target = *target;
 	}
 
@@ -81,7 +80,7 @@ void mark::module::turret::tick(tick_context& context) {
 		return m_cur_cooldown - fdt;
 	}();
 	if (m_cur_cooldown <= 0.f
-		&& (!m_is_chargeable && this->request_charge()
+		&& (!m_is_chargeable && !m_stunned && m_targeting_system.request_charge()
 			|| m_is_chargeable && !m_is_charging))
 	{
 		m_cur_cooldown = cooldown;
@@ -185,8 +184,9 @@ auto mark::module::turret::describe() const -> std::string {
 	return os.str();
 }
 
-mark::module::turret::turret(resource::manager& rm, const YAML::Node& node):
-	module::base_turret(rm, node),
+mark::module::turret::turret(resource::manager& rm, const YAML::Node& node) :
+	module::base(rm, node),
+	m_targeting_system(*this),
 	m_image(rm.image("turret.png")),
 	m_im_orb(rm.image("orb.png")),
 	m_image_variant(rm.random(0, 11)),
@@ -219,7 +219,7 @@ void mark::module::turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base_turret::serialise(out);
+	base::serialise(out);
 
 	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
 	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
@@ -259,5 +259,5 @@ void mark::module::turret::command(const command::any& any)
 	} else if (std::holds_alternative<command::release>(any)) {
 		m_is_charging = false;
 	}
-	module::base_turret::command(any);
+	m_targeting_system.command(any);
 }
