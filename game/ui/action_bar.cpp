@@ -1,13 +1,13 @@
-﻿#include "stdafx.h"
+﻿#include <stdafx.h>
 #include "action_bar.h"
-#include "world.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "interface_has_bindings.h"
-#include "unit_landing_pad.h"
-#include "module_base.h"
-#include "algorithm.h"
+#include <world.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <interface/has_bindings.h>
+#include <unit/landing_pad.h>
+#include <module/base.h>
+#include <algorithm.h>
 
 mark::ui::action_bar::action_bar(resource::manager& rm)
 	: m_font(rm.image("font.png"))

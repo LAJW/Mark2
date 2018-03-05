@@ -1,11 +1,11 @@
-﻿#include "stdafx.h"
-#include "unit_projectile.h"
-#include "world.h"
-#include "sprite.h"
-#include "resource_manager.h"
-#include "tick_context.h"
+﻿#include <stdafx.h>
+#include "projectile.h"
+#include <world.h>
+#include <sprite.h>
+#include <resource_manager.h>
+#include <tick_context.h>
 #include <assert.h>
-#include "unit_modular.h"
+#include "modular.h"
 
 namespace {
 	static auto validate(const mark::unit::projectile::info& args) {

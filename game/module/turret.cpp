@@ -1,16 +1,16 @@
-﻿#include "stdafx.h"
+﻿#include <stdafx.h>
 #include <utility>
-#include "algorithm.h"
-#include "module_turret.h"
-#include "resource_manager.h"
-#include "resource_image.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "unit_projectile.h"
-#include "unit_modular.h"
-#include "world.h"
-#include "exception.h"
-#include "particle.h"
+#include <algorithm.h>
+#include "turret.h"
+#include <resource_manager.h>
+#include <resource_image.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <unit/projectile.h>
+#include <unit/modular.h>
+#include <world.h>
+#include <exception.h>
+#include <particle.h>
 
 mark::module::turret::turret(module::turret::info& info):
 	base(vector<unsigned>(info.size),

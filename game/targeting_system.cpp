@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "targeting_system.h"
-#include "unit_modular.h"
+#include "unit/modular.h"
 #include "world.h"
 #include "resource_manager.h"
-#include "interface_world_object.h"
+#include "interface/world_object.h"
 
 auto target(
 	const mark::vector<double>& turret_pos,

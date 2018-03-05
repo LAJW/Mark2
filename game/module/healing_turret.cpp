@@ -1,11 +1,11 @@
-#include "stdafx.h"
-#include "module_healing_turret.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "world.h"
-#include "unit_modular.h"
-#include "algorithm.h"
+#include <stdafx.h>
+#include "healing_turret.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <world.h>
+#include <unit/modular.h>
+#include <algorithm.h>
 
 mark::module::healing_turret::healing_turret(resource::manager& rm)
 	: module::base({ 4, 2 }, rm.image("cannon.png"))

@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "ui_node.h"
-#include "ui_window.h"
+#include <stdafx.h>
+#include "node.h"
+#include "window.h"
 
 namespace mark {
 

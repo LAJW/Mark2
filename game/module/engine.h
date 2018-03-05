@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "module_base.h"
+#include <stdafx.h>
+#include "base.h"
 
 namespace mark {
 namespace module {

@@ -1,11 +1,11 @@
-﻿#include "stdafx.h"
-#include "module_flamethrower.h"
-#include "resource_manager.h"
-#include "tick_context.h"
-#include "world.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "unit_modular.h"
+﻿#include <stdafx.h>
+#include "flamethrower.h"
+#include <resource_manager.h>
+#include <tick_context.h>
+#include <world.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <unit/modular.h>
 
 mark::module::flamethrower::flamethrower(resource::manager& manager) :
 	module::base({ 2, 2 }, manager.image("turret.png")),

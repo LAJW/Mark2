@@ -1,12 +1,12 @@
-﻿#include "stdafx.h"
-#include "module_base.h"
-#include "exception.h"
-#include "tick_context.h"
-#include "world.h"
-#include "resource_image.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "unit_modular.h"
+﻿#include <stdafx.h>
+#include "base.h"
+#include <exception.h>
+#include <tick_context.h>
+#include <world.h>
+#include <resource_image.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <unit/modular.h>
 
 mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vector<int>>()) { }

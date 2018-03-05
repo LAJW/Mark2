@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "module_base.h"
-#include "lfo.h"
+#include <stdafx.h>
+#include <lfo.h>
+#include "base.h"
 
 namespace mark {
 namespace module {

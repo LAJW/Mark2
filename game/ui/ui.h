@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "command.h"
+#include <stdafx.h>
+#include <command.h>
 #include "action_bar.h"
-#include "ui_event.h"
-#include "mode_stack.h"
+#include "event.h"
+#include <mode_stack.h>
 
 namespace mark {
 namespace ui {

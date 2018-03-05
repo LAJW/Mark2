@@ -1,16 +1,16 @@
-﻿#include "stdafx.h"
-#include "exception.h"
-#include "module_battery.h"
-#include "module_cannon.h"
-#include "module_cargo.h"
-#include "module_core.h"
-#include "module_energy_generator.h"
-#include "module_engine.h"
-#include "module_flamethrower.h"
-#include "module_healing_turret.h"
-#include "module_shield_generator.h"
-#include "module_turret.h"
-#include "module_warp_drive.h"
+﻿#include <stdafx.h>
+#include <exception.h>
+#include "battery.h"
+#include "cannon.h"
+#include "cargo.h"
+#include "core.h"
+#include "energy_generator.h"
+#include "engine.h"
+#include "flamethrower.h"
+#include "healing_turret.h"
+#include "shield_generator.h"
+#include "turret.h"
+#include "warp_drive.h"
 
 auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node) ->
 	std::unique_ptr<module::base> {

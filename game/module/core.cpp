@@ -1,9 +1,9 @@
-﻿#include "stdafx.h"
-#include "module_core.h"
-#include "resource_manager.h"
-#include "resource_image.h"
-#include "sprite.h"
-#include "tick_context.h"
+﻿#include <stdafx.h>
+#include "core.h"
+#include <resource_manager.h>
+#include <resource_image.h>
+#include <sprite.h>
+#include <tick_context.h>
 
 mark::module::core::core(resource::manager& rm, const YAML::Node& node):
 	module::base(rm, node),

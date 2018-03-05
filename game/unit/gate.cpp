@@ -1,12 +1,12 @@
-﻿#include "stdafx.h"
-#include "unit_gate.h"
-#include "world.h"
-#include "sprite.h"
-#include "resource_manager.h"
-#include "command.h"
-#include "tick_context.h"
-#include "unit_modular.h"
-#include "model_animated.h"
+﻿#include <stdafx.h>
+#include "gate.h"
+#include "modular.h"
+#include <world.h>
+#include <sprite.h>
+#include <resource_manager.h>
+#include <command.h>
+#include <tick_context.h>
+#include <model_animated.h>
 
 constexpr let UNIT_GATE_SIZE = 256.f;
 

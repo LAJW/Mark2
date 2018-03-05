@@ -1,13 +1,13 @@
 ﻿#include "stdafx.h"
 #include <sstream>
-#include "module_cargo.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "exception.h"
-#include "world.h"
-#include "resource_manager.h"
-#include "unit_bucket.h"
-#include "algorithm.h"
+#include "cargo.h"
+#include <sprite.h>
+#include <tick_context.h>
+#include <exception.h>
+#include <world.h>
+#include <resource_manager.h>
+#include <unit/bucket.h>
+#include <algorithm.h>
 
 mark::module::cargo::cargo(resource::manager& resource_manager)
 	: module::base({ 4, 2 }, resource_manager.image("cargo.png"))

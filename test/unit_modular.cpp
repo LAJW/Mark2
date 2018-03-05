@@ -1,11 +1,11 @@
-﻿#include "../game/resource_manager.h"
-#include "../game/exception.h"
-#include "../game/module_core.h"
-#include "../game/module_turret.h"
-#include "../game/tick_context.h"
-#include "../game/unit_modular.h"
-#include "../game/world.h"
-#include "../game/world_stack.h"
+﻿#include <resource_manager.h>
+#include <exception.h>
+#include <module/core.h>
+#include <module/turret.h>
+#include <tick_context.h>
+#include <unit/modular.h>
+#include <world.h>
+#include <world_stack.h>
 #include <catch.hpp>
 
 using namespace mark;

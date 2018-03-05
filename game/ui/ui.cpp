@@ -1,18 +1,18 @@
-﻿#include "stdafx.h"
+﻿#include <stdafx.h>
 #include "ui.h"
-#include "algorithm.h"
-#include "interface_has_bindings.h"
-#include "module_cargo.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "ui_window.h"
-#include "ui_button.h"
-#include "ui_container.h"
-#include "unit_landing_pad.h"
-#include "unit_modular.h"
-#include "world.h"
-#include "world_stack.h"
+#include <algorithm.h>
+#include <interface/has_bindings.h>
+#include <module/cargo.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include "window.h"
+#include "button.h"
+#include "container.h"
+#include <unit/landing_pad.h>
+#include <unit/modular.h>
+#include <world.h>
+#include <world_stack.h>
 
 constexpr let tooltip_size = 300.f;
 constexpr let tooltip_margin = 7.f;

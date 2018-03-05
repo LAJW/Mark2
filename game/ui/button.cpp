@@ -1,9 +1,9 @@
-﻿#include "stdafx.h"
-#include "ui_button.h"
-#include "resource_manager.h"
-#include "tick_context.h"
-#include "ui_window.h"
-#include "sprite.h"
+﻿#include <stdafx.h>
+#include "button.h"
+#include <resource_manager.h>
+#include <tick_context.h>
+#include "window.h"
+#include <sprite.h>
 
 static bool validate(const mark::ui::button::info& info) noexcept
 {

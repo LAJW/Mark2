@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include "interface_damageable.h"
+#include "interface/damageable.h"
 #include "property.h"
 #include "command.h"
-#include "interface_world_object.h"
+#include "interface/world_object.h"
 
 namespace mark {
 namespace unit {

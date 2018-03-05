@@ -1,6 +1,6 @@
-﻿#include "stdafx.h"
-#include "ui_window.h"
-#include "algorithm.h"
+﻿#include <stdafx.h>
+#include "window.h"
+#include <algorithm.h>
 
 mark::ui::window::window(const vector<int>& pos)
 {

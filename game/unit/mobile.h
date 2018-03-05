@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "unit_damageable.h"
+#include "damageable.h"
 
 namespace mark {
 namespace unit {

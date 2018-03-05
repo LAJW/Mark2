@@ -1,10 +1,10 @@
-﻿#include "stdafx.h"
-#include "module_cannon.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "world.h"
-#include "unit_modular.h"
+﻿#include <stdafx.h>
+#include "cannon.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <world.h>
+#include <unit/modular.h>
 
 mark::module::cannon::cannon(resource::manager& rm)
 	: module::base({ 4, 2 }, rm.image("cannon.png"))

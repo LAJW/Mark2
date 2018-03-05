@@ -2,7 +2,7 @@
 #include "world.h"
 #include "world_stack.h"
 #include "exception.h"
-#include "unit_modular.h"
+#include "unit/modular.h"
 
 mark::world_stack::world_stack(
 	const YAML::Node& state_node,

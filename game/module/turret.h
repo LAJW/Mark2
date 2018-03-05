@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include <deque>
-#include "stdafx.h"
-#include "adsr.h"
-#include "curve.h"
-#include "module_base.h"
-#include "targeting_system.h"
+#include <stdafx.h>
+#include <adsr.h>
+#include <curve.h>
+#include "base.h"
+#include <targeting_system.h>
 
 namespace mark {
 namespace module {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include "interface_has_bindings.h"
-#include "unit_activable.h"
+#include "interface/has_bindings.h"
+#include "unit/activable.h"
 
 namespace mark {
 namespace unit {

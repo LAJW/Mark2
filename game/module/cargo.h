@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "exception.h"
-#include "module_base.h"
-#include "resource_image.h"
-#include "lfo.h"
-#include "interface_container.h"
+#include <stdafx.h>
+#include <exception.h>
+#include "base.h"
+#include <resource_image.h>
+#include <lfo.h>
+#include <interface/container.h>
 
 namespace mark {
 namespace module {

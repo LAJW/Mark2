@@ -1,9 +1,9 @@
-﻿#include "stdafx.h"
-#include "module_energy_generator.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "world.h"
+﻿#include <stdafx.h>
+#include "energy_generator.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <world.h>
 
 mark::module::energy_generator::energy_generator(resource::manager& manager) :
 	m_image_base(manager.image("energy-generator.png")),

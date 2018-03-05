@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "interface_damageable.h"
-#include "interface_world_object.h"
-#include "command.h"
+#include <stdafx.h>
+#include <interface/damageable.h>
+#include <interface/world_object.h>
+#include <command.h>
 
 namespace mark {
 namespace module {

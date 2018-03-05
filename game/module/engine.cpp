@@ -1,8 +1,8 @@
-﻿#include "stdafx.h"
-#include "module_engine.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
+﻿#include <stdafx.h>
+#include "engine.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
 
 mark::module::engine::engine(resource::manager& manager)
 	: m_image_base(manager.image("engine.png"))

@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "unit_activable.h"
-#include "model_animated.h"
+#include <stdafx.h>
+#include "activable.h"
+#include <model_animated.h>
 
 namespace mark {
 namespace unit {

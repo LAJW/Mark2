@@ -1,18 +1,18 @@
-﻿#include "stdafx.h"
-#include "unit_modular.h"
-#include "module_base.h"
-#include "module_core.h"
-#include "exception.h"
-#include "sprite.h"
-#include "world.h"
-#include "command.h"
-#include "resource_manager.h"
-#include "tick_context.h"
-#include "module_shield_generator.h"
-#include "module_cargo.h"
-#include "unit_bucket.h"
-#include "algorithm.h"
-#include "unit_activable.h"
+﻿#include <stdafx.h>
+#include "modular.h"
+#include <module/base.h>
+#include <module/core.h>
+#include <exception.h>
+#include <sprite.h>
+#include <world.h>
+#include <command.h>
+#include <resource_manager.h>
+#include <tick_context.h>
+#include <module/shield_generator.h>
+#include <module/cargo.h>
+#include "bucket.h"
+#include <algorithm.h>
+#include "activable.h"
 
 // MODULAR
 

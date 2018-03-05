@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "module_base.h"
-#include "resource_image.h"
+#include <stdafx.h>
+#include "base.h"
+#include <resource_image.h>
 
 namespace mark {
 namespace module {

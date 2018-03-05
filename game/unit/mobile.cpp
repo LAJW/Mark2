@@ -1,9 +1,9 @@
-﻿#include "stdafx.h"
-#include "unit_mobile.h"
-#include "world.h"
-#include "resource_manager.h"
-#include "map.h"
-#include "algorithm.h"
+﻿#include <stdafx.h>
+#include "mobile.h"
+#include <world.h>
+#include <resource_manager.h>
+#include <map.h>
+#include <algorithm.h>
 
 // Calculate acceleration, given current velocity and distance to target
 // Returns negative acceleration (can be greater than supplied acceleration)

@@ -13,10 +13,10 @@
 #include "resource_manager.h"
 #include "sprite.h"
 #include "tick_context.h"
-#include "unit_modular.h"
+#include "unit/modular.h"
 #include "world_stack.h"
 #include "world.h"
-#include "ui.h"
+#include "ui/ui.h"
 
 
 extern "C" {

@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "lfo.h"
-#include "module_base.h"
-#include "model_shield.h"
+#include <stdafx.h>
+#include <lfo.h>
+#include "base.h"
+#include <model_shield.h>
 
 namespace mark {
 namespace module {

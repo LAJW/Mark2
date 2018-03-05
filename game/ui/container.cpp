@@ -1,13 +1,13 @@
-﻿#include "stdafx.h"
-#include "ui_container.h"
-#include "algorithm.h"
-#include "module_cargo.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "ui_button.h"
+﻿#include <stdafx.h>
+#include "container.h"
+#include <algorithm.h>
+#include <module/cargo.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include "button.h"
 #include "ui.h"
-#include "ui_event.h"
+#include "event.h"
 
 mark::ui::container::container(const info& info)
 	: window(info.pos)

@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include "interface_damageable.h"
+#include "interface/damageable.h"
 #include "command.h"
 #include "lfo.h"
 #include "adsr.h"

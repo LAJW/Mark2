@@ -1,8 +1,8 @@
-﻿#include "stdafx.h"
-#include "module_battery.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
+﻿#include <stdafx.h>
+#include "battery.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
 
 mark::module::battery::battery(resource::manager& manager) :
 	m_image_base(manager.image("battery.png")),

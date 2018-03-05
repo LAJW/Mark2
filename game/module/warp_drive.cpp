@@ -1,11 +1,11 @@
-#include "stdafx.h"
-#include "module_warp_drive.h"
-#include "resource_manager.h"
-#include "sprite.h"
-#include "tick_context.h"
-#include "unit_modular.h"
-#include "world.h"
-#include "map.h"
+#include <stdafx.h>
+#include "warp_drive.h"
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <unit/modular.h>
+#include <world.h>
+#include <map.h>
 
 mark::module::warp_drive::warp_drive(resource::manager& manager)
 	: m_image_base(manager.image("engine.png"))
