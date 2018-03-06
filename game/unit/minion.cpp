@@ -39,6 +39,7 @@ void mark::unit::minion::tick(tick_context& context) {
 			mobile::command(command::move{ target->pos() });
 			mobile::tick_movement([&] {
 				mobile::tick_movement_info _;
+				_.dt = dt;
 				_.ai = true;
 				_.acceleration = 500.;
 				_.max_velocity = velocity;
