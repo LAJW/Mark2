@@ -12,7 +12,7 @@ public:
 	map(resource::manager&, const YAML::Node&);
 
 	auto traversable(const vector<double>& pos, double radius) const -> bool;
-	auto map::traversable(
+	auto traversable(
 		const vector<int>& i_pos, const size_t radius) const -> bool;
 
 	void tick(
@@ -53,18 +53,18 @@ private:
 		std::array<bool, 20> traversable;
 		unsigned variant = 0;
 	};
-	auto map::p_traversable(
+	auto p_traversable(
 		const vector<int>& i_pos, const size_t radius) const -> bool;
 
-	static std::string serialize_terrain_type(enum class terrain::type);
-	static enum class terrain::type deserialize_terrain_type(const std::string&);
+	static std::string serialize_terrain_type(enum terrain::type);
+	static enum terrain::type deserialize_terrain_type(const std::string&);
 
 	map(resource::manager&, const vector<size_t>& size);
 
 	auto size() const noexcept -> const vector<size_t>&;
-	auto get(const vector<int>& pos) const noexcept -> enum class terrain::type;
+	auto get(const vector<int>& pos) const noexcept -> enum terrain::type;
 	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
-	void set(const vector<int>& pos, enum class terrain::type) noexcept;
+	void set(const vector<int>& pos, enum terrain::type) noexcept;
 	auto world_to_map(const vector<double>&) const noexcept
 		-> vector<int>;
 	void calculate_traversable();

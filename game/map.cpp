@@ -166,28 +166,27 @@ void mark::map::tick(
 	});
 }
 
-std::string mark::map::serialize_terrain_type(enum class terrain::type t)
-{
-	switch (t) {
-	case terrain::type::null:
-		return "null";
-	case terrain::type::abyss:
-		return "abyss";
-	case terrain::type::floor_1:
-		return "floor_1";
-	case terrain::type::floor_2:
-		return "floor_2";
-	case terrain::type::floor_3:
-		return "floor_3";
-	case terrain::type::wall:
-		return "wall";
-	default:
-		throw std::bad_cast();
-	}
+std::string mark::map::serialize_terrain_type(enum terrain::type t) {
+  switch (t) {
+  case terrain::type::null:
+    return "null";
+  case terrain::type::abyss:
+    return "abyss";
+  case terrain::type::floor_1:
+    return "floor_1";
+  case terrain::type::floor_2:
+    return "floor_2";
+  case terrain::type::floor_3:
+    return "floor_3";
+  case terrain::type::wall:
+    return "wall";
+  default:
+    throw std::bad_cast();
+  }
 }
 
 auto mark::map::deserialize_terrain_type(const std::string& str)
-	-> enum class map::terrain::type
+	-> enum map::terrain::type
 {
 	if (str == "null") {
 		return terrain::type::null;
@@ -222,7 +221,7 @@ auto mark::map::size() const noexcept -> const vector<size_t>&
 }
 
 auto mark::map::get(const vector<int>& pos) const noexcept
-	-> enum class terrain::type
+	-> enum terrain::type
 {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].type;
@@ -241,7 +240,7 @@ auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 }
 
 void mark::map::set(
-	const vector<int>& pos, enum class terrain::type type) noexcept
+	const vector<int>& pos, enum terrain::type type) noexcept
 {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		m_terrain[pos.x + m_size.x * pos.y].type = type;
@@ -383,10 +382,10 @@ static auto has_forced_neighbours(
 	}
 	return
 		!is_diagonal(direction)
-		&& (!map.traversable(next + turn_left(direction), radius)
-			&& map.traversable(next + turn_left(direction) + direction, radius)
-			|| !map.traversable(next + turn_right(direction), radius)
-			&& map.traversable(next + turn_right(direction) + direction, radius));
+		&& ((!map.traversable(next + turn_left(direction), radius)
+			&& map.traversable(next + turn_left(direction) + direction, radius))
+			|| (!map.traversable(next + turn_right(direction), radius)
+			&& map.traversable(next + turn_right(direction) + direction, radius)));
 }
 
 static auto make_direction(const Node& node) -> mark::vector<int>
@@ -626,7 +625,7 @@ mark::map::map(
 	size_t i = 0;
 	auto data = base64_decode(node["data"].as<std::string>());
 	for (let ch : data) {
-		m_terrain[i].type = static_cast<enum class terrain::type>(ch);
+		m_terrain[i].type = static_cast<enum terrain::type>(ch);
 		m_terrain[i].variant = resource_manager.random(0, 2);
 		i++;
 	}

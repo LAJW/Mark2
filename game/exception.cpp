@@ -17,7 +17,10 @@ public:
 	}
 } custom_category;
 
-namespace std {
-std::error_code make_error_code(mark::error::code e)
+namespace mark {
+namespace error {
+std::error_code make_error_code(code e)
 { return std::error_code(static_cast<int>(e), custom_category); }
 }
+}
+

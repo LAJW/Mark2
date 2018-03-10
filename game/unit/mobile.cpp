@@ -55,8 +55,8 @@ auto mark::unit::mobile::tick_movement_impl(
 			auto [path_cache, path_age] = [&] {
 				if (team() != 1
 					&& (m_path_age <= 0.f
-						|| !m_path_cache.empty()
-						&& length(m_path_cache.front() - m_moveto) < radius)
+						|| (!m_path_cache.empty()
+						&& length(m_path_cache.front() - m_moveto) < radius))
 					&& world().map().can_find() && random_can_pathfind) {
 					return std::make_pair(
 						world().map().find_path(pos(), m_moveto, radius),
@@ -79,7 +79,7 @@ auto mark::unit::mobile::tick_movement_impl(
 			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
 	}();
-	let should_stop = [&] {
+	let should_stop = [&, step=step] {
 		if (info.ai) {
 			let allies = world().find<mobile>(
 				pos(), radius, [this](let& unit) {
@@ -96,7 +96,7 @@ auto mark::unit::mobile::tick_movement_impl(
 	}();
 	// If current position is not traversable, go to the nearest traversable,
 	// as pointed by map.find_path, even if next position is not traversable
-	let new_pos = [&] {
+	let new_pos = [&, step=step] {
 		if (should_stop)
 			return pos();
 		if (!world().map().traversable(pos(), radius)

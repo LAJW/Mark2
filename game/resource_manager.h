@@ -10,9 +10,7 @@ namespace mark {
 			virtual auto image(const std::string& filename) ->
 				std::shared_ptr<const resource::image> = 0;
 			template<typename T>
-			T random(T min, T max) {
-				static_assert(false, "manager.random supports only numeric types");
-			};
+			T random(T min, T max);
 		protected:
 			virtual auto random_int(int min, int max) -> int = 0;
 			virtual auto random_double(double min, double max) -> double = 0;

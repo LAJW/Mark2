@@ -13,7 +13,7 @@ public:
 	shield_generator(resource::manager&, const YAML::Node&);
 	shield_generator(resource::manager& resource_manager);
 	auto damage(const interface::damageable::info&) -> bool override;
-	auto describe() const -> std::string;
+	auto describe() const -> std::string override;
 	auto collide(const segment_t&) ->
 		std::optional<std::pair<
 			std::reference_wrapper<interface::damageable>,
@@ -21,7 +21,7 @@ public:
 	auto shield() const noexcept -> float;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
-	void command(const command::any& any);
+	void command(const command::any& any) override;
 private:
 	void tick(tick_context& context) override;
 	void render(tick_context& context) const;

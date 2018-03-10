@@ -309,7 +309,7 @@ auto mark::world::collide(vector<double> center, float radius)
 	return out;
 }
 
-auto mark::world::damage(world::damage_info& info)
+auto mark::world::damage(world::damage_info info)
 	-> std::pair<std::vector<vector<double>>, bool>
 {
 	assert(info.context);

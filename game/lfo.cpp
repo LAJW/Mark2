@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "lfo.h"
 
 mark::lfo::lfo(float frequency, float phase):
