@@ -11,6 +11,7 @@
 #include <world.h>
 #include <exception.h>
 #include <particle.h>
+#include <property_manager.h>
 
 mark::module::turret::turret(module::turret::info& info):
 	base(vector<unsigned>(info.size),
@@ -162,7 +163,8 @@ void mark::module::turret::tick(tick_context& context) {
 	}
 }
 
-auto mark::module::turret::describe() const -> std::string {
+auto mark::module::turret::describe() const -> std::string
+{
 	std::ostringstream os;
 	os << "Turret" << std::endl;
 	os << "Health: " << std::round(m_cur_health) << " of " << std::round(m_max_health) << std::endl;
@@ -184,6 +186,32 @@ auto mark::module::turret::describe() const -> std::string {
 	return os.str();
 }
 
+template<typename T>
+void mark::module::turret::bind(property_manager& property_manager, T& instance)
+{
+	MARK_BIND(rate_of_fire);
+	MARK_BIND(cur_cooldown);
+	MARK_BIND(rotation);
+	MARK_BIND(angular_velocity);
+	MARK_BIND(projectile_count);
+	MARK_BIND(burst_delay);
+	MARK_BIND(guided);
+	MARK_BIND(cone);
+	MARK_BIND(heat_per_shot);
+	MARK_BIND(critical_chance);
+	MARK_BIND(critical_multiplier);
+	MARK_BIND(physical);
+	MARK_BIND(energy);
+	MARK_BIND(heat);
+	MARK_BIND(projectile_angular_velocity);
+	MARK_BIND(velocity);
+	MARK_BIND(aoe_radius);
+	MARK_BIND(seek_radius);
+	MARK_BIND(range);
+	MARK_BIND(piercing);
+	MARK_BIND_DEFAULT(is_chargeable, false);
+}
+
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node) :
 	module::base(rm, node),
 	m_targeting_system(*this),
@@ -191,61 +219,24 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node) :
 	m_im_orb(rm.image("orb.png")),
 	m_image_variant(rm.random(0, 11)),
 	m_adsr(0.1f, 8.f, 0.1f, 0.8f),
-	m_cur_cooldown(node["cur_cooldown"].as<float>()),
-	m_rate_of_fire(node["rate_of_fire"].as<float>()),
-	m_rotation(node["rotation"].as<float>()),
-	m_angular_velocity(node["angular_velocity"].as<float>()),
-	m_projectile_count(node["projectile_count"].as<unsigned>()),
-	m_burst_delay(node["burst_delay"].as<float>()),
-	m_guided(node["guided"].as<bool>()),
-	m_cone(node["cone"].as<float>()),
 	m_cone_curve(curve::deserialise(node["cone_curve"].as<std::string>())),
-	m_heat_per_shot(node["heat_per_shot"].as<float>()),
-	m_critical_chance(node["critical_chance"].as<float>()),
-	m_critical_multiplier(node["critical_multiplier"].as<float>()),
-	m_physical(node["physical"].as<float>()),
-	m_energy(node["energy"].as<float>()),
-	m_heat(node["heat"].as<float>()),
-	m_projectile_angular_velocity(node["projectile_angular_velocity"].as<float>()),
-	m_velocity(node["velocity"].as<float>()),
-	m_aoe_radius(node["aoe_radius"].as<float>()),
-	m_seek_radius(node["seek_radius"].as<float>()),
-	m_range(node["range"].as<float>()),
-	m_piercing(node["piercing"].as<size_t>()),
-	m_is_chargeable(node["is_chargeable"].as<bool>(false))
- { }
+	m_rate_of_fire_curve(curve::deserialise(node["rate_of_fire_curve"].as<std::string>()))
+{
+	property_manager property_manager;
+	bind(property_manager, *this);
+	property_manager.deserialise(node);
+}
 
 void mark::module::turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
-
-	out << Key << "cur_cooldown" << Value << m_cur_cooldown;
-	out << Key << "rate_of_fire" << Value << m_rate_of_fire;
+	property_manager property_manager;
+	bind(property_manager, *this);
+	property_manager.serialise(out);
 	out << Key << "rate_of_fire_curve" << Value << curve::serialise(m_rate_of_fire_curve);
-	out << Key << "rotation" << Value << m_rotation;
-	out << Key << "angular_velocity" << Value << m_angular_velocity;
-	out << Key << "projectile_count" << Value << static_cast<unsigned>(m_projectile_count);
-	out << Key << "burst_delay" << Value << m_burst_delay;
-	out << Key << "guided" << Value << m_guided;
-	out << Key << "cone" << Value << m_cone;
 	out << Key << "cone_curve" << Value << curve::serialise(m_cone_curve);
-	out << Key << "heat_per_shot" << Value << m_heat_per_shot;
-	out << Key << "critical_chance" << Value << m_critical_chance;
-	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
-
-	out << Key << "physical" << Value << m_physical;
-	out << Key << "energy" << Value << m_energy;
-	out << Key << "heat" << Value << m_heat;
-	out << Key << "projectile_angular_velocity" << Value << m_projectile_angular_velocity;
-	out << Key << "velocity" << Value << m_velocity;
-	out << Key << "acceleration" << Value << m_acceleration;
-	out << Key << "aoe_radius" << Value << m_aoe_radius;
-	out << Key << "seek_radius" << Value << m_seek_radius;
-	out << Key << "range" << Value << m_range;
-	out << Key << "piercing" << Value << m_piercing;
-
+	base::serialise(out);
 	out << EndMap;
 }
 
