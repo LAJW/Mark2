@@ -106,7 +106,7 @@ auto mark::intersect(
 		}();
 		if (delta2 <= 0)
 			return { };
-		let[p1, p2] = [&] {
+		let[p1, p2] = [&, delta2=delta2, B=B, A=A] {
 			let delta = std::sqrt(delta2);
 			let x1 = (-B + delta) / (2.0 * A);
 			let x2 = (-B - delta) / (2.0 * A);
@@ -118,12 +118,12 @@ auto mark::intersect(
 			&& p1.y >= ly && p1.y <= uy;
 		const bool p2_in_range = p2.x >= lx && p2.x <= ux
 			&& p2.y >= ly && p2.y <= uy;
-		let p1_closer = [&] {
+		let p1_closer = [&, p1=p1, p2=p2] {
 			let length1 = length(p1 - segment.first);
 			let length2 = length(p2 - segment.first);
 			return length1 < length2;
 		}();
-		if (p1_in_range && (p2_in_range && p1_closer || !p2_in_range)) {
+		if (p1_in_range && ((p2_in_range && p1_closer) || !p2_in_range)) {
 			return p1;
 		} else if (p2_in_range) {
 			return p2;
@@ -145,7 +145,7 @@ auto mark::intersect(
 			let y1_in_range = y1 >= ly && y1 <= uy;
 			let y2_in_range = y2 >= ly && y2 <= uy;
 
-			if (y1_in_range && y2_in_range && length1 < length2 || !y2_in_range) {
+			if ((y1_in_range && y2_in_range && length1 < length2) || !y2_in_range) {
 				return { { x, y1 } };
 			} else if (y2_in_range) {
 				return { { x, y2 } };

@@ -70,8 +70,8 @@ public:
 		size_t piercing = 1;
 	};
 	turret(resource::manager&, const YAML::Node&);
-	turret(module::turret::info&);
-	auto describe() const -> std::string;
+	turret(module::turret::info);
+	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 	void command(const command::any&) override;

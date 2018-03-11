@@ -12,7 +12,7 @@
 #include <exception.h>
 #include <particle.h>
 
-mark::module::turret::turret(module::turret::info& info):
+mark::module::turret::turret(module::turret::info info):
 	base(vector<unsigned>(info.size),
 		info.resource_manager->image("turret-base.png")),
 	m_targeting_system(*this),
@@ -80,8 +80,8 @@ void mark::module::turret::tick(tick_context& context) {
 		return m_cur_cooldown - fdt;
 	}();
 	if (m_cur_cooldown <= 0.f
-		&& (!m_is_chargeable && !m_stunned && m_targeting_system.request_charge()
-			|| m_is_chargeable && !m_is_charging))
+		&& ((!m_is_chargeable && !m_stunned && m_targeting_system.request_charge())
+			|| (m_is_chargeable && !m_is_charging)))
 	{
 		m_cur_cooldown = cooldown;
 		m_adsr.trigger();

@@ -11,7 +11,7 @@ public:
 
 	core(resource::manager&, const YAML::Node&);
 	core(resource::manager& resource_manager);
-	auto detachable() const -> bool;
+	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

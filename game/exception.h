@@ -10,6 +10,9 @@ enum class code {
 	bad_pos,
 	occupied
 };
+
+std::error_code make_error_code(code e);
+
 }
 
 class exception : public std::runtime_error {
@@ -27,6 +30,5 @@ public:
 
 namespace std {
 template<> struct is_error_code_enum<mark::error::code> : public true_type {};
-std::error_code make_error_code(mark::error::code e);
 }
 

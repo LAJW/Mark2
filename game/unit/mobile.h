@@ -6,7 +6,6 @@ namespace unit {
 class mobile : public damageable {
 public:
 	void serialise(YAML::Emitter& out) const override;
-	virtual auto radius() const -> double = 0;
 	void stop();
 protected:
 	void command(const command::any&) override;
@@ -37,7 +36,7 @@ private:
 	//  - new velocity
 	//  - new path
 	//  - new path age
-	auto mark::unit::mobile::tick_movement_impl(
+	auto tick_movement_impl(
 		const tick_movement_info&, bool random_can_pathfind) const
 		->std::tuple<vector<double>, double, std::vector<vector<double>>, float>;
 	double m_velocity = 0.0;

@@ -16,7 +16,7 @@ mark::unit::bucket::bucket(info info)
 	, m_module(std::move(info.module))
 {
 	if (!m_module || m_module->dead()) {
-		throw std::exception("DEAD_MODULE_IN_BUCKET");
+		throw std::runtime_error("DEAD_MODULE_IN_BUCKET");
 	}
 }
 
@@ -24,7 +24,7 @@ void mark::unit::bucket::tick(tick_context& context) {
 	if (this->dead()) { // dead bucket
 		return;
 	}
-	let size = static_cast<float>(m_module->size().y, m_module->size().x) * module::size;
+	let size = static_cast<float>(std::max(m_module->size().y, m_module->size().x)) * module::size;
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {

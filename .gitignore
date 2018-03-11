@@ -6,3 +6,5 @@ state.yml
 .vs
 # Visual Studio Launch options file
 !launch.vs.json
+
+build

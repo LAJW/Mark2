@@ -30,7 +30,7 @@ public:
 	void serialise(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,
-		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
+		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units) override;
 private:
 	projectile(const projectile::info&, bool);
 	void tick(tick_context& context) override;

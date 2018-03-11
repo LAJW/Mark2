@@ -1,9 +1,10 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "interface/damageable.h"
-#include "command.h"
-#include "lfo.h"
 #include "adsr.h"
+#include "command.h"
+#include "interface/damageable.h"
+#include "lfo.h"
+#include "stdafx.h"
+#include "unit/base.h"
 
 namespace mark {
 class world final {
@@ -121,7 +122,7 @@ public:
 	};
 	// Returns pair containing list of collision points and boolean signaling 
 	// whether or not terrain was hit
-	auto damage(world::damage_info&)
+	auto damage(world::damage_info)
 		-> std::pair<std::vector<vector<double>>, bool>;
 	// go to the next map
 	void next();

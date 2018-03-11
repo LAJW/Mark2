@@ -18,6 +18,7 @@
 #include "world.h"
 #include "ui/ui.h"
 
+#ifdef WIN32
 
 extern "C" {
 	// Enable dedicated graphics for NVIDIA
@@ -25,6 +26,8 @@ extern "C" {
 	// Enable dedicated graphics for AMD Radeon
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+
+#endif
 
 void save_world(const mark::world& world, std::string filename)
 {

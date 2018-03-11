@@ -125,7 +125,7 @@ protected:
 	base(vector<unsigned> size,
 		const std::shared_ptr<const resource::image>& thumbnail);
 
-	virtual void tick(tick_context& context);
+	void tick(tick_context& context) override;
 
 	auto heat_color() const -> sf::Color;
 	// serialise module::base properties, call only from module serializers
