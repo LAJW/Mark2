@@ -409,3 +409,6 @@ void mark::world::serialise(YAML::Emitter& out) const
 
 	out << EndMap;
 }
+
+auto mark::world::templates() const -> const std::unordered_map<std::string, YAML::Node>&
+{ return m_stack->templates(); }

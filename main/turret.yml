@@ -1,0 +1,40 @@
+type: module_turret
+cur_health: 100
+max_health:
+  min: 200
+  max: 300
+stunned: 0
+cur_heat: 0
+size:
+  x: 2
+  y: 2
+grid_pos:
+  x: -3
+  y: -3
+thumbnail: turret-base.png
+target:
+  x: -1882.34687744313
+  y: -417.9326665221182
+cur_cooldown: -0.1
+rate_of_fire: 10
+rate_of_fire_curve: flat
+rotation: 1.669093
+angular_velocity: 360
+projectile_count: 1
+burst_delay: 0
+guided: true
+cone: 10
+cone_curve: linear
+heat_per_shot: 2
+critical_chance: 0.1
+critical_multiplier: 1.5
+physical: 10
+energy: 10
+heat: 1
+projectile_angular_velocity: 30
+velocity: 1000
+acceleration: 100
+aoe_radius: 0
+seek_radius: 0
+range: 2000
+piercing: 1
