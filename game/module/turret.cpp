@@ -222,7 +222,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node) :
 	m_cone_curve(curve::deserialise(node["cone_curve"].as<std::string>())),
 	m_rate_of_fire_curve(curve::deserialise(node["rate_of_fire_curve"].as<std::string>()))
 {
-	property_manager property_manager;
+	property_manager property_manager(rm);
 	bind(property_manager, *this);
 	property_manager.deserialise(node);
 }

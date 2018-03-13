@@ -18,9 +18,13 @@ namespace mark {
 			virtual auto random_double(double min, double max) -> double = 0;
 		};
 		template<>
+		auto manager::random<bool>(bool min, bool max) -> bool;
+		template<>
 		auto manager::random<int>(int min, int max) -> int;
 		template<>
 		auto manager::random<unsigned>(unsigned min, unsigned max) -> unsigned;
+		template<>
+		auto manager::random<size_t>(size_t min, size_t max) -> size_t;
 		template<>
 		auto manager::random<double>(double min, double max) -> double;
 		template<>

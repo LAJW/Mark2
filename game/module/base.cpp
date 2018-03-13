@@ -295,7 +295,7 @@ mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 	, m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png")))
 	, m_im_shadow(rm.image(size_to_image_file_name(node["size"].as<vector<unsigned>>())))
 {
-	property_manager property_manager;
+	property_manager property_manager(rm);
 	bind(property_manager, *this);
 	property_manager.deserialise(node);
 }
