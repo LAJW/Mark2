@@ -1,5 +1,6 @@
 ﻿#include <stdafx.h>
 #include "base.h"
+#include <any>
 #include <exception.h>
 #include <tick_context.h>
 #include <world.h>
@@ -7,6 +8,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <unit/modular.h>
+#include <property_manager.h>
 
 mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vector<int>>()) { }
@@ -245,7 +247,7 @@ auto mark::module::base::size() const -> vector<unsigned> {
 	return m_size;
 }
 
-// Serializer / Deserializer
+// Serialiser / Deserialiser
 
 static auto size_to_image_file_name(const mark::vector<unsigned>& size) -> std::string
 {
@@ -278,28 +280,33 @@ auto mark::module::base::team() const -> size_t
 	return parent().team();
 }
 
+template<typename property_manager, typename T>
+void mark::module::base::bind(property_manager& property_manager, T& instance)
+{
+	MARK_BIND(cur_health);
+	MARK_BIND(max_health);
+	MARK_BIND(stunned);
+	MARK_BIND(cur_heat);
+	MARK_BIND(size);
+}
+
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 	: base_ref(node)
-	, m_cur_health(node["cur_health"].as<float>())
-	, m_max_health(node["max_health"].as<float>())
-	, m_stunned(node["stunned"].as<float>())
-	, m_cur_heat(node["cur_heat"].as<float>())
-	, m_size(node["size"].as<vector<unsigned>>())
 	, m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png")))
-	, m_im_shadow(rm.image(size_to_image_file_name(node["size"].as<vector<unsigned>>()))) { }
+	, m_im_shadow(rm.image(size_to_image_file_name(node["size"].as<vector<unsigned>>())))
+{
+	property_manager property_manager(rm);
+	bind(property_manager, *this);
+	property_manager.deserialise(node);
+}
 
 void mark::module::base::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
-	out << Key << "cur_health" << Value << m_cur_health;
-	out << Key << "max_health" << Value << m_max_health;
-	out << Key << "stunned" << Value << m_stunned;
-	out << Key << "cur_heat" << Value << m_cur_heat;
 
-	out << Key << "size" << Value << BeginMap;
-	out << Key << "x" << m_size.x;
-	out << Value << "y" << m_size.y;
-	out << EndMap;
+	property_serialiser serialiser;
+	bind(serialiser, *this);
+	serialiser.serialise(out);
 
 	base_ref::serialise(out);
 

@@ -5,6 +5,9 @@
 #include <command.h>
 
 namespace mark {
+
+class property_manager;
+
 namespace module {
 
 // grid size - width/height of an 1x1 module
@@ -135,6 +138,11 @@ protected:
 
 	auto world() noexcept -> mark::world&;
 
+private:
+	template<typename property_manager, typename T>
+	static void bind(property_manager& mgr, T& instance);
+
+protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;
 	float m_stunned = 0.f;
@@ -142,7 +150,7 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
-	const vector<unsigned> m_size;
+	vector<unsigned> m_size;
 	float m_stun_lfo;
 };
 }

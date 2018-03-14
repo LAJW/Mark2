@@ -128,6 +128,7 @@ public:
 	void next();
 	void prev();
 	void serialise(YAML::Emitter& out) const;
+	auto templates() const -> const std::unordered_map<std::string, YAML::Node>&;
 
 	const std::shared_ptr<const resource::image> image_bar;
 	const std::shared_ptr<const resource::image> image_font;

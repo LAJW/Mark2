@@ -77,6 +77,8 @@ public:
 	void command(const command::any&) override;
 private:
 	void tick(tick_context& context) override;
+	template<typename property_manager, typename T>
+	static void bind(property_manager& mgr, T& instance);
 
 	targeting_system m_targeting_system;
 	std::shared_ptr<const resource::image> m_image;
@@ -88,7 +90,7 @@ private:
 
 	float      m_cur_cooldown = 0;
 	float      m_rate_of_fire = 1.f;
-	const bool m_is_chargeable = false; // Is this turret chargeable
+	bool       m_is_chargeable = false; // Is this turret chargeable
 	bool       m_is_charging = false; // Is this turret currently charging
 	curve::ptr m_rate_of_fire_curve = curve::flat;
 	float      m_rotation = 0.f;

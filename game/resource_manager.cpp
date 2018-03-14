@@ -36,7 +36,10 @@ auto mark::resource::manager_stub::random_int(int min, int max) -> int {
 auto mark::resource::manager_stub::random_double(double min, double max) -> double {
 	return (max - min) / 2 + min;
 }
-
+template<>
+auto mark::resource::manager::random<bool>(bool min, bool max) -> bool {
+	return this->random_int(min, max);
+}
 template<>
 auto mark::resource::manager::random<int>(int min, int max) -> int {
 	return this->random_int(min, max);
@@ -45,6 +48,10 @@ auto mark::resource::manager::random<int>(int min, int max) -> int {
 template<>
 auto mark::resource::manager::random<unsigned>(unsigned min, unsigned max) -> unsigned {
 	return static_cast<unsigned>(this->random_int(min, max));
+}
+template<>
+auto mark::resource::manager::random<size_t>(size_t min, size_t max) -> size_t {
+	return static_cast<size_t>(this->random_int(min, max));
 }
 template<>
 auto mark::resource::manager::random<double>(double min, double max) -> double {

@@ -119,6 +119,7 @@ void mark::main(std::vector<std::string> args)
 	mark::resource::manager_impl rm;
 	std::unordered_map<std::string, YAML::Node> templates;
 	templates["ship"] = YAML::LoadFile("ship.yml");
+	templates["turret"] = YAML::LoadFile("turret.yml");
 	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
 	mark::ui::ui ui(rm, stack, world_stack);
 	let options = YAML::LoadFile("options.yml");

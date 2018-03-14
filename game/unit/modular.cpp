@@ -631,9 +631,29 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	for (let& module_node : node["modules"]) {
 		let module_pos = module_node["grid_pos"].as<vector<int>>();
 		let id = module_node["id"].as<uint64_t>();
-		auto module = module::deserialise(
-			world.resource_manager(), module_node);
-		if (this->p_attach(module_pos, module) != error::code::success) {
+		auto module = [&] {
+			let template_node = module_node["template"];
+			auto& rm = world.resource_manager();
+			if (!template_node) {
+				return module::deserialise(rm, module_node);
+			}
+			let template_id = [&] {
+				if (template_node.IsSequence()) {
+					if (template_node.size() == 0) {
+						throw std::runtime_error("Empty template selection");
+					}
+					let index = rm.random<size_t>(0, template_node.size() - 1);
+					return template_node[index].as<std::string>();
+				}
+				return template_node.as<std::string>();
+			}();
+			auto properties = world.templates().at(template_id);
+			for (let& property : module_node) {
+				properties[property.first] = property.second;
+			}
+			return module::deserialise(rm, properties);
+		}();
+		if (this->p_attach(module_pos, move(module)) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
 		}
 		id_map.insert({ id, *m_modules.back() });
