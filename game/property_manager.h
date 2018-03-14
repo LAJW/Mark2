@@ -8,24 +8,14 @@
 
 namespace mark {
 
-template<typename T>
-auto any_ref_cast(std::any any_ref) -> T&
-{ return std::any_cast<std::reference_wrapper<T>>(any_ref).get(); }
-
-template<typename T>
-struct property_serialise {
-	static void serialise(YAML::Emitter& out, std::any value_ref)
-	{
-		out << any_ref_cast<const T>(value_ref);
-	}
-};
-
-template<typename T>
-struct property_deserialise {
+class property_manager
+{
+private:
+	template<typename T>
 	static void deserialise(
 		std::any value_ref, const YAML::Node& node, resource::manager& rm)
 	{
-		auto& result = any_ref_cast<T>(value_ref);
+		auto& result = std::any_cast<std::reference_wrapper<T>>(value_ref).get();
 		result = [&] {
 			if (node && node.IsSequence()) {
 				const auto index = rm.random(size_t(0), node.size() - 1);
@@ -41,36 +31,6 @@ struct property_deserialise {
 			return node.as<T>(result);
 		}();
 	}
-};
-
-template<>
-struct property_serialise<vector<unsigned>> {
-	static void serialise(YAML::Emitter& out, std::any value_ref)
-	{
-		using namespace YAML;
-		const auto& vector = any_ref_cast<const mark::vector<unsigned>>(value_ref);
-		out << BeginMap;
-		out << Key << "x" << vector.x;
-		out << Value << "y" << vector.y;
-		out << EndMap;
-	}
-};
-
-template<>
-struct property_deserialise<vector<unsigned>> {
-	static void deserialise(
-		std::any value_ref,
-		const YAML::Node& node,
-		resource::manager& rm)
-	{
-		auto& result = any_ref_cast<vector<unsigned>>(value_ref);
-		result = node.as<vector<unsigned>>(result);
-	}
-};
-
-class property_manager
-{
-private:
 	struct property_config
 	{
 		std::any value_ref;
@@ -84,7 +44,7 @@ public:
 	{
 		static_assert(!std::is_const_v<T>, "Value must be mutable");
 		property_config config;
-		config.deserialise = property_deserialise<T>::deserialise;
+		config.deserialise = deserialise<T>;
 		config.value_ref = std::ref(value_ref);
 		m_properties[key] = std::move(config);
 	}
@@ -100,14 +60,18 @@ private:
 	struct property_config
 	{
 		std::any value_ref;
-		std::function<void(YAML::Emitter&, std::any)> serialise;
+		std::function<YAML::Node(std::any)> serialise;
 	};
 public:
 	template<typename T>
 	void bind(std::string key, const T& value_ref, std::any = { })
 	{
 		property_config config;
-		config.serialise = property_serialise<T>::serialise;
+		config.serialise = [](std::any value_ref) {
+			return YAML::Node(
+				std::any_cast<std::reference_wrapper<const T>>(
+					value_ref).get());
+		};
 		config.value_ref = std::ref(value_ref);
 		m_properties[key] = std::move(config);
 	}

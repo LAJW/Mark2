@@ -18,7 +18,6 @@ void mark::property_serialiser::serialise(YAML::Emitter& out)
 {
 	using namespace YAML;
 	for (const auto[key, config] : m_properties) {
-		out << Key << key << Value;
-		config.serialise(out, config.value_ref);
+		out << Key << key << Value << config.serialise(config.value_ref);
 	}
 }
