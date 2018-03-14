@@ -10,7 +10,7 @@ void mark::property_manager::deserialise(const YAML::Node& node)
 {
 	assert(m_rm);
 	for (const auto[key, config] : m_properties) {
-		config.deserialise(config.value_ref, node[key], config.default_value, m_rm);
+		config.deserialise(config.value_ref, node[key], m_rm);
 	}
 }
 

@@ -209,7 +209,7 @@ void mark::module::turret::bind(property_manager& property_manager, T& instance)
 	MARK_BIND(seek_radius);
 	MARK_BIND(range);
 	MARK_BIND(piercing);
-	MARK_BIND_DEFAULT(is_chargeable, false);
+	MARK_BIND(is_chargeable);
 }
 
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node) :

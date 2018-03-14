@@ -5,7 +5,6 @@
 #include "resource_manager.h"
 
 #define MARK_BIND(name) property_manager.bind(#name, instance.m_##name);
-#define MARK_BIND_DEFAULT(name, default_value) property_manager.bind(#name, instance.m_##name, default_value);
 
 namespace mark {
 
@@ -24,12 +23,10 @@ struct property_serialise {
 template<typename T>
 struct property_deserialise {
 	static void deserialise(
-		std::any value_ref,
-		const YAML::Node& node,
-		std::any default_value,
-		resource::manager& rm)
+		std::any value_ref, const YAML::Node& node, resource::manager& rm)
 	{
-		any_ref_cast<T>(value_ref) = [&] {
+		auto& result = any_ref_cast<T>(value_ref);
+		result = [&] {
 			if (node && node.IsSequence()) {
 				const auto index = rm.random(size_t(0), node.size() - 1);
 				return node[index].as<T>();
@@ -41,10 +38,7 @@ struct property_deserialise {
 					return rm.random(min, max);
 				}
 			}
-			if (default_value.has_value()) {
-				return node.as<T>(std::any_cast<T>(default_value));
-			}
-			return node.as<T>();
+			return node.as<T>(result);
 		}();
 	}
 };
@@ -67,15 +61,10 @@ struct property_deserialise<vector<unsigned>> {
 	static void deserialise(
 		std::any value_ref,
 		const YAML::Node& node,
-		std::any default_value,
 		resource::manager& rm)
 	{
-		if (default_value.has_value()) {
-			const auto default_vec = std::any_cast<mark::vector<unsigned>>(default_value);
-			any_ref_cast<vector<unsigned>>(value_ref) = node.as<vector<unsigned>>(default_vec);
-		} else {
-			any_ref_cast<vector<unsigned>>(value_ref) = node.as<vector<unsigned>>();
-		}
+		auto& result = any_ref_cast<vector<unsigned>>(value_ref);
+		result = node.as<vector<unsigned>>(result);
 	}
 };
 
@@ -85,25 +74,11 @@ private:
 	struct property_config
 	{
 		std::any value_ref;
-		std::any default_value;
 		std::function<void(
-			std::any,
-			const YAML::Node&,
-			std::any,
-			resource::manager&)> deserialise;
+			std::any, const YAML::Node&, resource::manager&)> deserialise;
 	};
 public:
 	property_manager(resource::manager&);
-	template<typename T>
-	void bind(std::string key, T& value_ref, std::any default_value)
-	{
-		static_assert(!std::is_const_v<T>, "Value must be mutable");
-		property_config config;
-		config.deserialise = property_deserialise<T>::deserialise;
-		config.value_ref = std::ref(value_ref);
-		config.default_value = move(default_value);
-		m_properties[key] = std::move(config);
-	}
 	template<typename T>
 	void bind(std::string key, T& value_ref)
 	{
