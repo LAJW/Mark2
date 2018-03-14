@@ -1,15 +1,17 @@
 ﻿#include "bucket.h"
-#include <stdafx.h>
 #include <exception.h>
-#include <sprite.h>
-#include <tick_context.h>
-#include <module/base.h>
-#include <world.h>
 #include <map.h>
+#include <module/base.h>
+#include <sprite.h>
+#include <stdafx.h>
+#include <tick_context.h>
+#include <world.h>
 
-mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node):
-	unit::base(world, node),
-	m_module(module::deserialise(world.resource_manager(), node["module"])) { }
+mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
+	: unit::base(world, node)
+	, m_module(module::deserialise(world.resource_manager(), node["module"]))
+{
+}
 
 mark::unit::bucket::bucket(info info)
 	: unit::base(info)
@@ -20,11 +22,14 @@ mark::unit::bucket::bucket(info info)
 	}
 }
 
-void mark::unit::bucket::tick(tick_context& context) {
+void mark::unit::bucket::tick(tick_context& context)
+{
 	if (this->dead()) { // dead bucket
 		return;
 	}
-	let size = static_cast<float>(std::max(m_module->size().y, m_module->size().x)) * module::size;
+	let size =
+		static_cast<float>(std::max(m_module->size().y, m_module->size().x)) *
+		module::size;
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
@@ -38,7 +43,8 @@ void mark::unit::bucket::tick(tick_context& context) {
 		}
 		if (diff == vector<double>(0, 0)) {
 			m_direction = context.random<float>(-180.f, 180.f);
-		} else {
+		}
+		else {
 			m_direction = static_cast<float>(atan(diff));
 		}
 		let ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);
@@ -53,22 +59,23 @@ void mark::unit::bucket::tick(tick_context& context) {
 	context.sprites[1].emplace_back(info);
 }
 
-auto mark::unit::bucket::dead() const -> bool {
-	return m_module == nullptr;
-}
+auto mark::unit::bucket::dead() const -> bool { return m_module == nullptr; }
 
-auto mark::unit::bucket::release() -> std::unique_ptr<module::base> {
+auto mark::unit::bucket::release() -> std::unique_ptr<module::base>
+{
 	return std::move(m_module);
 }
 
-void mark::unit::bucket::insert(std::unique_ptr<module::base> module) {
+void mark::unit::bucket::insert(std::unique_ptr<module::base> module)
+{
 	if (m_module) {
 		throw exception("BUCKET_FULL");
 	}
 	m_module = std::move(module);
 }
 
-void mark::unit::bucket::serialise(YAML::Emitter& out) const {
+void mark::unit::bucket::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::bucket::type_name;

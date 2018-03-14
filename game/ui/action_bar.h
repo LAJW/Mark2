@@ -12,10 +12,11 @@ public:
 		resource::manager& rm,
 		vector<double> resolution,
 		vector<double> mouse_pos_);
+
 private:
 	const std::shared_ptr<const resource::image> m_hotbar_bg;
 	const std::shared_ptr<const resource::image> m_hotbar_overlay;
 	const std::shared_ptr<const resource::image> m_font;
 };
-}
-}
+} // namespace ui
+} // namespace mark

@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <stdafx.h>
-#include "node.h"
 #include "event.h"
+#include "node.h"
+#include <stdafx.h>
 
 namespace mark {
 namespace ui {
@@ -32,6 +32,7 @@ public:
 
 	auto pos() const noexcept -> vector<int> override;
 	auto size() const noexcept -> vector<int> override;
+
 private:
 	button(const info&, bool);
 	void render(tick_context&);
@@ -45,5 +46,5 @@ private:
 	double m_opacity = .0;
 	bool m_hovering = false;
 };
-
-} }
+} // namespace ui
+} // namespace mark

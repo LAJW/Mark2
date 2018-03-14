@@ -20,11 +20,11 @@ void render(
 		let scale = sprite->size / texture_size;
 		tmp.setTexture(sprite->image->texture());
 		if (sprite->frame != mark::sprite::all) {
-			tmp.setTextureRect({
-				static_cast<int>(texture_size) * static_cast<int>(sprite->frame),
-				0,
-				static_cast<int>(texture_size),
-				static_cast<int>(texture_size) });
+			tmp.setTextureRect({static_cast<int>(texture_size) *
+									static_cast<int>(sprite->frame),
+								0,
+								static_cast<int>(texture_size),
+								static_cast<int>(texture_size)});
 			tmp.scale(scale, scale);
 		}
 		if (sprite->centred) {
@@ -32,12 +32,12 @@ void render(
 		}
 		tmp.rotate(sprite->rotation);
 		tmp.setColor(sprite->color);
-		let offset = sprite->world
-			? sprite->pos - camera + resolution / 2.
-			: sprite->pos;
+		let offset = sprite->world ? sprite->pos - camera + resolution / 2.
+								   : sprite->pos;
 		tmp.move(vector<float>(offset));
 		buffer.draw(tmp);
-	} else if (let path = std::get_if<mark::path>(&any)) {
+	}
+	else if (let path = std::get_if<mark::path>(&any)) {
 		std::vector<sf::Vertex> points;
 		if (path->points.size() <= 1) {
 			return;
@@ -49,7 +49,8 @@ void render(
 				points.push_back(sf::Vertex(vector<float>(cur - camera)));
 				points.push_back(sf::Vertex(vector<float>(next - camera)));
 			}
-		} else {
+		}
+		else {
 			for (size_t i = 0; i < path->points.size() - 1; ++i) {
 				let cur = path->points[i];
 				let next = path->points[i + 1];
@@ -58,7 +59,8 @@ void render(
 			}
 		}
 		buffer.draw(points.data(), points.size(), sf::Lines);
-	} else if (let rect = std::get_if<mark::rectangle>(&any)) {
+	}
+	else if (let rect = std::get_if<mark::rectangle>(&any)) {
 		sf::RectangleShape rectangle;
 		rectangle.setPosition(sf::Vector2f(rect->pos));
 		rectangle.setSize(sf::Vector2f(rect->size));
@@ -109,17 +111,17 @@ sf::Sprite mark::renderer::render(const render_info& info)
 		m_ui_layer = std::make_unique<sf::RenderTexture>();
 		m_ui_layer->create(res.x, res.y);
 	}
-	m_shadows_shader.setUniform("shadow_resolution", static_cast<float>(shadow_res));
+	m_shadows_shader.setUniform(
+		"shadow_resolution", static_cast<float>(shadow_res));
 	m_shadows_shader.setUniform("resolution", sf::Glsl::Vec2(resolution));
 	m_bump_mapping.setUniform("resolution", sf::Glsl::Vec2(resolution));
 	m_occlusion_shader.setUniform("shadow_res", static_cast<float>(shadow_res));
-	m_buffer->clear({ 0, 0, 0, 0 });
+	m_buffer->clear({0, 0, 0, 0});
 	m_buffer2->clear();
-	m_ui_layer->clear({ 0, 0, 0, 0 });
+	m_ui_layer->clear({0, 0, 0, 0});
 	m_vbo->clear(sf::Color::White);
 	m_occlusion_map->clear();
-	m_normal_map->clear({ 0x7E, 0x7E, 0xFF, 0xFF }); // normal flat surface
-
+	m_normal_map->clear({0x7E, 0x7E, 0xFF, 0xFF}); // normal flat surface
 
 	std::vector<sf::Glsl::Vec2> lights_pos;
 	std::vector<sf::Glsl::Vec4> lights_color;
@@ -127,27 +129,28 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	for (let& pair : info.lights) {
 		let pos = pair.first - camera;
 		let color = pair.second;
-		if (pos.x >= -resolution.x / 2.0 - 160.0 && pos.x <= resolution.x / 2.0 + 160.0
-			&& pos.y >= -resolution.y / 2.0 - 160.0 && pos.y <= resolution.y / 2.0 + 160.0) {
+		if (pos.x >= -resolution.x / 2.0 - 160.0 &&
+			pos.x <= resolution.x / 2.0 + 160.0 &&
+			pos.y >= -resolution.y / 2.0 - 160.0 &&
+			pos.y <= resolution.y / 2.0 + 160.0) {
 			lights_color.push_back(color);
 			lights_pos.push_back(vector<float>(pos));
 		}
 	}
-	let lights_count = std::min(
-		lights_pos.size(),
-		static_cast<size_t>(64)
-	);
+	let lights_count = std::min(lights_pos.size(), static_cast<size_t>(64));
 
 	for (let& layer : info.sprites) {
 		if (layer.first < 0) {
 			for (let& sprites : layer.second) {
 				::render(sprites, camera, *m_occlusion_map, resolution);
 			}
-		} else if (layer.first < 100) {
+		}
+		else if (layer.first < 100) {
 			for (let& sprite : layer.second) {
 				::render(sprite, camera, *m_buffer, resolution);
 			}
-		} else {
+		}
+		else {
 			for (let& sprite : layer.second) {
 				::render(sprite, camera, *m_ui_layer, resolution);
 			}
@@ -163,7 +166,9 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	m_normal_map->display();
 	m_ui_layer->display();
 	sf::Sprite sprite1(m_occlusion_map->getTexture());
-	sprite1.scale({ static_cast<float>(shadow_res) / static_cast<float>(resolution.x), 1.f / static_cast<float>(resolution.y) });
+	sprite1.scale(
+		{static_cast<float>(shadow_res) / static_cast<float>(resolution.x),
+		 1.f / static_cast<float>(resolution.y)});
 	m_vbo->draw(sprite1, &m_occlusion_shader);
 	m_vbo->display();
 	m_buffer->display();
@@ -172,10 +177,15 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	m_buffer2->draw(sf::Sprite(m_buffer->getTexture()));
 	m_buffer2->draw(sf::Sprite(m_vbo->getTexture()));
 	sf::Sprite shadows(m_vbo->getTexture());
-	shadows.setScale({ static_cast<float>(resolution.x) / static_cast<float>(shadow_res), static_cast<float>(resolution.y / 1.f) });;
+	shadows.setScale(
+		{static_cast<float>(resolution.x) / static_cast<float>(shadow_res),
+		 static_cast<float>(resolution.y / 1.f)});
+	;
 	if (!lights_pos.empty()) {
-		m_shadows_shader.setUniformArray("lights_pos", lights_pos.data(), lights_count);
-		m_shadows_shader.setUniformArray("lights_color", lights_color.data(), lights_count);
+		m_shadows_shader.setUniformArray(
+			"lights_pos", lights_pos.data(), lights_count);
+		m_shadows_shader.setUniformArray(
+			"lights_color", lights_color.data(), lights_count);
 	}
 	m_shadows_shader.setUniform("lights_count", static_cast<int>(lights_count));
 	m_buffer2->draw(shadows, &m_shadows_shader);

@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <stdafx.h>
 #include "base.h"
 #include <resource_image.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -15,10 +15,11 @@ public:
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
+
 private:
 	void tick(tick_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image;
 };
-}
-}
+} // namespace module
+} // namespace mark

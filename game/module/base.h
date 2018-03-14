@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include <stdafx.h>
+#include <command.h>
 #include <interface/damageable.h>
 #include <interface/world_object.h>
-#include <command.h>
+#include <stdafx.h>
 
 namespace mark {
 
@@ -22,8 +22,8 @@ struct modifiers {
 	float mass = 1.f;
 };
 
-auto deserialise(resource::manager&, const YAML::Node&) ->
-	std::unique_ptr<module::base>;
+auto deserialise(resource::manager&, const YAML::Node&)
+	-> std::unique_ptr<module::base>;
 
 enum class reserved_type { none, front, back };
 
@@ -34,6 +34,7 @@ public:
 	friend module::cargo;
 
 	auto grid_pos() const noexcept -> vector<int>;
+
 protected:
 	base_ref() = default;
 	base_ref(const YAML::Node& node);
@@ -41,17 +42,17 @@ protected:
 	auto parent() -> unit::modular&;
 	void serialise(YAML::Emitter& out) const;
 	// Position on the grid
-	~base_ref()=default;
+	~base_ref() = default;
+
 private:
 	virtual void tick(tick_context& context) = 0;
 	unit::modular* m_parent = nullptr;
 	vector<int8_t> m_grid_pos;
 };
 
-class base:
-	public base_ref,
-	public interface::damageable,
-	public interface::world_object {
+class base : public base_ref,
+			 public interface::damageable,
+			 public interface::world_object {
 public:
 	virtual void serialise(YAML::Emitter&) const;
 
@@ -79,10 +80,9 @@ public:
 	virtual void command(const command::any&);
 
 	// Find collision point, return pointer to damaged module
-	virtual auto collide(const segment_t&) ->
-		std::optional<std::pair<
-			std::reference_wrapper<interface::damageable>,
-			vector<double>>>;
+	virtual auto collide(const segment_t&) -> std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>>;
 
 	// UI text describing module's properties
 	virtual auto describe() const -> std::string = 0;
@@ -94,7 +94,8 @@ public:
 	virtual auto energy_ratio() const -> float { return 0.f; }
 
 	// Neighbour modules
-	auto neighbours() -> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>;
+	auto neighbours() -> std::vector<
+		std::pair<std::reference_wrapper<module::base>, unsigned>>;
 
 	// Default damage handling
 	auto damage(const interface::damageable::info& attr) -> bool override;
@@ -114,7 +115,7 @@ public:
 
 	// Get module's cur health
 	auto cur_health() const -> float;
-	
+
 	auto needs_healing() const -> bool;
 
 	// Replenish module's health
@@ -125,7 +126,8 @@ public:
 
 protected:
 	base(resource::manager&, const YAML::Node&);
-	base(vector<unsigned> size,
+	base(
+		vector<unsigned> size,
 		const std::shared_ptr<const resource::image>& thumbnail);
 
 	void tick(tick_context& context) override;
@@ -139,7 +141,7 @@ protected:
 	auto world() noexcept -> mark::world&;
 
 private:
-	template<typename property_manager, typename T>
+	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
 protected:
@@ -147,11 +149,12 @@ protected:
 	float m_max_health = 100.f;
 	float m_stunned = 0.f;
 	float m_cur_heat = 0.f;
+
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
 	vector<unsigned> m_size;
 	float m_stun_lfo;
 };
-}
-}
+} // namespace module
+} // namespace mark

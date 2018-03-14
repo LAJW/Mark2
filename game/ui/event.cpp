@@ -1,7 +1,8 @@
 ﻿#include <stdafx.h>
 #include "event.h"
 
-void mark::ui::callback_group::insert(std::function<bool(const event&)> callback)
+void mark::ui::callback_group::insert(
+	std::function<bool(const event&)> callback)
 {
 	m_callbacks.push_back(callback);
 }
@@ -17,4 +18,6 @@ bool mark::ui::callback_group::dispatch(const event& event) const
 }
 
 bool mark::ui::callback_group::operator()(const event& event) const
-{ return this->dispatch(event); }
+{
+	return this->dispatch(event);
+}

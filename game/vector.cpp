@@ -1,14 +1,16 @@
 ﻿#include "stdafx.h"
 #include "vector.h"
 
-auto mark::distance(const float alpha, const vector<double> point) noexcept -> double {
+auto mark::distance(const float alpha, const vector<double> point) noexcept
+	-> double
+{
 	let a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
 	return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
 }
 
 auto mark::get_line(
-	const vector<double> start, const vector<double> end) noexcept
-	-> std::variant<vector<double>, double>
+	const vector<double> start,
+	const vector<double> end) noexcept -> std::variant<vector<double>, double>
 {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
@@ -28,13 +30,13 @@ auto mark::intersect(
 {
 	let intersect_with_X = [](vector<double> line, double x) {
 		let y = x * line.x + line.y;
-		return vector<double>{ x, y };
+		return vector<double>{x, y};
 	};
 	if (let x = std::get_if<double>(&line1)) {
 		if (let line = std::get_if<vector<double>>(&line2)) {
 			return intersect_with_X(*line, *x);
 		}
-		return { };
+		return {};
 	}
 	if (let x = std::get_if<double>(&line2)) {
 		return intersect_with_X(std::get<vector<double>>(line1), *x);
@@ -42,11 +44,11 @@ auto mark::intersect(
 	let l1 = std::get<vector<double>>(line1);
 	let l2 = std::get<vector<double>>(line2);
 	if (l1.x == l2.x) {
-		return { };
+		return {};
 	}
 	let x = (l2.y - l1.y) / (l1.x - l2.x);
 	let y = l1.x * x + l1.y;
-	return { { x, y } };
+	return {{x, y}};
 }
 
 auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
@@ -56,7 +58,7 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 	let line2 = get_line(s2.first, s2.second);
 	let intersection = intersect(line1, line2);
 	if (!intersection) {
-		return { };
+		return {};
 	}
 	let lower_x_bound = std::max(
 		std::min(s1.first.x, s1.second.x), std::min(s2.first.x, s2.second.x));
@@ -71,18 +73,19 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 	// Margins are required here, because x >= C && x <= C evaluates to x == C
 	// Floating point comparison is imprecise, so an error margin is required
 	// Adding this makes intersection with horizontal lines work
-	if (intersection->x >= lower_x_bound - flp_margin
-		&& intersection->x <= upper_x_bound + flp_margin
-		&& intersection->y >= lower_y_bound - flp_margin
-		&& intersection->y <= upper_y_bound + flp_margin) {
+	if (intersection->x >= lower_x_bound - flp_margin &&
+		intersection->x <= upper_x_bound + flp_margin &&
+		intersection->y >= lower_y_bound - flp_margin &&
+		intersection->y <= upper_y_bound + flp_margin) {
 		return intersection;
 	}
-	return { };
+	return {};
 }
 
 auto mark::intersect(
-	segment_t segment, const vector<double>& center, double radius) noexcept
-	-> std::optional<vector<double>>
+	segment_t segment,
+	const vector<double>& center,
+	double radius) noexcept -> std::optional<vector<double>>
 {
 	let line = get_line(segment.first, segment.second);
 	let lx = std::min(segment.first.x, segment.second.x);
@@ -93,7 +96,7 @@ auto mark::intersect(
 		// everything but vertical line
 		let c = line_nv->x;
 		let d = line_nv->y;
-		let [A, B, delta2] = [&] {
+		let[A, B, delta2] = [&] {
 			let a = center.x;
 			let b = center.y;
 			let r = static_cast<double>(radius);
@@ -105,30 +108,33 @@ auto mark::intersect(
 			return std::make_tuple(A, B, delta2);
 		}();
 		if (delta2 <= 0)
-			return { };
-		let[p1, p2] = [&, delta2=delta2, B=B, A=A] {
+			return {};
+		let[p1, p2] = [&, delta2 = delta2, B = B, A = A] {
 			let delta = std::sqrt(delta2);
 			let x1 = (-B + delta) / (2.0 * A);
 			let x2 = (-B - delta) / (2.0 * A);
 			let y1 = c * x1 + d;
 			let y2 = c * x2 + d;
-			return std::make_pair(vector<double>(x1, y1), vector<double>(x2, y2));
+			return std::make_pair(
+				vector<double>(x1, y1), vector<double>(x2, y2));
 		}();
-		const bool p1_in_range = p1.x >= lx && p1.x <= ux
-			&& p1.y >= ly && p1.y <= uy;
-		const bool p2_in_range = p2.x >= lx && p2.x <= ux
-			&& p2.y >= ly && p2.y <= uy;
-		let p1_closer = [&, p1=p1, p2=p2] {
+		const bool p1_in_range =
+			p1.x >= lx && p1.x <= ux && p1.y >= ly && p1.y <= uy;
+		const bool p2_in_range =
+			p2.x >= lx && p2.x <= ux && p2.y >= ly && p2.y <= uy;
+		let p1_closer = [&, p1 = p1, p2 = p2] {
 			let length1 = length(p1 - segment.first);
 			let length2 = length(p2 - segment.first);
 			return length1 < length2;
 		}();
 		if (p1_in_range && ((p2_in_range && p1_closer) || !p2_in_range)) {
 			return p1;
-		} else if (p2_in_range) {
+		}
+		else if (p2_in_range) {
 			return p2;
 		}
-	} else {
+	}
+	else {
 		// vertical line
 		let x = std::get<double>(line);
 		if (std::abs(x - center.x) <= radius) {
@@ -145,27 +151,31 @@ auto mark::intersect(
 			let y1_in_range = y1 >= ly && y1 <= uy;
 			let y2_in_range = y2 >= ly && y2 <= uy;
 
-			if ((y1_in_range && y2_in_range && length1 < length2) || !y2_in_range) {
-				return { { x, y1 } };
-			} else if (y2_in_range) {
-				return { { x, y2 } };
+			if ((y1_in_range && y2_in_range && length1 < length2) ||
+				!y2_in_range) {
+				return {{x, y1}};
+			}
+			else if (y2_in_range) {
+				return {{x, y2}};
 			}
 		}
 	}
-	return { };
+	return {};
 }
 
-// Calculate new rotation for an entity based on angular velocity, lookat direction, etc.
+// Calculate new rotation for an entity based on angular velocity, lookat
+// direction, etc.
 auto mark::turn(
 	vector<double> new_direction,
 	float current_rotation,
 	float angular_velocity,
 	double dt) -> float
 {
-	if (std::abs(atan(rotate(new_direction, -current_rotation))) < angular_velocity * dt) {
+	if (std::abs(atan(rotate(new_direction, -current_rotation))) <
+		angular_velocity * dt) {
 		return static_cast<float>(atan(new_direction));
 	}
 	let turn_direction = sgn(atan(rotate(new_direction, -current_rotation)));
-	let rot_step = static_cast<float>(turn_direction  * angular_velocity * dt);
+	let rot_step = static_cast<float>(turn_direction * angular_velocity * dt);
 	return current_rotation + rot_step;
 }

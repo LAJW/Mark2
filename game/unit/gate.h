@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <stdafx.h>
 #include "activable.h"
 #include <model_animated.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace unit {
@@ -16,10 +16,10 @@ public:
 	gate(const info&);
 	gate(mark::world& world, const YAML::Node&);
 	auto dead() const -> bool override { return false; };
-	[[nodiscard]] auto use(
-		const std::shared_ptr<unit::modular>& by)
+	[[nodiscard]] auto use(const std::shared_ptr<unit::modular>& by)
 		-> std::error_code override;
 	void serialise(YAML::Emitter&) const override;
+
 private:
 	void tick(tick_context& context) override;
 	std::shared_ptr<const resource::image> m_im_base;
@@ -28,5 +28,5 @@ private:
 	// If set to true, gate leads to the previous world
 	bool m_inverted;
 };
-}
-}
+} // namespace unit
+} // namespace mark

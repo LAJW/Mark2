@@ -1,30 +1,34 @@
 ﻿#include <stdafx.h>
-#include <sstream>
 #include "shield_generator.h"
-#include <resource_manager.h>
 #include <resource_image.h>
+#include <resource_manager.h>
 #include <sprite.h>
+#include <sstream>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
 mark::module::shield_generator::shield_generator(
-	resource::manager& rm, const YAML::Node& node)
+	resource::manager& rm,
+	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
 	, m_model_shield(rm, node["radius"].as<float>(default_radius) * 2.f)
 	, m_cur_shield(node["cur_shield"].as<float>())
 	, m_max_shield(node["max_shield"].as<float>())
 	, m_radius(node["radius"].as<float>(default_radius))
-	, m_shield_per_energy(node["shield_per_energy"].as<float>(default_shield_per_energy))
-{ }
+	, m_shield_per_energy(
+		  node["shield_per_energy"].as<float>(default_shield_per_energy))
+{
+}
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& resource_manager)
-	: base({ 2, 2 }, resource_manager.image("shield-generator.png"))
+	: base({2, 2}, resource_manager.image("shield-generator.png"))
 	, m_im_generator(resource_manager.image("shield-generator.png"))
 	, m_model_shield(resource_manager, m_radius)
-{ }
+{
+}
 
 void mark::module::shield_generator::tick(tick_context& context)
 {
@@ -39,9 +43,9 @@ void mark::module::shield_generator::tick(tick_context& context)
 		}
 		m_cur_shield = std::min(
 			m_max_shield,
-			m_cur_shield
-			+ module.first.get().harvest_energy(context.dt)
-				* m_shield_per_energy);
+			m_cur_shield +
+				module.first.get().harvest_energy(context.dt) *
+					m_shield_per_energy);
 	}
 	this->render(context);
 }
@@ -72,15 +76,16 @@ void mark::module::shield_generator::render(tick_context& context) const
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
-	if (attr.team == parent().team()
-		|| attr.damaged->find(this) != attr.damaged->end()) {
+	if (attr.team == parent().team() ||
+		attr.damaged->find(this) != attr.damaged->end()) {
 		return false;
 	}
 	attr.damaged->insert(this);
 	if (m_cur_shield > 0.f) {
 		m_model_shield.trigger(attr.pos);
 		m_cur_shield -= attr.physical;
-	} else {
+	}
+	else {
 		m_cur_health -= attr.physical;
 	}
 	return true;
@@ -90,18 +95,18 @@ auto mark::module::shield_generator::describe() const -> std::string
 {
 	std::ostringstream os;
 	os << "Shield Generator Module" << std::endl;
-	os << "Health: " << static_cast<int>(std::ceil(m_cur_health))
-		<< " of " << static_cast<int>(std::ceil(m_max_health)) << std::endl;
-	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield))
-		<< " of " << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
+	os << "Health: " << static_cast<int>(std::ceil(m_cur_health)) << " of "
+	   << static_cast<int>(std::ceil(m_max_health)) << std::endl;
+	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield)) << " of "
+	   << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
 	os << "Radius: " << static_cast<int>(std::ceil(m_radius)) << std::endl;
 	os << "Shield Per Energy: "
-		<< static_cast<int>(std::ceil(m_shield_per_energy)) << std::endl;
+	   << static_cast<int>(std::ceil(m_shield_per_energy)) << std::endl;
 	return os.str();
 }
 
-auto mark::module::shield_generator::collide(const segment_t& ray) ->
-	std::optional<std::pair<
+auto mark::module::shield_generator::collide(const segment_t& ray)
+	-> std::optional<std::pair<
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
@@ -109,15 +114,16 @@ auto mark::module::shield_generator::collide(const segment_t& ray) ->
 		return module::base::collide(ray);
 	}
 	if (let intersection = intersect(ray, pos(), m_radius)) {
-		return { {
-			std::ref(static_cast<interface::damageable&>(*this)),
-			*intersection } };
+		return {{std::ref(static_cast<interface::damageable&>(*this)),
+				 *intersection}};
 	}
-	return { };
+	return {};
 }
 
 auto mark::module::shield_generator::shield() const noexcept -> float
-{ return m_cur_shield; }
+{
+	return m_cur_shield;
+}
 
 void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 {
@@ -133,7 +139,9 @@ void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 }
 
 auto mark::module::shield_generator::passive() const noexcept -> bool
-{ return false; }
+{
+	return false;
+}
 
 void mark::module::shield_generator::command(const command::any& any)
 {

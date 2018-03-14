@@ -1,16 +1,17 @@
 ﻿#include "stdafx.h"
+#include "world.h"
 #include "algorithm.h"
 #include "command.h"
 #include "map.h"
+#include "module/battery.h"
+#include "module/cannon.h"
 #include "module/cargo.h"
 #include "module/core.h"
+#include "module/energy_generator.h"
+#include "module/engine.h"
+#include "module/flamethrower.h"
 #include "module/shield_generator.h"
 #include "module/turret.h"
-#include "module/energy_generator.h"
-#include "module/battery.h"
-#include "module/flamethrower.h"
-#include "module/engine.h"
-#include "module/cannon.h"
 #include "particle.h"
 #include "resource_manager.h"
 #include "tick_context.h"
@@ -20,7 +21,6 @@
 #include "unit/landing_pad.h"
 #include "unit/minion.h"
 #include "unit/modular.h"
-#include "world.h"
 #include "world_stack.h"
 
 mark::world::world(resource::manager& rm)
@@ -28,61 +28,75 @@ mark::world::world(resource::manager& rm)
 	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
-	, image_stun(rm.image("stun.png")) { }
+	, image_stun(rm.image("stun.png"))
+{
+}
 
-// Helper function for finding positions for key locations using different 
+// Helper function for finding positions for key locations using different
 // over-the-area iterations
-template<typename T>
-static auto find_pos(const mark::map& map, mark::vector<int> size, double object_radius, T strategy)
+template <typename T>
+static auto find_pos(
+	const mark::map& map,
+	mark::vector<int> size,
+	double object_radius,
+	T strategy)
 {
 	using namespace mark;
 	assert(size.x > 0);
 	assert(size.y > 0);
 	let center = size / 2;
-	return strategy([&](const vector<int> &point)
-		-> std::optional<vector<double>> {
-		let pos = vector<double>(point - center) * map::tile_size;
-		if (map.traversable(pos, object_radius)) {
-			return pos;
-		}
-		return { };
-	});
+	return strategy(
+		[&](const vector<int>& point) -> std::optional<vector<double>> {
+			let pos = vector<double>(point - center) * map::tile_size;
+			if (map.traversable(pos, object_radius)) {
+				return pos;
+			}
+			return {};
+		});
 }
 
 // Find a position matching gate size in the top left corner
-static auto find_gate_pos(const mark::map &map, mark::vector<int> size)
+static auto find_gate_pos(const mark::map& map, mark::vector<int> size)
 	-> std::optional<mark::vector<double>>
 {
-	return find_pos(map, size, mark::unit::gate::radius, [&](auto proc)
-		-> std::optional<mark::vector<double>> {
-		for (let point : mark::range(size)) {
-			if (const auto result = proc(point)) {
-				return *result;
-			}
-		}
-		return { };
-	});
-}
-
-// Find a position matching gate size in the bottom right corner
-static auto find_landing_pad_pos(const mark::map &map, mark::vector<int> size)
-	-> std::optional<mark::vector<double>>
-{
-	return find_pos(map, size, mark::unit::landing_pad::radius, [&](auto proc)
-		-> std::optional<mark::vector<double>> {
-		for (int x = size.x - 1; x >= 0; --x) {
-			for (int y = size.y - 1; y >= 0; --y) {
-				if (const auto result = proc({ x, y })) {
+	return find_pos(
+		map,
+		size,
+		mark::unit::gate::radius,
+		[&](auto proc) -> std::optional<mark::vector<double>> {
+			for (let point : mark::range(size)) {
+				if (const auto result = proc(point)) {
 					return *result;
 				}
 			}
-		}
-		return { };
-	});
+			return {};
+		});
+}
+
+// Find a position matching gate size in the bottom right corner
+static auto find_landing_pad_pos(const mark::map& map, mark::vector<int> size)
+	-> std::optional<mark::vector<double>>
+{
+	return find_pos(
+		map,
+		size,
+		mark::unit::landing_pad::radius,
+		[&](auto proc) -> std::optional<mark::vector<double>> {
+			for (int x = size.x - 1; x >= 0; --x) {
+				for (int y = size.y - 1; y >= 0; --y) {
+					if (const auto result = proc({x, y})) {
+						return *result;
+					}
+				}
+			}
+			return {};
+		});
 }
 
 mark::world::world(
-	world_stack& stack, resource::manager& resource_manager, bool initial)
+	world_stack& stack,
+	resource::manager& resource_manager,
+	bool initial)
 	: m_resource_manager(resource_manager)
 	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, image_bar(resource_manager.image("bar.png"))
@@ -91,7 +105,7 @@ mark::world::world(
 	, m_stack(&stack)
 {
 	let map_size = vector<int>(1000, 1000);
-	let spawn_ship = [&] () {
+	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
 			unit::deserialise(*this, stack.templates().at("ship")));
 	};
@@ -121,8 +135,8 @@ mark::world::world(
 	}();
 	for (let point : range(map_size)) {
 		let pos = vector<double>(point - map_size / 2) * map::tile_size;
-		if (m_map->traversable(pos, ship_radius)
-			&& this->find(pos, ship_radius * 4.).empty()) {
+		if (m_map->traversable(pos, ship_radius) &&
+			this->find(pos, ship_radius * 4.).empty()) {
 			/*
 			auto unit = spawn_ship();
 			unit->pos(pos);
@@ -139,26 +153,27 @@ mark::world::world(
 	if (initial) {
 		auto vessel = spawn_ship();
 		vessel->ai(false);
-		vessel->command(command::move{ vector<double>() });
+		vessel->command(command::move{vector<double>()});
 		vessel->team(1);
-		vessel->pos({ 0., 0. });
+		vessel->pos({0., 0.});
 		m_camera_target = vessel;
 		m_units.push_back(move(vessel));
-	} else {
-		spawn_gate({ 0, 0 }, true);
+	}
+	else {
+		spawn_gate({0, 0}, true);
 	}
 }
 
 mark::world::~world() = default;
 
-auto mark::world::map() const -> const mark::map&
-{ return *m_map; }
+auto mark::world::map() const -> const mark::map& { return *m_map; }
 
 auto mark::world::resource_manager() -> resource::manager&
-{ return m_resource_manager; }
+{
+	return m_resource_manager;
+}
 
-void mark::world::tick(
-	tick_context& context, vector<double> screen_size)
+void mark::world::tick(tick_context& context, vector<double> screen_size)
 {
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
@@ -169,13 +184,14 @@ void mark::world::tick(
 
 	{
 		let camera = vmap(m_camera, std::round);
-		let offset = screen_size / 2.0
-			+ vector<double>(map::tile_size, map::tile_size) * 2.;
+		let offset = screen_size / 2.0 +
+			vector<double>(map::tile_size, map::tile_size) * 2.;
 		m_map->tick(camera - offset, camera + offset, context);
 	}
 
 	for (auto& unit : m_units) {
-		// ticking can damage other units and they may become dead in the process
+		// ticking can damage other units and they may become dead in the
+		// process
 		// dead unit is a unit due to be removed
 		if (!unit->dead()) {
 			unit->tick(context);
@@ -186,8 +202,7 @@ void mark::world::tick(
 	}
 	// Add/Remove units
 	{
-		let last = remove_if(
-			begin(m_units), end(m_units), [&](auto& unit) {
+		let last = remove_if(begin(m_units), end(m_units), [&](auto& unit) {
 			if (unit->dead()) {
 				unit->on_death(context);
 				return true;
@@ -198,21 +213,19 @@ void mark::world::tick(
 		m_units.insert(
 			m_units.end(),
 			make_move_iterator(begin(context.units)),
-			make_move_iterator(end(context.units))
-		);
+			make_move_iterator(end(context.units)));
 	}
 	// Add/remove particles
 	{
 		let last = remove_if(
-			begin(m_particles),
-			end(m_particles),
-			[](const particle& particle) { return particle.dead(); });
+			begin(m_particles), end(m_particles), [](const particle& particle) {
+				return particle.dead();
+			});
 		m_particles.erase(last, end(m_particles));
 		m_particles.insert(
 			end(m_particles),
 			make_move_iterator(begin(context.particles)),
-			make_move_iterator(end(context.particles))
-		);
+			make_move_iterator(end(context.particles)));
 	}
 	if (context.crit == true) {
 		m_camera_adsr.trigger();
@@ -231,10 +244,11 @@ void mark::world::tick(
 		if (dist != 0.) {
 			let dir = diff / dist;
 			m_camera_velocity -= m_a * context.dt;
-			if (m_camera_velocity * context.dt < dist
-				&& m_camera_velocity > 0) {
+			if (m_camera_velocity * context.dt < dist &&
+				m_camera_velocity > 0) {
 				m_camera += m_camera_velocity * dir * context.dt;
-			} else {
+			}
+			else {
 				m_camera = target_pos;
 				m_camera_velocity = 0.;
 				m_a = 0;
@@ -251,13 +265,19 @@ void mark::world::command(const mark::command::any& command)
 }
 
 void mark::world::target(const std::shared_ptr<unit::base>& target)
-{ m_camera_target = target; }
+{
+	m_camera_target = target;
+}
 
 auto mark::world::target() -> std::shared_ptr<unit::base>
-{ return m_camera_target.lock(); }
+{
+	return m_camera_target.lock();
+}
 
 auto mark::world::target() const -> std::shared_ptr<const unit::base>
-{ return m_camera_target.lock(); }
+{
+	return m_camera_target.lock();
+}
 
 void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 {
@@ -271,28 +291,24 @@ auto mark::world::collide(const segment_t& ray)
 	-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>
 {
 	auto map_collision = m_map->collide(ray);
-	const double min_length = map_collision
-		? length(*map_collision - ray.first)
-		: INFINITY;
+	const double min_length =
+		map_collision ? length(*map_collision - ray.first) : INFINITY;
 	std::deque<collision_type> collisions;
 	for (auto& unit_ : m_units) {
 		if (let unit = dynamic_cast<unit::damageable*>(unit_.get())) {
 			if (let result = unit->collide(ray)) {
-				auto[damageable, pos] = *result;
+				auto [damageable, pos] = *result;
 				let length = mark::length(pos - ray.first);
 				if (length < min_length) {
-					collisions.push_back({ damageable, pos });
+					collisions.push_back({damageable, pos});
 				}
 			}
 		}
 	}
-	sort(
-		begin(collisions),
-		end(collisions),
-		[&](let& a, let& b) {
+	sort(begin(collisions), end(collisions), [&](let& a, let& b) {
 		return length(a.second - ray.first) < length(b.second - ray.first);
 	});
-	return { move(collisions), map_collision };
+	return {move(collisions), map_collision};
 }
 
 auto mark::world::collide(vector<double> center, float radius)
@@ -300,8 +316,7 @@ auto mark::world::collide(vector<double> center, float radius)
 {
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit_ : m_units) {
-		if (let unit
-			= dynamic_cast<unit::damageable*>(unit_.get())) {
+		if (let unit = dynamic_cast<unit::damageable*>(unit_.get())) {
 			let tmp = unit->collide(center, radius);
 			copy(begin(tmp), end(tmp), back_inserter(out));
 		}
@@ -313,13 +328,13 @@ auto mark::world::damage(world::damage_info info)
 	-> std::pair<std::vector<vector<double>>, bool>
 {
 	assert(info.context);
-	auto[potential_collisions, crash_pos] = this->collide(info.segment);
+	auto [potential_collisions, crash_pos] = this->collide(info.segment);
 	if (potential_collisions.empty() && !crash_pos) {
-		return { };
+		return {};
 	}
 	std::vector<vector<double>> collisions;
 	while (!potential_collisions.empty()) {
-		let&[damageable, pos] = potential_collisions.front();
+		let & [ damageable, pos ] = potential_collisions.front();
 		info.damage.pos = pos;
 		if (damageable.get().damage(info.damage)) {
 			collisions.push_back(pos);
@@ -329,7 +344,8 @@ auto mark::world::damage(world::damage_info info)
 		}
 		potential_collisions.pop_front();
 	}
-	if (crash_pos && (info.piercing < collisions.size() || collisions.empty())) {
+	if (crash_pos &&
+		(info.piercing < collisions.size() || collisions.empty())) {
 		collisions.push_back(*crash_pos);
 	}
 	if (info.aoe_radius > 0.f) {
@@ -341,7 +357,7 @@ auto mark::world::damage(world::damage_info info)
 			}
 		}
 	}
-	return { collisions, crash_pos.has_value() };
+	return {collisions, crash_pos.has_value()};
 }
 
 // Serializer / Deserializer
@@ -353,8 +369,8 @@ mark::world::world(
 	: m_resource_manager(rm)
 	, m_map(std::make_unique<mark::map>(rm, node["map"]))
 	, m_camera(
-		node["camera"]["x"].as<double>(),
-		node["camera"]["y"].as<double>())
+		  node["camera"]["x"].as<double>(),
+		  node["camera"]["y"].as<double>())
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
@@ -374,11 +390,9 @@ mark::world::world(
 	m_camera_target = unit_map.at(camera_target_id);
 }
 
-void mark::world::next()
-{ m_stack->next(); }
+void mark::world::next() { m_stack->next(); }
 
-void mark::world::prev()
-{ m_stack->prev(); }
+void mark::world::prev() { m_stack->prev(); }
 
 void mark::world::serialise(YAML::Emitter& out) const
 {
@@ -389,8 +403,8 @@ void mark::world::serialise(YAML::Emitter& out) const
 
 	let camera_target = m_camera_target.lock();
 	if (camera_target) {
-		out << Key << "camera_target_id"
-			<< Value << reinterpret_cast<size_t>(camera_target.get());
+		out << Key << "camera_target_id" << Value
+			<< reinterpret_cast<size_t>(camera_target.get());
 	}
 
 	out << Key << "camera" << Value << BeginMap;
@@ -410,5 +424,8 @@ void mark::world::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::world::templates() const -> const std::unordered_map<std::string, YAML::Node>&
-{ return m_stack->templates(); }
+auto mark::world::templates() const
+	-> const std::unordered_map<std::string, YAML::Node>&
+{
+	return m_stack->templates();
+}

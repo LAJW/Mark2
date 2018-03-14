@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include <stdafx.h>
-#include <cooldown.h>
 #include "mobile.h"
+#include <cooldown.h>
 #include <model_animated.h>
 #include <model_shield.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace unit {
@@ -15,14 +15,14 @@ public:
 	minion(const mobile::info&);
 	auto dead() const -> bool override;
 	auto damage(const interface::damageable::info&) -> bool override;
-	auto collide(const segment_t&) ->
-		std::optional<std::pair<
-			std::reference_wrapper<interface::damageable>,
-			vector<double>>> override;
-	auto collide(vector<double> center, float radius) ->
-		std::vector<std::reference_wrapper<interface::damageable>> override;
+	auto collide(const segment_t&) -> std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>> override;
+	auto collide(vector<double> center, float radius)
+		-> std::vector<std::reference_wrapper<interface::damageable>> override;
 	void on_death(tick_context& context) override;
 	auto radius() const -> double override;
+
 private:
 	void tick(tick_context& context) override;
 
@@ -33,5 +33,5 @@ private:
 	float m_rotation = 0.f;
 	float m_health = 100.f;
 };
-}
-}
+} // namespace unit
+} // namespace mark

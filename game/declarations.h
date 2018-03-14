@@ -22,15 +22,14 @@ class base;
 class cargo;
 class core;
 struct modifiers;
-}
+} // namespace module
 namespace unit {
 class base;
 class modular;
 class landing_pad;
-}
+} // namespace unit
 namespace resource {
 class manager;
 class image;
-}
-}
-
+} // namespace resource
+} // namespace mark

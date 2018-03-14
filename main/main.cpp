@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 #include "stdafx.h"
+#include <SFML/Graphics.hpp>
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <SFML/Graphics.hpp>
 
 #include "algorithm.h"
 #include "command.h"
@@ -13,18 +13,18 @@
 #include "resource_manager.h"
 #include "sprite.h"
 #include "tick_context.h"
-#include "unit/modular.h"
-#include "world_stack.h"
-#include "world.h"
 #include "ui/ui.h"
+#include "unit/modular.h"
+#include "world.h"
+#include "world_stack.h"
 
 #ifdef WIN32
 
 extern "C" {
-	// Enable dedicated graphics for NVIDIA
-	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
-	// Enable dedicated graphics for AMD Radeon
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+// Enable dedicated graphics for NVIDIA
+__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+// Enable dedicated graphics for AMD Radeon
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
 #endif
@@ -62,7 +62,7 @@ void event_loop(event_loop_info& info)
 	assert(info.on_event);
 	assert(info.on_tick);
 	assert(info.stack);
-	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
+	sf::RenderWindow window({info.res.x, info.res.y}, info.window_title);
 	mark::renderer renderer(info.res);
 	let& on_tick = info.on_tick;
 	let& on_event = info.on_event;
@@ -71,21 +71,25 @@ void event_loop(event_loop_info& info)
 	while (window.isOpen()) {
 		let now = std::chrono::system_clock::now();
 		let dt = static_cast<double>(
-			std::chrono::duration_cast<std::chrono::microseconds>(now - last)
-				.count())
-			/ 1000000.0;
+					 std::chrono::duration_cast<std::chrono::microseconds>(
+						 now - last)
+						 .count()) /
+			1000000.0;
 
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Resized) {
 				let width = static_cast<float>(event.size.width);
 				let height = static_cast<float>(event.size.height);
-				window.setView(sf::View({ 0.f, 0.f, width, height }));
-			} if (event.type == sf::Event::Closed) {
+				window.setView(sf::View({0.f, 0.f, width, height}));
+			}
+			if (event.type == sf::Event::Closed) {
 				window.close();
-			} else {
+			}
+			else {
 				on_event_info info;
-				info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(window));
+				info.mouse_pos =
+					mark::vector<double>(sf::Mouse::getPosition(window));
 				info.window_res = mark::vector<double>(window.getSize());
 				info.event = event;
 				on_event(info);
@@ -101,7 +105,8 @@ void event_loop(event_loop_info& info)
 
 			on_tick_info info;
 			info.dt = dt;
-			info.mouse_pos = mark::vector<double>(sf::Mouse::getPosition(window));
+			info.mouse_pos =
+				mark::vector<double>(sf::Mouse::getPosition(window));
 			info.window_res = mark::vector<double>(window.getSize());
 			window.draw(renderer.render(on_tick(info)));
 			window.display();
@@ -110,7 +115,7 @@ void event_loop(event_loop_info& info)
 }
 
 namespace mark {
-	void main(std::vector<std::string> args);
+void main(std::vector<std::string> args);
 }
 
 void mark::main(std::vector<std::string> args)
@@ -127,15 +132,13 @@ void mark::main(std::vector<std::string> args)
 	event_loop_info event_loop_info;
 	event_loop_info.window_title = "mark 2";
 	event_loop_info.stack = &stack;
-	event_loop_info.res = { 1920, 1080 };
+	event_loop_info.res = {1920, 1080};
 	event_loop_info.on_event = [&](const on_event_info& info) {
 		hid.handle(info.event);
 		auto& world = world_stack.world();
-		let target = world.camera()
-			+ info.mouse_pos - info.window_res / 2.;
+		let target = world.camera() + info.mouse_pos - info.window_res / 2.;
 		for (let command : hid.commands(round(info.mouse_pos), target)) {
-			if (!ui.command(world, command)
-				&& !stack.paused()) {
+			if (!ui.command(world, command) && !stack.paused()) {
 				world.command(command);
 			}
 		}
@@ -163,11 +166,13 @@ void mark::main(std::vector<std::string> args)
 	save_world(world_stack.world(), "state.yml");
 }
 
-int main(const int argc, const char* argv[]) {
+int main(const int argc, const char* argv[])
+{
 	try {
-		mark::main({ argv, argv + argc });
+		mark::main({argv, argv + argc});
 		return 0;
-	} catch (std::exception& error) {
+	}
+	catch (std::exception& error) {
 		std::cout << "ERROR: " << error.what() << std::endl;
 		std::cin.get();
 		return 1;

@@ -15,33 +15,30 @@ public:
 		world_stack& stack,
 		resource::manager& resource_manager,
 		bool initial = true);
-	world(
-		world_stack& stack,
-		resource::manager&,
-		const YAML::Node&);
+	world(world_stack& stack, resource::manager&, const YAML::Node&);
 	~world();
 	auto resource_manager() -> resource::manager&;
 	void tick(tick_context&, vector<double> screen_size);
 	auto map() const -> const map&;
-	auto camera() const -> vector<double> {
-		return m_camera
-			+ vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get())
-				* std::pow(m_camera_adsr.get(), 3.f) * 10.;
+	auto camera() const -> vector<double>
+	{
+		return m_camera +
+			vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get()) *
+			std::pow(m_camera_adsr.get(), 3.f) * 10.;
 	}
 
-	template<typename unit_type = unit::base>
+	template <typename unit_type = unit::base>
 	auto find(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred
-			= [](let&) { return true; })
-		-> std::vector<std::shared_ptr<unit_type>>
+		const std::function<bool(const unit::base&)>& pred = [](let&) {
+			return true;
+		}) -> std::vector<std::shared_ptr<unit_type>>
 	{
 		std::vector<std::shared_ptr<unit_type>> out;
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived
-					= std::dynamic_pointer_cast<unit_type>(unit)) {
+				if (let derived = std::dynamic_pointer_cast<unit_type>(unit)) {
 					out.push_back(std::move(derived));
 				}
 			}
@@ -49,19 +46,19 @@ public:
 		return out;
 	}
 
-	template<typename unit_type = unit::base>
+	template <typename unit_type = unit::base>
 	auto find(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred
-			= [](let&) { return true; }) const
-		-> const std::vector<std::shared_ptr<const unit_type>>
+		const std::function<bool(const unit::base&)>& pred = [](let&) {
+			return true;
+		}) const -> const std::vector<std::shared_ptr<const unit_type>>
 	{
 		std::vector<std::shared_ptr<const unit_type>> out;
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived
-					= std::dynamic_pointer_cast<const unit_type>(unit)) {
+				if (let derived =
+						std::dynamic_pointer_cast<const unit_type>(unit)) {
 					out.push_back(std::move(derived));
 				}
 			}
@@ -69,18 +66,17 @@ public:
 		return out;
 	}
 
-	template<typename unit_type = unit::base>
+	template <typename unit_type = unit::base>
 	auto find_one(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred
-			= [](let&) { return true; })
-		-> std::shared_ptr<unit_type>
+		const std::function<bool(const unit::base&)>& pred = [](let&) {
+			return true;
+		}) -> std::shared_ptr<unit_type>
 	{
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived
-					= std::dynamic_pointer_cast<unit_type>(unit)) {
+				if (let derived = std::dynamic_pointer_cast<unit_type>(unit)) {
 					return derived;
 				}
 			}
@@ -88,18 +84,18 @@ public:
 		return nullptr;
 	}
 
-	template<typename unit_type = unit::base>
+	template <typename unit_type = unit::base>
 	auto find_one(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred
-			= [](let&) { return true; }) const
-		-> std::shared_ptr<const unit_type>
+		const std::function<bool(const unit::base&)>& pred = [](let&) {
+			return true;
+		}) const -> std::shared_ptr<const unit_type>
 	{
 		for (auto& unit : m_units) {
 			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived
-					= std::dynamic_pointer_cast<const unit_type>(unit)) {
+				if (let derived =
+						std::dynamic_pointer_cast<const unit_type>(unit)) {
 					return derived;
 				}
 			}
@@ -120,7 +116,7 @@ public:
 		size_t piercing = 1; // Number of objects to pierce
 		float aoe_radius = 0.f;
 	};
-	// Returns pair containing list of collision points and boolean signaling 
+	// Returns pair containing list of collision points and boolean signaling
 	// whether or not terrain was hit
 	auto damage(world::damage_info)
 		-> std::pair<std::vector<vector<double>>, bool>;
@@ -128,14 +124,16 @@ public:
 	void next();
 	void prev();
 	void serialise(YAML::Emitter& out) const;
-	auto templates() const -> const std::unordered_map<std::string, YAML::Node>&;
+	auto templates() const
+		-> const std::unordered_map<std::string, YAML::Node>&;
 
 	const std::shared_ptr<const resource::image> image_bar;
 	const std::shared_ptr<const resource::image> image_font;
 	const std::shared_ptr<const resource::image> image_stun;
+
 private:
-	using collision_type = std::pair<
-		std::reference_wrapper<interface::damageable>, vector<double>>;
+	using collision_type = std::
+		pair<std::reference_wrapper<interface::damageable>, vector<double>>;
 	// Collide with units and terrain
 	// Returns all collisions in a line stopping at the first terrain collision
 	// Returns monostate if didn't collide with anything
@@ -157,4 +155,4 @@ private:
 	std::vector<particle> m_particles;
 	world_stack* m_stack = nullptr;
 };
-}
+} // namespace mark

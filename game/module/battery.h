@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <stdafx.h>
-#include <lfo.h>
 #include "base.h"
+#include <lfo.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -16,6 +16,7 @@ public:
 	auto energy_ratio() const -> float override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
+
 private:
 	void tick(tick_context& context) override;
 
@@ -24,5 +25,5 @@ private:
 	float m_cur_energy = 0.f;
 	float m_max_energy = 1000.f;
 };
-}
-}
+} // namespace module
+} // namespace mark

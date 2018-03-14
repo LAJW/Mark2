@@ -1,41 +1,37 @@
-#include <stdafx.h>
 #include "healing_turret.h"
+#include <algorithm.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
-#include <world.h>
 #include <unit/modular.h>
-#include <algorithm.h>
+#include <world.h>
 
 mark::module::healing_turret::healing_turret(resource::manager& rm)
-	: module::base({ 4, 2 }, rm.image("cannon.png"))
+	: module::base({4, 2}, rm.image("cannon.png"))
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
-{ }
+{
+}
 
-void mark::module::healing_turret::tick(tick_context& context) {
+void mark::module::healing_turret::tick(tick_context& context)
+{
 	this->module::base::tick(context);
 	m_model.tick(context.dt);
 	let pos = this->pos();
-	let model_size = std::max(this->size().x, this->size().y)
-		* module::size;
+	let model_size = std::max(this->size().x, this->size().y) * module::size;
 	context.sprites[2].push_back(m_model.render(
-		pos,
-		model_size,
-		parent().rotation(),
-		this->heat_color()));
-	if (!this->target())
-	{
+		pos, model_size, parent().rotation(), this->heat_color()));
+	if (!this->target()) {
 		let neighbours = [&] {
 			std::unordered_set<mark::module::base*> neighbours;
 			const auto m_radius = 100.f;
 			let radius = static_cast<int>(std::round(m_radius / 16.f));
 			for (let offset : mark::range<vector<int>>(
-				{ -radius, -radius }, { radius + 1, radius + 1 })) {
+					 {-radius, -radius}, {radius + 1, radius + 1})) {
 				let module = this->parent().at(this->grid_pos() + offset);
-				if (module
-					&& module != this
-					&& length(module->pos() - this->pos()) < m_radius) {
+				if (module && module != this &&
+					length(module->pos() - this->pos()) < m_radius) {
 					neighbours.insert(module);
 				}
 			}
@@ -44,13 +40,13 @@ void mark::module::healing_turret::tick(tick_context& context) {
 		let min_health_neighbour = std::min_element(
 			neighbours.begin(),
 			neighbours.end(),
-			[] (let neighbour_l, let neighbour_r) {
-			let left = neighbour_l->cur_health();
-			let right = neighbour_r->cur_health();
-			return left < right;
-		});
-		if (min_health_neighbour != neighbours.end()
-			&& (*min_health_neighbour)->needs_healing()) {
+			[](let neighbour_l, let neighbour_r) {
+				let left = neighbour_l->cur_health();
+				let right = neighbour_r->cur_health();
+				return left < right;
+			});
+		if (min_health_neighbour != neighbours.end() &&
+			(*min_health_neighbour)->needs_healing()) {
 			m_target = (*min_health_neighbour)->grid_pos();
 		}
 	}
@@ -81,16 +77,17 @@ void mark::module::healing_turret::tick(tick_context& context) {
 		seq.begin(),
 		seq.end(),
 		std::back_inserter(context.sprites[3]),
-		[&] (let i) {
-		let cur_len = module::size * static_cast<double>(i) - module::size * 0.5;
-		sprite _;
-		_.image = m_im_ray;
-		_.pos = collision - dir * cur_len;
-		_.size = module::size;
-		_.rotation = rotation;
-		_.color = sf::Color::Green;
-		return _;
-	});
+		[&](let i) {
+			let cur_len =
+				module::size * static_cast<double>(i) - module::size * 0.5;
+			sprite _;
+			_.image = m_im_ray;
+			_.pos = collision - dir * cur_len;
+			_.size = module::size;
+			_.rotation = rotation;
+			_.color = sf::Color::Green;
+			return _;
+		});
 }
 
 auto mark::module::healing_turret::target() -> mark::module::base*
@@ -105,21 +102,25 @@ auto mark::module::healing_turret::target() -> mark::module::base*
 	return target;
 }
 
-std::string mark::module::healing_turret::describe() const {
+std::string mark::module::healing_turret::describe() const
+{
 	return "Healing Turret\n"
-		"HPS: 100\n";
+		   "HPS: 100\n";
 }
 
 // Serialize / Deserialize
 
-mark::module::healing_turret::healing_turret(resource::manager& rm, const YAML::Node& node)
+mark::module::healing_turret::healing_turret(
+	resource::manager& rm,
+	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
-{ }
+{
+}
 
-
-void mark::module::healing_turret::serialise(YAML::Emitter& out) const {
+void mark::module::healing_turret::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
@@ -128,4 +129,6 @@ void mark::module::healing_turret::serialise(YAML::Emitter& out) const {
 }
 
 auto mark::module::healing_turret::passive() const noexcept -> bool
-{ return true; }
+{
+	return true;
+}

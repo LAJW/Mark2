@@ -1,64 +1,74 @@
 ﻿#include <stdafx.h>
 #include "projectile.h"
-#include <world.h>
-#include <sprite.h>
-#include <resource_manager.h>
-#include <tick_context.h>
-#include <assert.h>
 #include "modular.h"
+#include <assert.h>
+#include <resource_manager.h>
+#include <sprite.h>
+#include <tick_context.h>
+#include <world.h>
 
 namespace {
-	static auto validate(const mark::unit::projectile::info& args) {
-		assert(args.world != nullptr);
-		assert(!std::isnan(args.rotation));
-		assert(!std::isnan(args.velocity));
-		assert(args.seek_radius >= 0.f);
-		assert(args.aoe_radius >= 0.f);
-		return args;
-	}
+static auto validate(const mark::unit::projectile::info& args)
+{
+	assert(args.world != nullptr);
+	assert(!std::isnan(args.rotation));
+	assert(!std::isnan(args.velocity));
+	assert(args.seek_radius >= 0.f);
+	assert(args.aoe_radius >= 0.f);
+	return args;
+}
+} // namespace
+
+mark::unit::projectile::projectile(const unit::projectile::info& args)
+	: unit::projectile::projectile(::validate(args), true)
+{
 }
 
-mark::unit::projectile::projectile(const unit::projectile::info& args) :
-	unit::projectile::projectile(::validate(args), true) { }
+mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
+	: unit::base(args)
+	, m_image(args.world->resource_manager().image("shell.png"))
+	, m_im_tail(args.world->resource_manager().image("glare.png"))
+	, m_im_explosion(args.world->resource_manager().image("explosion.png"))
+	, m_velocity(args.velocity)
+	, m_rotation(args.rotation)
+	, m_seek_radius(args.seek_radius)
+	, m_aoe_radius(args.aoe_radius)
+	, m_critical_chance(args.critical_chance)
+	, m_critical_multiplier(args.critical_multiplier)
+	, m_piercing(args.piercing)
+	, m_guide(args.guide)
+	, m_physical(args.physical)
+{
+}
 
-mark::unit::projectile::projectile(const unit::projectile::info& args, bool):
-	unit::base(args),
-	m_image(args.world->resource_manager().image("shell.png")),
-	m_im_tail(args.world->resource_manager().image("glare.png")),
-	m_im_explosion(args.world->resource_manager().image("explosion.png")),
-	m_velocity(args.velocity),
-	m_rotation(args.rotation),
-	m_seek_radius(args.seek_radius),
-	m_aoe_radius(args.aoe_radius),
-	m_critical_chance(args.critical_chance),
-	m_critical_multiplier(args.critical_multiplier),
-	m_piercing(args.piercing),
-	m_guide(args.guide),
-	m_physical(args.physical) { }
-
-void mark::unit::projectile::tick(tick_context& context) {
+void mark::unit::projectile::tick(tick_context& context)
+{
 	double dt = context.dt;
-	let step = rotate(vector<double>(1, 0), m_rotation) * static_cast<double>(m_velocity) * dt;
+	let step = rotate(vector<double>(1, 0), m_rotation) *
+		static_cast<double>(m_velocity) * dt;
 	let turn_speed = 500.f;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
-		} else {
+		}
+		else {
 			m_rotation = turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
-	} else if (m_seek_radius >= 0.f) {
+	}
+	else if (m_seek_radius >= 0.f) {
 		auto target = world().find_one<unit::damageable>(
 			pos(), m_seek_radius, [this](const unit::base& unit) {
-			return unit.team() != this->team();
-		});
+				return unit.team() != this->team();
+			});
 		if (target) {
-			m_rotation = turn(target->pos() - pos(), m_rotation, turn_speed, dt);
+			m_rotation =
+				turn(target->pos() - pos(), m_rotation, turn_speed, dt);
 		}
 	}
 	pos(pos() + step);
 	world::damage_info info;
 	info.context = &context;
-	info.segment = { pos() - step * 1.2, pos() };
+	info.segment = {pos() - step * 1.2, pos()};
 	info.aoe_radius = m_aoe_radius;
 	info.piercing = m_piercing;
 	info.damage.damaged = &m_damaged;
@@ -71,7 +81,8 @@ void mark::unit::projectile::tick(tick_context& context) {
 	let[collisions, terrain_hit] = world().damage(info);
 	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;
-	} else {
+	}
+	else {
 		m_piercing -= collisions.size();
 	}
 	if (!collisions.empty() && terrain_hit) {
@@ -90,7 +101,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 		spray.diameter(is_heavy_damage ? 32.f : 8.f);
 		spray.count = is_heavy_damage ? 80 : 40;
 		spray.cone = 360.f;
-		spray.color = { 125, 125, 125, 75 };
+		spray.color = {125, 125, 125, 75};
 		context.render(spray);
 	}
 	// tail: grey dust
@@ -105,7 +116,7 @@ void mark::unit::projectile::tick(tick_context& context) {
 		spray.step = mark::length(step);
 		spray.direction = m_rotation + 180.f;
 		spray.cone = 30.f;
-		spray.color = { 175, 175, 175, 75 };
+		spray.color = {175, 175, 175, 75};
 		context.render(spray);
 	}
 	// tail: white overlay
@@ -141,28 +152,28 @@ void mark::unit::projectile::tick(tick_context& context) {
 	context.lights.emplace_back(pos(), sf::Color::White);
 }
 
-auto mark::unit::projectile::dead() const -> bool {
-	return m_dead;
-}
+auto mark::unit::projectile::dead() const -> bool { return m_dead; }
 
 // Serializer / Deserializer
 
-mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node):
-	unit::base(world, node),
-	m_image(world.resource_manager().image("shell.png")),
-	m_im_tail(world.resource_manager().image("glare.png")),
-	m_im_explosion(world.resource_manager().image("explosion.png")),
-	m_velocity(node["velocity"].as<float>()),
-	m_rotation(node["rotation"].as<float>()),
-	m_seek_radius(node["seek_radius"].as<float>()),
-	m_aoe_radius(node["aoe_radius"].as<float>()),
-	m_critical_chance(node["critical_chance"].as<float>()),
-	m_critical_multiplier(node["critical_multiplier"].as<float>()),
-	m_piercing(node["piercing"].as<unsigned>()),
-	m_physical(node["physical"].as<float>(10.f)) { }
+mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
+	: unit::base(world, node)
+	, m_image(world.resource_manager().image("shell.png"))
+	, m_im_tail(world.resource_manager().image("glare.png"))
+	, m_im_explosion(world.resource_manager().image("explosion.png"))
+	, m_velocity(node["velocity"].as<float>())
+	, m_rotation(node["rotation"].as<float>())
+	, m_seek_radius(node["seek_radius"].as<float>())
+	, m_aoe_radius(node["aoe_radius"].as<float>())
+	, m_critical_chance(node["critical_chance"].as<float>())
+	, m_critical_multiplier(node["critical_multiplier"].as<float>())
+	, m_piercing(node["piercing"].as<unsigned>())
+	, m_physical(node["physical"].as<float>(10.f))
+{
+}
 
-
-void mark::unit::projectile::serialise(YAML::Emitter& out) const {
+void mark::unit::projectile::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::projectile::type_name;
@@ -187,6 +198,7 @@ void mark::unit::projectile::serialise(YAML::Emitter& out) const {
 
 void mark::unit::projectile::resolve_ref(
 	const YAML::Node&,
-	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>&) {
+	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>&)
+{
 	// TODO: Update guides
 }

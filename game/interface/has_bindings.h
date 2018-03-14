@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include <memory>
 #include <array>
+#include <memory>
 
 namespace mark {
 namespace resource {
@@ -23,11 +23,10 @@ public:
 	};
 	constexpr static const size_t binding_count = 11;
 	using bindings_t = std::array<binding, binding_count>;
-	virtual auto bindings() const->bindings_t = 0;
+	virtual auto bindings() const -> bindings_t = 0;
+
 protected:
 	virtual ~has_bindings() = default;
 };
-
-}
-}
-
+} // namespace interface
+} // namespace mark

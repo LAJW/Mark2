@@ -1,9 +1,9 @@
 ﻿#include <stdafx.h>
 #include "button.h"
-#include <resource_manager.h>
-#include <tick_context.h>
 #include "window.h"
+#include <resource_manager.h>
 #include <sprite.h>
+#include <tick_context.h>
 
 static bool validate(const mark::ui::button::info& info) noexcept
 {
@@ -23,7 +23,9 @@ mark::ui::button::button(const info& info, bool)
 }
 
 mark::ui::button::button(const info& info)
-	:button(info, validate(info)) { }
+	: button(info, validate(info))
+{
+}
 
 auto mark::ui::button::pos() const noexcept -> vector<int>
 {
@@ -39,7 +41,8 @@ void mark::ui::button::tick(tick_context& context)
 {
 	if (m_hovering) {
 		m_opacity = std::min(1., m_opacity + context.dt * 3.);
-	} else {
+	}
+	else {
 		m_opacity = std::max(.0, m_opacity - context.dt * 3.);
 	}
 	this->render(context);
@@ -52,16 +55,24 @@ void mark::ui::button::render(tick_context& context)
 	mark::path path;
 	path.world = false;
 	if (cur > size().y * 2 + size().x) {
-		path.points.push_back(vector<double>(pos()) + vector<double>(size().x - (cur - size().y * 2 - size().x), 0));
+		path.points.push_back(
+			vector<double>(pos()) +
+			vector<double>(size().x - (cur - size().y * 2 - size().x), 0));
 	}
 	if (cur > size().y + size().x) {
-		path.points.push_back(vector<double>(pos()) + vector<double>(size().x, std::max(0, size().y - (cur - size().y - size().x))));
+		path.points.push_back(
+			vector<double>(pos()) +
+			vector<double>(
+				size().x, std::max(0, size().y - (cur - size().y - size().x))));
 	}
 	if (cur > size().y) {
-		path.points.push_back(vector<double>(pos()) + vector<double>(std::min(size().x, cur - size().y), size().y));
+		path.points.push_back(
+			vector<double>(pos()) +
+			vector<double>(std::min(size().x, cur - size().y), size().y));
 	}
 	if (cur > 0) {
-		path.points.push_back(vector<double>(pos()) + vector<double>(0, std::min(size().y, cur)));
+		path.points.push_back(
+			vector<double>(pos()) + vector<double>(0, std::min(size().y, cur)));
 		path.points.push_back(vector<double>(pos()));
 	}
 	context.sprites[103].push_back(path);
@@ -74,18 +85,18 @@ void mark::ui::button::render(tick_context& context)
 		info.world = false;
 		info.centred = false;
 		context.sprites[102].emplace_back(info);
-	} else {
+	}
+	else {
 		rectangle info;
 		info.pos = vector<double>(this->pos());
 		info.size = vector<double>(m_size);
-		info.background_color = { 50, 50, 50, uint8_t(255. * m_opacity) };
+		info.background_color = {50, 50, 50, uint8_t(255. * m_opacity)};
 		context.sprites[102].emplace_back(info);
-
 	}
 
 	if (!m_title.empty()) {
 		tick_context::text_info text;
-		text.box = { 300., 50. };
+		text.box = {300., 50.};
 		text.pos = vector<double>(this->pos());
 		text.font = m_font;
 		text.text = m_title;
@@ -102,10 +113,8 @@ bool mark::ui::button::click(const event& event)
 {
 	let top_left = this->pos();
 	let bottom_right = top_left + vector<int>(m_size);
-	if (event.cursor.x >= top_left.x
-		&& event.cursor.x < bottom_right.x
-		&& event.cursor.y >= top_left.y
-		&& event.cursor.y < bottom_right.y) {
+	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x &&
+		event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
 		return on_click.dispatch(event);
 	}
 	return false;
@@ -115,10 +124,8 @@ bool mark::ui::button::hover(const event& event)
 {
 	let top_left = this->pos();
 	let bottom_right = top_left + vector<int>(m_size);
-	if (event.cursor.x >= top_left.x
-		&& event.cursor.x < bottom_right.x
-		&& event.cursor.y >= top_left.y
-		&& event.cursor.y < bottom_right.y) {
+	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x &&
+		event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
 		m_hovering = true;
 		return on_hover.dispatch(event);
 	}
