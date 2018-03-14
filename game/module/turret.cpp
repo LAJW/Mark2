@@ -186,7 +186,7 @@ auto mark::module::turret::describe() const -> std::string
 	return os.str();
 }
 
-template<typename T>
+template<typename property_manager, typename T>
 void mark::module::turret::bind(property_manager& property_manager, T& instance)
 {
 	MARK_BIND(rate_of_fire);
@@ -231,9 +231,9 @@ void mark::module::turret::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	property_manager property_manager;
-	bind(property_manager, *this);
-	property_manager.serialise(out);
+	property_serialiser serialiser;
+	bind<property_serialiser, const turret>(serialiser, *this);
+	serialiser.serialise(out);
 	out << Key << "rate_of_fire_curve" << Value << curve::serialise(m_rate_of_fire_curve);
 	out << Key << "cone_curve" << Value << curve::serialise(m_cone_curve);
 	base::serialise(out);

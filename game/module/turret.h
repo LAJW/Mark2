@@ -77,7 +77,7 @@ public:
 	void command(const command::any&) override;
 private:
 	void tick(tick_context& context) override;
-	template<typename T>
+	template<typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
 	targeting_system m_targeting_system;

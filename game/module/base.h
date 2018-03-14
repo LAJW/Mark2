@@ -139,7 +139,7 @@ protected:
 	auto world() noexcept -> mark::world&;
 
 private:
-	template<typename T>
+	template<typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
 protected:

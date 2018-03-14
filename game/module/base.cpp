@@ -280,7 +280,7 @@ auto mark::module::base::team() const -> size_t
 	return parent().team();
 }
 
-template<typename T>
+template<typename property_manager, typename T>
 void mark::module::base::bind(property_manager& property_manager, T& instance)
 {
 	MARK_BIND(cur_health);
@@ -304,9 +304,9 @@ void mark::module::base::serialise(YAML::Emitter& out) const {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
 
-	property_manager property_manager;
-	bind(property_manager, *this);
-	property_manager.serialise(out);
+	property_serialiser serialiser;
+	bind(serialiser, *this);
+	serialiser.serialise(out);
 
 	base_ref::serialise(out);
 

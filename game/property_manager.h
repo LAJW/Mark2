@@ -14,9 +14,15 @@ auto any_ref_cast(std::any any_ref) -> T&
 { return std::any_cast<std::reference_wrapper<T>>(any_ref).get(); }
 
 template<typename T>
-struct property_sync {
+struct property_serialise {
 	static void serialise(YAML::Emitter& out, std::any value_ref)
-	{ out << any_ref_cast<const T>(value_ref); }
+	{
+		out << any_ref_cast<const T>(value_ref);
+	}
+};
+
+template<typename T>
+struct property_deserialise {
 	static void deserialise(
 		std::any value_ref,
 		const YAML::Node& node,
@@ -44,17 +50,25 @@ struct property_sync {
 };
 
 template<>
-struct property_sync<vector<unsigned>> {
+struct property_serialise<vector<unsigned>> {
 	static void serialise(YAML::Emitter& out, std::any value_ref)
 	{
 		using namespace YAML;
-		const auto& vector = any_ref_cast<const mark::vector<unsigned>>(value_ref); 
+		const auto& vector = any_ref_cast<const mark::vector<unsigned>>(value_ref);
 		out << BeginMap;
 		out << Key << "x" << vector.x;
 		out << Value << "y" << vector.y;
 		out << EndMap;
 	}
-	static void deserialise(std::any value_ref, const YAML::Node& node, std::any default_value, resource::manager& rm)
+};
+
+template<>
+struct property_deserialise<vector<unsigned>> {
+	static void deserialise(
+		std::any value_ref,
+		const YAML::Node& node,
+		std::any default_value,
+		resource::manager& rm)
 	{
 		if (default_value.has_value()) {
 			const auto default_vec = std::any_cast<mark::vector<unsigned>>(default_value);
@@ -72,7 +86,6 @@ private:
 	{
 		std::any value_ref;
 		std::any default_value;
-		std::function<void(YAML::Emitter&, std::any)> serialise;
 		std::function<void(
 			std::any,
 			const YAML::Node&,
@@ -80,15 +93,13 @@ private:
 			resource::manager&)> deserialise;
 	};
 public:
-	property_manager() = default;
 	property_manager(resource::manager&);
 	template<typename T>
 	void bind(std::string key, T& value_ref, std::any default_value)
 	{
-		using sync = property_sync<std::remove_const_t<T>>;
+		static_assert(!std::is_const_v<T>, "Value must be mutable");
 		property_config config;
-		config.serialise = sync::serialise;
-		config.deserialise = sync::deserialise;
+		config.deserialise = property_deserialise<T>::deserialise;
 		config.value_ref = std::ref(value_ref);
 		config.default_value = move(default_value);
 		m_properties[key] = std::move(config);
@@ -96,17 +107,37 @@ public:
 	template<typename T>
 	void bind(std::string key, T& value_ref)
 	{
-		using sync = property_sync<std::remove_const_t<T>>;
+		static_assert(!std::is_const_v<T>, "Value must be mutable");
 		property_config config;
-		config.serialise = sync::serialise;
-		config.deserialise = sync::deserialise;
+		config.deserialise = property_deserialise<T>::deserialise;
 		config.value_ref = std::ref(value_ref);
 		m_properties[key] = std::move(config);
 	}
 	void deserialise(const YAML::Node& node);
+private:
+	resource::manager &m_rm;
+	std::unordered_map<std::string, property_config> m_properties;
+};
+
+class property_serialiser
+{
+private:
+	struct property_config
+	{
+		std::any value_ref;
+		std::function<void(YAML::Emitter&, std::any)> serialise;
+	};
+public:
+	template<typename T>
+	void bind(std::string key, const T& value_ref, std::any = { })
+	{
+		property_config config;
+		config.serialise = property_serialise<T>::serialise;
+		config.value_ref = std::ref(value_ref);
+		m_properties[key] = std::move(config);
+	}
 	void serialise(YAML::Emitter& out);
 private:
-	resource::manager *m_rm = nullptr;
 	std::unordered_map<std::string, property_config> m_properties;
 };
 
