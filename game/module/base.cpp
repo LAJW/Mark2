@@ -290,8 +290,8 @@ void mark::module::base::heal(float amount)
 
 auto mark::module::base::team() const -> size_t { return parent().team(); }
 
-template <typename property_manager, typename T>
-void mark::module::base::bind(property_manager& property_manager, T& instance)
+template <typename prop_man, typename T>
+void mark::module::base::bind(prop_man& property_manager, T& instance)
 {
 	MARK_BIND(cur_health);
 	MARK_BIND(max_health);

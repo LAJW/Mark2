@@ -199,8 +199,8 @@ auto mark::module::turret::describe() const -> std::string
 	return os.str();
 }
 
-template <typename property_manager, typename T>
-void mark::module::turret::bind(property_manager& property_manager, T& instance)
+template <typename prop_man, typename T>
+void mark::module::turret::bind(prop_man& property_manager, T& instance)
 {
 	MARK_BIND(rate_of_fire);
 	MARK_BIND(cur_cooldown);

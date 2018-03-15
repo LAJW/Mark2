@@ -37,5 +37,6 @@ auto mark::resource::image_stub::filename() const noexcept -> const std::string&
 
 auto mark::resource::image_stub::texture() const noexcept -> const sf::Texture&
 {
-	return *static_cast<sf::Texture*>(nullptr);
+	static const sf::Texture tex;
+	return tex;
 }

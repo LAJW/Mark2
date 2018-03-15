@@ -18,7 +18,7 @@ static float width(char ch)
 	else if (ch == 'i' || ch == 'l' || ch == '.' || ch == ':') {
 		return 2.f / 7.f;
 	}
-	else if (ch >= 'a' && ch <= 'z' || ch == 'Y') {
+	else if ((ch >= 'a' && ch <= 'z') || ch == 'Y') {
 		return 5.f / 7.f;
 	}
 	else {
@@ -27,7 +27,7 @@ static float width(char ch)
 }
 static float offset_y(char ch)
 {
-	if (ch >= 'a' && ch <= 'z' || ch == ':' || ch == ';' || ch == '.' ||
+	if ((ch >= 'a' && ch <= 'z') || ch == ':' || ch == ';' || ch == '.' ||
 		ch == ',') {
 		return 4.f;
 	}

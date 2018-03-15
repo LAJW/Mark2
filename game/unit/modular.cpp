@@ -663,7 +663,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			}
 			return module::deserialise(rm, properties);
 		}();
-		if (this->p_attach(module_pos, move(module)) != error::code::success) {
+		if (this->p_attach(module_pos, module) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
 		}
 		id_map.insert({id, *m_modules.back()});

@@ -4,17 +4,13 @@
 // _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 #define _USE_MATH_DEFINES
 #define let const auto
-#include "declarations.h"
-#include "vector.h"
-#include "yaml.h"
 #include <SFML/Graphics/Color.hpp>
 #include <algorithm>
 #include <array>
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <deque>
 #include <functional>
-#include <math.h>
 #include <memory>
 #include <numeric>
 #include <optional>
@@ -25,3 +21,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include "declarations.h"
+#include "vector.h"
+#include "yaml.h"
