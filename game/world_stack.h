@@ -12,8 +12,10 @@ public:
 	void next();
 	void prev();
 	auto world() noexcept -> mark::world&;
-	auto templates() const -> const std::unordered_map<std::string, YAML::Node>&;
+	auto templates() const
+		-> const std::unordered_map<std::string, YAML::Node>&;
 	~world_stack();
+
 private:
 	struct world_data {
 		std::unique_ptr<mark::world> world;
@@ -24,5 +26,4 @@ private:
 	resource::manager& m_resource_manager;
 	const std::unordered_map<std::string, YAML::Node>& m_templates;
 };
-
-}
+} // namespace mark

@@ -4,7 +4,7 @@
 
 namespace mark {
 namespace resource {
-	class image;
+class image;
 }
 struct sprite final {
 	// Display everything frame
@@ -40,4 +40,4 @@ struct rectangle final {
 	sf::Color background_color = sf::Color::White;
 	bool world = true;
 };
-}
+} // namespace mark

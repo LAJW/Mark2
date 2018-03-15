@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include <stdafx.h>
 #include "base.h"
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -15,11 +15,12 @@ public:
 	void serialise(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_type override;
 	auto passive() const noexcept -> bool override;
+
 private:
 	void tick(tick_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
 	bool m_shoot = false;
 };
-}
-}
+} // namespace module
+} // namespace mark

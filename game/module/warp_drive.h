@@ -1,6 +1,6 @@
 #pragma once
-#include <stdafx.h>
 #include "base.h"
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -10,14 +10,15 @@ public:
 
 	warp_drive(resource::manager&, const YAML::Node&);
 	warp_drive(resource::manager& manager);
-	auto describe() const->std::string override;
+	auto describe() const -> std::string override;
 	void command(const command::any&) override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
+
 private:
 	void tick(tick_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
 };
-}
-}
+} // namespace module
+} // namespace mark

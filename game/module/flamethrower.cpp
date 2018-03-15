@@ -1,26 +1,29 @@
 ﻿#include <stdafx.h>
 #include "flamethrower.h"
 #include <resource_manager.h>
-#include <tick_context.h>
-#include <world.h>
-#include <resource_manager.h>
 #include <sprite.h>
+#include <tick_context.h>
 #include <unit/modular.h>
+#include <world.h>
 
-mark::module::flamethrower::flamethrower(resource::manager& manager) :
-	module::base({ 2, 2 }, manager.image("turret.png")),
-	m_image_base(manager.image("turret.png")) { }
+mark::module::flamethrower::flamethrower(resource::manager& manager)
+	: module::base({2, 2}, manager.image("turret.png"))
+	, m_image_base(manager.image("turret.png"))
+{
+}
 
-void mark::module::flamethrower::command(const command::any & any)
+void mark::module::flamethrower::command(const command::any& any)
 {
 	if (std::holds_alternative<command::activate>(any)) {
 		m_shoot = true;
-	} else if (std::holds_alternative<command::release>(any)) {
+	}
+	else if (std::holds_alternative<command::release>(any)) {
 		m_shoot = false;
 	}
 }
 
-void mark::module::flamethrower::tick(tick_context& context) {
+void mark::module::flamethrower::tick(tick_context& context)
+{
 	this->module::base::tick(context);
 	let pos = this->pos();
 	context.sprites[2].emplace_back([&] {
@@ -35,7 +38,8 @@ void mark::module::flamethrower::tick(tick_context& context) {
 	if (!m_stunned && m_shoot) {
 		context.render([&] {
 			tick_context::spray_info _;
-			_.image = parent().world().resource_manager().image("explosion.png");
+			_.image =
+				parent().world().resource_manager().image("explosion.png");
 			_.pos = pos;
 			_.lifespan(0.2f, 0.5f);
 			_.diameter(16.f, 64.f);
@@ -48,13 +52,14 @@ void mark::module::flamethrower::tick(tick_context& context) {
 
 		std::unordered_set<interface::damageable*> damaged;
 		for (float i = -15; i < 15; i++) {
-			let cur = pos + rotate(vector<double>(300, 0), i + parent().rotation());
+			let cur =
+				pos + rotate(vector<double>(300, 0), i + parent().rotation());
 			let collision = parent().world().damage([&] {
 				world::damage_info _;
 				_.context = &context;
 				_.aoe_radius = 0.f;
 				_.piercing = 1;
-				_.segment = { pos, cur };
+				_.segment = {pos, cur};
 				_.damage.damaged = &damaged;
 				_.damage.physical = 200.f * static_cast<float>(context.dt);
 				_.damage.team = parent().team();
@@ -62,20 +67,25 @@ void mark::module::flamethrower::tick(tick_context& context) {
 			}());
 		}
 	}
-
 }
 
-auto mark::module::flamethrower::describe() const->std::string {
+auto mark::module::flamethrower::describe() const -> std::string
+{
 	return "Battery";
 }
 
 // Serialize / Deserialize
 
-mark::module::flamethrower::flamethrower(resource::manager& rm, const YAML::Node& node):
-	module::base(rm, node),
-	m_image_base(rm.image("turret.png")) { }
+mark::module::flamethrower::flamethrower(
+	resource::manager& rm,
+	const YAML::Node& node)
+	: module::base(rm, node)
+	, m_image_base(rm.image("turret.png"))
+{
+}
 
-void mark::module::flamethrower::serialise(YAML::Emitter& out) const {
+void mark::module::flamethrower::serialise(YAML::Emitter& out) const
+{
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
@@ -84,7 +94,11 @@ void mark::module::flamethrower::serialise(YAML::Emitter& out) const {
 }
 
 auto mark::module::flamethrower::reserved() const noexcept -> reserved_type
-{ return reserved_type::front; }
+{
+	return reserved_type::front;
+}
 
 auto mark::module::flamethrower::passive() const noexcept -> bool
-{ return false; }
+{
+	return false;
+}

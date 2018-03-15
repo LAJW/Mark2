@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include <variant>
-#include <SFML/Window/event.hpp>
 #include "command.h"
+#include "stdafx.h"
+#include <SFML/Window/event.hpp>
+#include <variant>
 
 namespace mark {
 class hid final {
@@ -14,14 +14,15 @@ public:
 	void handle(const sf::Event& event);
 	// Generate list of commands, flush hid buffers. Mouse pos for commands,
 	// relative to the world
-	auto commands(
-		const vector<int>& screen_pos,
-		const vector<double>& world_pos) -> std::vector<command::any>;
+	auto
+	commands(const vector<int>& screen_pos, const vector<double>& world_pos)
+		-> std::vector<command::any>;
 	using make_command_type = std::function<command::any(
 		const mark::vector<int>& screen_pos,
 		const mark::vector<double>& mouse_pos,
 		bool shift,
 		bool release)>;
+
 private:
 	// Buttons pressed in a specific frame
 	std::vector<button> m_pressed;
@@ -32,4 +33,4 @@ private:
 	bool m_shift;
 	bool m_moving = false;
 };
-}
+} // namespace mark

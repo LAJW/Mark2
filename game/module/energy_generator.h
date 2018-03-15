@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include <stdafx.h>
 #include "base.h"
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -10,11 +10,12 @@ public:
 
 	energy_generator(resource::manager&, const YAML::Node&);
 	energy_generator(resource::manager& manager);
-	auto describe() const->std::string override;
+	auto describe() const -> std::string override;
 	auto harvest_energy(double dt) -> float override;
 	auto energy_ratio() const -> float override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
+
 private:
 	void tick(tick_context& context) override;
 
@@ -24,5 +25,5 @@ private:
 	const float m_max_energy = 100.f;
 	const float m_energy_regen = 30.f;
 };
-}
-}
+} // namespace module
+} // namespace mark

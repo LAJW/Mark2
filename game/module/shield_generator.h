@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include <stdafx.h>
-#include <lfo.h>
 #include "base.h"
+#include <lfo.h>
 #include <model_shield.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
@@ -14,14 +14,14 @@ public:
 	shield_generator(resource::manager& resource_manager);
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string override;
-	auto collide(const segment_t&) ->
-		std::optional<std::pair<
-			std::reference_wrapper<interface::damageable>,
-			vector<double>>> override;
+	auto collide(const segment_t&) -> std::optional<std::pair<
+		std::reference_wrapper<interface::damageable>,
+		vector<double>>> override;
 	auto shield() const noexcept -> float;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 	void command(const command::any& any) override;
+
 private:
 	void tick(tick_context& context) override;
 	void render(tick_context& context) const;
@@ -37,5 +37,5 @@ private:
 	float m_cur_shield = 1000.f;
 	bool m_on = true;
 };
-}
-}
+} // namespace module
+} // namespace mark

@@ -8,9 +8,12 @@ public:
 	{
 		using namespace mark::error;
 		switch (static_cast<mark::error::code>(ev)) {
-		case code::success: return "Success";
-		case code::bad_pos: return "Invalid module position";
-		case code::occupied: return "Space occupied";
+		case code::success:
+			return "Success";
+		case code::bad_pos:
+			return "Invalid module position";
+		case code::occupied:
+			return "Space occupied";
 		}
 		assert(false);
 		return "UNREACHABLE";
@@ -20,7 +23,8 @@ public:
 namespace mark {
 namespace error {
 std::error_code make_error_code(code e)
-{ return std::error_code(static_cast<int>(e), custom_category); }
+{
+	return std::error_code(static_cast<int>(e), custom_category);
 }
-}
-
+} // namespace error
+} // namespace mark

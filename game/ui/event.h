@@ -19,8 +19,9 @@ public:
 	// Returns true if event was handled
 	bool dispatch(const event&) const;
 	bool operator()(const event&) const;
+
 private:
 	std::vector<std::function<bool(const event&)>> m_callbacks;
 };
-
-} }
+} // namespace ui
+} // namespace mark

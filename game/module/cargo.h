@@ -1,31 +1,27 @@
 ﻿#pragma once
-#include <stdafx.h>
-#include <exception.h>
 #include "base.h"
-#include <resource_image.h>
-#include <lfo.h>
+#include <exception.h>
 #include <interface/container.h>
+#include <lfo.h>
+#include <resource_image.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace module {
-class cargo final :
-	public module::base,
-	public interface::container {
+class cargo final : public module::base, public interface::container {
 public:
 	static constexpr const char* type_name = "module_cargo";
 
 	cargo(resource::manager&, const YAML::Node&);
 	cargo(resource::manager& manager);
 
-	[[nodiscard]] auto attach(
-		const vector<int>& pos, std::unique_ptr<module::base>& module)
+	[[nodiscard]] auto
+	attach(const vector<int>& pos, std::unique_ptr<module::base>& module)
 		-> std::error_code override;
 	auto can_attach(const vector<int>& pos, const module::base& module) const
 		-> bool override;
-	auto at(const vector<int>& pos)
-		-> module::base* override;
-	auto at(const vector<int>& pos) const
-		-> const module::base* override;
+	auto at(const vector<int>& pos) -> module::base* override;
+	auto at(const vector<int>& pos) const -> const module::base* override;
 	auto detach(const vector<int>& pos)
 		-> std::unique_ptr<module::base> override;
 	auto detachable() const -> bool override;
@@ -36,9 +32,11 @@ public:
 
 	// try to push element to the container
 	[[nodiscard]] std::error_code push(std::unique_ptr<module::base>& module);
-	auto interior_size() const -> vector<int>; // size of the contents of the cargo hold in modular units
+	auto interior_size() const -> vector<int>; // size of the contents of the
+											   // cargo hold in modular units
 	auto modules() -> std::vector<std::unique_ptr<module::base>>&;
 	auto modules() const -> const std::vector<std::unique_ptr<module::base>>&;
+
 private:
 	void tick(tick_context& context) override;
 
@@ -48,5 +46,5 @@ private:
 	lfo m_lfo;
 	std::vector<std::unique_ptr<module::base>> m_modules;
 };
-}
-}
+} // namespace module
+} // namespace mark

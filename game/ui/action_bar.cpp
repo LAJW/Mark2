@@ -1,20 +1,19 @@
 ﻿#include <stdafx.h>
 #include "action_bar.h"
-#include <world.h>
+#include <algorithm.h>
+#include <interface/has_bindings.h>
+#include <module/base.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <tick_context.h>
-#include <interface/has_bindings.h>
 #include <unit/landing_pad.h>
-#include <module/base.h>
-#include <algorithm.h>
+#include <world.h>
 
 mark::ui::action_bar::action_bar(resource::manager& rm)
 	: m_font(rm.image("font.png"))
 	, m_hotbar_bg(rm.image("hotbar-background.png"))
 	, m_hotbar_overlay(rm.image("hotbar-overlay.png"))
 {
-
 }
 
 void mark::ui::action_bar::tick(
@@ -49,30 +48,32 @@ void mark::ui::action_bar::tick(
 		context.sprites[102].emplace_back(bg_sprite);
 	}
 
-	if (let unit
-		= std::dynamic_pointer_cast<const interface::has_bindings>(world.target())) {
+	if (let unit = std::dynamic_pointer_cast<const interface::has_bindings>(
+			world.target())) {
 		let icon_size = 64.0;
 		let bindings = unit->bindings();
 		for (let& pair : mark::enumerate(bindings)) {
-			let&[i, binding] = pair;
+			let & [ i, binding ] = pair;
 			let di = static_cast<double>(i);
 			let x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
-			let y = resolution.y - 64;;
+			let y = resolution.y - 64;
+			;
 
 			// Highlight bindings
 			let center = resolution / 2.0;
 			if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
 				for (let& module : binding.modules) {
 					let pos = module.get().grid_pos();
-					let module_pos = center
-						+ vector<double>(pos) * static_cast<double>(module::size);
-					let module_size
-						= vector<double>(module.get().size())
-							* static_cast<double>(module::size);
-					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64.
-						&& y <= mouse_pos_.y && mouse_pos_.y < y + 64.)
-						&& !(module_pos.x <= mouse_pos_.x && mouse_pos_.x < module_pos.x + module_size.x
-							&& module_pos.y <= mouse_pos_.y && mouse_pos_.y < module_pos.y + module_size.y))
+					let module_pos = center +
+						vector<double>(pos) * static_cast<double>(module::size);
+					let module_size = vector<double>(module.get().size()) *
+						static_cast<double>(module::size);
+					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64. &&
+						  y <= mouse_pos_.y && mouse_pos_.y < y + 64.) &&
+						!(module_pos.x <= mouse_pos_.x &&
+						  mouse_pos_.x < module_pos.x + module_size.x &&
+						  module_pos.y <= mouse_pos_.y &&
+						  mouse_pos_.y < module_pos.y + module_size.y))
 						continue;
 					sprite circle_sprite;
 					let module_pos_ = module_pos + vector<double>(8, 8);
@@ -109,7 +110,7 @@ void mark::ui::action_bar::tick(
 				text.font = m_font;
 				text.layer = 101;
 				text.pos = vector<double>(x + 32.f, y + 8.f);
-				text.box = { 300 - 14.f, 300 - 14.f };
+				text.box = {300 - 14.f, 300 - 14.f};
 				text.size = 14.f;
 				text.text = os.str();
 				context.render(text);
@@ -121,7 +122,7 @@ void mark::ui::action_bar::tick(
 				text.font = m_font;
 				text.layer = 101;
 				text.pos = vector<double>(x + 32.f, y + 32.f);
-				text.box = { 300 - 14.f, 300 - 14.f };
+				text.box = {300 - 14.f, 300 - 14.f};
 				text.size = 14.f;
 				text.text = os.str();
 				context.render(text);

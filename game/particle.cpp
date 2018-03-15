@@ -1,9 +1,10 @@
 ﻿#include "stdafx.h"
-#include "resource_image.h"
 #include "particle.h"
+#include "resource_image.h"
 #include "sprite.h"
 
-static auto validate(const mark::particle::info& attr) {
+static auto validate(const mark::particle::info& attr)
+{
 	assert(attr.image.get());
 	assert(attr.pos.x != NAN);
 	assert(attr.pos.y != NAN);
@@ -14,8 +15,10 @@ static auto validate(const mark::particle::info& attr) {
 	return attr;
 }
 
-mark::particle::particle(const particle::info& info):
-	particle::particle(::validate(info), true) { }
+mark::particle::particle(const particle::info& info)
+	: particle::particle(::validate(info), true)
+{
+}
 
 mark::particle::particle(const particle::info& attr, bool)
 	: m_image(move(attr.image))
@@ -26,7 +29,9 @@ mark::particle::particle(const particle::info& attr, bool)
 	, m_direction(attr.direction)
 	, m_size(attr.size)
 	, m_color(attr.color)
-	, m_layer(attr.layer) { }
+	, m_layer(attr.layer)
+{
+}
 
 void mark::particle::tick(
 	double dt,
@@ -35,14 +40,14 @@ void mark::particle::tick(
 	sprites[m_layer].emplace_back([&] {
 		let frame_count = m_image->size().x / m_image->size().y;
 		let progress = 1.f - m_cur_lifespan / m_lifespan;
-		let frame = static_cast<unsigned>(progress * static_cast<float>(frame_count));
-		let color =
-			frame_count == 1
+		let frame =
+			static_cast<unsigned>(progress * static_cast<float>(frame_count));
+		let color = frame_count == 1
 			? sf::Color(
-				m_color.r,
-				m_color.g,
-				m_color.b,
-				static_cast<uint8_t>(255.f * (m_cur_lifespan / m_lifespan)))
+				  m_color.r,
+				  m_color.g,
+				  m_color.b,
+				  static_cast<uint8_t>(255.f * (m_cur_lifespan / m_lifespan)))
 			: sf::Color::White;
 		sprite info;
 		info.image = m_image;

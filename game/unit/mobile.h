@@ -7,6 +7,7 @@ class mobile : public damageable {
 public:
 	void serialise(YAML::Emitter& out) const override;
 	void stop();
+
 protected:
 	void command(const command::any&) override;
 	mobile(mark::world& world, const YAML::Node&);
@@ -25,6 +26,7 @@ protected:
 		bool ai;
 	};
 	void tick_movement(const tick_movement_info&);
+
 private:
 	// Implementation of tick_movement
 	// - random_can_pathfind - optimization value for AI opponents. There is
@@ -36,13 +38,13 @@ private:
 	//  - new velocity
 	//  - new path
 	//  - new path age
-	auto tick_movement_impl(
-		const tick_movement_info&, bool random_can_pathfind) const
-		->std::tuple<vector<double>, double, std::vector<vector<double>>, float>;
+	auto tick_movement_impl(const tick_movement_info&, bool random_can_pathfind)
+		const -> std::
+			tuple<vector<double>, double, std::vector<vector<double>>, float>;
 	double m_velocity = 0.0;
 	vector<double> m_moveto;
 	std::vector<vector<double>> m_path_cache;
 	float m_path_age = 0.f;
 };
-}
-}
+} // namespace unit
+} // namespace mark

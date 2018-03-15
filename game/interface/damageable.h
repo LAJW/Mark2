@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include <stdafx.h>
 
-namespace mark { namespace interface {
+namespace mark {
+namespace interface {
 
 class damageable {
 public:
@@ -26,8 +27,9 @@ public:
 	// Stores damaged object pointers in info.damaged
 	// returns true if something has been damaged
 	virtual bool damage(const damageable::info&) = 0;
+
 protected:
 	~damageable() = default;
 };
-
-} }
+} // namespace interface
+} // namespace mark

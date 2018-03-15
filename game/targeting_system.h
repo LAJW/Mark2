@@ -1,6 +1,6 @@
 #pragma once
-#include "stdafx.h"
 #include "command.h"
+#include "stdafx.h"
 
 namespace mark {
 namespace interface {
@@ -29,11 +29,9 @@ private:
 	// Queued modules to shoot (units with offset) or a world position for
 	// dumb fire
 	using target_type = std::pair<bool, vector<double>>;
-	using queue_type = std::deque<
-		std::pair<
-			std::weak_ptr<const unit::base>,
-			vector<double>>>;
+	using queue_type =
+		std::deque<std::pair<std::weak_ptr<const unit::base>, vector<double>>>;
 	std::variant<target_type, queue_type> m_target;
 	interface::world_object& m_parent;
 };
-}
+} // namespace mark

@@ -12,8 +12,8 @@ public:
 	map(resource::manager&, const YAML::Node&);
 
 	auto traversable(const vector<double>& pos, double radius) const -> bool;
-	auto traversable(
-		const vector<int>& i_pos, const size_t radius) const -> bool;
+	auto traversable(const vector<int>& i_pos, const size_t radius) const
+		-> bool;
 
 	void tick(
 		vector<double> top_left,
@@ -23,7 +23,7 @@ public:
 	auto find_path(
 		const vector<double>& start,
 		const vector<double>& end,
-		double radius = 0.0) const->std::vector<vector<double>>;
+		double radius = 0.0) const -> std::vector<vector<double>>;
 
 	// Can find be called in this tick (limit find count per frame)
 	auto can_find() const -> bool;
@@ -38,24 +38,17 @@ public:
 		int f = 0; // distance from starting + distance from ending (h)
 		const Node* parent = nullptr;
 	};
-	auto map_to_world(const vector<int>&) const noexcept
-		-> vector<double>;
+	auto map_to_world(const vector<int>&) const noexcept -> vector<double>;
+
 private:
-	enum class terrain_type{
-		null,
-		abyss,
-		floor_1,
-		floor_2,
-		floor_3,
-		wall
-	};
+	enum class terrain_type { null, abyss, floor_1, floor_2, floor_3, wall };
 	struct terrain {
 		terrain_type type = terrain_type::null;
 		std::array<bool, 20> traversable;
 		unsigned variant = 0;
 	};
-	auto p_traversable(
-		const vector<int>& i_pos, const size_t radius) const -> bool;
+	auto p_traversable(const vector<int>& i_pos, const size_t radius) const
+		-> bool;
 
 	static std::string serialize_terrain_type(terrain_type);
 	static enum terrain_type deserialize_terrain_type(const std::string&);
@@ -66,8 +59,7 @@ private:
 	auto get(const vector<int>& pos) const noexcept -> terrain_type;
 	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
 	void set(const vector<int>& pos, terrain_type) noexcept;
-	auto world_to_map(const vector<double>&) const noexcept
-		-> vector<int>;
+	auto world_to_map(const vector<double>&) const noexcept -> vector<int>;
 	void calculate_traversable();
 
 	std::vector<terrain> m_terrain;
@@ -75,4 +67,4 @@ private:
 	vector<size_t> m_size;
 	mutable unsigned m_find_count = 0;
 };
-}
+} // namespace mark

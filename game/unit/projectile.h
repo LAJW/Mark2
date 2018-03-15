@@ -8,8 +8,7 @@ class projectile final : public unit::base {
 public:
 	static constexpr const char* type_name = "unit_projectile";
 	// projectile constructor attributes
-	struct info : base::info
-	{
+	struct info : base::info {
 		// for mouse-guided missiles
 		std::shared_ptr<const vector<double>> guide;
 		float rotation = NAN;
@@ -30,7 +29,9 @@ public:
 	void serialise(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,
-		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units) override;
+		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units)
+		override;
+
 private:
 	projectile(const projectile::info&, bool);
 	void tick(tick_context& context) override;
@@ -50,5 +51,5 @@ private:
 	size_t m_piercing;
 	bool m_dead = false;
 };
-}
-}
+} // namespace unit
+} // namespace mark

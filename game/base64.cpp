@@ -1,12 +1,11 @@
 ﻿#include "stdafx.h"
 #include "base64.h"
 
-constexpr static let base64_chars =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-"abcdefghijklmnopqrstuvwxyz"
-"0123456789+/";
+constexpr static let base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+									"abcdefghijklmnopqrstuvwxyz"
+									"0123456789+/";
 
-std::string base64_encode(const std::string &in)
+std::string base64_encode(const std::string& in)
 {
 
 	std::string out;
@@ -20,22 +19,26 @@ std::string base64_encode(const std::string &in)
 			valb -= 6;
 		}
 	}
-	if (valb>-6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
-	while (out.size() % 4) out.push_back('=');
+	if (valb > -6)
+		out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+	while (out.size() % 4)
+		out.push_back('=');
 	return out;
 }
 
-std::string base64_decode(const std::string &in)
+std::string base64_decode(const std::string& in)
 {
 
 	std::string out;
 
 	std::vector<int> T(256, -1);
-	for (int i = 0; i<64; i++) T[base64_chars[i]] = i;
+	for (int i = 0; i < 64; i++)
+		T[base64_chars[i]] = i;
 
 	int val = 0, valb = -8;
 	for (let c : in) {
-		if (T[c] == -1) break;
+		if (T[c] == -1)
+			break;
 		val = (val << 6) + T[c];
 		valb += 6;
 		if (valb >= 0) {
