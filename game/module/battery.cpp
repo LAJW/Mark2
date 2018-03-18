@@ -65,9 +65,10 @@ void mark::module::battery::bind(mark::property_manager& property_manager)
 mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("battery.png"))
-	, m_max_energy(node["max_energy"].as<float>())
-	, m_cur_energy(node["cur_energy"].as<float>())
 {
+	property_manager property_manager(rm);
+	bind(property_manager);
+	property_manager.deserialise(node);
 }
 
 void mark::module::battery::serialise(YAML::Emitter& out) const
@@ -75,9 +76,9 @@ void mark::module::battery::serialise(YAML::Emitter& out) const
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
-	out << Key << "max_energy" << Value << m_max_energy;
-	out << Key << "cur_energy" << Value << m_cur_energy;
+	property_serialiser property_serialiser;
+	bind(property_serialiser, *this);
+	property_serialiser.serialise(out);
 	out << EndMap;
 }
 

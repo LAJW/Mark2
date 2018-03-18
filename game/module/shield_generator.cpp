@@ -31,12 +31,10 @@ mark::module::shield_generator::shield_generator(
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
 	, m_model_shield(rm, node["radius"].as<float>(default_radius) * 2.f)
-	, m_cur_shield(node["cur_shield"].as<float>())
-	, m_max_shield(node["max_shield"].as<float>())
-	, m_radius(node["radius"].as<float>(default_radius))
-	, m_shield_per_energy(
-		  node["shield_per_energy"].as<float>(default_shield_per_energy))
 {
+	property_manager property_manager(rm);
+	bind(property_manager);
+	property_manager.deserialise(node);
 }
 
 void mark::module::shield_generator::serialise(YAML::Emitter& out) const
@@ -44,11 +42,9 @@ void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
-	out << Key << "cur_shield" << Value << m_cur_shield;
-	out << Key << "max_shield" << Value << m_max_shield;
-	out << Key << "radius" << Value << m_radius;
-	out << Key << "shield_per_energy" << Value << m_shield_per_energy;
+	property_serialiser property_serialiser;
+	bind(property_serialiser, *this);
+	property_serialiser.serialise(out);
 	out << EndMap;
 }
 
