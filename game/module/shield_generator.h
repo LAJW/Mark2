@@ -11,7 +11,6 @@ public:
 	static constexpr const char* type_name = "shield_generator";
 
 	shield_generator(resource::manager&, const YAML::Node&);
-	shield_generator(resource::manager& resource_manager);
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string override;
 	auto collide(const segment_t&) -> std::optional<std::pair<

@@ -4,12 +4,6 @@
 #include <sprite.h>
 #include <tick_context.h>
 
-mark::module::engine::engine(resource::manager& manager)
-	: m_image_base(manager.image("engine.png"))
-	, module::base({4, 2}, manager.image("engine.png"))
-{
-}
-
 void mark::module::engine::tick(tick_context& context)
 {
 	this->module::base::tick(context);

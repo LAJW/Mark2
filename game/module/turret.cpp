@@ -13,43 +13,6 @@
 #include <utility>
 #include <world.h>
 
-mark::module::turret::turret(module::turret::info info)
-	: base(
-		  vector<unsigned>(info.size),
-		  info.resource_manager->image("turret-base.png"))
-	, m_targeting_system(*this)
-	, m_image(info.resource_manager->image("turret.png"))
-	, m_im_orb(info.resource_manager->image("orb.png"))
-	, m_image_variant(info.resource_manager->random(0, 12))
-	, m_adsr(0.1f, 8.f, 0.1f, 0.8f)
-	, m_rate_of_fire(info.rate_of_fire)
-	, m_rotation(info.rotation)
-	, m_angular_velocity(info.angular_velocity)
-	, m_projectile_count(info.projectile_count)
-	, m_burst_delay(info.burst_delay)
-	, m_guided(info.guided)
-	, m_cone(info.cone)
-	, m_cone_curve(info.cone_curve)
-	, m_heat_per_shot(info.heat_per_shot)
-	, m_critical_chance(info.critical_chance)
-	, m_critical_multiplier(info.critical_multiplier)
-	, m_physical(info.physical)
-	, m_energy(info.energy)
-	, m_heat(info.heat)
-	, m_projectile_angular_velocity(info.projectile_angular_velocity)
-	, m_velocity(info.velocity)
-	, m_acceleration(info.acceleration)
-	, m_aoe_radius(info.aoe_radius)
-	, m_seek_radius(info.seek_radius)
-	, m_range(info.range)
-	, m_piercing(info.piercing)
-	, m_is_chargeable(info.is_chargeable)
-{
-	assert(m_rate_of_fire > 0.f);
-	m_cur_health = info.cur_health;
-	m_max_health = info.max_health;
-}
-
 void mark::module::turret::tick(tick_context& context)
 {
 	this->module::base::tick(context);

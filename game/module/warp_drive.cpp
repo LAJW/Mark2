@@ -7,12 +7,6 @@
 #include <unit/modular.h>
 #include <world.h>
 
-mark::module::warp_drive::warp_drive(resource::manager& manager)
-	: m_image_base(manager.image("engine.png"))
-	, module::base({4, 2}, manager.image("engine.png"))
-{
-}
-
 void mark::module::warp_drive::tick(tick_context& context)
 {
 	this->module::base::tick(context);

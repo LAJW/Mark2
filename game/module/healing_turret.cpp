@@ -7,13 +7,6 @@
 #include <unit/modular.h>
 #include <world.h>
 
-mark::module::healing_turret::healing_turret(resource::manager& rm)
-	: module::base({4, 2}, rm.image("cannon.png"))
-	, m_model(rm.image("cannon.png"))
-	, m_im_ray(rm.image("ray.png"))
-{
-}
-
 void mark::module::healing_turret::tick(tick_context& context)
 {
 	this->module::base::tick(context);

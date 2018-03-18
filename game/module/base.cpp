@@ -44,16 +44,6 @@ auto mark::module::base_ref::grid_pos() const noexcept -> vector<int>
 constexpr let HEAT_TRANSFER_RATE = 15.f;
 constexpr let HEAT_LOSS_RATE = 2.f;
 
-mark::module::base::base(
-	vector<unsigned> size,
-	const std::shared_ptr<const resource::image>& thumbnail)
-	: m_size(size)
-	, m_thumbnail(thumbnail)
-{
-	assert(size.x <= module::max_dimension);
-	assert(size.y <= module::max_dimension);
-}
-
 mark::module::base::~base() = default;
 
 void mark::module::base::tick(tick_context& context)

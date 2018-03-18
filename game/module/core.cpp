@@ -11,12 +11,6 @@ mark::module::core::core(resource::manager& rm, const YAML::Node& node)
 {
 }
 
-mark::module::core::core(resource::manager& resource_manager)
-	: base({2, 2}, resource_manager.image("core.png"))
-	, m_image(resource_manager.image("core.png"))
-{
-}
-
 void mark::module::core::tick(tick_context& context)
 {
 	this->module::base::tick(context);

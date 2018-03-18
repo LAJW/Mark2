@@ -6,15 +6,6 @@
 #include <unit/modular.h>
 #include <world.h>
 
-mark::module::cannon::cannon(resource::manager& rm)
-	: module::base({4, 2}, rm.image("cannon.png"))
-	, m_targeting_system(*this)
-	, m_model(rm.image("cannon.png"))
-	, m_im_ray(rm.image("ray.png"))
-	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f))
-{
-}
-
 void mark::module::cannon::tick(tick_context& context)
 {
 	this->module::base::tick(context);

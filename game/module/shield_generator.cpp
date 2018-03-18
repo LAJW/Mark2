@@ -22,14 +22,6 @@ mark::module::shield_generator::shield_generator(
 {
 }
 
-mark::module::shield_generator::shield_generator(
-	resource::manager& resource_manager)
-	: base({2, 2}, resource_manager.image("shield-generator.png"))
-	, m_im_generator(resource_manager.image("shield-generator.png"))
-	, m_model_shield(resource_manager, m_radius)
-{
-}
-
 void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);

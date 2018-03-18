@@ -54,6 +54,7 @@ class base : public base_ref,
 			 public interface::damageable,
 			 public interface::world_object {
 public:
+	// serialise module::base properties
 	virtual void serialise(YAML::Emitter&) const;
 
 	static constexpr auto max_heat = 100.f;
@@ -126,14 +127,10 @@ public:
 
 protected:
 	base(resource::manager&, const YAML::Node&);
-	base(
-		vector<unsigned> size,
-		const std::shared_ptr<const resource::image>& thumbnail);
 
 	void tick(tick_context& context) override;
 
 	auto heat_color() const -> sf::Color;
-	// serialise module::base properties, call only from module serializers
 
 	// Get parent rotation (reduces compile time)
 	float parent_rotation() const;

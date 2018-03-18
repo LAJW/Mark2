@@ -5,13 +5,6 @@
 #include <tick_context.h>
 #include <world.h>
 
-mark::module::energy_generator::energy_generator(resource::manager& manager)
-	: m_image_base(manager.image("energy-generator.png"))
-	, m_image_bar(manager.image("bar.png"))
-	, module::base({2, 2}, manager.image("energy-generator.png"))
-{
-}
-
 void mark::module::energy_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);

@@ -10,7 +10,6 @@ public:
 	static constexpr const char* type_name = "module_battery";
 
 	battery(resource::manager&, const YAML::Node&);
-	battery(resource::manager& manager);
 	auto describe() const -> std::string override;
 	auto harvest_energy(double dt) -> float override;
 	auto energy_ratio() const -> float override;

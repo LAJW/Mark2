@@ -13,7 +13,6 @@ public:
 	static constexpr const char* type_name = "module_healing_turret";
 
 	healing_turret(resource::manager&, const YAML::Node&);
-	healing_turret(resource::manager& manager);
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

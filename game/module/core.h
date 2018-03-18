@@ -10,7 +10,6 @@ public:
 	static constexpr const char* type_name = "module_core";
 
 	core(resource::manager&, const YAML::Node&);
-	core(resource::manager& resource_manager);
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
