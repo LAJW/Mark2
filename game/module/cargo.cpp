@@ -9,16 +9,6 @@
 #include <unit/bucket.h>
 #include <world.h>
 
-mark::module::cargo::cargo(resource::manager& resource_manager)
-	: module::base({4, 2}, resource_manager.image("cargo.png"))
-	, m_grid_bg(resource_manager.image("grid-background.png"))
-	, m_im_body(resource_manager.image("cargo.png"))
-	, m_im_light(resource_manager.image("glare.png"))
-	, m_lfo(0.5f, resource_manager.random(0.f, 6.f))
-	, m_modules(64)
-{
-}
-
 // Serialize / Deserialize
 
 mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)

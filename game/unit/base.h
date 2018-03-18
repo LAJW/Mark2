@@ -46,7 +46,7 @@ public:
 	struct info {
 		mark::world* world = nullptr;
 		vector<double> pos;
-		int team = 0;
+		size_t team = 0;
 	};
 
 protected:

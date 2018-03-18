@@ -13,7 +13,6 @@ public:
 	static constexpr const char* type_name = "module_cargo";
 
 	cargo(resource::manager&, const YAML::Node&);
-	cargo(resource::manager& manager);
 
 	[[nodiscard]] auto
 	attach(const vector<int>& pos, std::unique_ptr<module::base>& module)

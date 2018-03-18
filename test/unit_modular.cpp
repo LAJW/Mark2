@@ -1,8 +1,8 @@
-﻿#include <resource_manager.h>
-#include <catch.hpp>
+﻿#include <catch.hpp>
 #include <exception.h>
 #include <module/core.h>
 #include <module/turret.h>
+#include <resource_manager.h>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
@@ -36,7 +36,8 @@ TEST_CASE("Create modular with a core")
 		_.rotation = 3.f;
 		return _;
 	}());
-	std::unique_ptr<module::base> core = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core =
+		std::make_unique<module::core>(rm, YAML::Node());
 	let& core_ref = *core;
 	REQUIRE(modular.attach({-1, -1}, core) == error::code::success);
 	REQUIRE(core == nullptr);
@@ -58,8 +59,10 @@ TEST_CASE("Try creating modular with two cores")
 		_.world = &world;
 		return _;
 	}());
-	std::unique_ptr<module::base> core1 = std::make_unique<module::core>(rm);
-	std::unique_ptr<module::base> core2 = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core1 =
+		std::make_unique<module::core>(rm, YAML::Node());
+	std::unique_ptr<module::base> core2 =
+		std::make_unique<module::core>(rm, YAML::Node());
 	REQUIRE(error::code::success == modular.attach({-1, -1}, core1));
 	REQUIRE(error::code::success != modular.attach({1, -1}, core2));
 }
@@ -73,14 +76,14 @@ TEST_CASE("Create modular with a turret to the right")
 		_.world = &world;
 		return _;
 	}());
-	std::unique_ptr<module::base> core = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core =
+		std::make_unique<module::core>(rm, YAML::Node());
 	REQUIRE(error::code::success == modular.attach({-1, -1}, core));
 
 	std::unique_ptr<module::base> turret =
-		std::make_unique<module::turret>([&] {
-			module::turret::info _;
-			_.resource_manager = &rm;
-			return _;
+		std::make_unique<module::turret>(rm, [&] {
+			YAML::Node node;
+			return node;
 		}());
 	let& turret_ref = *turret;
 	REQUIRE(error::code::success == modular.attach({1, -1}, turret));
@@ -98,15 +101,12 @@ TEST_CASE("Attach turret in all possible positions")
 		_.world = &world;
 		return _;
 	}());
-	std::unique_ptr<module::base> core = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core =
+		std::make_unique<module::core>(rm, YAML::Node());
 	REQUIRE(error::code::success == modular.attach({-1, -1}, core));
 
 	std::unique_ptr<module::base> turret =
-		std::make_unique<module::turret>([&] {
-			module::turret::info _;
-			_.resource_manager = &rm;
-			return _;
-		}());
+			std::make_unique<module::turret>(rm, YAML::Node());
 	let& turret_ref = *turret;
 
 	// Right
@@ -159,14 +159,15 @@ TEST_CASE("Failed detached attach should not set internal map")
 		_.world = &world;
 		return _;
 	}());
-	std::unique_ptr<module::base> core = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core =
+		std::make_unique<module::core>(rm, YAML::Node());
 	REQUIRE(error::code::success == modular.attach({-1, -1}, core));
 
 	std::unique_ptr<module::base> turret =
-		std::make_unique<module::turret>([&] {
-			module::turret::info _;
-			_.resource_manager = &rm;
-			return _;
+		std::make_unique<module::turret>(rm, [&] {
+			YAML::Node node;
+			node["cur_health"] = 0.f;
+			return node;
 		}());
 	let& turret_ref = *turret;
 
@@ -186,15 +187,15 @@ TEST_CASE("Remove dead modules")
 		return _;
 	}());
 	world.attach(modular);
-	std::unique_ptr<module::base> core = std::make_unique<module::core>(rm);
+	std::unique_ptr<module::base> core =
+		std::make_unique<module::core>(rm, YAML::Node());
 	REQUIRE(error::code::success == modular->attach({-1, -1}, core));
 
 	std::unique_ptr<module::base> turret =
-		std::make_unique<module::turret>([&] {
-			module::turret::info _;
-			_.cur_health = 0.f;
-			_.resource_manager = &rm;
-			return _;
+		std::make_unique<module::turret>(rm, [&] {
+			YAML::Node node;
+			node["cur_health"] = 0.f;
+			return node;
 		}());
 	REQUIRE(error::code::success == modular->attach({1, -1}, turret));
 	tick_context context(rm);

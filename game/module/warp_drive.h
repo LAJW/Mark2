@@ -9,7 +9,6 @@ public:
 	static constexpr const char* type_name = "module_warp_drive";
 
 	warp_drive(resource::manager&, const YAML::Node&);
-	warp_drive(resource::manager& manager);
 	auto describe() const -> std::string override;
 	void command(const command::any&) override;
 	void serialise(YAML::Emitter&) const override;

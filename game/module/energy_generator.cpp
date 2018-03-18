@@ -5,13 +5,6 @@
 #include <tick_context.h>
 #include <world.h>
 
-mark::module::energy_generator::energy_generator(resource::manager& manager)
-	: m_image_base(manager.image("energy-generator.png"))
-	, m_image_bar(manager.image("bar.png"))
-	, module::base({2, 2}, manager.image("energy-generator.png"))
-{
-}
-
 void mark::module::energy_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
@@ -39,7 +32,7 @@ auto mark::module::energy_generator::describe() const -> std::string
 
 auto mark::module::energy_generator::harvest_energy(double dt) -> float
 {
-	let delta = 1.0 * dt;
+	let delta = static_cast<float>(1.0 * dt);
 	if (delta <= m_cur_energy) {
 		m_cur_energy -= delta;
 		return delta;

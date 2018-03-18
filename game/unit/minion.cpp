@@ -70,7 +70,7 @@ void mark::unit::minion::tick(tick_context& context)
 	tick_context::bar_info bar;
 	bar.image = world().image_bar;
 	bar.pos = pos() + vector<double>(0, -72);
-	bar.type = tick_context::bar_type::health;
+	bar.type = tick_context::bar_kind::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
 }

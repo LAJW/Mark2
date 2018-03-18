@@ -305,7 +305,7 @@ auto mark::unit::modular::p_attach(
 	for (let i : range(module->size())) {
 		this->p_at(module_pos + vector<int8_t>(i)) = module.get();
 	}
-	if (module->reserved() == module::reserved_type::back) {
+	if (module->reserved() == module::reserved_kind::back) {
 		for (let i : range<vector<int>>(
 				 {-static_cast<int>(max_size / 2), module_pos.y},
 				 {module_pos.x,
@@ -313,7 +313,7 @@ auto mark::unit::modular::p_attach(
 			this->p_reserved(vector<int8_t>(i)) = true;
 		}
 	}
-	else if (module->reserved() == module::reserved_type::front) {
+	else if (module->reserved() == module::reserved_kind::front) {
 		for (let i : range<vector<int>>(
 				 {module_pos.x + static_cast<int>(module->size().x),
 				  module_pos.y},
@@ -358,7 +358,7 @@ auto mark::unit::modular::p_can_attach(
 	if (dynamic_cast<const module::core*>(&module) && m_core) {
 		return false;
 	}
-	if (module.reserved() == module::reserved_type::back) {
+	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vector<int>>(
 				 {-static_cast<int>(max_size / 2), module_pos.y},
 				 {module_pos.x,
@@ -368,7 +368,7 @@ auto mark::unit::modular::p_can_attach(
 			}
 		}
 	}
-	else if (module.reserved() == module::reserved_type::front) {
+	else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vector<int>>(
 				 {module_pos.x + static_cast<int>(module.size().x),
 				  module_pos.y},
@@ -412,7 +412,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 		}
 		return nullptr;
 	}
-	if (module.reserved() == module::reserved_type::back) {
+	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vector<int>>(
 				 {-static_cast<int>(max_size / 2), module_pos.y},
 				 {module_pos.x,
@@ -420,7 +420,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 			this->p_reserved(vector<int8_t>(i)) = false;
 		}
 	}
-	else if (module.reserved() == module::reserved_type::front) {
+	else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vector<int>>(
 				 {module_pos.x + module_size.x, module_pos.y},
 				 {static_cast<int>(max_size / 2),

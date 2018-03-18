@@ -25,7 +25,7 @@ struct modifiers {
 auto deserialise(resource::manager&, const YAML::Node&)
 	-> std::unique_ptr<module::base>;
 
-enum class reserved_type { none, front, back };
+enum class reserved_kind { none, front, back };
 
 // Part of the base modifiable by the modular and cargo
 class base_ref {
@@ -54,6 +54,7 @@ class base : public base_ref,
 			 public interface::damageable,
 			 public interface::world_object {
 public:
+	// serialise module::base properties
 	virtual void serialise(YAML::Emitter&) const;
 
 	static constexpr auto max_heat = 100.f;
@@ -108,7 +109,7 @@ public:
 
 	// Specifies whether space around the module should be reserved
 	// For example behind engines and in front of locked turrets
-	virtual auto reserved() const noexcept -> reserved_type;
+	virtual auto reserved() const noexcept -> reserved_kind;
 
 	// Specifiy whether module has no abilities
 	virtual auto passive() const noexcept -> bool = 0;
@@ -126,14 +127,10 @@ public:
 
 protected:
 	base(resource::manager&, const YAML::Node&);
-	base(
-		vector<unsigned> size,
-		const std::shared_ptr<const resource::image>& thumbnail);
 
 	void tick(tick_context& context) override;
 
 	auto heat_color() const -> sf::Color;
-	// serialise module::base properties, call only from module serializers
 
 	// Get parent rotation (reduces compile time)
 	float parent_rotation() const;
@@ -153,8 +150,8 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
-	vector<unsigned> m_size;
-	float m_stun_lfo;
+	vector<unsigned> m_size = { 2, 2 };
+	float m_stun_lfo = 0.f;
 };
 } // namespace module
 } // namespace mark

@@ -41,24 +41,24 @@ public:
 	auto map_to_world(const vector<int>&) const noexcept -> vector<double>;
 
 private:
-	enum class terrain_type { null, abyss, floor_1, floor_2, floor_3, wall };
+	enum class terrain_kind { null, abyss, floor_1, floor_2, floor_3, wall };
 	struct terrain {
-		terrain_type type = terrain_type::null;
+		terrain_kind type = terrain_kind::null;
 		std::array<bool, 20> traversable;
 		unsigned variant = 0;
 	};
 	auto p_traversable(const vector<int>& i_pos, const size_t radius) const
 		-> bool;
 
-	static std::string serialize_terrain_type(terrain_type);
-	static enum terrain_type deserialize_terrain_type(const std::string&);
+	static std::string serialize_terrain_kind(terrain_kind);
+	static enum terrain_kind deserialize_terrain_kind(const std::string&);
 
 	map(resource::manager&, const vector<size_t>& size);
 
 	auto size() const noexcept -> const vector<size_t>&;
-	auto get(const vector<int>& pos) const noexcept -> terrain_type;
+	auto get(const vector<int>& pos) const noexcept -> terrain_kind;
 	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
-	void set(const vector<int>& pos, terrain_type) noexcept;
+	void set(const vector<int>& pos, terrain_kind) noexcept;
 	auto world_to_map(const vector<double>&) const noexcept -> vector<int>;
 	void calculate_traversable();
 

@@ -22,14 +22,6 @@ mark::module::shield_generator::shield_generator(
 {
 }
 
-mark::module::shield_generator::shield_generator(
-	resource::manager& resource_manager)
-	: base({2, 2}, resource_manager.image("shield-generator.png"))
-	, m_im_generator(resource_manager.image("shield-generator.png"))
-	, m_model_shield(resource_manager, m_radius)
-{
-}
-
 void mark::module::shield_generator::tick(tick_context& context)
 {
 	this->module::base::tick(context);
@@ -67,7 +59,7 @@ void mark::module::shield_generator::render(tick_context& context) const
 		tick_context::bar_info _;
 		_.image = parent().world().image_bar;
 		_.pos = pos + vector<double>(0, -module_size);
-		_.type = tick_context::bar_type::shield;
+		_.type = tick_context::bar_kind::shield;
 		_.percentage = m_cur_shield / m_max_shield;
 		return _;
 	}());

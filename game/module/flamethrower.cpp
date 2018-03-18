@@ -6,12 +6,6 @@
 #include <unit/modular.h>
 #include <world.h>
 
-mark::module::flamethrower::flamethrower(resource::manager& manager)
-	: module::base({2, 2}, manager.image("turret.png"))
-	, m_image_base(manager.image("turret.png"))
-{
-}
-
 void mark::module::flamethrower::command(const command::any& any)
 {
 	if (std::holds_alternative<command::activate>(any)) {
@@ -93,9 +87,9 @@ void mark::module::flamethrower::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::module::flamethrower::reserved() const noexcept -> reserved_type
+auto mark::module::flamethrower::reserved() const noexcept -> reserved_kind
 {
-	return reserved_type::front;
+	return reserved_kind::front;
 }
 
 auto mark::module::flamethrower::passive() const noexcept -> bool

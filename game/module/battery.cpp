@@ -4,12 +4,6 @@
 #include <sprite.h>
 #include <tick_context.h>
 
-mark::module::battery::battery(resource::manager& manager)
-	: m_image_base(manager.image("battery.png"))
-	, module::base({2, 2}, manager.image("battery.png"))
-{
-}
-
 void mark::module::battery::tick(tick_context& context)
 {
 	this->module::base::tick(context);
@@ -39,7 +33,7 @@ auto mark::module::battery::describe() const -> std::string
 
 auto mark::module::battery::harvest_energy(double dt) -> float
 {
-	let delta = 1.0 * dt;
+	let delta = static_cast<float>(1.0 * dt);
 	if (m_cur_energy > delta) {
 		m_cur_energy -= delta;
 		return delta;

@@ -14,7 +14,6 @@ public:
 	static constexpr const char* type_name = "module_cannon";
 
 	cannon(resource::manager&, const YAML::Node&);
-	cannon(resource::manager& manager);
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

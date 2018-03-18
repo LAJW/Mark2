@@ -4,6 +4,11 @@ ADD_LIBRARY(game STATIC ${SRC_FILES})
 SET_TARGET_PROPERTIES(game PROPERTIES CXX_STANDARD 17)
 
 IF(WIN32)
+	TARGET_COMPILE_OPTIONS(game
+		PRIVATE
+		/WX # Treat warnings as errors
+		/W4 # Warning level 4
+	)
 	TARGET_COMPILE_DEFINITIONS(game
 		PUBLIC
 		SFML_STATIC # Force SFML to compile for static libraries

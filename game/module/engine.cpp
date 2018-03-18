@@ -4,12 +4,6 @@
 #include <sprite.h>
 #include <tick_context.h>
 
-mark::module::engine::engine(resource::manager& manager)
-	: m_image_base(manager.image("engine.png"))
-	, module::base({4, 2}, manager.image("engine.png"))
-{
-}
-
 void mark::module::engine::tick(tick_context& context)
 {
 	this->module::base::tick(context);
@@ -66,9 +60,9 @@ void mark::module::engine::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::module::engine::reserved() const noexcept -> reserved_type
+auto mark::module::engine::reserved() const noexcept -> reserved_kind
 {
-	return reserved_type::back;
+	return reserved_kind::back;
 }
 
 auto mark::module::engine::passive() const noexcept -> bool { return false; }
