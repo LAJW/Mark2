@@ -117,6 +117,9 @@ public:
 	// Get module's cur health
 	auto cur_health() const -> float;
 
+	// Get module's cur health
+	auto max_health() const -> float;
+
 	auto needs_healing() const -> bool;
 
 	// Replenish module's health
@@ -137,10 +140,10 @@ protected:
 
 	auto world() noexcept -> mark::world&;
 
-private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-
+	virtual void bind(mark::property_manager&);
+	
 protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;

@@ -17,6 +17,7 @@ public:
 
 private:
 	void tick(tick_context& context) override;
+	void bind(mark::property_manager&) override {};
 
 	std::shared_ptr<const resource::image> m_image;
 };

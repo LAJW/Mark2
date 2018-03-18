@@ -34,8 +34,8 @@ void mark::module::healing_turret::tick(tick_context& context)
 			neighbours.begin(),
 			neighbours.end(),
 			[](let neighbour_l, let neighbour_r) {
-				let left = neighbour_l->cur_health();
-				let right = neighbour_r->cur_health();
+				let left = neighbour_l->cur_health() / neighbour_l->max_health();
+				let right = neighbour_r->cur_health() / neighbour_r->max_health();
 				return left < right;
 			});
 		if (min_health_neighbour != neighbours.end() &&
@@ -102,6 +102,19 @@ std::string mark::module::healing_turret::describe() const
 }
 
 // Serialize / Deserialize
+
+template <typename prop_man, typename T>
+void mark::module::healing_turret::bind(prop_man& property_manager, T& instance)
+{
+	(void)property_manager;
+	(void)instance;
+}
+
+void mark::module::healing_turret::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
 
 mark::module::healing_turret::healing_turret(
 	resource::manager& rm,

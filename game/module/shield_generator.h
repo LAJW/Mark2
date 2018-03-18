@@ -24,14 +24,17 @@ public:
 private:
 	void tick(tick_context& context) override;
 	void render(tick_context& context) const;
+	template <typename property_manager, typename T>
+	static void bind(property_manager& mgr, T& instance);
+	void bind(mark::property_manager&) override;
 
 	static constexpr let default_radius = 128.f;
 	static constexpr let default_shield_per_energy = 10.f;
 
 	const std::shared_ptr<const resource::image> m_im_generator;
-	const float m_max_shield = 1000.f;
-	const float m_radius = default_radius;
-	const float m_shield_per_energy = 10.f;
+	float m_max_shield = 1000.f;
+	float m_radius = default_radius;
+	float m_shield_per_energy = 10.f;
 	model::shield m_model_shield;
 	float m_cur_shield = 1000.f;
 	bool m_on = true;

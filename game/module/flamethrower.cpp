@@ -70,6 +70,19 @@ auto mark::module::flamethrower::describe() const -> std::string
 
 // Serialize / Deserialize
 
+template <typename prop_man, typename T>
+void mark::module::flamethrower::bind(prop_man& property_manager, T& instance)
+{
+	(void)property_manager;
+	(void)instance;
+}
+
+void mark::module::flamethrower::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
+
 mark::module::flamethrower::flamethrower(
 	resource::manager& rm,
 	const YAML::Node& node)

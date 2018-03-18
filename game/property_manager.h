@@ -11,13 +11,22 @@ namespace mark {
 class property_manager {
 private:
 	template <typename T>
-	static void deserialise(
+	// Returns post-serialization hook
+	static auto deserialise(
 		std::any value_ref,
 		const YAML::Node& node,
-		resource::manager& rm)
+		const property_manager& property_manager,
+		resource::manager& rm) -> std::optional<std::function<void()>>
 	{
 		auto& result =
 			std::any_cast<std::reference_wrapper<T>>(value_ref).get();
+		if (node && node.IsMap() && node["inherit"]) {
+			let& source = property_manager.get(node["inherit"].as<std::string>());
+			let& source_ref = std::any_cast<std::reference_wrapper<T>>(source).get();
+			return [&] {
+				result = source_ref;
+			};
+		}
 		result = [&] {
 			if (node && node.IsSequence()) {
 				const auto index = rm.random(size_t(0), node.size() - 1);
@@ -32,10 +41,15 @@ private:
 			}
 			return node.as<T>(result);
 		}();
+		return { };
 	}
 	struct property_config {
 		std::any value_ref;
-		std::function<void(std::any, const YAML::Node&, resource::manager&)>
+		std::function<std::optional<std::function<void()>>(
+			std::any,
+			const YAML::Node&,
+			const property_manager,
+			resource::manager&)>
 			deserialise;
 	};
 
@@ -51,6 +65,10 @@ public:
 		m_properties[key] = std::move(config);
 	}
 	void deserialise(const YAML::Node& node);
+	auto get(std::string key) const -> std::any
+	{
+		return m_properties.at(key).value_ref;
+	}
 
 private:
 	resource::manager& m_rm;
