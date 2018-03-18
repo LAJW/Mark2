@@ -34,8 +34,8 @@ void mark::module::healing_turret::tick(tick_context& context)
 			neighbours.begin(),
 			neighbours.end(),
 			[](let neighbour_l, let neighbour_r) {
-				let left = neighbour_l->cur_health();
-				let right = neighbour_r->cur_health();
+				let left = neighbour_l->cur_health() / neighbour_l->max_health();
+				let right = neighbour_r->cur_health() / neighbour_r->max_health();
 				return left < right;
 			});
 		if (min_health_neighbour != neighbours.end() &&

@@ -117,6 +117,9 @@ public:
 	// Get module's cur health
 	auto cur_health() const -> float;
 
+	// Get module's cur health
+	auto max_health() const -> float;
+
 	auto needs_healing() const -> bool;
 
 	// Replenish module's health

@@ -268,6 +268,8 @@ static auto size_to_image_file_name(const mark::vector<unsigned>& size)
 
 auto mark::module::base::cur_health() const -> float { return m_cur_health; }
 
+auto mark::module::base::max_health() const -> float { return m_max_health; }
+
 auto mark::module::base::needs_healing() const -> bool
 {
 	return m_cur_health < m_max_health;
