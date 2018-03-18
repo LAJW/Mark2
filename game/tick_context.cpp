@@ -147,13 +147,13 @@ void mark::tick_context::render(const bar_info& info)
 		}
 		if (i <= edge) {
 			// choose color
-			if (type == tick_context::bar_type::shield) {
+			if (type == tick_context::bar_kind::shield) {
 				frame = 5;
 			}
-			else if (type == tick_context::bar_type::energy) {
+			else if (type == tick_context::bar_kind::energy) {
 				frame = 4;
 			}
-			else if (type == tick_context::bar_type::health) {
+			else if (type == tick_context::bar_kind::health) {
 				if (percent > 75.f) {
 					frame = 3;
 				}

@@ -25,7 +25,7 @@ struct modifiers {
 auto deserialise(resource::manager&, const YAML::Node&)
 	-> std::unique_ptr<module::base>;
 
-enum class reserved_type { none, front, back };
+enum class reserved_kind { none, front, back };
 
 // Part of the base modifiable by the modular and cargo
 class base_ref {
@@ -109,7 +109,7 @@ public:
 
 	// Specifies whether space around the module should be reserved
 	// For example behind engines and in front of locked turrets
-	virtual auto reserved() const noexcept -> reserved_type;
+	virtual auto reserved() const noexcept -> reserved_kind;
 
 	// Specifiy whether module has no abilities
 	virtual auto passive() const noexcept -> bool = 0;

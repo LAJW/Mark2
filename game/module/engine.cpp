@@ -60,9 +60,9 @@ void mark::module::engine::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::module::engine::reserved() const noexcept -> reserved_type
+auto mark::module::engine::reserved() const noexcept -> reserved_kind
 {
-	return reserved_type::back;
+	return reserved_kind::back;
 }
 
 auto mark::module::engine::passive() const noexcept -> bool { return false; }

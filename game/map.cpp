@@ -30,7 +30,7 @@ mark::map mark::map::make_cavern(mark::resource::manager& resource_manager)
 		for (int j = -5; j < length + 5; j++) {
 			for (int k = -3; k <= 3; k++) {
 				map.set(
-					point + direction * j + orto * k, terrain_type::floor_1);
+					point + direction * j + orto * k, terrain_kind::floor_1);
 			}
 		}
 		point += direction * length;
@@ -44,7 +44,7 @@ mark::map mark::map::make_square(resource::manager& resource_manager)
 	mark::map map(resource_manager, {20, 20});
 	for (int x = 1; x < 20 - 1; x++) {
 		for (int y = 1; y < 20 - 1; y++) {
-			map.set({x, y}, terrain_type::floor_1);
+			map.set({x, y}, terrain_kind::floor_1);
 		}
 	}
 	map.calculate_traversable();
@@ -106,7 +106,7 @@ auto mark::map::p_traversable(const vector<int>& i_pos, const size_t uradius)
 		for (let i : range(-offset, offset)) {
 			if (length(i) <= radius) {
 				let tile = this->get(i_pos + i);
-				if (tile == terrain_type::null || tile == terrain_type::wall) {
+				if (tile == terrain_kind::null || tile == terrain_kind::wall) {
 					return false;
 				}
 			}
@@ -114,7 +114,7 @@ auto mark::map::p_traversable(const vector<int>& i_pos, const size_t uradius)
 	}
 	else {
 		let tile = this->get(i_pos);
-		if (tile == terrain_type::null || tile == terrain_type::wall) {
+		if (tile == terrain_kind::null || tile == terrain_kind::wall) {
 			return false;
 		}
 	}
@@ -146,10 +146,10 @@ void mark::map::tick(
 				let cbl = this->get(pos - vector<int>(1, 0));
 				let ctr = this->get(pos - vector<int>(0, 1));
 				let cbr = this->get(pos);
-				return ((ctl == terrain_type::floor_1) & 1) |
-					((cbl == terrain_type::floor_1) & 1) << 1 |
-					((ctr == terrain_type::floor_1) & 1) << 2 |
-					((cbr == terrain_type::floor_1) & 1) << 3;
+				return ((ctl == terrain_kind::floor_1) & 1) |
+					((cbl == terrain_kind::floor_1) & 1) << 1 |
+					((ctr == terrain_kind::floor_1) & 1) << 2 |
+					((cbr == terrain_kind::floor_1) & 1) << 3;
 			}();
 			sprite info;
 			info.image = floor;
@@ -160,46 +160,46 @@ void mark::map::tick(
 		});
 }
 
-std::string mark::map::serialize_terrain_type(terrain_type t)
+std::string mark::map::serialize_terrain_kind(terrain_kind t)
 {
 	switch (t) {
-	case terrain_type::null:
+	case terrain_kind::null:
 		return "null";
-	case terrain_type::abyss:
+	case terrain_kind::abyss:
 		return "abyss";
-	case terrain_type::floor_1:
+	case terrain_kind::floor_1:
 		return "floor_1";
-	case terrain_type::floor_2:
+	case terrain_kind::floor_2:
 		return "floor_2";
-	case terrain_type::floor_3:
+	case terrain_kind::floor_3:
 		return "floor_3";
-	case terrain_type::wall:
+	case terrain_kind::wall:
 		return "wall";
 	default:
 		throw std::bad_cast();
 	}
 }
 
-auto mark::map::deserialize_terrain_type(const std::string& str)
-	-> map::terrain_type
+auto mark::map::deserialize_terrain_kind(const std::string& str)
+	-> map::terrain_kind
 {
 	if (str == "null") {
-		return terrain_type::null;
+		return terrain_kind::null;
 	}
 	else if (str == "abyss") {
-		return terrain_type::abyss;
+		return terrain_kind::abyss;
 	}
 	else if (str == "floor_1") {
-		return terrain_type::floor_1;
+		return terrain_kind::floor_1;
 	}
 	else if (str == "floor_2") {
-		return terrain_type::floor_2;
+		return terrain_kind::floor_2;
 	}
 	else if (str == "floor_3") {
-		return terrain_type::floor_3;
+		return terrain_kind::floor_3;
 	}
 	else if (str == "wall") {
-		return terrain_type::wall;
+		return terrain_kind::wall;
 	}
 	else {
 		throw std::bad_cast();
@@ -221,13 +221,13 @@ auto mark::map::size() const noexcept -> const vector<size_t>&
 	return m_size;
 }
 
-auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_type
+auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].type;
 	}
 	else {
-		return terrain_type::null;
+		return terrain_kind::null;
 	}
 }
 
@@ -241,7 +241,7 @@ auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 	}
 }
 
-void mark::map::set(const vector<int>& pos, terrain_type type) noexcept
+void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
 {
 	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
 		m_terrain[pos.x + m_size.x * pos.y].type = type;
@@ -585,7 +585,7 @@ auto mark::map::collide(const segment_t& segment) const
 	for (double i = a; i < length + a; i += a) {
 		let cur_pos = this->world_to_map(segment.first + i * direction);
 		let cur = this->get(cur_pos);
-		if (cur != terrain_type::floor_1) {
+		if (cur != terrain_kind::floor_1) {
 			let center = this->map_to_world(cur_pos);
 			double min_len = INFINITY;
 			for (let& border : square) {
@@ -635,7 +635,7 @@ mark::map::map(resource::manager& resource_manager, const YAML::Node& node)
 	size_t i = 0;
 	auto data = base64_decode(node["data"].as<std::string>());
 	for (let ch : data) {
-		m_terrain[i].type = static_cast<terrain_type>(ch);
+		m_terrain[i].type = static_cast<terrain_kind>(ch);
 		m_terrain[i].variant = resource_manager.random(0, 2);
 		i++;
 	}

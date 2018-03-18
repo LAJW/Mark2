@@ -221,9 +221,9 @@ auto mark::module::base::global_modifiers() const -> module::modifiers
 	return module::modifiers();
 }
 
-auto mark::module::base::reserved() const noexcept -> reserved_type
+auto mark::module::base::reserved() const noexcept -> reserved_kind
 {
-	return reserved_type::none;
+	return reserved_kind::none;
 }
 
 auto mark::module::base::heat_color() const -> sf::Color

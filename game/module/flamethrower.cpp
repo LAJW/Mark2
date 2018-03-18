@@ -87,9 +87,9 @@ void mark::module::flamethrower::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::module::flamethrower::reserved() const noexcept -> reserved_type
+auto mark::module::flamethrower::reserved() const noexcept -> reserved_kind
 {
-	return reserved_type::front;
+	return reserved_kind::front;
 }
 
 auto mark::module::flamethrower::passive() const noexcept -> bool

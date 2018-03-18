@@ -59,7 +59,7 @@ void mark::module::shield_generator::render(tick_context& context) const
 		tick_context::bar_info _;
 		_.image = parent().world().image_bar;
 		_.pos = pos + vector<double>(0, -module_size);
-		_.type = tick_context::bar_type::shield;
+		_.type = tick_context::bar_kind::shield;
 		_.percentage = m_cur_shield / m_max_shield;
 		return _;
 	}());

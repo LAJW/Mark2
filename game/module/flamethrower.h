@@ -12,7 +12,7 @@ public:
 	void command(const command::any& any) override;
 	auto describe() const -> std::string override;
 	void serialise(YAML::Emitter&) const override;
-	auto reserved() const noexcept -> reserved_type override;
+	auto reserved() const noexcept -> reserved_kind override;
 	auto passive() const noexcept -> bool override;
 
 private:

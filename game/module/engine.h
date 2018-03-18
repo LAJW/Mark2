@@ -13,7 +13,7 @@ public:
 	auto global_modifiers() const -> module::modifiers override;
 	void command(const command::any&) override;
 	void serialise(YAML::Emitter&) const override;
-	auto reserved() const noexcept -> reserved_type override;
+	auto reserved() const noexcept -> reserved_kind override;
 	auto passive() const noexcept -> bool override;
 
 private:

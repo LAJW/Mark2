@@ -12,10 +12,10 @@ struct tick_context {
 	std::vector<std::pair<vector<double>, sf::Color>> lights;
 	std::vector<std::shared_ptr<unit::base>> units;
 	std::vector<particle> particles;
-	enum class bar_type { health, energy, shield };
+	enum class bar_kind { health, energy, shield };
 	struct bar_info {
 		std::shared_ptr<const resource::image> image;
-		bar_type type;
+		bar_kind type;
 		vector<double> pos;
 		float percentage;
 	};
