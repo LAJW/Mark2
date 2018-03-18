@@ -195,9 +195,10 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 	, m_im_orb(rm.image("orb.png"))
 	, m_image_variant(rm.random(0, 11))
 	, m_adsr(0.1f, 8.f, 0.1f, 0.8f)
-	, m_cone_curve(curve::deserialise(node["cone_curve"].as<std::string>()))
-	, m_rate_of_fire_curve(
-		  curve::deserialise(node["rate_of_fire_curve"].as<std::string>()))
+	, m_cone_curve(
+		  curve::deserialise(node["cone_curve"].as<std::string>("flat")))
+	, m_rate_of_fire_curve(curve::deserialise(
+		  node["rate_of_fire_curve"].as<std::string>("flat")))
 {
 	property_manager property_manager(rm);
 	bind(property_manager, *this);

@@ -11,7 +11,7 @@
 #include <world.h>
 
 mark::module::base_ref::base_ref(const YAML::Node& node)
-	: m_grid_pos(node["grid_pos"].as<vector<int>>())
+	: m_grid_pos(node["grid_pos"].as<vector<int>>(vector<int>()))
 {
 }
 
@@ -293,12 +293,11 @@ void mark::module::base::bind(prop_man& property_manager, T& instance)
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 	: base_ref(node)
 	, m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png")))
-	, m_im_shadow(rm.image(
-		  size_to_image_file_name(node["size"].as<vector<unsigned>>())))
 {
 	property_manager property_manager(rm);
 	bind(property_manager, *this);
 	property_manager.deserialise(node);
+	m_im_shadow = rm.image(size_to_image_file_name(m_size));
 }
 
 void mark::module::base::serialise(YAML::Emitter& out) const

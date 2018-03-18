@@ -150,8 +150,8 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
-	vector<unsigned> m_size;
-	float m_stun_lfo;
+	vector<unsigned> m_size = { 2, 2 };
+	float m_stun_lfo = 0.f;
 };
 } // namespace module
 } // namespace mark

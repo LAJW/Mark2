@@ -53,6 +53,12 @@ auto mark::resource::manager_stub::random_signed(int64_t min, int64_t max)
 	return (max - min) / 2 + min;
 }
 
+auto mark::resource::manager_stub::random_unsigned(uint64_t min, uint64_t max)
+	-> uint64_t
+{
+	return (max - min) / 2 + min;
+}
+
 auto mark::resource::manager_stub::random_double(double min, double max)
 	-> double
 {
