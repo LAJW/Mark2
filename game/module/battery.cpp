@@ -39,7 +39,7 @@ auto mark::module::battery::describe() const -> std::string
 
 auto mark::module::battery::harvest_energy(double dt) -> float
 {
-	let delta = 1.0 * dt;
+	let delta = static_cast<float>(1.0 * dt);
 	if (m_cur_energy > delta) {
 		m_cur_energy -= delta;
 		return delta;

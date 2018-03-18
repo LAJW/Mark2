@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include <type_traits>
 
 namespace mark {
 namespace resource {
@@ -10,24 +11,31 @@ public:
 	virtual auto image(const std::string& filename)
 		-> std::shared_ptr<const resource::image> = 0;
 	template <typename T>
-	T random(T min, T max);
+	T random(T min, T max)
+	{
+		static_assert(
+			std::is_arithmetic_v<T>,
+			"Cannot generate random value for non-arithmetic type");
+		// else statements are required - early retur doesn't work well with
+		// constexpr if
+		if constexpr (std::is_integral_v<T>) {
+			if constexpr (std::is_signed_v<T>) {
+				return static_cast<T>(random_signed(min, max));
+			}
+			else {
+				return static_cast<T>(random_unsigned(min, max));
+			}
+		}
+		else {
+			return static_cast<T>(random_double(min, max));
+		}
+	}
 
 protected:
-	virtual auto random_int(int min, int max) -> int = 0;
+	virtual auto random_signed(int64_t min, int64_t max) -> int64_t = 0;
+	virtual auto random_unsigned(uint64_t min, uint64_t max) -> uint64_t = 0;
 	virtual auto random_double(double min, double max) -> double = 0;
 };
-template <>
-auto manager::random<bool>(bool min, bool max) -> bool;
-template <>
-auto manager::random<int>(int min, int max) -> int;
-template <>
-auto manager::random<unsigned>(unsigned min, unsigned max) -> unsigned;
-template <>
-auto manager::random<size_t>(size_t min, size_t max) -> size_t;
-template <>
-auto manager::random<double>(double min, double max) -> double;
-template <>
-auto manager::random<float>(float min, float max) -> float;
 
 class manager_impl final : public manager {
 public:
@@ -36,7 +44,8 @@ public:
 		-> std::shared_ptr<const resource::image> override;
 
 protected:
-	auto random_int(int min, int max) -> int override;
+	auto random_signed(int64_t min, int64_t max) -> int64_t override;
+	auto random_unsigned(uint64_t min, uint64_t max) -> uint64_t override;
 	auto random_double(double min, double max) -> double override;
 
 private:
@@ -52,7 +61,8 @@ public:
 		-> std::shared_ptr<const resource::image> override;
 
 protected:
-	auto random_int(int min, int max) -> int override;
+	auto random_signed(int64_t min, int64_t max) -> int64_t override;
+	auto random_unsigned(uint64_t min, uint64_t max) -> uint64_t override;
 	auto random_double(double min, double max) -> double override;
 };
 }; // namespace resource

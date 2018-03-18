@@ -39,7 +39,7 @@ auto mark::module::energy_generator::describe() const -> std::string
 
 auto mark::module::energy_generator::harvest_energy(double dt) -> float
 {
-	let delta = 1.0 * dt;
+	let delta = static_cast<float>(1.0 * dt);
 	if (delta <= m_cur_energy) {
 		m_cur_energy -= delta;
 		return delta;
