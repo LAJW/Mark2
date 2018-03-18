@@ -7,6 +7,23 @@
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
+#include <property_manager.h>
+
+template <typename prop_man, typename T>
+void mark::module::shield_generator::bind(prop_man& property_manager, T& instance)
+{
+	MARK_BIND(radius);
+	MARK_BIND(cur_shield);
+	MARK_BIND(max_shield);
+	MARK_BIND(radius);
+	MARK_BIND(shield_per_energy);
+}
+
+void mark::module::shield_generator::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& rm,
@@ -20,6 +37,19 @@ mark::module::shield_generator::shield_generator(
 	, m_shield_per_energy(
 		  node["shield_per_energy"].as<float>(default_shield_per_energy))
 {
+}
+
+void mark::module::shield_generator::serialise(YAML::Emitter& out) const
+{
+	using namespace YAML;
+	out << BeginMap;
+	out << Key << "type" << Value << type_name;
+	base::serialise(out);
+	out << Key << "cur_shield" << Value << m_cur_shield;
+	out << Key << "max_shield" << Value << m_max_shield;
+	out << Key << "radius" << Value << m_radius;
+	out << Key << "shield_per_energy" << Value << m_shield_per_energy;
+	out << EndMap;
 }
 
 void mark::module::shield_generator::tick(tick_context& context)
@@ -115,19 +145,6 @@ auto mark::module::shield_generator::collide(const segment_t& ray)
 auto mark::module::shield_generator::shield() const noexcept -> float
 {
 	return m_cur_shield;
-}
-
-void mark::module::shield_generator::serialise(YAML::Emitter& out) const
-{
-	using namespace YAML;
-	out << BeginMap;
-	out << Key << "type" << Value << type_name;
-	base::serialise(out);
-	out << Key << "cur_shield" << Value << m_cur_shield;
-	out << Key << "max_shield" << Value << m_max_shield;
-	out << Key << "radius" << Value << m_radius;
-	out << Key << "shield_per_energy" << Value << m_shield_per_energy;
-	out << EndMap;
 }
 
 auto mark::module::shield_generator::passive() const noexcept -> bool

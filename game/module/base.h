@@ -140,10 +140,10 @@ protected:
 
 	auto world() noexcept -> mark::world&;
 
-private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-
+	virtual void bind(mark::property_manager&);
+	
 protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;

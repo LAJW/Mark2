@@ -4,6 +4,7 @@
 #include <sprite.h>
 #include <tick_context.h>
 #include <world.h>
+#include <property_manager.h>
 
 void mark::module::energy_generator::tick(tick_context& context)
 {
@@ -46,6 +47,20 @@ auto mark::module::energy_generator::energy_ratio() const -> float
 }
 
 // Serialize / Deserialize
+
+template <typename prop_man, typename T>
+void mark::module::energy_generator::bind(prop_man& property_manager, T& instance)
+{
+	MARK_BIND(cur_energy);
+	MARK_BIND(max_energy);
+	MARK_BIND(energy_regen);
+}
+
+void mark::module::energy_generator::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
 
 mark::module::energy_generator::energy_generator(
 	resource::manager& rm,

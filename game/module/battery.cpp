@@ -3,6 +3,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <tick_context.h>
+#include <property_manager.h>
 
 void mark::module::battery::tick(tick_context& context)
 {
@@ -47,6 +48,19 @@ auto mark::module::battery::energy_ratio() const -> float
 }
 
 // deserialise / serialise
+
+template <typename prop_man, typename T>
+void mark::module::battery::bind(prop_man& property_manager, T& instance)
+{
+	MARK_BIND(max_energy);
+	MARK_BIND(cur_energy);
+}
+
+void mark::module::battery::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
 
 mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)

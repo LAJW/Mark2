@@ -188,6 +188,12 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(is_chargeable);
 }
 
+void mark::module::turret::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
+
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_targeting_system(*this)

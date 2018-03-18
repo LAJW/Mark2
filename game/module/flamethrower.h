@@ -17,6 +17,9 @@ public:
 
 private:
 	void tick(tick_context& context) override;
+	template <typename property_manager, typename T>
+	static void bind(property_manager& mgr, T& instance);
+	void bind(mark::property_manager&) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
 	bool m_shoot = false;

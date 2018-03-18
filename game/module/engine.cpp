@@ -45,6 +45,19 @@ void mark::module::engine::command(const command::any& any)
 	}
 }
 
+template <typename prop_man, typename T>
+void mark::module::engine::bind(prop_man& property_manager, T& instance)
+{
+	(void)property_manager;
+	(void)instance;
+}
+
+void mark::module::engine::bind(mark::property_manager& property_manager)
+{
+	bind(property_manager, *this);
+	base::bind(property_manager);
+}
+
 mark::module::engine::engine(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("engine.png"))
