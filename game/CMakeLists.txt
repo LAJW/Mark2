@@ -45,6 +45,13 @@ IF(APPLE)
 ENDIF()
 
 IF(MSVC)
+	# VS doesn't build in order
+	ADD_DEPENDENCIES(game
+		sfml-graphics
+		sfml-window
+		sfml-system
+		sfml-main
+	)
 	TARGET_LINK_LIBRARIES(game INTERFACE
 		winmm
 		debug sfml-graphics-s-d
