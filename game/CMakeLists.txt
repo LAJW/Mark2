@@ -3,11 +3,13 @@ FILE(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**.cpp)
 ADD_LIBRARY(game STATIC ${SRC_FILES})
 SET_TARGET_PROPERTIES(game PROPERTIES CXX_STANDARD 17)
 
-IF(WIN32)
+IF(MSVC)
 	TARGET_COMPILE_OPTIONS(game
 		PRIVATE
 		/WX # Treat warnings as errors
 		/W4 # Warning level 4
+		PUBLIC
+		/std:c++17 # CMake 3.8 doesn't know that VS 2017 has added C++ standard flags
 	)
 	TARGET_COMPILE_DEFINITIONS(game
 		PUBLIC
@@ -16,7 +18,7 @@ IF(WIN32)
 	)
 	TARGET_INCLUDE_DIRECTORIES(game PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}/../SFML/include)
-ENDIF()
+ENDIF(MSVC)
 
 TARGET_INCLUDE_DIRECTORIES(game PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../yaml-cpp/include
@@ -42,7 +44,7 @@ IF(APPLE)
 	)
 ENDIF()
 
-IF(WIN32)
+IF(MSVC)
 	TARGET_LINK_LIBRARIES(game INTERFACE
 		winmm
 		debug sfml-graphics-s-d

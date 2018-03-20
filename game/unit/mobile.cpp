@@ -123,10 +123,10 @@ auto mark::unit::mobile::tick_movement_impl(
 void mark::unit::mobile::tick_movement(const tick_movement_info& info)
 {
 	let random_can_pathfind = world().resource_manager().random(0, 2);
-	auto [pos, velocity, path, m_path_age] =
+	auto [pos, velocity, path, path_age] =
 		this->tick_movement_impl(info, random_can_pathfind);
 	m_path_cache = std::move(path);
-	m_path_age = m_path_age;
+	m_path_age = path_age;
 	this->pos(pos);
 	m_velocity = velocity;
 }
