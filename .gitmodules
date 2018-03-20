@@ -1,9 +1,9 @@
 [submodule "yaml-cpp"]
 	path = yaml-cpp
-	url = git@github.com:jbeder/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
 [submodule "SFML"]
 	path = SFML
-	url = git@github.com:SFML/SFML
+	url = https://github.com/SFML/SFML
 [submodule "Catch2"]
 	path = Catch2
 	url = https://github.com/catchorg/Catch2
