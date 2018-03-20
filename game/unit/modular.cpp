@@ -642,22 +642,22 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 		let module_pos = module_node["grid_pos"].as<vector<int>>();
 		let id = module_node["id"].as<uint64_t>();
 		auto module = [&] {
-			let template_node = module_node["template"];
+			let blueprint_node = module_node["blueprint"];
 			auto& rm = world.resource_manager();
-			if (!template_node) {
+			if (!blueprint_node) {
 				return module::deserialise(rm, module_node);
 			}
-			let template_id = [&] {
-				if (template_node.IsSequence()) {
-					if (template_node.size() == 0) {
-						throw std::runtime_error("Empty template selection");
+			let blueprint_id = [&] {
+				if (blueprint_node.IsSequence()) {
+					if (blueprint_node.size() == 0) {
+						throw std::runtime_error("Empty blueprint selection");
 					}
-					let index = rm.random<size_t>(0, template_node.size() - 1);
-					return template_node[index].as<std::string>();
+					let index = rm.random<size_t>(0, blueprint_node.size() - 1);
+					return blueprint_node[index].as<std::string>();
 				}
-				return template_node.as<std::string>();
+				return blueprint_node.as<std::string>();
 			}();
-			auto properties = world.templates().at(template_id);
+			auto properties = world.blueprints().at(blueprint_id);
 			for (let& property : module_node) {
 				properties[property.first] = property.second;
 			}
