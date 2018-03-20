@@ -1,22 +1,28 @@
-﻿#include <iostream>
-#include "stdafx.h"
-#include <SFML/Graphics.hpp>
-#include <chrono>
-#include <fstream>
-#include <iostream>
-
-#include "algorithm.h"
+﻿#include "algorithm.h"
 #include "command.h"
 #include "hid.h"
 #include "renderer.h"
 #include "resource_image.h"
 #include "resource_manager.h"
 #include "sprite.h"
+#include "stdafx.h"
 #include "tick_context.h"
 #include "ui/ui.h"
 #include "unit/modular.h"
 #include "world.h"
 #include "world_stack.h"
+#include <SFML/Graphics.hpp>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
+namespace mark {
+constexpr let window_title = "mark 2";
+constexpr let save_path = "state.yml";
+constexpr let options_path = "options.yml";
+constexpr let blueprints_path = "blueprints";
+}; // namespace mark
 
 #ifdef WIN32
 
@@ -26,6 +32,13 @@ __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 // Enable dedicated graphics for AMD Radeon
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+
+// VC++ 17 supports only the final draft
+using namespace std::experimental;
+
+#else
+
+using namespace std::filesystem;
 
 #endif
 
@@ -114,6 +127,19 @@ void event_loop(event_loop_info& info)
 	}
 }
 
+// Get map of all ship and module blueprints
+static auto blueprints()
+{
+	std::unordered_map<std::string, YAML::Node> result;
+	for (let& dir : filesystem::directory_iterator(mark::blueprints_path)) {
+		let path = dir.path().string();
+		let basename = dir.path().stem().string();
+		result[basename] = YAML::LoadFile(path);
+		result[basename]["blueprint_id"] = basename;
+	}
+	return result;
+}
+
 namespace mark {
 void main(std::vector<std::string> args);
 }
@@ -122,15 +148,13 @@ void mark::main(std::vector<std::string> args)
 {
 	mode_stack stack;
 	mark::resource::manager_impl rm;
-	std::unordered_map<std::string, YAML::Node> templates;
-	templates["ship"] = YAML::LoadFile("ship.yml");
-	templates["turret"] = YAML::LoadFile("turret.yml");
-	mark::world_stack world_stack(YAML::LoadFile("state.yml"), rm, templates);
+	mark::world_stack world_stack(
+		YAML::LoadFile(mark::save_path), rm, blueprints());
 	mark::ui::ui ui(rm, stack, world_stack);
-	let options = YAML::LoadFile("options.yml");
+	let options = YAML::LoadFile(options_path);
 	mark::hid hid(options["keybindings"]);
 	event_loop_info event_loop_info;
-	event_loop_info.window_title = "mark 2";
+	event_loop_info.window_title = window_title;
 	event_loop_info.stack = &stack;
 	event_loop_info.res = {1920, 1080};
 	event_loop_info.on_event = [&](const on_event_info& info) {
@@ -163,7 +187,7 @@ void mark::main(std::vector<std::string> args)
 	};
 	event_loop(event_loop_info);
 	ui.release();
-	save_world(world_stack.world(), "state.yml");
+	save_world(world_stack.world(), save_path);
 }
 
 int main(const int argc, const char* argv[])
