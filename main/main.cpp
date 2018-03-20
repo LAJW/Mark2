@@ -13,7 +13,6 @@
 #include "world_stack.h"
 #include <SFML/Graphics.hpp>
 #include <chrono>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -33,13 +32,14 @@ __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-// VC++ 17 supports only the final draft
-using namespace std::experimental;
+#endif
 
-#else
-
+#if __has_include(<filesystem>)
+#include <filesystem>
 using namespace std::filesystem;
-
+#else
+#include <experimental/filesystem>
+using namespace std::experimental;
 #endif
 
 void save_world(const mark::world& world, std::string filename)
