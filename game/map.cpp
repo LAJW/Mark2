@@ -93,7 +93,7 @@ auto mark::map::traversable(const vector<double>& pos, const double radius_)
 auto mark::map::traversable(const vector<int>& pos, const size_t radius) const
 	-> bool
 {
-	return pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y &&
+	return pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0 && pos.y < (int)m_size.y &&
 		radius < 20 && m_terrain[pos.x + m_size.x * pos.y].traversable[radius];
 }
 
@@ -223,7 +223,7 @@ auto mark::map::size() const noexcept -> const vector<size_t>&
 
 auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 {
-	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
+	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0 && pos.y < (int)m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].type;
 	}
 	else {
@@ -233,7 +233,7 @@ auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 
 auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 {
-	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
+	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0 && pos.y < (int)m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].variant;
 	}
 	else {
@@ -243,7 +243,7 @@ auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 
 void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
 {
-	if (pos.x >= 0 && pos.x < m_size.x && pos.y >= 0 && pos.y < m_size.y) {
+	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0 && pos.y < (int)m_size.y) {
 		m_terrain[pos.x + m_size.x * pos.y].type = type;
 	}
 }
