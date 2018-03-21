@@ -107,7 +107,7 @@ mark::world::world(
 	let map_size = vector<int>(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialise(*this, stack.templates().at("ship")));
+			unit::deserialise(*this, stack.blueprints().at("ship")));
 	};
 	let spawn_gate = [&](vector<double> pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
@@ -424,8 +424,8 @@ void mark::world::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::world::templates() const
+auto mark::world::blueprints() const
 	-> const std::unordered_map<std::string, YAML::Node>&
 {
-	return m_stack->templates();
+	return m_stack->blueprints();
 }

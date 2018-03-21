@@ -7,8 +7,8 @@
 mark::world_stack::world_stack(
 	const YAML::Node& state_node,
 	resource::manager& resource_manager,
-	const std::unordered_map<std::string, YAML::Node>& templates)
-	: m_templates(templates)
+	const blueprint_map& blueprints)
+	: m_blueprints(blueprints)
 	, m_resource_manager(resource_manager)
 {
 	world_data data;
@@ -59,10 +59,9 @@ auto mark::world_stack::world() noexcept -> mark::world&
 	return *m_worlds[m_current_world_id].world;
 }
 
-auto mark::world_stack::templates() const
-	-> const std::unordered_map<std::string, YAML::Node>&
+auto mark::world_stack::blueprints() const -> const blueprint_map&
 {
-	return m_templates;
+	return m_blueprints;
 }
 
 mark::world_stack::~world_stack() = default;
