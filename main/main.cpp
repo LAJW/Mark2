@@ -34,7 +34,7 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif
 
-#if __has_include(<filesystem>)
+#if !WIN32 && __has_include(<filesystem>)
 #include <filesystem>
 using namespace std::filesystem;
 #else
