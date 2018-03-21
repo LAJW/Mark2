@@ -16,16 +16,14 @@ private:
 		std::any value_ref,
 		const YAML::Node& node,
 		const property_manager& property_manager,
-		resource::manager& rm) -> std::optional<std::function<void()>>
+		resource::manager& rm) -> std::function<void()>
 	{
 		auto& result =
 			std::any_cast<std::reference_wrapper<T>>(value_ref).get();
 		if (node && node.IsMap() && node["inherit"]) {
-			let& source = property_manager.get(node["inherit"].as<std::string>());
-			let& source_ref = std::any_cast<std::reference_wrapper<T>>(source).get();
-			return [&] {
-				result = source_ref;
-			};
+			let& source =
+				property_manager.get<T>(node["inherit"].as<std::string>());
+			return [&] { result = source; };
 		}
 		result = [&] {
 			if (node && node.IsSequence()) {
@@ -41,11 +39,11 @@ private:
 			}
 			return node.as<T>(result);
 		}();
-		return { };
+		return {};
 	}
 	struct property_config {
 		std::any value_ref;
-		std::function<std::optional<std::function<void()>>(
+		std::function<std::function<void()>(
 			std::any,
 			const YAML::Node&,
 			const property_manager,
@@ -65,9 +63,11 @@ public:
 		m_properties[key] = std::move(config);
 	}
 	void deserialise(const YAML::Node& node);
-	auto get(std::string key) const -> std::any
+	template <typename T>
+	auto get(std::string key) const -> const T&
 	{
-		return m_properties.at(key).value_ref;
+		let& any = m_properties.at(key).value_ref;
+		return std::any_cast<std::reference_wrapper<T>>(any).get();
 	}
 
 private:
