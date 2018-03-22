@@ -32,7 +32,7 @@ mark::world::world(resource::manager& rm)
 	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
 	, m_space_bins(
 		  voxel_dim,
-          m_map->map_to_world({0, 0}),
+		  m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
@@ -109,7 +109,7 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, m_space_bins(
 		  voxel_dim,
-          m_map->map_to_world({0, 0}),
+		  m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
@@ -163,8 +163,8 @@ mark::world::world(
 				return _;
 			}());
 			m_units.push_back(new_unit);
-            // It's important to keep updating the spatial partition so that
-            // `find` works as expected
+			// It's important to keep updating the spatial partition so that
+			// `find` works as expected
 			m_space_bins.at(compute_index(m_space_bins, new_unit->pos()))
 				.emplace_back(new_unit);
 		}
@@ -208,7 +208,7 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 		m_map->tick(camera - offset, camera + offset, context);
 	}
 
-    // update the spatial partition
+	// update the spatial partition
 	divide_space(begin(m_units), end(m_units), m_space_bins);
 
 	for (auto& unit : m_units) {
@@ -392,7 +392,7 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(rm, node["map"]))
 	, m_space_bins(
 		  voxel_dim,
-          m_map->map_to_world({0, 0}),
+		  m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, m_camera(
 		  node["camera"]["x"].as<double>(),
