@@ -32,7 +32,7 @@ mark::world::world(resource::manager& rm)
 	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
 	, m_space_bins(
 		  voxel_dim,
-		  {0.0, 0.0},
+          m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
@@ -109,7 +109,7 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, m_space_bins(
 		  voxel_dim,
-		  {0.0, 0.0},
+          m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
@@ -145,8 +145,9 @@ mark::world::world(
 		let unit = spawn_ship();
 		return unit->radius();
 	}();
+
 	for (let point : range(map_size)) {
-		let pos = vector<double>(point - map_size / 2) * map::tile_size;
+		let pos = m_map->map_to_world(point);
 		if (m_map->traversable(pos, ship_radius) &&
 			this->find(pos, ship_radius * 4.).empty()) {
 			/*
@@ -154,12 +155,18 @@ mark::world::world(
 			unit->pos(pos);
 			unit->ai(true);
 			m_units.push_back(move(unit)); */
-			m_units.push_back(std::make_shared<unit::minion>([&] {
+
+			auto new_unit = std::make_shared<unit::minion>([&] {
 				unit::minion::info _;
 				_.pos = pos;
 				_.world = this;
 				return _;
-			}()));
+			}());
+			m_units.push_back(new_unit);
+            // It's important to keep updating the spatial partition so that
+            // `find` works as expected
+			m_space_bins.at(compute_index(m_space_bins, new_unit->pos()))
+				.emplace_back(new_unit);
 		}
 	}
 	if (initial) {
@@ -385,7 +392,7 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(rm, node["map"]))
 	, m_space_bins(
 		  voxel_dim,
-		  {0.0, 0.0},
+          m_map->map_to_world({0, 0}),
 		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, m_camera(
 		  node["camera"]["x"].as<double>(),
