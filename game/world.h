@@ -3,6 +3,7 @@
 #include "command.h"
 #include "interface/damageable.h"
 #include "lfo.h"
+#include "space_bins.h"
 #include "stdafx.h"
 #include "unit/base.h"
 
@@ -27,81 +28,31 @@ public:
 			std::pow(m_camera_adsr.get(), 3.f) * 10.;
 	}
 
-	template <typename unit_type = unit::base>
+	static constexpr auto true_predicate = [](let&) { return true; };
+
+	template <
+		typename unit_type = unit::base,
+		typename T = decltype(true_predicate)>
 	auto find(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred = [](let&) {
-			return true;
-		}) -> std::vector<std::shared_ptr<unit_type>>
+		T pred = true_predicate) const
+		-> std::vector<std::shared_ptr<unit_type>>
 	{
-		std::vector<std::shared_ptr<unit_type>> out;
-		for (auto& unit : m_units) {
-			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived = std::dynamic_pointer_cast<unit_type>(unit)) {
-					out.push_back(std::move(derived));
-				}
-			}
-		}
-		return out;
+		return mark::find<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
-	template <typename unit_type = unit::base>
-	auto find(
-		const vector<double>& pos,
-		const double radius,
-		const std::function<bool(const unit::base&)>& pred = [](let&) {
-			return true;
-		}) const -> const std::vector<std::shared_ptr<const unit_type>>
-	{
-		std::vector<std::shared_ptr<const unit_type>> out;
-		for (auto& unit : m_units) {
-			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived =
-						std::dynamic_pointer_cast<const unit_type>(unit)) {
-					out.push_back(std::move(derived));
-				}
-			}
-		}
-		return out;
-	}
-
-	template <typename unit_type = unit::base>
+	template <
+		typename unit_type = unit::base,
+		typename T = decltype(true_predicate)>
 	auto find_one(
 		const vector<double>& pos,
 		const double radius,
-		const std::function<bool(const unit::base&)>& pred = [](let&) {
-			return true;
-		}) -> std::shared_ptr<unit_type>
+		T pred = true_predicate) const -> std::shared_ptr<unit_type>
 	{
-		for (auto& unit : m_units) {
-			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived = std::dynamic_pointer_cast<unit_type>(unit)) {
-					return derived;
-				}
-			}
-		}
-		return nullptr;
+		return mark::find_one<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
-	template <typename unit_type = unit::base>
-	auto find_one(
-		const vector<double>& pos,
-		const double radius,
-		const std::function<bool(const unit::base&)>& pred = [](let&) {
-			return true;
-		}) const -> std::shared_ptr<const unit_type>
-	{
-		for (auto& unit : m_units) {
-			if (length(unit->pos() - pos) < radius && pred(*unit)) {
-				if (let derived =
-						std::dynamic_pointer_cast<const unit_type>(unit)) {
-					return derived;
-				}
-			}
-		}
-		return nullptr;
-	}
 	void command(const command::any& command);
 	// set target for commmands
 	void target(const std::shared_ptr<unit::base>& target);
@@ -146,6 +97,7 @@ private:
 	lfo m_camera_y_lfo = lfo(10.f, .0f);
 	adsr m_camera_adsr = adsr(0, 1, .5f, .3f);
 	std::vector<std::shared_ptr<unit::base>> m_units;
+	space_bins<std::vector<std::shared_ptr<unit::base>>> m_space_bins;
 	resource::manager& m_resource_manager;
 	std::weak_ptr<unit::base> m_camera_target;
 	vector<double> m_camera;
