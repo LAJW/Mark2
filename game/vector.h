@@ -5,6 +5,19 @@
 namespace mark {
 template <typename T>
 using vector = sf::Vector2<T>;
+
+template <typename T>
+auto min(vector<T> t, vector<T> u)
+{
+	return vector<T>{std::min(t.x, u.x), std::min(t.y, u.y)};
+}
+
+template <typename T>
+auto max(vector<T> t, vector<T> u)
+{
+	return vector<T>{std::max(t.x, u.x), std::max(t.y, u.y)};
+}
+
 template <typename T, typename U>
 auto rotate(T vector, U angle)
 {

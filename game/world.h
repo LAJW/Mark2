@@ -28,27 +28,29 @@ public:
 			std::pow(m_camera_adsr.get(), 3.f) * 10.;
 	}
 
-	static constexpr auto true_predicate = [](let&) { return true; };
+	struct true_predicate {
+		template <typename T>
+		auto operator()(const T&) const
+		{
+			return true;
+		}
+	};
 
-	template <
-		typename unit_type = unit::base,
-		typename T = decltype(true_predicate)>
+	template <typename unit_type = unit::base, typename T = true_predicate>
 	auto find(
 		const vector<double>& pos,
 		const double radius,
-		T pred = true_predicate) const
+		T pred = true_predicate{}) const
 		-> std::vector<std::shared_ptr<unit_type>>
 	{
 		return mark::find<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
-	template <
-		typename unit_type = unit::base,
-		typename T = decltype(true_predicate)>
+	template <typename unit_type = unit::base, typename T = true_predicate>
 	auto find_one(
 		const vector<double>& pos,
 		const double radius,
-		T pred = true_predicate) const -> std::shared_ptr<unit_type>
+		T pred = true_predicate{}) const -> std::shared_ptr<unit_type>
 	{
 		return mark::find_one<unit_type>(m_space_bins, pos, radius, pred);
 	}
@@ -97,7 +99,7 @@ private:
 	lfo m_camera_y_lfo = lfo(10.f, .0f);
 	adsr m_camera_adsr = adsr(0, 1, .5f, .3f);
 	std::vector<std::shared_ptr<unit::base>> m_units;
-	space_bins<std::vector<std::shared_ptr<unit::base>>> m_space_bins;
+	space_bins m_space_bins;
 	resource::manager& m_resource_manager;
 	std::weak_ptr<unit::base> m_camera_target;
 	vector<double> m_camera;
