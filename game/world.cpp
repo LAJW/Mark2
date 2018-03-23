@@ -1,5 +1,4 @@
-﻿#include "stdafx.h"
-#include "world.h"
+﻿#include "world.h"
 #include "algorithm.h"
 #include "command.h"
 #include "map.h"
@@ -14,6 +13,7 @@
 #include "module/turret.h"
 #include "particle.h"
 #include "resource_manager.h"
+#include "stdafx.h"
 #include "tick_context.h"
 #include "unit/base.h"
 #include "unit/damageable.h"
@@ -21,11 +21,20 @@
 #include "unit/landing_pad.h"
 #include "unit/minion.h"
 #include "unit/modular.h"
+#include "unit/projectile.h"
 #include "world_stack.h"
+
+namespace {
+const auto voxel_dim = mark::vector<std::size_t>{50, 50};
+} // namespace
 
 mark::world::world(resource::manager& rm)
 	: m_resource_manager(rm)
 	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
+	, m_space_bins(
+		  voxel_dim,
+		  m_map->map_to_world({0, 0}),
+		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
@@ -65,7 +74,7 @@ static auto find_gate_pos(const mark::map& map, mark::vector<int> size)
 		mark::unit::gate::radius,
 		[&](auto proc) -> std::optional<mark::vector<double>> {
 			for (let point : mark::range(size)) {
-				if (const auto result = proc(point)) {
+				if (let result = proc(point)) {
 					return *result;
 				}
 			}
@@ -84,7 +93,7 @@ static auto find_landing_pad_pos(const mark::map& map, mark::vector<int> size)
 		[&](auto proc) -> std::optional<mark::vector<double>> {
 			for (int x = size.x - 1; x >= 0; --x) {
 				for (int y = size.y - 1; y >= 0; --y) {
-					if (const auto result = proc({x, y})) {
+					if (let result = proc({x, y})) {
 						return *result;
 					}
 				}
@@ -99,6 +108,10 @@ mark::world::world(
 	bool initial)
 	: m_resource_manager(resource_manager)
 	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
+	, m_space_bins(
+		  voxel_dim,
+		  m_map->map_to_world({0, 0}),
+		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
@@ -133,8 +146,9 @@ mark::world::world(
 		let unit = spawn_ship();
 		return unit->radius();
 	}();
+
 	for (let point : range(map_size)) {
-		let pos = vector<double>(point - map_size / 2) * map::tile_size;
+		let pos = m_map->map_to_world(point);
 		if (m_map->traversable(pos, ship_radius) &&
 			this->find(pos, ship_radius * 4.).empty()) {
 			/*
@@ -142,12 +156,18 @@ mark::world::world(
 			unit->pos(pos);
 			unit->ai(true);
 			m_units.push_back(move(unit)); */
-			m_units.push_back(std::make_shared<unit::minion>([&] {
+
+			auto new_unit = std::make_shared<unit::minion>([&] {
 				unit::minion::info _;
 				_.pos = pos;
 				_.world = this;
 				return _;
-			}()));
+			}());
+			m_units.push_back(new_unit);
+			// It's important to keep updating the spatial partition so that
+			// `find` works as expected
+			m_space_bins.at(compute_index(m_space_bins, new_unit->pos()))
+				.emplace_back(new_unit);
 		}
 	}
 	if (initial) {
@@ -188,6 +208,8 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 			vector<double>(map::tile_size, map::tile_size) * 2.;
 		m_map->tick(camera - offset, camera + offset, context);
 	}
+
+	update_spatial_partition();
 
 	for (auto& unit : m_units) {
 		// ticking can damage other units and they may become dead in the
@@ -324,6 +346,20 @@ auto mark::world::collide(vector<double> center, float radius)
 	return out;
 }
 
+void mark::world::update_spatial_partition()
+{
+	std::vector<std::shared_ptr<unit::base>> non_projectiles;
+	non_projectiles.reserve(m_units.size());
+	std::copy_if(
+		begin(m_units),
+		end(m_units),
+		back_inserter(non_projectiles),
+		[](let& base) {
+			return !std::dynamic_pointer_cast<unit::projectile>(base);
+		});
+	divide_space(begin(non_projectiles), end(non_projectiles), m_space_bins);
+}
+
 auto mark::world::damage(world::damage_info info)
 	-> std::pair<std::vector<vector<double>>, bool>
 {
@@ -368,6 +404,10 @@ mark::world::world(
 	const YAML::Node& node)
 	: m_resource_manager(rm)
 	, m_map(std::make_unique<mark::map>(rm, node["map"]))
+	, m_space_bins(
+		  voxel_dim,
+		  m_map->map_to_world({0, 0}),
+		  m_map->map_to_world(vector<int>{m_map->size()}))
 	, m_camera(
 		  node["camera"]["x"].as<double>(),
 		  node["camera"]["y"].as<double>())

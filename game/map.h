@@ -40,6 +40,8 @@ public:
 	};
 	auto map_to_world(const vector<int>&) const noexcept -> vector<double>;
 
+	auto size() const noexcept -> const vector<size_t>&;
+
 private:
 	enum class terrain_kind { null, abyss, floor_1, floor_2, floor_3, wall };
 	struct terrain {
@@ -55,7 +57,6 @@ private:
 
 	map(resource::manager&, const vector<size_t>& size);
 
-	auto size() const noexcept -> const vector<size_t>&;
 	auto get(const vector<int>& pos) const noexcept -> terrain_kind;
 	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
 	void set(const vector<int>& pos, terrain_kind) noexcept;

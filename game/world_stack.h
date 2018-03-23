@@ -24,6 +24,6 @@ private:
 	std::vector<world_data> m_worlds;
 	size_t m_current_world_id = 0;
 	resource::manager& m_resource_manager;
-	const blueprint_map& m_blueprints;
+	const blueprint_map m_blueprints;
 };
 } // namespace mark
