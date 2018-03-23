@@ -16,7 +16,8 @@ private:
 		std::any value_ref,
 		const YAML::Node& node,
 		const property_manager& property_manager,
-		resource::manager& rm) -> std::function<void()>
+		resource::manager& rm,
+		bool only_randomise) -> std::function<void()>
 	{
 		auto& result =
 			std::any_cast<std::reference_wrapper<T>>(value_ref).get();
@@ -37,6 +38,9 @@ private:
 					return rm.random(min, max);
 				}
 			}
+			if (only_randomise) {
+				return result;
+			}
 			return node.as<T>(result);
 		}();
 		return {};
@@ -47,7 +51,8 @@ private:
 			std::any,
 			const YAML::Node&,
 			const property_manager,
-			resource::manager&)>
+			resource::manager&,
+			bool)>
 			deserialise;
 	};
 
@@ -63,6 +68,7 @@ public:
 		m_properties[key] = std::move(config);
 	}
 	void deserialise(const YAML::Node& node);
+	void randomise(const YAML::Node& node);
 	template <typename T>
 	auto get(std::string key) const -> const T&
 	{

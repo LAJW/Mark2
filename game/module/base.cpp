@@ -282,6 +282,18 @@ void mark::module::base::heal(float amount)
 
 auto mark::module::base::team() const -> size_t { return parent().team(); }
 
+void mark::module::base::randomise(
+	const std::unordered_map<std::string, YAML::Node>& blueprints,
+	resource::manager& resource_manager)
+{
+	if (m_blueprint_id.empty()) {
+		return;
+	}
+	property_manager property_manager(resource_manager);
+	this->bind(property_manager);
+	property_manager.randomise(blueprints.at(m_blueprint_id));
+}
+
 template <typename prop_man, typename T>
 void mark::module::base::bind(prop_man& property_manager, T& instance)
 {
@@ -290,6 +302,7 @@ void mark::module::base::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(stunned);
 	MARK_BIND(cur_heat);
 	MARK_BIND(size);
+	MARK_BIND(blueprint_id)
 }
 
 void mark::module::base::bind(mark::property_manager& property_manager)

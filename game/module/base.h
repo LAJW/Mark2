@@ -128,6 +128,11 @@ public:
 	// Get team ID, to satisfy world object interface
 	auto team() const -> size_t override final;
 
+	// Randomise all random properties
+	void randomise(
+		const std::unordered_map<std::string, YAML::Node>& blueprints,
+		resource::manager& resource_manager);
+
 protected:
 	base(resource::manager&, const YAML::Node&);
 
@@ -155,6 +160,7 @@ private:
 	std::shared_ptr<const resource::image> m_im_shadow;
 	vector<unsigned> m_size = { 2, 2 };
 	float m_stun_lfo = 0.f;
+	std::string m_blueprint_id;
 };
 } // namespace module
 } // namespace mark

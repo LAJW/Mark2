@@ -10,8 +10,24 @@ mark::property_manager::property_manager(resource::manager& rm)
 void mark::property_manager::deserialise(const YAML::Node& node)
 {
 	std::vector<std::function<void()>> hooks;
-	for (let& [key, config] : m_properties) {
-		let hook = config.deserialise(config.value_ref, node[key], *this, m_rm);
+	for (let & [ key, config ] : m_properties) {
+		let hook =
+			config.deserialise(config.value_ref, node[key], *this, m_rm, false);
+		if (hook) {
+			hooks.push_back(hook);
+		}
+	}
+	for (let& hook : hooks) {
+		hook();
+	}
+}
+
+void mark::property_manager::randomise(const YAML::Node& node)
+{
+	std::vector<std::function<void()>> hooks;
+	for (let & [ key, config ] : m_properties) {
+		let hook =
+			config.deserialise(config.value_ref, node[key], *this, m_rm, true);
 		if (hook) {
 			hooks.push_back(hook);
 		}
@@ -24,7 +40,7 @@ void mark::property_manager::deserialise(const YAML::Node& node)
 void mark::property_serialiser::serialise(YAML::Emitter& out)
 {
 	using namespace YAML;
-	for (let& [key, config] : m_properties) {
+	for (let & [ key, config ] : m_properties) {
 		out << Key << key << Value << config.serialise(config.value_ref);
 	}
 }
