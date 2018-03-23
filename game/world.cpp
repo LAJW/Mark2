@@ -1,5 +1,4 @@
-﻿#include "stdafx.h"
-#include "world.h"
+﻿#include "world.h"
 #include "algorithm.h"
 #include "command.h"
 #include "map.h"
@@ -14,6 +13,7 @@
 #include "module/turret.h"
 #include "particle.h"
 #include "resource_manager.h"
+#include "stdafx.h"
 #include "tick_context.h"
 #include "unit/base.h"
 #include "unit/damageable.h"
@@ -21,6 +21,7 @@
 #include "unit/landing_pad.h"
 #include "unit/minion.h"
 #include "unit/modular.h"
+#include "unit/projectile.h"
 #include "world_stack.h"
 
 namespace {
@@ -208,8 +209,7 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 		m_map->tick(camera - offset, camera + offset, context);
 	}
 
-	// update the spatial partition
-	divide_space(begin(m_units), end(m_units), m_space_bins);
+	update_spatial_partition();
 
 	for (auto& unit : m_units) {
 		// ticking can damage other units and they may become dead in the
@@ -344,6 +344,20 @@ auto mark::world::collide(vector<double> center, float radius)
 		}
 	}
 	return out;
+}
+
+void mark::world::update_spatial_partition()
+{
+	std::vector<std::shared_ptr<unit::base>> non_projectiles;
+	non_projectiles.reserve(m_units.size());
+	std::copy_if(
+		begin(m_units),
+		end(m_units),
+		back_inserter(non_projectiles),
+		[](let& base) {
+			return !std::dynamic_pointer_cast<unit::projectile>(base);
+		});
+	divide_space(begin(non_projectiles), end(non_projectiles), m_space_bins);
 }
 
 auto mark::world::damage(world::damage_info info)

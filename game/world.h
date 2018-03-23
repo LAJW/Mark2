@@ -94,6 +94,8 @@ private:
 		-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
+	void update_spatial_partition();
+
 	std::unique_ptr<mark::map> m_map;
 	lfo m_camera_x_lfo = lfo(6.f, .5f);
 	lfo m_camera_y_lfo = lfo(10.f, .0f);
