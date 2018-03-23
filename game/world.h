@@ -99,7 +99,7 @@ private:
 	lfo m_camera_y_lfo = lfo(10.f, .0f);
 	adsr m_camera_adsr = adsr(0, 1, .5f, .3f);
 	std::vector<std::shared_ptr<unit::base>> m_units;
-	space_bins m_space_bins;
+	space_bins<unit::base> m_space_bins;
 	resource::manager& m_resource_manager;
 	std::weak_ptr<unit::base> m_camera_target;
 	vector<double> m_camera;
