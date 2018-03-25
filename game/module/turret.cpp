@@ -207,7 +207,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 		  node["rate_of_fire_curve"].as<std::string>("flat")))
 {
 	property_manager property_manager(rm);
-	bind(property_manager, *this);
+	bind(property_manager);
 	property_manager.deserialise(node);
 }
 
@@ -217,7 +217,7 @@ void mark::module::turret::serialise(YAML::Emitter& out) const
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
 	property_serialiser serialiser;
-	bind<property_serialiser, const turret>(serialiser, *this);
+	bind(serialiser, *this);
 	serialiser.serialise(out);
 	out << Key << "rate_of_fire_curve" << Value
 		<< curve::serialise(m_rate_of_fire_curve);
