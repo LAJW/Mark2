@@ -71,7 +71,10 @@ mark::module::energy_generator::energy_generator(
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	property_manager.deserialise(node);
+	if (property_manager.deserialise(node)) {
+		throw std::runtime_error(
+			"Could not deserialise " + std::string(type_name));
+	}
 }
 
 void mark::module::energy_generator::serialise(YAML::Emitter& out) const

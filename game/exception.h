@@ -5,7 +5,15 @@
 
 namespace mark {
 namespace error {
-enum class code { success, bad_pos, occupied };
+enum class code {
+	success,
+	bad_input,
+	bad_pos,
+	module_not_random,
+	occupied,
+	property_not_found,
+	property_not_random
+};
 
 std::error_code make_error_code(code e);
 } // namespace error

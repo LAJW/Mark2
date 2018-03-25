@@ -1,5 +1,4 @@
-﻿#include <stdafx.h>
-#include "turret.h"
+﻿#include "turret.h"
 #include <algorithm.h>
 #include <exception.h>
 #include <particle.h>
@@ -7,6 +6,7 @@
 #include <resource_image.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <unit/projectile.h>
@@ -208,7 +208,10 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	property_manager.deserialise(node);
+	if (property_manager.deserialise(node)) {
+		throw std::runtime_error(
+			"Could not deserialise" + std::string(type_name));
+	}
 }
 
 void mark::module::turret::serialise(YAML::Emitter& out) const

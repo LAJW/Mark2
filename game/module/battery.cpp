@@ -1,9 +1,9 @@
-﻿#include <stdafx.h>
-#include "battery.h"
+﻿#include "battery.h"
+#include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
-#include <property_manager.h>
 
 void mark::module::battery::tick(tick_context& context)
 {
@@ -68,7 +68,10 @@ mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	property_manager.deserialise(node);
+	if (property_manager.deserialise(node)) {
+		throw std::runtime_error(
+			"Could not deserialise " + std::string(type_name));
+	}
 }
 
 void mark::module::battery::serialise(YAML::Emitter& out) const

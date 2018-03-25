@@ -1,16 +1,18 @@
-﻿#include <stdafx.h>
-#include "shield_generator.h"
+﻿#include "shield_generator.h"
+#include <property_manager.h>
 #include <resource_image.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <sstream>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
-#include <property_manager.h>
 
 template <typename prop_man, typename T>
-void mark::module::shield_generator::bind(prop_man& property_manager, T& instance)
+void mark::module::shield_generator::bind(
+	prop_man& property_manager,
+	T& instance)
 {
 	MARK_BIND(radius);
 	MARK_BIND(cur_shield);
@@ -19,7 +21,8 @@ void mark::module::shield_generator::bind(prop_man& property_manager, T& instanc
 	MARK_BIND(shield_per_energy);
 }
 
-void mark::module::shield_generator::bind(mark::property_manager& property_manager)
+void mark::module::shield_generator::bind(
+	mark::property_manager& property_manager)
 {
 	bind(property_manager, *this);
 	base::bind(property_manager);
@@ -34,7 +37,10 @@ mark::module::shield_generator::shield_generator(
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	property_manager.deserialise(node);
+	if (property_manager.deserialise(node)) {
+		throw std::runtime_error(
+			"Could not deserialise " + std::string(type_name));
+	};
 }
 
 void mark::module::shield_generator::serialise(YAML::Emitter& out) const

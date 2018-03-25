@@ -1,11 +1,11 @@
-﻿#include <stdafx.h>
-#include "base.h"
+﻿#include "base.h"
 #include <any>
 #include <exception.h>
 #include <property_manager.h>
 #include <resource_image.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
@@ -291,7 +291,9 @@ void mark::module::base::randomise(
 	}
 	property_manager property_manager(resource_manager);
 	this->bind(property_manager);
-	property_manager.randomise(blueprints.at(m_blueprint_id));
+	if (property_manager.randomise(blueprints.at(m_blueprint_id))) {
+		throw std::runtime_error("Could not randomise module::base");
+	}
 }
 
 template <typename prop_man, typename T>
@@ -316,7 +318,9 @@ mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager, *this);
-	property_manager.deserialise(node);
+	if (property_manager.deserialise(node)) {
+		throw std::runtime_error("Could not deserialise module::base");
+	}
 	m_im_shadow = rm.image(size_to_image_file_name(m_size));
 }
 
