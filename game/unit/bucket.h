@@ -9,17 +9,17 @@ public:
 
 	bucket(mark::world& world, const YAML::Node&);
 	struct info : unit::base::info {
-		std::unique_ptr<module::base> module;
+		std::unique_ptr<interface::item> item;
 	};
 	bucket(info);
 	auto dead() const -> bool override;
-	auto release() -> std::unique_ptr<module::base>;
-	void insert(std::unique_ptr<module::base>);
+	auto release() -> std::unique_ptr<interface::item>;
+	void insert(std::unique_ptr<interface::item>);
 	void serialise(YAML::Emitter& out) const override;
 
 private:
 	void tick(tick_context& context) override;
-	std::unique_ptr<module::base> m_module;
+	std::unique_ptr<interface::item> m_item;
 	float m_direction = NAN;
 };
 } // namespace unit

@@ -1,5 +1,4 @@
-﻿#include <stdafx.h>
-#include "container.h"
+﻿#include "container.h"
 #include "button.h"
 #include "event.h"
 #include "ui.h"
@@ -7,6 +6,7 @@
 #include <module/cargo.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 
 mark::ui::container::container(const info& info)
@@ -18,9 +18,9 @@ mark::ui::container::container(const info& info)
 	auto& container = *info.container;
 	let interior_size = container.interior_size();
 	for (let& pos : range(interior_size)) {
-		if (auto& module_ptr = container.modules()[pos.x + pos.y * 16]) {
-			auto& module = *module_ptr;
-			this->attach(pos, module);
+		if (auto& item_ptr = container.items()[pos.x + pos.y * 16]) {
+			auto& item = *item_ptr;
+			this->attach(pos, item);
 		}
 	}
 }
@@ -68,14 +68,14 @@ auto mark::ui::container::size() const -> vector<int>
 		static_cast<int>(mark::module::size * 1.5f);
 }
 
-void mark::ui::container::attach(vector<int> pos, module::base& module)
+void mark::ui::container::attach(vector<int> pos, interface::item& item)
 {
 	let button_pos = pos * 16;
 	mark::ui::button::info info;
 	info.parent = this;
-	info.size = module.size() * 16U;
+	info.size = item.size() * 16U;
 	info.pos = button_pos;
-	info.image = module.thumbnail();
+	info.image = item.thumbnail();
 	auto button_ptr = std::make_unique<mark::ui::button>(info);
 	auto& button = *button_ptr;
 	button.on_click.insert([pos, this, &button](const event&) {
@@ -83,7 +83,10 @@ void mark::ui::container::attach(vector<int> pos, module::base& module)
 			m_ui.grabbed = m_container.detach(pos);
 			if (m_ui.grabbed) {
 				m_ui.grabbed_prev_parent = &m_container;
-				m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
+				// TODO: We've removed pos from the item, we need to obtain old
+				// item position in some other way, or not remove the item at
+				// all
+				// m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
 				m_ui.grabbed_bind.clear();
 			}
 			this->remove(button);
@@ -91,11 +94,11 @@ void mark::ui::container::attach(vector<int> pos, module::base& module)
 		}
 		return true;
 	});
-	let length = static_cast<int>(module.size().x) * 16;
-	button.on_hover.insert([this, &module, button_pos, length](const event&) {
+	let length = static_cast<int>(item.size().x) * 16;
+	button.on_hover.insert([=, &item](const event&) {
 		m_ui.tooltip(
 			this->pos() + button_pos + vector<int>(length, 0),
-			module.describe());
+			item.describe());
 		return true;
 	});
 	this->insert(std::move(button_ptr));

@@ -9,15 +9,16 @@
 
 mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
 	: unit::base(world, node)
-	, m_module(module::deserialise(world.resource_manager(), node["module"]))
+	, m_item(module::deserialise(world.resource_manager(), node["module"]))
 {
 }
 
 mark::unit::bucket::bucket(info info)
 	: unit::base(info)
-	, m_module(std::move(info.module))
+	, m_item(move(info.item))
 {
-	if (!m_module || m_module->dead()) {
+	let module = dynamic_cast<const module::base*>(m_item.get());
+	if (!module || module->dead()) {
 		throw std::runtime_error("DEAD_MODULE_IN_BUCKET");
 	}
 }
@@ -28,7 +29,7 @@ void mark::unit::bucket::tick(tick_context& context)
 		return;
 	}
 	let size =
-		static_cast<float>(std::max(m_module->size().y, m_module->size().x)) *
+		static_cast<float>(std::max(m_item->size().y, m_item->size().x)) *
 		module::size;
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
@@ -53,25 +54,25 @@ void mark::unit::bucket::tick(tick_context& context)
 		}
 	}
 	sprite info;
-	info.image = m_module->thumbnail();
+	info.image = m_item->thumbnail();
 	info.pos = pos();
 	info.size = size;
 	context.sprites[1].emplace_back(info);
 }
 
-auto mark::unit::bucket::dead() const -> bool { return m_module == nullptr; }
+auto mark::unit::bucket::dead() const -> bool { return m_item == nullptr; }
 
-auto mark::unit::bucket::release() -> std::unique_ptr<module::base>
+auto mark::unit::bucket::release() -> std::unique_ptr<interface::item>
 {
-	return std::move(m_module);
+	return std::move(m_item);
 }
 
-void mark::unit::bucket::insert(std::unique_ptr<module::base> module)
+void mark::unit::bucket::insert(std::unique_ptr<interface::item> item)
 {
-	if (m_module) {
+	if (m_item) {
 		throw exception("BUCKET_FULL");
 	}
-	m_module = std::move(module);
+	m_item = std::move(item);
 }
 
 void mark::unit::bucket::serialise(YAML::Emitter& out) const
@@ -81,8 +82,9 @@ void mark::unit::bucket::serialise(YAML::Emitter& out) const
 	out << Key << "type" << Value << unit::bucket::type_name;
 	base::serialise(out);
 
+	// TODO: Change to item
 	out << Key << "module" << Value;
-	m_module->serialise(out);
+	m_item->serialise(out);
 
 	out << EndMap;
 }

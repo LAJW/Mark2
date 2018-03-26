@@ -22,7 +22,7 @@ void mark::module::healing_turret::tick(tick_context& context)
 			let radius = static_cast<int>(std::round(m_radius / 16.f));
 			for (let offset : mark::range<vector<int>>(
 					 {-radius, -radius}, {radius + 1, radius + 1})) {
-				let module = this->parent().at(this->grid_pos() + offset);
+				let module = this->parent().module_at(this->grid_pos() + offset);
 				if (module && module != this &&
 					length(module->pos() - this->pos()) < m_radius) {
 					neighbours.insert(module);
@@ -88,7 +88,7 @@ auto mark::module::healing_turret::target() -> mark::module::base*
 	if (m_stunned || !m_target) {
 		return nullptr;
 	}
-	let target = parent().at(*m_target);
+	let target = parent().module_at(*m_target);
 	if (!target || !target->needs_healing()) {
 		return nullptr;
 	}

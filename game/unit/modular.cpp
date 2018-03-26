@@ -1,5 +1,4 @@
-﻿#include <stdafx.h>
-#include "modular.h"
+﻿#include "modular.h"
 #include "activable.h"
 #include "bucket.h"
 #include <algorithm.h>
@@ -11,6 +10,7 @@
 #include <module/shield_generator.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <world.h>
 
@@ -55,22 +55,22 @@ static auto neighbours_of(
 	};
 	// right
 	for (let i : mark::range(size.y)) {
-		auto module_ptr = modular.at({pos.x + size.x, pos.y + i});
+		auto module_ptr = modular.module_at({pos.x + size.x, pos.y + i});
 		out_insert(module_ptr);
 	}
 	// bottom
 	for (let i : mark::range(size.x)) {
-		auto module_ptr = modular.at({pos.x + i, pos.y + size.y});
+		auto module_ptr = modular.module_at({pos.x + i, pos.y + size.y});
 		out_insert(module_ptr);
 	}
 	// left
 	for (let i : mark::range(size.y)) {
-		auto module_ptr = modular.at({pos.x - 1, pos.y + i});
+		auto module_ptr = modular.module_at({pos.x - 1, pos.y + i});
 		out_insert(module_ptr);
 	}
 	// top
 	for (let i : mark::range(size.x)) {
-		auto module_ptr = modular.at({pos.x + i, pos.y - 1});
+		auto module_ptr = modular.module_at({pos.x + i, pos.y - 1});
 		out_insert(module_ptr);
 	}
 	return out;
@@ -279,12 +279,14 @@ auto mark::unit::modular::neighbours_of(const module::base& module) const
 
 auto mark::unit::modular::attach(
 	const vector<int>& pos_,
-	std::unique_ptr<module::base>& module) -> std::error_code
+	std::unique_ptr<interface::item>& item) -> std::error_code
 {
 	let module_pos = vector<int8_t>(pos_);
-	if (!module || !can_attach(pos_, *module)) {
+	if (!item || !can_attach(pos_, *item)) {
 		return error::code::bad_pos;
 	}
+	std::unique_ptr<module::base> module(
+		dynamic_cast<module::base*>(item.release()));
 	return p_attach(pos_, module);
 }
 
@@ -331,12 +333,16 @@ auto mark::unit::modular::p_attach(
 
 auto mark::unit::modular::can_attach(
 	const vector<int>& pos_,
-	const module::base& module) const -> bool
+	const interface::item& item) const -> bool
 {
-	return p_can_attach(module, pos_) &&
+	let module = dynamic_cast<const module::base*>(&item);
+	if (!module) {
+		return false;
+	}
+	return p_can_attach(*module, pos_) &&
 		(m_modules.empty() ||
 		 !::neighbours_of<const module::base>(
-			  *this, vector<int8_t>(pos_), vector<int8_t>(module.size()))
+			  *this, vector<int8_t>(pos_), vector<int8_t>(module->size()))
 			  .empty());
 }
 
@@ -383,10 +389,10 @@ auto mark::unit::modular::p_can_attach(
 }
 
 auto mark::unit::modular::detach(const vector<int>& user_pos)
-	-> std::unique_ptr<module::base>
+	-> std::unique_ptr<interface::item>
 {
 
-	let module_ptr = this->at(user_pos);
+	let module_ptr = this->module_at(user_pos);
 	if (!module_ptr) {
 		return nullptr;
 	}
@@ -499,7 +505,7 @@ void mark::unit::modular::on_death(tick_context& context)
 				unit::bucket::info info;
 				info.world = &this->world();
 				info.pos = pos();
-				info.module = move(module);
+				info.item = move(module);
 				return info;
 			}()));
 		}
@@ -586,7 +592,7 @@ auto mark::unit::modular::lookat() const noexcept -> vector<double>
 
 void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
 {
-	if (let module_ptr = this->at(user_pos)) {
+	if (let module_ptr = this->module_at(user_pos)) {
 		auto& module = *module_ptr;
 		if (module.passive()) {
 			return;
@@ -712,22 +718,32 @@ void mark::unit::modular::serialise(YAML::Emitter& out) const
 }
 
 auto mark::unit::modular::at(const vector<int>& module_pos) noexcept
+	-> interface::item*
+{
+	return module_at(module_pos);
+}
+
+auto mark::unit::modular::at(const vector<int>& module_pos) const noexcept
+	-> const interface::item*
+{
+	return module_at(module_pos);
+}
+
+auto mark::unit::modular::module_at(const vector<int>& module_pos) noexcept
 	-> module::base*
 {
 	return const_cast<module::base*>(
-		static_cast<const modular*>(this)->at(module_pos));
+		static_cast<const modular*>(this)->module_at(module_pos));
 }
 
-auto mark::unit::modular::at(const vector<int>& user_pos) const noexcept
+auto mark::unit::modular::module_at(const vector<int>& user_pos) const noexcept
 	-> const module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);
 	if (user_pos.x >= -hs && user_pos.y < hs) {
 		return this->p_at(vector<int8_t>(user_pos));
 	}
-	else {
-		return nullptr;
-	}
+	return nullptr;
 }
 
 auto mark::unit::modular::landed() const noexcept -> bool
@@ -779,7 +795,7 @@ void mark::unit::modular::remove_dead(tick_context& context)
 				unit::bucket::info info;
 				info.world = &this->world();
 				info.pos = this->pos();
-				info.module = move(module);
+				info.item = move(module);
 				return std::make_shared<unit::bucket>(std::move(info));
 			});
 		m_modules.erase(first_detached_it, m_modules.end());

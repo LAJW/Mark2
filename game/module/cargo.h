@@ -15,14 +15,14 @@ public:
 	cargo(resource::manager&, const YAML::Node&);
 
 	[[nodiscard]] auto
-	attach(const vector<int>& pos, std::unique_ptr<module::base>& module)
+	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item)
 		-> std::error_code override;
-	auto can_attach(const vector<int>& pos, const module::base& module) const
+	auto can_attach(const vector<int>& pos, const interface::item& item) const
 		-> bool override;
-	auto at(const vector<int>& pos) -> module::base* override;
-	auto at(const vector<int>& pos) const -> const module::base* override;
+	auto at(const vector<int>& pos) -> interface::item* override;
+	auto at(const vector<int>& pos) const -> const interface::item* override;
 	auto detach(const vector<int>& pos)
-		-> std::unique_ptr<module::base> override;
+		-> std::unique_ptr<interface::item> override;
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(tick_context& context) override;
@@ -30,11 +30,11 @@ public:
 	auto passive() const noexcept -> bool override;
 
 	// try to push element to the container
-	[[nodiscard]] std::error_code push(std::unique_ptr<module::base>& module);
+	[[nodiscard]] std::error_code push(std::unique_ptr<interface::item>& item);
 	auto interior_size() const -> vector<int>; // size of the contents of the
 											   // cargo hold in modular units
-	auto modules() -> std::vector<std::unique_ptr<module::base>>&;
-	auto modules() const -> const std::vector<std::unique_ptr<module::base>>&;
+	auto items() -> std::vector<std::unique_ptr<interface::item>>&;
+	auto items() const -> const std::vector<std::unique_ptr<interface::item>>&;
 
 private:
 	void tick(tick_context& context) override;
@@ -46,7 +46,7 @@ private:
 	std::shared_ptr<const resource::image> m_im_body;
 	std::shared_ptr<const resource::image> m_im_light;
 	lfo m_lfo;
-	std::vector<std::unique_ptr<module::base>> m_modules;
+	std::vector<std::unique_ptr<interface::item>> m_items;
 };
 } // namespace module
 } // namespace mark

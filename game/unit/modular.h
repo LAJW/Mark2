@@ -26,15 +26,18 @@ public:
 	modular(info info);
 	void command(const command::any& command) override;
 	[[nodiscard]] auto
-	attach(const vector<int>& pos, std::unique_ptr<module::base>& module)
+	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item)
 		-> std::error_code override;
-	auto can_attach(const vector<int>& pos, const module::base& module) const
+	auto can_attach(const vector<int>& pos, const interface::item& item) const
 		-> bool override;
-	auto at(const vector<int>& pos) noexcept -> module::base* override;
+	auto at(const vector<int>& pos) noexcept -> interface::item* override;
 	auto at(const vector<int>& pos) const noexcept
-		-> const module::base* override;
+		-> const interface::item* override;
+	auto module_at(const vector<int>& pos) noexcept -> module::base*;
+	auto module_at(const vector<int>& pos) const noexcept
+		-> const module::base*;
 	auto detach(const vector<int>& pos)
-		-> std::unique_ptr<module::base> override;
+		-> std::unique_ptr<interface::item> override;
 
 	auto neighbours_of(const module::base&) -> std::vector<
 		std::pair<std::reference_wrapper<module::base>, unsigned>>;

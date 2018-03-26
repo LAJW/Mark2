@@ -16,6 +16,10 @@ class world_stack;
 class map;
 namespace interface {
 class container;
+class damageable;
+class has_bindings;
+class item;
+class world_object;
 };
 namespace module {
 class base;

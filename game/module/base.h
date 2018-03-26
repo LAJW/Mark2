@@ -2,6 +2,7 @@
 #include <command.h>
 #include <interface/damageable.h>
 #include <interface/world_object.h>
+#include <interface/item.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -52,7 +53,8 @@ private:
 
 class base : public base_ref,
 			 public interface::damageable,
-			 public interface::world_object {
+			 public interface::world_object,
+			 public interface::item {
 public:
 	// serialise module::base properties
 	virtual void serialise(YAML::Emitter&) const;
@@ -148,7 +150,7 @@ protected:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	virtual void bind(mark::property_manager&);
-	
+
 protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;
@@ -158,7 +160,7 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
-	vector<unsigned> m_size = { 2, 2 };
+	vector<unsigned> m_size = {2, 2};
 	float m_stun_lfo = 0.f;
 	std::string m_blueprint_id;
 };

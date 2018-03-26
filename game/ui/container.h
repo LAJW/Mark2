@@ -23,7 +23,7 @@ public:
 	auto size() const -> vector<int> override;
 
 private:
-	void attach(vector<int> pos, module::base&);
+	void attach(vector<int> pos, interface::item&);
 	std::shared_ptr<const resource::image> m_cargo_bg;
 	ui& m_ui;
 	module::cargo& m_container;

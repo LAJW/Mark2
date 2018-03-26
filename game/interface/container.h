@@ -2,22 +2,18 @@
 #include <exception.h>
 
 namespace mark {
-namespace module {
-class base;
-}
-
 namespace interface {
 class container {
 public:
 	[[nodiscard]] virtual std::error_code
-	attach(const vector<int>& pos, std::unique_ptr<module::base>& module) = 0;
+	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item) = 0;
 	virtual auto
-	can_attach(const vector<int>& pos, const module::base& module) const
+	can_attach(const vector<int>& pos, const interface::item& item) const
 		-> bool = 0;
-	virtual auto at(const vector<int>& pos) const -> const module::base* = 0;
-	virtual auto at(const vector<int>& pos) -> module::base* = 0;
+	virtual auto at(const vector<int>& pos) const -> const interface::item* = 0;
+	virtual auto at(const vector<int>& pos) -> interface::item* = 0;
 	virtual auto detach(const vector<int>& pos)
-		-> std::unique_ptr<module::base> = 0;
+		-> std::unique_ptr<interface::item> = 0;
 
 protected:
 	~container() = default;

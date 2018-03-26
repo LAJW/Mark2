@@ -31,7 +31,7 @@ public:
 	void
 	world_tooltip(tick_context&, const std::string& text, vector<double> pos);
 
-	std::unique_ptr<module::base> grabbed;
+	std::unique_ptr<interface::item> grabbed;
 	vector<int> grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
 	std::vector<int8_t> grabbed_bind;

@@ -260,13 +260,16 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 						ship->toggle_bind(bind, drop_pos);
 					}
 					grabbed_bind.clear();
+				} else if (true /* pass ship->at(drop_pos) to the held item */) {
+					// TODO: Chaos orb, and orb of chance go here
+					ship->module_at(drop_pos)->randomise(world.blueprints(), m_rm);
 				}
 			}
 			else {
 				grabbed_bind = ship->binding(pick_pos);
+				grabbed_prev_pos = ship->module_at(pick_pos)->grid_pos();
 				grabbed = ship->detach(pick_pos);
 				if (grabbed) {
-					grabbed_prev_pos = grabbed->grid_pos();
 					grabbed_prev_parent = ship.get();
 				}
 				else {
@@ -329,7 +332,7 @@ void mark::ui::ui::world_tooltip(
 }
 
 static std::vector<bool> make_available_map(
-	const mark::module::base& module,
+	const mark::interface::item& item,
 	const mark::unit::modular& ship)
 {
 	using namespace mark;
@@ -339,8 +342,8 @@ static std::vector<bool> make_available_map(
 		{grid_size / 2, grid_size / 2});
 	std::vector<bool> available(grid_size * grid_size, false);
 	for (let top_left : surface) {
-		if (ship.can_attach(top_left, module)) {
-			for (let relative : range(module.size())) {
+		if (ship.can_attach(top_left, item)) {
+			for (let relative : range(item.size())) {
 				let pos = top_left + vector<int>(grid_size / 2, grid_size / 2) +
 					vector<int>(relative);
 				if (pos.x < grid_size && pos.y < grid_size) {
@@ -427,7 +430,7 @@ void mark::ui::ui::container_ui(
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			// ship
 
-			let module = ship.at(pick_pos);
+			let module = ship.module_at(pick_pos);
 			if (module) {
 				let description = module->describe();
 				let module_size = vector<double>(module->size()) *
