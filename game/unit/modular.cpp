@@ -647,7 +647,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	for (let& module_node : node["modules"]) {
 		let module_pos = module_node["grid_pos"].as<vector<int>>();
 		let id = module_node["id"].as<uint64_t>();
-		auto module = [&] {
+		auto item = [&] {
 			let blueprint_node = module_node["blueprint"];
 			auto& rm = world.resource_manager();
 			if (!blueprint_node) {
@@ -669,6 +669,9 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			}
 			return module::deserialise(rm, properties);
 		}();
+		std::unique_ptr<module::base> module(
+			dynamic_cast<module::base*>(item.release()));
+		assert(module);
 		if (this->p_attach(module_pos, module) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
 		}

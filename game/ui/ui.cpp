@@ -260,9 +260,8 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 						ship->toggle_bind(bind, drop_pos);
 					}
 					grabbed_bind.clear();
-				} else if (true /* pass ship->at(drop_pos) to the held item */) {
-					// TODO: Chaos orb, and orb of chance go here
-					ship->module_at(drop_pos)->randomise(world.blueprints(), m_rm);
+				} else if (let module = ship->module_at(drop_pos)) {
+					grabbed->use_on(m_rm, world.blueprints(), *module);
 				}
 			}
 			else {

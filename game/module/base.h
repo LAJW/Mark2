@@ -24,7 +24,7 @@ struct modifiers {
 };
 
 auto deserialise(resource::manager&, const YAML::Node&)
-	-> std::unique_ptr<module::base>;
+	-> std::unique_ptr<interface::item>;
 
 enum class reserved_kind { none, front, back };
 
