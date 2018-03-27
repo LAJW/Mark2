@@ -282,18 +282,16 @@ void mark::module::base::heal(float amount)
 
 auto mark::module::base::team() const -> size_t { return parent().team(); }
 
-void mark::module::base::randomise(
+auto mark::module::base::randomise(
 	const std::unordered_map<std::string, YAML::Node>& blueprints,
-	resource::manager& resource_manager)
+	resource::manager& resource_manager) -> std::error_code
 {
 	if (m_blueprint_id.empty()) {
-		return;
+		return error::code::module_not_random;
 	}
 	property_manager property_manager(resource_manager);
 	this->bind(property_manager);
-	if (property_manager.randomise(blueprints.at(m_blueprint_id))) {
-		throw std::runtime_error("Could not randomise module::base");
-	}
+	return property_manager.randomise(blueprints.at(m_blueprint_id));
 }
 
 template <typename prop_man, typename T>

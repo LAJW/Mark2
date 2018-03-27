@@ -1,12 +1,13 @@
-#include <stdafx.h>
 #include "chaos_orb.h"
+#include <exception.h>
 #include <module/base.h>
 #include <resource_manager.h>
-#include <exception.h>
+#include <stdafx.h>
 
 mark::item::chaos_orb::chaos_orb(
 	mark::resource::manager& rm,
-	const YAML::Node& node) : m_thumbnail(rm.image("chaos-orb.png"))
+	const YAML::Node& node)
+	: m_thumbnail(rm.image("chaos-orb.png"))
 {
 	// TODO stacks
 	(void)node;
@@ -15,10 +16,13 @@ mark::item::chaos_orb::chaos_orb(
 auto mark::item::chaos_orb::use_on(
 	resource::manager& rm,
 	const std::unordered_map<std::string, YAML::Node>& blueprints,
-	module::base& item) -> std::error_code
+	module::base& item) -> use_on_result
 {
-	item.randomise(blueprints, rm);
-	return error::code::success;
+	let error = item.randomise(blueprints, rm);
+	use_on_result result;
+	result.error = error;
+	result.consumed = error == error::code::success;
+	return result;
 }
 
 auto mark::item::chaos_orb::describe() const -> std::string
@@ -32,12 +36,10 @@ void mark::item::chaos_orb::serialise(YAML::Emitter& out) const
 	out << Key << "type" << Value << type_name;
 }
 
-auto mark::item::chaos_orb::size() const -> vector<unsigned>
-{
-	return { 2, 2 };
-}
+auto mark::item::chaos_orb::size() const -> vector<unsigned> { return {2, 2}; }
 
-auto mark::item::chaos_orb::thumbnail() const -> std::shared_ptr<const resource::image>
+auto mark::item::chaos_orb::thumbnail() const
+	-> std::shared_ptr<const resource::image>
 {
 	return m_thumbnail;
 }

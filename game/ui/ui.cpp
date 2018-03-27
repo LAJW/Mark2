@@ -1,5 +1,4 @@
-﻿#include <stdafx.h>
-#include "ui.h"
+﻿#include "ui.h"
 #include "button.h"
 #include "container.h"
 #include "window.h"
@@ -8,6 +7,7 @@
 #include <module/cargo.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <unit/landing_pad.h>
 #include <unit/modular.h>
@@ -260,8 +260,14 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 						ship->toggle_bind(bind, drop_pos);
 					}
 					grabbed_bind.clear();
-				} else if (let module = ship->module_at(drop_pos)) {
-					grabbed->use_on(m_rm, world.blueprints(), *module);
+				}
+				else if (let module = ship->module_at(drop_pos)) {
+					let result =
+						grabbed->use_on(m_rm, world.blueprints(), *module);
+					if (result.error == error::code::success &&
+						result.consumed) {
+						grabbed.reset();
+					}
 				}
 			}
 			else {

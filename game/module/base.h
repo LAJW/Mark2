@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <command.h>
 #include <interface/damageable.h>
-#include <interface/world_object.h>
 #include <interface/item.h>
+#include <interface/world_object.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -131,9 +131,9 @@ public:
 	auto team() const -> size_t override final;
 
 	// Randomise all random properties
-	void randomise(
+	[[nodiscard]] auto randomise(
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
-		resource::manager& resource_manager);
+		resource::manager& resource_manager) -> std::error_code;
 
 protected:
 	base(resource::manager&, const YAML::Node&);
