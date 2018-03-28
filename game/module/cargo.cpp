@@ -1,5 +1,5 @@
-﻿#include "stdafx.h"
-#include "cargo.h"
+﻿#include "cargo.h"
+#include "stdafx.h"
 #include <algorithm.h>
 #include <exception.h>
 #include <resource_manager.h>
@@ -174,8 +174,7 @@ auto mark::module::cargo::can_attach(
 			let item_pos = vector<unsigned>(i % 16, i / 16);
 			let item_border = item_pos + cur_item->size();
 			if (overlaps(
-					{incoming_pos, incoming_border},
-					{item_pos, item_border})) {
+					{incoming_pos, incoming_border}, {item_pos, item_border})) {
 				return cur_item->can_stack(item);
 			}
 		}
@@ -274,7 +273,9 @@ auto mark::module::cargo::push(std::unique_ptr<interface::item>& item)
 {
 	for (let i : range(static_cast<int>(m_items.size()))) {
 		let drop_pos = modulo_vector<int>(i, 16);
-		if (this->attach(drop_pos, item) == error::code::success) {
+		let result = this->attach(drop_pos, item);
+		if (result == error::code::success ||
+			result == error::code::stacked && !item) {
 			return error::code::success;
 		}
 	}
