@@ -130,6 +130,24 @@ auto mark::module::cargo::attach(
 	const vector<int>& pos,
 	std::unique_ptr<interface::item>& item) -> std::error_code
 {
+	{
+		let incoming_pos = vector<unsigned>(pos);
+		let incoming_border = incoming_pos + item->size();
+		for (let pair : enumerate(m_items)) {
+			if (let& cur_item = pair.second) {
+				let i = static_cast<unsigned>(pair.first);
+				let item_pos = vector<unsigned>(i % 16, i / 16);
+				let item_border = item_pos + cur_item->size();
+				if (overlaps(
+					{ incoming_pos, incoming_border },
+					{ item_pos, item_border })
+					&& cur_item->can_stack(*item)) {
+					cur_item->stack(item);
+					return error::code::stacked;
+				}
+			}
+		}
+	}
 	if (!this->can_attach(pos, *item)) {
 		return error::code::bad_pos;
 	}
@@ -158,7 +176,7 @@ auto mark::module::cargo::can_attach(
 			if (overlaps(
 					{incoming_pos, incoming_border},
 					{item_pos, item_border})) {
-				return false;
+				return cur_item->can_stack(item);
 			}
 		}
 	}
@@ -182,8 +200,8 @@ auto mark::module::cargo::at(const vector<int>& i_pos) const
 		let item_pos = modulo_vector<size_t>(pair.first, 16LLU);
 		if (let& slot = pair.second) {
 			let border = item_pos + vector<size_t>(slot->size());
-			if (pos.x + pos.x >= item_pos.x && pos.x < border.x &&
-				pos.y + pos.y >= item_pos.y && pos.y < border.y) {
+			if (pos.x >= item_pos.x && pos.x < border.x &&
+				pos.y >= item_pos.y && pos.y < border.y) {
 				return slot.get();
 			}
 		}

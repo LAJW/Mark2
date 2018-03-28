@@ -7,6 +7,7 @@ namespace mark {
 namespace error {
 enum class code {
 	success,
+	stacked,
 	bad_input,
 	bad_pos,
 	module_not_random,

@@ -30,6 +30,10 @@ public:
 	}
 	virtual void serialise(YAML::Emitter& out) const = 0;
 	virtual auto describe() const -> std::string = 0;
+	// Stack modules on top of each other, return error if cannot stack
+	// Remove module from passed in unique_ptr on success
+	virtual void stack(std::unique_ptr<interface::item>& item) = 0;
+	virtual bool can_stack(const interface::item& item) const = 0;
 };
 } // namespace interface
 } // namespace mark

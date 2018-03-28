@@ -49,7 +49,8 @@ bool mark::ui::container::click(const event& event)
 		const vector<int> module_size(module.size());
 		const vector<double> relative_pos(event.cursor - this->pos());
 		let pos = round(relative_pos / 16.) - module_size / 2;
-		if (error::code::success == m_container.attach(pos, m_ui.grabbed)) {
+		let result = m_container.attach(pos, m_ui.grabbed);
+		if (result == error::code::success || result == error::code::stacked) {
 			this->attach(pos, module);
 			return true;
 		}
@@ -92,13 +93,15 @@ void mark::ui::container::attach(vector<int> pos, interface::item& item)
 			this->remove(button);
 			m_container.detachable();
 		}
+		else {
+			(void)m_container.attach(pos, m_ui.grabbed);
+		}
 		return true;
 	});
 	let length = static_cast<int>(item.size().x) * 16;
 	button.on_hover.insert([=, &item](const event&) {
 		m_ui.tooltip(
-			this->pos() + button_pos + vector<int>(length, 0),
-			item.describe());
+			this->pos() + button_pos + vector<int>(length, 0), item.describe());
 		return true;
 	});
 	this->insert(std::move(button_ptr));

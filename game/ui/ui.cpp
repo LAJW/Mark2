@@ -272,13 +272,14 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 			}
 			else {
 				grabbed_bind = ship->binding(pick_pos);
-				grabbed_prev_pos = ship->module_at(pick_pos)->grid_pos();
-				grabbed = ship->detach(pick_pos);
-				if (grabbed) {
-					grabbed_prev_parent = ship.get();
-				}
-				else {
-					grabbed_bind.clear();
+				if (let module = ship->module_at(pick_pos)) {
+					grabbed_prev_pos = module->grid_pos();
+					grabbed = ship->detach(pick_pos);
+					if (grabbed) {
+						grabbed_prev_parent = ship.get();
+					} else {
+						grabbed_bind.clear();
+					}
 				}
 			}
 		}

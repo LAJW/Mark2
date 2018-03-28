@@ -135,6 +135,14 @@ public:
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
 		resource::manager& resource_manager) -> std::error_code;
 
+	// No-op - modules are not stackable
+	void stack(std::unique_ptr<interface::item>&) override final {}
+
+	auto can_stack(const interface::item&) const -> bool override final
+	{
+		return false;
+	}
+
 protected:
 	base(resource::manager&, const YAML::Node&);
 

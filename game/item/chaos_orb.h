@@ -17,8 +17,11 @@ public:
 	void serialise(YAML::Emitter&) const override;
 	auto size() const -> vector<unsigned> override;
 	auto thumbnail() const -> std::shared_ptr<const resource::image> override;
+	void stack(std::unique_ptr<interface::item>& item) override;
+	auto can_stack(const interface::item& item) const -> bool override;
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
+	size_t m_quantity = 1;
 };
 }
 }
