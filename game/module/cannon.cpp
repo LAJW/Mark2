@@ -1,7 +1,7 @@
-﻿#include <stdafx.h>
-#include "cannon.h"
+﻿#include "cannon.h"
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <tick_context.h>
 #include <unit/modular.h>
 #include <world.h>
@@ -28,23 +28,20 @@ void mark::module::cannon::tick(tick_context& context)
 	if (!m_stunned && m_targeting_system.request_charge()) {
 		let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get());
 		std::unordered_set<interface::damageable*> damaged;
-		let collisions =
-			world
-				.damage([&] {
-					world::damage_info _;
-					_.context = &context;
-					_.aoe_radius = 0.f;
-					_.piercing = 1;
-					let prev = pos;
-					let cur =
-						pos + dir * static_cast<double>(module::size * 200);
-					_.segment = {prev, cur};
-					_.damage.damaged = &damaged;
-					_.damage.physical = 100.f * static_cast<float>(context.dt);
-					_.damage.team = parent().team();
-					return _;
-				}())
-				.first;
+		let[collisions, terrain_was_hit] = world.damage([&] {
+			world::damage_info _;
+			_.context = &context;
+			_.aoe_radius = 0.f;
+			_.piercing = 1;
+			let prev = pos;
+			let cur = pos + dir * static_cast<double>(module::size * 200);
+			_.segment = {prev, cur};
+			_.damage.damaged = &damaged;
+			_.damage.physical = 100.f * static_cast<float>(context.dt);
+			_.damage.team = parent().team();
+			return _;
+		}());
+		(void)terrain_was_hit;
 		for (let& collision : collisions) {
 			context.render([&] {
 				tick_context::spray_info _;
