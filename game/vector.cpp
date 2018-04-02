@@ -30,7 +30,7 @@ auto mark::intersect(
 {
 	let intersect_with_X = [](vector<double> line, double x) {
 		let y = x * line.x + line.y;
-		return vector<double>{x, y};
+		return vector<double>{ x, y };
 	};
 	if (let x = std::get_if<double>(&line1)) {
 		if (let line = std::get_if<vector<double>>(&line2)) {
@@ -48,7 +48,7 @@ auto mark::intersect(
 	}
 	let x = (l2.y - l1.y) / (l1.x - l2.x);
 	let y = l1.x * x + l1.y;
-	return {{x, y}};
+	return { { x, y } };
 }
 
 auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
@@ -73,10 +73,10 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 	// Margins are required here, because x >= C && x <= C evaluates to x == C
 	// Floating point comparison is imprecise, so an error margin is required
 	// Adding this makes intersection with horizontal lines work
-	if (intersection->x >= lower_x_bound - flp_margin &&
-		intersection->x <= upper_x_bound + flp_margin &&
-		intersection->y >= lower_y_bound - flp_margin &&
-		intersection->y <= upper_y_bound + flp_margin) {
+	if (intersection->x >= lower_x_bound - flp_margin
+		&& intersection->x <= upper_x_bound + flp_margin
+		&& intersection->y >= lower_y_bound - flp_margin
+		&& intersection->y <= upper_y_bound + flp_margin) {
 		return intersection;
 	}
 	return {};
@@ -129,12 +129,10 @@ auto mark::intersect(
 		}();
 		if (p1_in_range && ((p2_in_range && p1_closer) || !p2_in_range)) {
 			return p1;
-		}
-		else if (p2_in_range) {
+		} else if (p2_in_range) {
 			return p2;
 		}
-	}
-	else {
+	} else {
 		// vertical line
 		let x = std::get<double>(line);
 		if (std::abs(x - center.x) <= radius) {
@@ -151,12 +149,11 @@ auto mark::intersect(
 			let y1_in_range = y1 >= ly && y1 <= uy;
 			let y2_in_range = y2 >= ly && y2 <= uy;
 
-			if ((y1_in_range && y2_in_range && length1 < length2) ||
-				!y2_in_range) {
-				return {{x, y1}};
-			}
-			else if (y2_in_range) {
-				return {{x, y2}};
+			if ((y1_in_range && y2_in_range && length1 < length2)
+				|| !y2_in_range) {
+				return { { x, y1 } };
+			} else if (y2_in_range) {
+				return { { x, y2 } };
 			}
 		}
 	}
@@ -171,8 +168,8 @@ auto mark::turn(
 	float angular_velocity,
 	double dt) -> float
 {
-	if (std::abs(atan(rotate(new_direction, -current_rotation))) <
-		angular_velocity * dt) {
+	if (std::abs(atan(rotate(new_direction, -current_rotation)))
+		< angular_velocity * dt) {
 		return static_cast<float>(atan(new_direction));
 	}
 	let turn_direction = sgn(atan(rotate(new_direction, -current_rotation)));

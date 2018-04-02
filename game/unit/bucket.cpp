@@ -10,8 +10,7 @@
 mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
 	: unit::base(world, node)
 	, m_item(module::deserialise(world.resource_manager(), node["module"]))
-{
-}
+{}
 
 mark::unit::bucket::bucket(info info)
 	: unit::base(info)
@@ -28,9 +27,8 @@ void mark::unit::bucket::tick(tick_context& context)
 	if (this->dead()) { // dead bucket
 		return;
 	}
-	let size =
-		static_cast<float>(std::max(m_item->size().y, m_item->size().x)) *
-		module::size;
+	let size = static_cast<float>(std::max(m_item->size().y, m_item->size().x))
+		* module::size;
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
@@ -44,8 +42,7 @@ void mark::unit::bucket::tick(tick_context& context)
 		}
 		if (diff == vector<double>(0, 0)) {
 			m_direction = context.random<float>(-180.f, 180.f);
-		}
-		else {
+		} else {
 			m_direction = static_cast<float>(atan(diff));
 		}
 		let ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);

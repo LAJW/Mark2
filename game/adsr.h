@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 namespace mark {
-class adsr {
+class adsr
+{
 public:
 	adsr(float attack, float decay, float sustain, float release);
 	void trigger();

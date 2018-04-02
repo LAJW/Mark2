@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 namespace mark {
-class lfo final {
+class lfo final
+{
 public:
 	lfo(float frequency = 1.0f, float phase = 0.0f);
 	void tick(double dt);

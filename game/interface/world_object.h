@@ -5,7 +5,8 @@ namespace mark {
 class world;
 
 namespace interface {
-class world_object {
+class world_object
+{
 public:
 	virtual auto pos() const -> vector<double> = 0;
 	virtual auto world() const -> const world& = 0;

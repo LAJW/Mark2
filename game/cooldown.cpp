@@ -4,8 +4,7 @@
 
 mark::cooldown::cooldown(float max)
 	: m_max(max)
-{
-}
+{}
 
 void mark::cooldown::tick(double dt)
 {

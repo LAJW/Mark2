@@ -4,8 +4,7 @@
 
 mark::resource::manager_impl::manager_impl()
 	: m_gen(m_rd())
-{
-}
+{}
 
 auto mark::resource::manager_impl::image(const std::string& filename)
 	-> std::shared_ptr<const resource::image>

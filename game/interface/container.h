@@ -3,7 +3,8 @@
 
 namespace mark {
 namespace interface {
-class container {
+class container
+{
 public:
 	[[nodiscard]] virtual std::error_code
 	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item) = 0;

@@ -21,10 +21,11 @@ void mark::module::healing_turret::tick(tick_context& context)
 			const auto m_radius = 100.f;
 			let radius = static_cast<int>(std::round(m_radius / 16.f));
 			for (let offset : mark::range<vector<int>>(
-					 {-radius, -radius}, {radius + 1, radius + 1})) {
-				let module = this->parent().module_at(this->grid_pos() + offset);
-				if (module && module != this &&
-					length(module->pos() - this->pos()) < m_radius) {
+					 { -radius, -radius }, { radius + 1, radius + 1 })) {
+				let module =
+					this->parent().module_at(this->grid_pos() + offset);
+				if (module && module != this
+					&& length(module->pos() - this->pos()) < m_radius) {
 					neighbours.insert(module);
 				}
 			}
@@ -34,12 +35,14 @@ void mark::module::healing_turret::tick(tick_context& context)
 			neighbours.begin(),
 			neighbours.end(),
 			[](let neighbour_l, let neighbour_r) {
-				let left = neighbour_l->cur_health() / neighbour_l->max_health();
-				let right = neighbour_r->cur_health() / neighbour_r->max_health();
+				let left =
+					neighbour_l->cur_health() / neighbour_l->max_health();
+				let right =
+					neighbour_r->cur_health() / neighbour_r->max_health();
 				return left < right;
 			});
-		if (min_health_neighbour != neighbours.end() &&
-			(*min_health_neighbour)->needs_healing()) {
+		if (min_health_neighbour != neighbours.end()
+			&& (*min_health_neighbour)->needs_healing()) {
 			m_target = (*min_health_neighbour)->grid_pos();
 		}
 	}
@@ -110,7 +113,8 @@ void mark::module::healing_turret::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-void mark::module::healing_turret::bind(mark::property_manager& property_manager)
+void mark::module::healing_turret::bind(
+	mark::property_manager& property_manager)
 {
 	bind(property_manager, *this);
 	base::bind(property_manager);
@@ -122,8 +126,7 @@ mark::module::healing_turret::healing_turret(
 	: module::base(rm, node)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
-{
-}
+{}
 
 void mark::module::healing_turret::serialise(YAML::Emitter& out) const
 {

@@ -6,11 +6,13 @@ namespace mark {
 struct tick_context;
 struct sprite;
 
-class renderer {
+class renderer
+{
 public:
 	renderer(vector<unsigned> res);
 
-	struct render_info {
+	struct render_info
+	{
 		vector<double> camera;
 		vector<double> resolution;
 		std::vector<std::pair<vector<double>, sf::Color>> lights;

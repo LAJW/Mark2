@@ -8,7 +8,10 @@
 
 namespace mark {
 namespace module {
-class cargo final : public module::base, public interface::container {
+class cargo final
+	: public module::base
+	, public interface::container
+{
 public:
 	static constexpr const char* type_name = "module_cargo";
 

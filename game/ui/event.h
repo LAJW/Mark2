@@ -4,7 +4,8 @@
 namespace mark {
 namespace ui {
 
-struct event final {
+struct event final
+{
 	// Mouse cursor position relative to the screen
 	vector<int> absolute_cursor;
 	// Mouse cursor relative to the element top left corner
@@ -13,7 +14,8 @@ struct event final {
 	vector<double> world_cursor;
 };
 
-class callback_group {
+class callback_group
+{
 public:
 	void insert(std::function<bool(const event&)> callback);
 	// Returns true if event was handled

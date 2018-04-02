@@ -3,7 +3,8 @@
 
 namespace mark {
 namespace unit {
-class mobile : public damageable {
+class mobile : public damageable
+{
 public:
 	void serialise(YAML::Emitter& out) const override;
 	void stop();
@@ -11,12 +12,14 @@ public:
 protected:
 	void command(const command::any&) override;
 	mobile(mark::world& world, const YAML::Node&);
-	struct info : base::info {
+	struct info : base::info
+	{
 		std::optional<vector<double>> moveto;
 		double velocity = 0.0;
 	};
 	mobile(const info& info);
-	struct tick_movement_info {
+	struct tick_movement_info
+	{
 		// delta time
 		double dt;
 		// maximum velocity of the ship

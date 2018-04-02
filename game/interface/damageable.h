@@ -4,9 +4,11 @@
 namespace mark {
 namespace interface {
 
-class damageable {
+class damageable
+{
 public:
-	struct info {
+	struct info
+	{
 		// List of pointers to a set used to store damaged objects
 		// Do not dereference pointers stored here, they're only there
 		// to ignore damaged objects. Cannot be null upon invoking

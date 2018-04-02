@@ -11,7 +11,8 @@ class manager;
 class image;
 } // namespace resource
 namespace model {
-class shield {
+class shield
+{
 public:
 	shield(resource::manager& resource_manager, float radius);
 	void tick(tick_context& context, vector<double> pos);

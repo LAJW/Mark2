@@ -4,11 +4,13 @@
 
 namespace mark {
 namespace unit {
-class projectile final : public unit::base {
+class projectile final : public unit::base
+{
 public:
 	static constexpr const char* type_name = "unit_projectile";
 	// projectile constructor attributes
-	struct info : base::info {
+	struct info : base::info
+	{
 		// for mouse-guided missiles
 		std::shared_ptr<const vector<double>> guide;
 		float rotation = NAN;

@@ -10,8 +10,7 @@ mark::model::shield::shield(resource::manager& rm, float radius)
 	, m_image_reflection(rm.image("shield-reaction.png"))
 	, m_image_shield(rm.image("shield.png"))
 	, m_radius(radius)
-{
-}
+{}
 
 void mark::model::shield::tick(tick_context& context, vector<double> pos)
 {
@@ -24,7 +23,7 @@ void mark::model::shield::tick(tick_context& context, vector<double> pos)
 		_.image = m_image_shield;
 		_.pos = pos;
 		_.size = m_radius;
-		_.color = {150, 255, 255, shield_opacity};
+		_.color = { 150, 255, 255, shield_opacity };
 		return _;
 	}());
 
@@ -35,7 +34,7 @@ void mark::model::shield::tick(tick_context& context, vector<double> pos)
 		_.pos = pos;
 		_.rotation = static_cast<float>(atan(m_trigger_pos - pos));
 		_.size = m_radius;
-		_.color = {150, 255, 255, reflection_opacity};
+		_.color = { 150, 255, 255, reflection_opacity };
 		return _;
 	}());
 }

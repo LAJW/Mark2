@@ -16,16 +16,14 @@ constexpr let LANDING_PAD_SIZE = 320.f;
 mark::unit::landing_pad::landing_pad(const info& info)
 	: activable(info)
 	, m_image(info.world->resource_manager().image("landing-pad.png"))
-{
-}
+{}
 
 // Serialize / Deserialize
 
 mark::unit::landing_pad::landing_pad(mark::world& world, const YAML::Node& node)
 	: activable(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png"))
-{
-}
+{}
 
 void mark::unit::landing_pad::serialise(YAML::Emitter& out) const
 {
@@ -56,8 +54,8 @@ auto mark::unit::landing_pad::use(const std::shared_ptr<unit::modular>& ship)
 {
 	m_ship = ship;
 	world().target(this->shared_from_this());
-	ship->command(command::move{pos()});
-	ship->command(command::guide{pos() + vector<double>(1, 0)});
+	ship->command(command::move{ pos() });
+	ship->command(command::guide{ pos() + vector<double>(1, 0) });
 	return error::code::success;
 }
 

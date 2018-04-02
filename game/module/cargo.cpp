@@ -87,7 +87,7 @@ void mark::module::cargo::tick(tick_context& context)
 		_.pos = pos + light_offset;
 		_.size = 32.f;
 		_.rotation = parent_rotation();
-		_.color = {255, 200, 150, light_strength};
+		_.color = { 255, 200, 150, light_strength };
 		return _;
 	}());
 	context.sprites[4].emplace_back([&] {
@@ -96,7 +96,7 @@ void mark::module::cargo::tick(tick_context& context)
 		_.pos = pos + light_offset;
 		_.size = 16.f;
 		_.rotation = parent_rotation();
-		_.color = {255, 200, 150, light_strength};
+		_.color = { 255, 200, 150, light_strength };
 		context.sprites[4].emplace_back(_);
 		return _;
 	}());
@@ -121,8 +121,8 @@ auto overlaps(
 	const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right)
 	-> bool
 {
-	return left.first.x < right.second.x && left.second.x > right.first.x &&
-		left.first.y < right.second.y && left.second.y > right.first.y;
+	return left.first.x < right.second.x && left.second.x > right.first.x
+		&& left.first.y < right.second.y && left.second.y > right.first.y;
 }
 } // namespace
 
@@ -139,8 +139,8 @@ auto mark::module::cargo::attach(
 				let item_pos = vector<unsigned>(i % 16, i / 16);
 				let item_border = item_pos + cur_item->size();
 				if (overlaps(
-					{ incoming_pos, incoming_border },
-					{ item_pos, item_border })
+						{ incoming_pos, incoming_border },
+						{ item_pos, item_border })
 					&& cur_item->can_stack(*item)) {
 					cur_item->stack(item);
 					return error::code::stacked;
@@ -161,8 +161,8 @@ auto mark::module::cargo::can_attach(
 {
 	// Check if fits inside the container
 	let cargo_size = vector<size_t>(16, m_items.size() / 16);
-	if (pos.x < 0 || pos.y < 0 || pos.x + item.size().x > cargo_size.x ||
-		pos.y + item.size().y > cargo_size.y) {
+	if (pos.x < 0 || pos.y < 0 || pos.x + item.size().x > cargo_size.x
+		|| pos.y + item.size().y > cargo_size.y) {
 		return false;
 	}
 	// Check if doesn't overlap with any of the existing modules
@@ -174,7 +174,8 @@ auto mark::module::cargo::can_attach(
 			let item_pos = vector<unsigned>(i % 16, i / 16);
 			let item_border = item_pos + cur_item->size();
 			if (overlaps(
-					{incoming_pos, incoming_border}, {item_pos, item_border})) {
+					{ incoming_pos, incoming_border },
+					{ item_pos, item_border })) {
 				return cur_item->can_stack(item);
 			}
 		}
@@ -199,8 +200,8 @@ auto mark::module::cargo::at(const vector<int>& i_pos) const
 		let item_pos = modulo_vector<size_t>(pair.first, 16LLU);
 		if (let& slot = pair.second) {
 			let border = item_pos + vector<size_t>(slot->size());
-			if (pos.x >= item_pos.x && pos.x < border.x &&
-				pos.y >= item_pos.y && pos.y < border.y) {
+			if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
+				&& pos.y < border.y) {
 				return slot.get();
 			}
 		}
@@ -219,8 +220,8 @@ auto mark::module::cargo::detach(const vector<int>& pos)
 		let item_pos = modulo_vector<int>(i, 16);
 		if (auto& item = pair.second) {
 			let border = item_pos + vector<int>(item->size());
-			if (pos.x >= item_pos.x && pos.x < border.x &&
-				pos.y >= item_pos.y && pos.y < border.y) {
+			if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
+				&& pos.y < border.y) {
 				return move(item);
 			}
 		}
@@ -274,8 +275,8 @@ auto mark::module::cargo::push(std::unique_ptr<interface::item>& item)
 	for (let i : range(static_cast<int>(m_items.size()))) {
 		let drop_pos = modulo_vector<int>(i, 16);
 		let result = this->attach(drop_pos, item);
-		if (result == error::code::success ||
-			result == error::code::stacked && !item) {
+		if (result == error::code::success
+			|| result == error::code::stacked && !item) {
 			return error::code::success;
 		}
 	}

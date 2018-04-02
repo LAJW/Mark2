@@ -9,7 +9,8 @@
 
 namespace mark {
 
-class property_manager final {
+class property_manager final
+{
 private:
 	template <typename T>
 	static auto any_ref_cast(const std::any& any) -> T*
@@ -20,7 +21,8 @@ private:
 		return nullptr;
 	}
 
-	class iproperty {
+	class iproperty
+	{
 	public:
 		virtual ~iproperty() = default;
 		virtual auto get() -> std::any = 0;
@@ -30,12 +32,12 @@ private:
 			-> std::error_code = 0;
 	};
 	template <typename T>
-	class property final : public iproperty {
+	class property final : public iproperty
+	{
 	public:
 		property(T& ref)
 			: m_ref(ref)
-		{
-		}
+		{}
 		auto get() -> std::any override { return std::ref(m_ref); }
 		auto set(std::any ref) -> std::error_code override
 		{
@@ -109,9 +111,11 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<iproperty>> m_properties;
 };
 
-class property_serialiser final {
+class property_serialiser final
+{
 private:
-	struct property_config {
+	struct property_config
+	{
 		std::any value_ref;
 		std::function<YAML::Node(std::any)> serialise;
 	};

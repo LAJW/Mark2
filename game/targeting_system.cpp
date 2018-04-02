@@ -38,7 +38,7 @@ void mark::targeting_system::tick()
 					/* && m_parent.world().resource_manager().random(0, 3) == 0
 					 */
 				});
-			queue->push_back({move(unit), {}});
+			queue->push_back({ move(unit), {} });
 		}
 	}
 	if (let queue = std::get_if<queue_type>(&m_target)) {
@@ -88,33 +88,28 @@ void mark::targeting_system::queue(vector<double> pos, bool)
 		if (let modular =
 				std::dynamic_pointer_cast<const unit::modular>(unit)) {
 			let offset = rotate(pos - unit->pos(), -modular->rotation());
-			queue.push_back({unit, offset});
-		}
-		else {
-			queue.push_back({unit, {}});
+			queue.push_back({ unit, offset });
+		} else {
+			queue.push_back({ unit, {} });
 		}
 	}
 }
 
 mark::targeting_system::targeting_system(interface::world_object& parent)
 	: m_parent(parent)
-{
-}
+{}
 
 void mark::targeting_system::command(const command::any& any)
 {
 	if (let activate = std::get_if<command::activate>(&any)) {
 		m_target = std::make_pair(true, activate->pos);
-	}
-	else if (let release = std::get_if<command::release>(&any)) {
+	} else if (let release = std::get_if<command::release>(&any)) {
 		if (std::holds_alternative<target_type>(m_target)) {
 			m_target = std::make_pair(false, release->pos);
 		}
-	}
-	else if (let guide = std::get_if<command::guide>(&any)) {
+	} else if (let guide = std::get_if<command::guide>(&any)) {
 		this->target(guide->pos);
-	}
-	else if (let queue = std::get_if<command::queue>(&any)) {
+	} else if (let queue = std::get_if<command::queue>(&any)) {
 		this->queue(queue->pos, false);
 	}
 }

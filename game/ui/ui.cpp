@@ -22,10 +22,10 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
 	using namespace ui;
-	auto menu = std::make_unique<window>(vector<int>{300, 300});
+	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
 	{
 		button::info play_button;
-		play_button.size = {250, 50};
+		play_button.size = { 250, 50 };
 		play_button.parent = menu.get();
 		play_button.font = rm.image("font.png");
 		play_button.title = "Solitary Traveller";
@@ -39,7 +39,7 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 	}
 	{
 		button::info quit_button;
-		quit_button.size = {250, 50};
+		quit_button.size = { 250, 50 };
 		quit_button.parent = menu.get();
 		quit_button.font = rm.image("font.png");
 		quit_button.title = "Abandon Expedition";
@@ -58,10 +58,10 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
 	using namespace ui;
-	auto menu = std::make_unique<window>(vector<int>{300, 300});
+	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
 	{
 		button::info play_button;
-		play_button.size = {250, 50};
+		play_button.size = { 250, 50 };
 		play_button.parent = menu.get();
 		play_button.font = rm.image("font.png");
 		play_button.title = "Yes";
@@ -75,7 +75,7 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	}
 	{
 		button::info quit_button;
-		quit_button.size = {250, 50};
+		quit_button.size = { 250, 50 };
 		quit_button.parent = menu.get();
 		quit_button.font = rm.image("font.png");
 		quit_button.title = "No";
@@ -120,11 +120,9 @@ void mark::ui::ui::tick(
 			// router
 			if (m_mode == mode::main_menu) {
 				m_windows.front() = make_main_menu(m_rm, m_stack);
-			}
-			else if (m_mode == mode::world) {
+			} else if (m_mode == mode::world) {
 				m_windows.front() = std::make_unique<mark::ui::window>();
-			}
-			else if (m_mode == mode::prompt) {
+			} else if (m_mode == mode::prompt) {
 				m_windows.front() = make_prompt(m_rm, m_stack);
 			}
 		}
@@ -146,7 +144,8 @@ void mark::ui::ui::tick(
 			let[removed, added] =
 				diff(window->children(), containers, [](let& a, let& b) {
 					return &dynamic_cast<const mark::ui::container*>(a.get())
-								->cargo() == &b.get();
+								->cargo()
+						== &b.get();
 				});
 			for (let& it : removed) {
 				window->children().erase(it);
@@ -162,8 +161,7 @@ void mark::ui::ui::tick(
 				window->children().back()->m_relative = true;
 			}
 		}
-	}
-	else {
+	} else {
 		m_windows.back()->children().clear();
 	}
 	if (!m_tooltip_text.empty()) {
@@ -231,16 +229,14 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 		if (grabbed) {
 			this->release();
 			return true;
-		}
-		else {
+		} else {
 			let relative =
 				(activate->pos - landing_pad->pos()) / double(module::size);
 			let pick_pos = floor(relative);
 			ship->toggle_bind(activate->id, pick_pos);
 		}
 		return true;
-	}
-	else if (let move = std::get_if<command::move>(&any)) {
+	} else if (let move = std::get_if<command::move>(&any)) {
 		if (move->release) {
 			return false;
 		}
@@ -260,17 +256,15 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 						ship->toggle_bind(bind, drop_pos);
 					}
 					grabbed_bind.clear();
-				}
-				else if (let module = ship->module_at(drop_pos)) {
+				} else if (let module = ship->module_at(drop_pos)) {
 					let result =
 						grabbed->use_on(m_rm, world.blueprints(), *module);
-					if (result.error == error::code::success &&
-						result.consumed) {
+					if (result.error == error::code::success
+						&& result.consumed) {
 						grabbed.reset();
 					}
 				}
-			}
-			else {
+			} else {
 				grabbed_bind = ship->binding(pick_pos);
 				if (let module = ship->module_at(pick_pos)) {
 					grabbed_prev_pos = module->grid_pos();
@@ -299,15 +293,15 @@ void mark::ui::ui::tooltip(
 	info.size = tooltip_size;
 	info.world = false;
 	info.centred = false;
-	info.color = {50, 50, 50, 200};
+	info.color = { 50, 50, 50, 200 };
 	context.sprites[110].emplace_back(info);
 
 	tick_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 110;
 	text_info.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
-	text_info.box = {tooltip_size - tooltip_margin * 2.f,
-					 tooltip_size - tooltip_margin * 2.f};
+	text_info.box = { tooltip_size - tooltip_margin * 2.f,
+					  tooltip_size - tooltip_margin * 2.f };
 	text_info.size = font_size;
 	text_info.text = text;
 	context.render(text_info);
@@ -321,15 +315,15 @@ void mark::ui::ui::world_tooltip(
 	sprite info;
 	info.image = m_tooltip_bg;
 	info.pos = pos + vector<double>(150, 150), info.size = tooltip_size;
-	info.color = {50, 50, 50, 200};
+	info.color = { 50, 50, 50, 200 };
 	context.sprites[100].emplace_back(info);
 
 	tick_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 100;
 	text_info.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
-	text_info.box = {tooltip_size - tooltip_margin,
-					 tooltip_size - tooltip_margin};
+	text_info.box = { tooltip_size - tooltip_margin,
+					  tooltip_size - tooltip_margin };
 	text_info.size = font_size;
 	text_info.text = text;
 	text_info.world = true;
@@ -344,14 +338,14 @@ static std::vector<bool> make_available_map(
 	using namespace mark;
 	constexpr let grid_size = unit::modular::max_size;
 	let surface = range<vector<int>>(
-		{-int(grid_size) / 2, -int(grid_size) / 2},
-		{grid_size / 2, grid_size / 2});
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
 	std::vector<bool> available(grid_size * grid_size, false);
 	for (let top_left : surface) {
 		if (ship.can_attach(top_left, item)) {
 			for (let relative : range(item.size())) {
-				let pos = top_left + vector<int>(grid_size / 2, grid_size / 2) +
-					vector<int>(relative);
+				let pos = top_left + vector<int>(grid_size / 2, grid_size / 2)
+					+ vector<int>(relative);
 				if (pos.x < grid_size && pos.y < grid_size) {
 					available[pos.x + pos.y * grid_size] = true;
 				}
@@ -382,21 +376,21 @@ void mark::ui::ui::container_ui(
 {
 	constexpr let grid_size = unit::modular::max_size;
 	let surface = range<vector<int>>(
-		{-int(grid_size) / 2, -int(grid_size) / 2},
-		{grid_size / 2, grid_size / 2});
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
 	let relative = (mouse_pos - landing_pad.pos()) / double(module::size);
 	let module_pos = round(relative);
 	if (grabbed) {
 		let available = make_available_map(*grabbed, ship);
 		for (let offset : surface) {
 			if (available
-					[offset.x + grid_size / 2 +
-					 (offset.y + grid_size / 2) * grid_size]) {
+					[offset.x + grid_size / 2
+					 + (offset.y + grid_size / 2) * grid_size]) {
 				sprite info;
 				info.image = m_grid_bg;
-				info.pos = landing_pad.pos() +
-					vector<double>(offset) * double(module::size) +
-					vector<double>(module::size, module::size) / 2.;
+				info.pos = landing_pad.pos()
+					+ vector<double>(offset) * double(module::size)
+					+ vector<double>(module::size, module::size) / 2.;
 				info.size = module::size;
 				info.color = sf::Color(0, 255, 255, 255);
 				context.sprites[1].emplace_back(info);
@@ -404,24 +398,23 @@ void mark::ui::ui::container_ui(
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			let size = static_cast<float>(
-						   std::max(grabbed->size().x, grabbed->size().y)) *
-				module::size;
-			let drop_pos = module_pos -
-				vector<int>(grabbed->size()) / 2; // module's top-left corner
+						   std::max(grabbed->size().x, grabbed->size().y))
+				* module::size;
+			let drop_pos = module_pos
+				- vector<int>(grabbed->size()) / 2; // module's top-left corner
 			let color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green
 															: sf::Color::Red;
 			sprite info;
 			info.image = grabbed->thumbnail();
-			info.pos = vector<double>(module_pos) * double(module::size) +
-				landing_pad.pos();
+			info.pos = vector<double>(module_pos) * double(module::size)
+				+ landing_pad.pos();
 			info.size = size;
 			info.color = color;
 			context.sprites[100].emplace_back(info);
-		}
-		else {
+		} else {
 			let size = static_cast<float>(
-						   std::max(grabbed->size().x, grabbed->size().y)) *
-				module::size;
+						   std::max(grabbed->size().x, grabbed->size().y))
+				* module::size;
 			sprite info;
 			info.image = grabbed->thumbnail();
 			info.pos = mouse_pos;
@@ -439,10 +432,10 @@ void mark::ui::ui::container_ui(
 			let module = ship.module_at(pick_pos);
 			if (module) {
 				let description = module->describe();
-				let module_size = vector<double>(module->size()) *
-					static_cast<double>(module::size);
-				let tooltip_pos = module->pos() +
-					vector<double>(module_size.x, -module_size.y) / 2.0;
+				let module_size = vector<double>(module->size())
+					* static_cast<double>(module::size);
+				let tooltip_pos = module->pos()
+					+ vector<double>(module_size.x, -module_size.y) / 2.0;
 
 				this->world_tooltip(context, description, tooltip_pos);
 			}

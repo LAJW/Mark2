@@ -9,13 +9,13 @@ using vector = sf::Vector2<T>;
 template <typename T>
 auto min(vector<T> t, vector<T> u)
 {
-	return vector<T>{std::min(t.x, u.x), std::min(t.y, u.y)};
+	return vector<T>{ std::min(t.x, u.x), std::min(t.y, u.y) };
 }
 
 template <typename T>
 auto max(vector<T> t, vector<T> u)
 {
-	return vector<T>{std::max(t.x, u.x), std::max(t.y, u.y)};
+	return vector<T>{ std::max(t.x, u.x), std::max(t.y, u.y) };
 }
 
 template <typename T, typename U>
@@ -39,8 +39,7 @@ auto normalize(vector<T> vector)
 	let length = mark::length(vector);
 	if (length) {
 		return vector / length;
-	}
-	else {
+	} else {
 		return mark::vector<T>(0, 0);
 	}
 }
@@ -61,11 +60,9 @@ T sgn(T val)
 {
 	if (val > 0) {
 		return 1;
-	}
-	else if (val < 0) {
+	} else if (val < 0) {
 		return -1;
-	}
-	else {
+	} else {
 		return 0;
 	}
 }

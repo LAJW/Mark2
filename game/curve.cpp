@@ -6,17 +6,13 @@ auto mark::curve::serialise(curve::ptr ptr) -> std::string
 {
 	if (ptr == curve::flat) {
 		return "flat";
-	}
-	else if (ptr == curve::invert) {
+	} else if (ptr == curve::invert) {
 		return "invert";
-	}
-	else if (ptr == curve::linear) {
+	} else if (ptr == curve::linear) {
 		return "linear";
-	}
-	else if (ptr == curve::sin) {
+	} else if (ptr == curve::sin) {
 		return "sin";
-	}
-	else {
+	} else {
 		throw exception("BAD_CURVE");
 	}
 }
@@ -25,17 +21,13 @@ auto mark::curve::deserialise(const std::string& str) -> curve::ptr
 {
 	if (str == "flat") {
 		return curve::flat;
-	}
-	else if (str == "invert") {
+	} else if (str == "invert") {
 		return curve::invert;
-	}
-	else if (str == "linear") {
+	} else if (str == "linear") {
 		return curve::linear;
-	}
-	else if (str == "sin") {
+	} else if (str == "sin") {
 		return curve::sin;
-	}
-	else {
+	} else {
 		throw exception("BAD_CURVE");
 	}
 }

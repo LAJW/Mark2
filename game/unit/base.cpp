@@ -13,8 +13,7 @@ auto mark::unit::base_ref::world() const noexcept -> const mark::world&
 
 mark::unit::base_ref::base_ref(mark::world& world)
 	: m_world(world)
-{
-}
+{}
 
 mark::unit::base::base(const info& info)
 	: base_ref(*info.world)
@@ -32,8 +31,7 @@ mark::unit::base::base(mark::world& world, const YAML::Node& node)
 		info.team = node["team"].as<unsigned>(0);
 		return info;
 	}())
-{
-}
+{}
 
 void mark::unit::base::resolve_ref(
 	const YAML::Node&,

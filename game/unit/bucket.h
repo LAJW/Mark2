@@ -3,12 +3,14 @@
 
 namespace mark {
 namespace unit {
-class bucket final : public unit::base {
+class bucket final : public unit::base
+{
 public:
 	static constexpr const char* type_name = "unit_bucket";
 
 	bucket(mark::world& world, const YAML::Node&);
-	struct info : unit::base::info {
+	struct info : unit::base::info
+	{
 		std::unique_ptr<interface::item> item;
 	};
 	bucket(info);

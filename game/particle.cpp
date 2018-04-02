@@ -17,8 +17,7 @@ static auto validate(const mark::particle::info& attr)
 
 mark::particle::particle(const particle::info& info)
 	: particle::particle(::validate(info), true)
-{
-}
+{}
 
 mark::particle::particle(const particle::info& attr, bool)
 	: m_image(move(attr.image))
@@ -30,8 +29,7 @@ mark::particle::particle(const particle::info& attr, bool)
 	, m_size(attr.size)
 	, m_color(attr.color)
 	, m_layer(attr.layer)
-{
-}
+{}
 
 void mark::particle::tick(
 	double dt,

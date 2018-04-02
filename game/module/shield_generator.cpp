@@ -67,9 +67,9 @@ void mark::module::shield_generator::tick(tick_context& context)
 		}
 		m_cur_shield = std::min(
 			m_max_shield,
-			m_cur_shield +
-				module.first.get().harvest_energy(context.dt) *
-					m_shield_per_energy);
+			m_cur_shield
+				+ module.first.get().harvest_energy(context.dt)
+					* m_shield_per_energy);
 	}
 	this->render(context);
 }
@@ -100,16 +100,15 @@ void mark::module::shield_generator::render(tick_context& context) const
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
-	if (attr.team == parent().team() ||
-		attr.damaged->find(this) != attr.damaged->end()) {
+	if (attr.team == parent().team()
+		|| attr.damaged->find(this) != attr.damaged->end()) {
 		return false;
 	}
 	attr.damaged->insert(this);
 	if (m_cur_shield > 0.f) {
 		m_model_shield.trigger(attr.pos);
 		m_cur_shield -= attr.physical;
-	}
-	else {
+	} else {
 		m_cur_health -= attr.physical;
 	}
 	return true;
@@ -138,8 +137,8 @@ auto mark::module::shield_generator::collide(const segment_t& ray)
 		return module::base::collide(ray);
 	}
 	if (let intersection = intersect(ray, pos(), m_radius)) {
-		return {{std::ref(static_cast<interface::damageable&>(*this)),
-				 *intersection}};
+		return { { std::ref(static_cast<interface::damageable&>(*this)),
+				   *intersection } };
 	}
 	return {};
 }

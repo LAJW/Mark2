@@ -3,14 +3,16 @@
 
 namespace mark {
 
-enum class mode {
+enum class mode
+{
 	main_menu,
 	world,
 	prompt,
 };
 
 // Stack of modes - manages in which mode the game should be
-class mode_stack final {
+class mode_stack final
+{
 public:
 	mode_stack() { m_stack.push_back(mode::main_menu); }
 	void push(mode mode)
@@ -23,8 +25,7 @@ public:
 	{
 		if (m_stack.size() > 1) {
 			m_stack.pop_back();
-		}
-		else {
+		} else {
 			m_stack.push_back(mode::world);
 		}
 	}

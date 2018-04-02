@@ -21,8 +21,7 @@ static auto validate(const mark::unit::projectile::info& args)
 
 mark::unit::projectile::projectile(const unit::projectile::info& args)
 	: unit::projectile::projectile(::validate(args), true)
-{
-}
+{}
 
 mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	: unit::base(args)
@@ -38,24 +37,21 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_piercing(args.piercing)
 	, m_guide(args.guide)
 	, m_physical(args.physical)
-{
-}
+{}
 
 void mark::unit::projectile::tick(tick_context& context)
 {
 	double dt = context.dt;
-	let step = rotate(vector<double>(1, 0), m_rotation) *
-		static_cast<double>(m_velocity) * dt;
+	let step = rotate(vector<double>(1, 0), m_rotation)
+		* static_cast<double>(m_velocity) * dt;
 	let turn_speed = 500.f;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
-		}
-		else {
+		} else {
 			m_rotation = turn(*m_guide - pos(), m_rotation, turn_speed, dt);
 		}
-	}
-	else if (m_seek_radius >= 0.f) {
+	} else if (m_seek_radius >= 0.f) {
 		auto target = world().find_one<unit::damageable>(
 			pos(), m_seek_radius, [this](const unit::base& unit) {
 				return unit.team() != this->team();
@@ -68,7 +64,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	pos(pos() + step);
 	world::damage_info info;
 	info.context = &context;
-	info.segment = {pos() - step * 1.2, pos()};
+	info.segment = { pos() - step * 1.2, pos() };
 	info.aoe_radius = m_aoe_radius;
 	info.piercing = m_piercing;
 	info.damage.damaged = &m_damaged;
@@ -81,8 +77,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	let[collisions, terrain_hit] = world().damage(info);
 	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;
-	}
-	else {
+	} else {
 		m_piercing -= collisions.size();
 	}
 	if (!collisions.empty() && terrain_hit) {
@@ -101,7 +96,7 @@ void mark::unit::projectile::tick(tick_context& context)
 		spray.diameter(is_heavy_damage ? 32.f : 8.f);
 		spray.count = is_heavy_damage ? 80 : 40;
 		spray.cone = 360.f;
-		spray.color = {125, 125, 125, 75};
+		spray.color = { 125, 125, 125, 75 };
 		context.render(spray);
 	}
 	// tail: grey dust
@@ -116,7 +111,7 @@ void mark::unit::projectile::tick(tick_context& context)
 		spray.step = mark::length(step);
 		spray.direction = m_rotation + 180.f;
 		spray.cone = 30.f;
-		spray.color = {175, 175, 175, 75};
+		spray.color = { 175, 175, 175, 75 };
 		context.render(spray);
 	}
 	// tail: white overlay
@@ -169,8 +164,7 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
 	, m_critical_multiplier(node["critical_multiplier"].as<float>())
 	, m_piercing(node["piercing"].as<unsigned>())
 	, m_physical(node["physical"].as<float>(10.f))
-{
-}
+{}
 
 void mark::unit::projectile::serialise(YAML::Emitter& out) const
 {

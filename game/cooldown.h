@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 namespace mark {
-class cooldown {
+class cooldown
+{
 public:
 	cooldown(float cooldown);
 	void tick(double dt);

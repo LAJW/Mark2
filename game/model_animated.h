@@ -8,7 +8,8 @@ class manager;
 class image;
 } // namespace resource
 namespace model {
-class animated {
+class animated
+{
 public:
 	animated(const std::shared_ptr<const resource::image>& image);
 	void tick(double dt);

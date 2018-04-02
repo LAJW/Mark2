@@ -5,7 +5,8 @@
 #include <variant>
 
 namespace mark {
-class hid final {
+class hid final
+{
 public:
 	using button = std::variant<sf::Keyboard::Key, sf::Mouse::Button, int>;
 	// Create a new HID from keybindings YAML Node

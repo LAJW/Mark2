@@ -10,9 +10,11 @@ namespace resource {
 class image;
 }
 struct sprite;
-class particle {
+class particle
+{
 public:
-	struct info {
+	struct info
+	{
 		std::shared_ptr<const resource::image> image;
 		vector<double> pos;
 		float velocity = NAN;

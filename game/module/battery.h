@@ -5,7 +5,8 @@
 
 namespace mark {
 namespace module {
-class battery final : public module::base {
+class battery final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_battery";
 

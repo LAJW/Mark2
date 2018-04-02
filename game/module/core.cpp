@@ -8,8 +8,7 @@
 mark::module::core::core(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image(rm.image("core.png"))
-{
-}
+{}
 
 void mark::module::core::tick(tick_context& context)
 {

@@ -9,7 +9,8 @@ namespace mark {
 namespace ui {
 class window;
 
-class ui final {
+class ui final
+{
 public:
 	explicit ui(
 		resource::manager& rm,

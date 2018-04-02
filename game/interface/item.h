@@ -5,13 +5,15 @@
 namespace mark {
 namespace interface {
 
-class item {
+class item
+{
 public:
 	virtual ~item() = default;
 	virtual auto size() const -> vector<unsigned> = 0;
 	virtual auto thumbnail() const
 		-> std::shared_ptr<const resource::image> = 0;
-	struct use_on_result {
+	struct use_on_result
+	{
 		std::error_code error;
 		bool consumed = false;
 	};

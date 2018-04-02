@@ -4,8 +4,7 @@
 mark::lfo::lfo(float frequency, float phase)
 	: m_frequency(frequency)
 	, m_phase(phase)
-{
-}
+{}
 
 void mark::lfo::tick(double dt)
 {

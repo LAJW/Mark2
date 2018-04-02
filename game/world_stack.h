@@ -3,7 +3,8 @@
 
 namespace mark {
 
-class world_stack final {
+class world_stack final
+{
 public:
 	using blueprint_map = std::unordered_map<std::string, YAML::Node>;
 	world_stack(
@@ -17,7 +18,8 @@ public:
 	~world_stack();
 
 private:
-	struct world_data {
+	struct world_data
+	{
 		std::unique_ptr<mark::world> world;
 		vector<double> target_pos;
 	};

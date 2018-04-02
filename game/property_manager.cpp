@@ -15,8 +15,7 @@ static auto get_inherit(const YAML::Node& node) -> std::optional<std::string>
 
 mark::property_manager::property_manager(resource::manager& rm)
 	: m_rm(rm)
-{
-}
+{}
 
 auto mark::property_manager::deserialise(const YAML::Node& node)
 	-> std::error_code

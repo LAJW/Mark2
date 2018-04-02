@@ -8,9 +8,11 @@ namespace mark {
 namespace ui {
 class ui;
 struct event;
-class container final : public window {
+class container final : public window
+{
 public:
-	struct info {
+	struct info
+	{
 		resource::manager* rm = nullptr;
 		module::cargo* container = nullptr;
 		mark::ui::ui* ui = nullptr;

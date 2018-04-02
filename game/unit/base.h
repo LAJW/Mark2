@@ -12,7 +12,8 @@ auto deserialise(world& world, const YAML::Node& node)
 	-> std::shared_ptr<unit::base>;
 
 // Part of the unit modifiable by world and nothing else
-class base_ref : public interface::world_object {
+class base_ref : public interface::world_object
+{
 public:
 	friend mark::world;
 	auto world() noexcept -> mark::world&;
@@ -24,15 +25,18 @@ protected:
 
 private:
 	virtual void tick(tick_context& context) = 0;
-	virtual void on_death(tick_context&){/* no-op */};
+	virtual void on_death(tick_context&){ /* no-op */ };
 	std::reference_wrapper<mark::world> m_world;
 };
 
-class base : public base_ref, public std::enable_shared_from_this<unit::base> {
+class base
+	: public base_ref
+	, public std::enable_shared_from_this<unit::base>
+{
 public:
 	virtual ~base() = default;
 	virtual void serialise(YAML::Emitter&) const;
-	virtual void command(const command::any&){/* no-op */};
+	virtual void command(const command::any&){ /* no-op */ };
 	virtual auto dead() const -> bool = 0;
 	// Resolve references after deserializing
 	virtual void resolve_ref(
@@ -43,7 +47,8 @@ public:
 	auto team() const -> size_t final override;
 	void team(size_t);
 
-	struct info {
+	struct info
+	{
 		mark::world* world = nullptr;
 		vector<double> pos;
 		size_t team = 0;

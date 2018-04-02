@@ -4,7 +4,8 @@
 
 namespace mark {
 namespace module {
-class flamethrower final : public module::base {
+class flamethrower final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_flamethrower";
 

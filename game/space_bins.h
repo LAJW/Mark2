@@ -9,18 +9,18 @@ class base;
 }
 
 template <typename T>
-class space_bins final {
+class space_bins final
+{
 public:
 	space_bins(
 		vector<std::size_t> size,
 		vector<double> world_min,
 		vector<double> world_max)
-		: m_size{size}
-		, m_voxels{size.x * size.y, std::vector<std::shared_ptr<T>>()}
-		, m_world_min{world_min}
-		, m_world_max{world_max}
-	{
-	}
+		: m_size{ size }
+		, m_voxels{ size.x * size.y, std::vector<std::shared_ptr<T>>() }
+		, m_world_min{ world_min }
+		, m_world_max{ world_max }
+	{}
 
 	auto size() const { return m_size; }
 	auto world_min() const { return m_world_min; }
@@ -56,10 +56,10 @@ auto compute_index(const space_bins<T>& bins, vector<double> pos)
 	let world_size = bins.world_max() - bins.world_min();
 	let world_pos = pos - bins.world_min();
 	let world_dim = bins.size();
-	return vector<std::size_t>{
-		max(vector<double>{0.0, 0.0},
-			vector<double>{(world_pos.x / world_size.x) * world_dim.x,
-						   (world_pos.y / world_size.y) * world_dim.y})};
+	return vector<std::size_t>{ max(
+		vector<double>{ 0.0, 0.0 },
+		vector<double>{ (world_pos.x / world_size.x) * world_dim.x,
+						(world_pos.y / world_size.y) * world_dim.y }) };
 }
 
 template <typename It, typename T>
@@ -95,11 +95,11 @@ auto find(const space_bins<U>& bins, vector<double> pos, double radius, T pred)
 {
 	std::vector<std::shared_ptr<unit_type>> ret;
 	for (let ind : range(
-			 compute_index(bins, pos - vector<double>{radius, radius}),
+			 compute_index(bins, pos - vector<double>{ radius, radius }),
 			 min(bins.size(),
-				 vector<std::size_t>{1, 1} +
-					 compute_index(
-						 bins, pos + vector<double>{radius, radius})))) {
+				 vector<std::size_t>{ 1, 1 }
+					 + compute_index(
+						   bins, pos + vector<double>{ radius, radius })))) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				ret.emplace_back(ptr);
@@ -117,11 +117,11 @@ auto find_one(
 	T pred) -> std::shared_ptr<unit_type>
 {
 	for (let ind : range(
-			 compute_index(bins, pos - vector<double>{radius, radius}),
+			 compute_index(bins, pos - vector<double>{ radius, radius }),
 			 min(bins.size(),
-				 vector<std::size_t>{1, 1} +
-					 compute_index(
-						 bins, pos + vector<double>{radius, radius})))) {
+				 vector<std::size_t>{ 1, 1 }
+					 + compute_index(
+						   bins, pos + vector<double>{ radius, radius })))) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				return ptr;

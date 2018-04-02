@@ -3,7 +3,8 @@
 #include "stdafx.h"
 
 namespace mark {
-struct tick_context {
+struct tick_context
+{
 	tick_context(resource::manager&);
 	~tick_context();
 	double dt;
@@ -12,8 +13,14 @@ struct tick_context {
 	std::vector<std::pair<vector<double>, sf::Color>> lights;
 	std::vector<std::shared_ptr<unit::base>> units;
 	std::vector<particle> particles;
-	enum class bar_kind { health, energy, shield };
-	struct bar_info {
+	enum class bar_kind
+	{
+		health,
+		energy,
+		shield
+	};
+	struct bar_info
+	{
 		std::shared_ptr<const resource::image> image;
 		bar_kind type;
 		vector<double> pos;
@@ -38,7 +45,8 @@ struct tick_context {
 	{
 		return one;
 	}
-	struct spray_info {
+	struct spray_info
+	{
 		std::shared_ptr<const resource::image> image;
 		vector<double> pos;
 		float min_velocity = NAN;
@@ -59,7 +67,8 @@ struct tick_context {
 		void diameter(float min, float max = NAN);
 	};
 	void render(const spray_info&);
-	struct text_info {
+	struct text_info
+	{
 		int layer = 0;
 		std::shared_ptr<const resource::image> font;
 		vector<double> pos;

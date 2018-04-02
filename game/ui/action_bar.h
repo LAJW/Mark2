@@ -3,7 +3,8 @@
 
 namespace mark {
 namespace ui {
-class action_bar final {
+class action_bar final
+{
 public:
 	explicit action_bar(resource::manager& rm);
 	void tick(

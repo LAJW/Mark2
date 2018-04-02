@@ -8,16 +8,17 @@ namespace mark {
 // Vector/Area range_t
 // TODO: Type static assert to check whether T is specialization of vector
 template <typename T, typename = void>
-class range_t {
+class range_t
+{
 public:
 	class iterator
-		: public std::iterator<std::bidirectional_iterator_tag, T, void> {
+		: public std::iterator<std::bidirectional_iterator_tag, T, void>
+	{
 	public:
 		iterator(const range_t<T>& area, T i)
 			: m_area(area)
 			, m_i(i)
-		{
-		}
+		{}
 		iterator& operator++() noexcept
 		{
 			m_i.x++;
@@ -31,8 +32,7 @@ public:
 		{
 			if (m_i.x > m_area.top_left.x) {
 				m_i.x--;
-			}
-			else {
+			} else {
 				m_i.x = m_area.bottom_right.x - 1;
 				m_i.y--;
 			}
@@ -54,18 +54,16 @@ public:
 	};
 	using const_iterator = iterator;
 	range_t(const T& bottom_right)
-		: range_t({0, 0}, bottom_right)
-	{
-	}
+		: range_t({ 0, 0 }, bottom_right)
+	{}
 	range_t(const T& top_left, const T& bottom_right)
 		: top_left(top_left)
 		, bottom_right(bottom_right)
-	{
-	}
+	{}
 	const_iterator begin() const noexcept { return iterator(*this, top_left); }
 	const_iterator end() const noexcept
 	{
-		return iterator(*this, {top_left.x, bottom_right.y});
+		return iterator(*this, { top_left.x, bottom_right.y });
 	}
 	const T top_left;
 	const T bottom_right;
@@ -73,19 +71,21 @@ public:
 
 // Container Enumerator
 template <typename T>
-class enumerator final {
+class enumerator final
+{
 private:
 	template <typename value_t, typename iterator_t>
-	class iterator_impl final : public std::iterator<
-									std::forward_iterator_tag,
-									std::pair<typename T::size_type, value_t&>,
-									void> {
+	class iterator_impl final
+		: public std::iterator<
+			  std::forward_iterator_tag,
+			  std::pair<typename T::size_type, value_t&>,
+			  void>
+	{
 	public:
 		iterator_impl(iterator_t it, typename T::size_type i) noexcept
 			: m_it(it)
 			, m_i(i)
-		{
-		}
+		{}
 		auto& operator++() noexcept
 		{
 			++m_it;
@@ -94,12 +94,12 @@ private:
 		}
 		auto operator*() noexcept -> std::pair<typename T::size_type, value_t&>
 		{
-			return {m_i, *m_it};
+			return { m_i, *m_it };
 		}
 		auto operator*() const noexcept
 			-> std::pair<typename T::size_type, const value_t&>
 		{
-			return {m_i, *m_it};
+			return { m_i, *m_it };
 		}
 		auto operator==(const iterator_impl& other) const noexcept
 		{
@@ -123,28 +123,27 @@ public:
 
 	enumerator(T& container)
 		: m_container(container)
-	{
-	}
-	auto begin() noexcept -> iterator { return {m_container.begin(), 0}; }
+	{}
+	auto begin() noexcept -> iterator { return { m_container.begin(), 0 }; }
 	auto begin() const noexcept -> const_iterator
 	{
-		return {m_container.cbegin(), 0};
+		return { m_container.cbegin(), 0 };
 	}
 	auto cbegin() const noexcept -> const_iterator
 	{
-		return {m_container.cbegin(), 0};
+		return { m_container.cbegin(), 0 };
 	}
 	auto end() noexcept -> iterator
 	{
-		return {m_container.end(), m_container.size()};
+		return { m_container.end(), m_container.size() };
 	}
 	auto end() const noexcept -> const_iterator
 	{
-		return {m_container.cend(), m_container.size()};
+		return { m_container.cend(), m_container.size() };
 	}
 	auto cend() const noexcept -> const_iterator
 	{
-		return {m_container.cend(), m_container.size()};
+		return { m_container.cend(), m_container.size() };
 	}
 
 private:
@@ -153,15 +152,16 @@ private:
 
 // Integer range range_t
 template <typename T>
-class range_t<T, std::enable_if_t<std::is_arithmetic_v<T>>> {
+class range_t<T, std::enable_if_t<std::is_arithmetic_v<T>>>
+{
 public:
 	class iterator
-		: public std::iterator<std::bidirectional_iterator_tag, T, void> {
+		: public std::iterator<std::bidirectional_iterator_tag, T, void>
+	{
 	public:
 		iterator(T value)
 			: m_value(value)
-		{
-		}
+		{}
 		auto& operator++() noexcept
 		{
 			m_value++;
@@ -189,13 +189,11 @@ public:
 	range_t(T end)
 		: m_begin(0)
 		, m_end(end)
-	{
-	}
+	{}
 	range_t(T begin, T end)
 		: m_begin(begin)
 		, m_end(end)
-	{
-	}
+	{}
 	iterator begin() const noexcept { return m_begin; }
 	iterator end() const noexcept { return m_end; }
 
@@ -270,35 +268,31 @@ auto diff(
 	let new_end = new_list.end();
 	while (old_it != old_end || new_it != new_end) {
 		if (old_it == old_end) {
-			added.push_back({old_end, *new_it});
+			added.push_back({ old_end, *new_it });
 			++new_it;
-		}
-		else if (new_it == new_end) {
+		} else if (new_it == new_end) {
 			removed.push_back(old_it);
 			++old_it;
-		}
-		else if (equals(*old_it, *new_it)) {
+		} else if (equals(*old_it, *new_it)) {
 			++new_it;
 			++old_it;
-		}
-		else {
+		} else {
 			let found_new = std::find_if(new_it, new_end, [&](let& value) {
 				return equals(*old_it, value);
 			});
 			if (found_new == new_end) {
 				removed.push_back(old_it);
 				++old_it;
-			}
-			else {
+			} else {
 				for (auto it = new_it; it != found_new; ++it) {
-					added.push_back({old_it, *it});
+					added.push_back({ old_it, *it });
 				}
 				new_it = std::next(found_new);
 				++old_it;
 			}
 		}
 	}
-	return {removed, added};
+	return { removed, added };
 }
 
 template <typename old_container_t, typename new_container_t>

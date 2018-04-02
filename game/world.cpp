@@ -25,7 +25,7 @@
 #include "world_stack.h"
 
 namespace {
-const auto voxel_dim = mark::vector<std::size_t>{50, 50};
+const auto voxel_dim = mark::vector<std::size_t>{ 50, 50 };
 } // namespace
 
 mark::world::world(resource::manager& rm)
@@ -33,13 +33,12 @@ mark::world::world(resource::manager& rm)
 	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
 	, m_space_bins(
 		  voxel_dim,
-		  m_map->map_to_world({0, 0}),
-		  m_map->map_to_world(vector<int>{m_map->size()}))
+		  m_map->map_to_world({ 0, 0 }),
+		  m_map->map_to_world(vector<int>{ m_map->size() }))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
-{
-}
+{}
 
 // Helper function for finding positions for key locations using different
 // over-the-area iterations
@@ -93,7 +92,7 @@ static auto find_landing_pad_pos(const mark::map& map, mark::vector<int> size)
 		[&](auto proc) -> std::optional<mark::vector<double>> {
 			for (int x = size.x - 1; x >= 0; --x) {
 				for (int y = size.y - 1; y >= 0; --y) {
-					if (let result = proc({x, y})) {
+					if (let result = proc({ x, y })) {
 						return *result;
 					}
 				}
@@ -110,8 +109,8 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
 	, m_space_bins(
 		  voxel_dim,
-		  m_map->map_to_world({0, 0}),
-		  m_map->map_to_world(vector<int>{m_map->size()}))
+		  m_map->map_to_world({ 0, 0 }),
+		  m_map->map_to_world(vector<int>{ m_map->size() }))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
@@ -149,8 +148,8 @@ mark::world::world(
 
 	for (let point : range(map_size)) {
 		let pos = m_map->map_to_world(point);
-		if (m_map->traversable(pos, ship_radius) &&
-			this->find(pos, ship_radius * 4.).empty()) {
+		if (m_map->traversable(pos, ship_radius)
+			&& this->find(pos, ship_radius * 4.).empty()) {
 			/*
 			auto unit = spawn_ship();
 			unit->pos(pos);
@@ -173,14 +172,13 @@ mark::world::world(
 	if (initial) {
 		auto vessel = spawn_ship();
 		vessel->ai(false);
-		vessel->command(command::move{vector<double>()});
+		vessel->command(command::move{ vector<double>() });
 		vessel->team(1);
-		vessel->pos({0., 0.});
+		vessel->pos({ 0., 0. });
 		m_camera_target = vessel;
 		m_units.push_back(move(vessel));
-	}
-	else {
-		spawn_gate({0, 0}, true);
+	} else {
+		spawn_gate({ 0, 0 }, true);
 	}
 }
 
@@ -204,8 +202,8 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 
 	{
 		let camera = vmap(m_camera, std::round);
-		let offset = screen_size / 2.0 +
-			vector<double>(map::tile_size, map::tile_size) * 2.;
+		let offset = screen_size / 2.0
+			+ vector<double>(map::tile_size, map::tile_size) * 2.;
 		m_map->tick(camera - offset, camera + offset, context);
 	}
 
@@ -266,11 +264,10 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 		if (dist != 0.) {
 			let dir = diff / dist;
 			m_camera_velocity -= m_a * context.dt;
-			if (m_camera_velocity * context.dt < dist &&
-				m_camera_velocity > 0) {
+			if (m_camera_velocity * context.dt < dist
+				&& m_camera_velocity > 0) {
 				m_camera += m_camera_velocity * dir * context.dt;
-			}
-			else {
+			} else {
 				m_camera = target_pos;
 				m_camera_velocity = 0.;
 				m_a = 0;
@@ -322,7 +319,7 @@ auto mark::world::collide(const segment_t& ray)
 				auto [damageable, pos] = *result;
 				let length = mark::length(pos - ray.first);
 				if (length < min_length) {
-					collisions.push_back({damageable, pos});
+					collisions.push_back({ damageable, pos });
 				}
 			}
 		}
@@ -330,7 +327,7 @@ auto mark::world::collide(const segment_t& ray)
 	sort(begin(collisions), end(collisions), [&](let& a, let& b) {
 		return length(a.second - ray.first) < length(b.second - ray.first);
 	});
-	return {move(collisions), map_collision};
+	return { move(collisions), map_collision };
 }
 
 auto mark::world::collide(vector<double> center, float radius)
@@ -380,8 +377,8 @@ auto mark::world::damage(world::damage_info info)
 		}
 		potential_collisions.pop_front();
 	}
-	if (crash_pos &&
-		(info.piercing < collisions.size() || collisions.empty())) {
+	if (crash_pos
+		&& (info.piercing < collisions.size() || collisions.empty())) {
 		collisions.push_back(*crash_pos);
 	}
 	if (info.aoe_radius > 0.f) {
@@ -393,7 +390,7 @@ auto mark::world::damage(world::damage_info info)
 			}
 		}
 	}
-	return {collisions, crash_pos.has_value()};
+	return { collisions, crash_pos.has_value() };
 }
 
 // Serializer / Deserializer
@@ -406,8 +403,8 @@ mark::world::world(
 	, m_map(std::make_unique<mark::map>(rm, node["map"]))
 	, m_space_bins(
 		  voxel_dim,
-		  m_map->map_to_world({0, 0}),
-		  m_map->map_to_world(vector<int>{m_map->size()}))
+		  m_map->map_to_world({ 0, 0 }),
+		  m_map->map_to_world(vector<int>{ m_map->size() }))
 	, m_camera(
 		  node["camera"]["x"].as<double>(),
 		  node["camera"]["y"].as<double>())

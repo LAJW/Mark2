@@ -16,8 +16,7 @@ mark::unit::gate::gate(const info& info)
 	, m_rotor(info.world->resource_manager().image("gate-rotor.png"))
 	, m_im_enclosure(info.world->resource_manager().image("gate-enclosure.png"))
 	, m_inverted(info.inverted)
-{
-}
+{}
 
 void mark::unit::gate::tick(tick_context& context)
 {
@@ -47,8 +46,7 @@ auto mark::unit::gate::use(const std::shared_ptr<unit::modular>&)
 {
 	if (m_inverted) {
 		world().prev();
-	}
-	else {
+	} else {
 		world().next();
 	}
 	return error::code::success;
@@ -62,8 +60,7 @@ mark::unit::gate::gate(mark::world& world, const YAML::Node& node)
 	, m_rotor(world.resource_manager().image("gate-rotor.png"))
 	, m_im_enclosure(world.resource_manager().image("gate-enclosure.png"))
 	, m_inverted(node["inverted"].as<bool>(false))
-{
-}
+{}
 
 void mark::unit::gate::serialise(YAML::Emitter& out) const
 {

@@ -6,7 +6,8 @@
 
 namespace mark {
 namespace module {
-class shield_generator final : public base {
+class shield_generator final : public base
+{
 public:
 	static constexpr const char* type_name = "shield_generator";
 

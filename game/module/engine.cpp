@@ -34,11 +34,9 @@ void mark::module::engine::command(const command::any& any)
 {
 	if (std::holds_alternative<command::queue>(any)) {
 		m_state = m_state != state::off ? state::off : state::toggled;
-	}
-	else if (std::holds_alternative<command::activate>(any)) {
+	} else if (std::holds_alternative<command::activate>(any)) {
 		m_state = state::manual;
-	}
-	else if (std::holds_alternative<command::release>(any)) {
+	} else if (std::holds_alternative<command::release>(any)) {
 		if (m_state != state::toggled) {
 			m_state = state::off;
 		}
@@ -61,8 +59,7 @@ void mark::module::engine::bind(mark::property_manager& property_manager)
 mark::module::engine::engine(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("engine.png"))
-{
-}
+{}
 
 void mark::module::engine::serialise(YAML::Emitter& out) const
 {

@@ -4,7 +4,8 @@
 
 namespace mark {
 namespace module {
-class warp_drive final : public module::base {
+class warp_drive final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_warp_drive";
 
@@ -16,7 +17,7 @@ public:
 
 private:
 	void tick(tick_context& context) override;
-	template<typename property_manager, typename T>
+	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;
 

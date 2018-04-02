@@ -12,8 +12,7 @@
 
 mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vector<int>>(vector<int>()))
-{
-}
+{}
 
 void mark::module::base_ref::serialise(YAML::Emitter& out) const
 {
@@ -56,14 +55,13 @@ void mark::module::base::tick(tick_context& context)
 	for (auto& pair : neighbours) {
 		let & [ module, surface ] = pair;
 		auto& module_heat = module.get().m_cur_heat;
-		let delta_heat = static_cast<float>(surface) /
-			static_cast<float>(total_surface) * static_cast<float>(context.dt) *
-			HEAT_TRANSFER_RATE;
+		let delta_heat = static_cast<float>(surface)
+			/ static_cast<float>(total_surface) * static_cast<float>(context.dt)
+			* HEAT_TRANSFER_RATE;
 		if (module_heat - m_cur_heat > delta_heat) {
 			m_cur_heat += delta_heat;
 			module_heat -= delta_heat;
-		}
-		else if (module_heat > m_cur_heat) {
+		} else if (module_heat > m_cur_heat) {
 			let avg_heat = (module_heat + m_cur_heat) / 2.f;
 			m_cur_heat = avg_heat;
 			module_heat = avg_heat;
@@ -72,8 +70,7 @@ void mark::module::base::tick(tick_context& context)
 	if (m_cur_heat >= 0.f) {
 		m_cur_heat = std::max(
 			m_cur_heat - HEAT_LOSS_RATE * static_cast<float>(context.dt), 0.f);
-	}
-	else {
+	} else {
 		m_cur_heat = 0.f;
 	}
 	if (!this->parent().landed()) {
@@ -84,7 +81,7 @@ void mark::module::base::tick(tick_context& context)
 				_.lifespan(.3f, 1.f);
 				_.direction = -45.f;
 				_.cone = 90.f;
-				_.color = {200, 200, 200, 25};
+				_.color = { 200, 200, 200, 25 };
 				_.velocity(64.f, 128.f);
 				_.pos = pos;
 				_.diameter(16.f, 32.f);
@@ -92,15 +89,14 @@ void mark::module::base::tick(tick_context& context)
 				_.layer = 5;
 				return _;
 			}());
-		}
-		else if (health_percentage <= 0.25f) {
+		} else if (health_percentage <= 0.25f) {
 			context.render([&] {
 				tick_context::spray_info _;
 				_.image = world().resource_manager().image("glare.png");
 				_.lifespan(.3f, 1.f);
 				_.direction = -45.f;
 				_.cone = 90.f;
-				_.color = {0, 0, 0, 75};
+				_.color = { 0, 0, 0, 75 };
 				_.velocity(64.f, 128.f);
 				_.diameter(16.f, 32.f);
 				_.pos = pos;
@@ -116,7 +112,7 @@ void mark::module::base::tick(tick_context& context)
 		_.pos = pos;
 		_.rotation = parent().rotation();
 		_.size = module::size * 1.1f * std::max(m_size.y, m_size.x);
-		_.color = {255, 255, 255, 100};
+		_.color = { 255, 255, 255, 100 };
 		return _;
 	}());
 	if (m_stunned > 0) {
@@ -145,10 +141,10 @@ auto mark::module::base::collide(const segment_t& ray) -> std::optional<
 	let pos = this->pos();
 	let rotation = parent().rotation();
 	const std::array<segment_t, 4> segments{
-		segment_t{{-hw, -hh}, {-hw, hh}}, // left
-		segment_t{{-hw, hh}, {hw, hh}},   // bottom
-		segment_t{{hw, hh}, {hw, -hh}},   // right
-		segment_t{{hw, -hh}, {-hw, -hh}}  // side
+		segment_t{ { -hw, -hh }, { -hw, hh } }, // left
+		segment_t{ { -hw, hh }, { hw, hh } },   // bottom
+		segment_t{ { hw, hh }, { hw, -hh } },   // right
+		segment_t{ { hw, -hh }, { -hw, -hh } }  // side
 	};
 	std::optional<vector<double>> min;
 	double min_length = INFINITY;
@@ -165,7 +161,8 @@ auto mark::module::base::collide(const segment_t& ray) -> std::optional<
 		}
 	}
 	if (min) {
-		return {{std::ref(static_cast<interface::damageable&>(*this)), *min}};
+		return { { std::ref(static_cast<interface::damageable&>(*this)),
+				   *min } };
 	}
 	return {};
 }
@@ -178,16 +175,15 @@ auto mark::module::base::neighbours()
 
 bool mark::module::base::damage(const interface::damageable::info& attr)
 {
-	if (attr.team != parent().team() && m_cur_health > 0 &&
-		attr.damaged->find(this) == attr.damaged->end()) {
+	if (attr.team != parent().team() && m_cur_health > 0
+		&& attr.damaged->find(this) == attr.damaged->end()) {
 		auto& rm = parent().world().resource_manager();
 		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
 		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
 		attr.damaged->insert(this);
 		if (critical) {
 			m_cur_health -= attr.physical * attr.critical_multiplier;
-		}
-		else {
+		} else {
 			m_cur_health -= attr.physical;
 		}
 		if (stun) {
@@ -229,13 +225,13 @@ auto mark::module::base::reserved() const noexcept -> reserved_kind
 auto mark::module::base::heat_color() const -> sf::Color
 {
 	let intensity = static_cast<uint8_t>((1.f - m_cur_heat / max_heat) * 255.f);
-	return {255, intensity, intensity, 255};
+	return { 255, intensity, intensity, 255 };
 }
 
 auto mark::module::base::pos() const -> vector<double>
 {
-	let pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f) *
-		static_cast<float>(module::size);
+	let pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f)
+		* static_cast<float>(module::size);
 	return parent().pos() + vector<double>(rotate(pos, parent().rotation()));
 }
 
@@ -257,10 +253,10 @@ auto mark::module::base::size() const -> vector<unsigned> { return m_size; }
 static auto size_to_image_file_name(const mark::vector<unsigned>& size)
 	-> std::string
 {
-	if (size == mark::vector<unsigned>{2, 2}) {
+	if (size == mark::vector<unsigned>{ 2, 2 }) {
 		return "shadow-2x2.png";
 	}
-	if (size == mark::vector<unsigned>{4, 2}) {
+	if (size == mark::vector<unsigned>{ 4, 2 }) {
 		return "shadow-4x2.png";
 	}
 	std::terminate();

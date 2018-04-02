@@ -59,8 +59,7 @@ mark::module::warp_drive::warp_drive(
 	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("engine.png"))
-{
-}
+{}
 
 void mark::module::warp_drive::serialise(YAML::Emitter& out) const
 {

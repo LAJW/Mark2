@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 namespace mark {
-class map final {
+class map final
+{
 public:
 	static constexpr const double tile_size = 64.0;
 
@@ -33,7 +34,8 @@ public:
 	void serialise(YAML::Emitter&) const;
 
 	// Not a part of the public interface
-	struct Node {
+	struct Node
+	{
 		vector<int> pos;
 		int f = 0; // distance from starting + distance from ending (h)
 		const Node* parent = nullptr;
@@ -43,8 +45,17 @@ public:
 	auto size() const noexcept -> const vector<size_t>&;
 
 private:
-	enum class terrain_kind { null, abyss, floor_1, floor_2, floor_3, wall };
-	struct terrain {
+	enum class terrain_kind
+	{
+		null,
+		abyss,
+		floor_1,
+		floor_2,
+		floor_3,
+		wall
+	};
+	struct terrain
+	{
 		terrain_kind type = terrain_kind::null;
 		std::array<bool, 20> traversable;
 		unsigned variant = 0;

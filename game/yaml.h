@@ -5,7 +5,8 @@
 
 namespace YAML {
 template <typename T>
-struct convert<mark::vector<T>> {
+struct convert<mark::vector<T>>
+{
 	static Node encode(const mark::vector<T>& rhs)
 	{
 		Node node;

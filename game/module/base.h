@@ -18,7 +18,8 @@ static constexpr float size = 16.f;
 const unsigned max_dimension = 4;
 
 // stats altering behavior of parent/adjacent modules
-struct modifiers {
+struct modifiers
+{
 	float velocity = 0.f;
 	float mass = 1.f;
 };
@@ -26,10 +27,16 @@ struct modifiers {
 auto deserialise(resource::manager&, const YAML::Node&)
 	-> std::unique_ptr<interface::item>;
 
-enum class reserved_kind { none, front, back };
+enum class reserved_kind
+{
+	none,
+	front,
+	back
+};
 
 // Part of the base modifiable by the modular and cargo
-class base_ref {
+class base_ref
+{
 public:
 	friend unit::modular;
 	friend module::cargo;
@@ -51,10 +58,12 @@ private:
 	vector<int8_t> m_grid_pos;
 };
 
-class base : public base_ref,
-			 public interface::damageable,
-			 public interface::world_object,
-			 public interface::item {
+class base
+	: public base_ref
+	, public interface::damageable
+	, public interface::world_object
+	, public interface::item
+{
 public:
 	// serialise module::base properties
 	virtual void serialise(YAML::Emitter&) const;
@@ -168,7 +177,7 @@ protected:
 private:
 	std::shared_ptr<const resource::image> m_thumbnail;
 	std::shared_ptr<const resource::image> m_im_shadow;
-	vector<unsigned> m_size = {2, 2};
+	vector<unsigned> m_size = { 2, 2 };
 	float m_stun_lfo = 0.f;
 	std::string m_blueprint_id;
 };

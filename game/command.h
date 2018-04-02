@@ -3,31 +3,36 @@
 
 namespace mark {
 namespace command {
-struct move {
+struct move
+{
 	vector<double> to;
 	bool release;
 	vector<int> screen_pos;
 };
-struct guide {
+struct guide
+{
 	vector<double> pos;
 	vector<int> screen_pos;
 };
-struct use {
-};
-struct queue {
+struct use
+{};
+struct queue
+{
 	int8_t id;
 	vector<double> pos;
 };
-struct activate {
+struct activate
+{
 	int8_t id;
 	vector<double> pos;
 };
-struct release {
+struct release
+{
 	int8_t id;
 	vector<double> pos;
 };
-struct cancel {
-};
+struct cancel
+{};
 using any = std::
 	variant<move, guide, use, release, queue, activate, cancel, std::monostate>;
 } // namespace command

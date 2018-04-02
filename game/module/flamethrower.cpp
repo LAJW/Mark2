@@ -10,8 +10,7 @@ void mark::module::flamethrower::command(const command::any& any)
 {
 	if (std::holds_alternative<command::activate>(any)) {
 		m_shoot = true;
-	}
-	else if (std::holds_alternative<command::release>(any)) {
+	} else if (std::holds_alternative<command::release>(any)) {
 		m_shoot = false;
 	}
 }
@@ -53,7 +52,7 @@ void mark::module::flamethrower::tick(tick_context& context)
 				_.context = &context;
 				_.aoe_radius = 0.f;
 				_.piercing = 1;
-				_.segment = {pos, cur};
+				_.segment = { pos, cur };
 				_.damage.damaged = &damaged;
 				_.damage.physical = 200.f * static_cast<float>(context.dt);
 				_.damage.team = parent().team();
@@ -88,8 +87,7 @@ mark::module::flamethrower::flamethrower(
 	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("turret.png"))
-{
-}
+{}
 
 void mark::module::flamethrower::serialise(YAML::Emitter& out) const
 {

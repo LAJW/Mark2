@@ -8,30 +8,24 @@ static float width(char ch)
 {
 	if (ch >= '0' && ch <= '9') {
 		return 6.f / 7.f;
-	}
-	else if (ch == 'I' || ch == '1' || ch == 't') {
+	} else if (ch == 'I' || ch == '1' || ch == 't') {
 		return 4.f / 7.f;
-	}
-	else if (ch == 'f' || ch == 'j' || ch == 'r' || ch == ';' || ch == ',') {
+	} else if (ch == 'f' || ch == 'j' || ch == 'r' || ch == ';' || ch == ',') {
 		return 3.f / 7.f;
-	}
-	else if (ch == 'i' || ch == 'l' || ch == '.' || ch == ':') {
+	} else if (ch == 'i' || ch == 'l' || ch == '.' || ch == ':') {
 		return 2.f / 7.f;
-	}
-	else if ((ch >= 'a' && ch <= 'z') || ch == 'Y') {
+	} else if ((ch >= 'a' && ch <= 'z') || ch == 'Y') {
 		return 5.f / 7.f;
-	}
-	else {
+	} else {
 		return 1;
 	}
 }
 static float offset_y(char ch)
 {
-	if ((ch >= 'a' && ch <= 'z') || ch == ':' || ch == ';' || ch == '.' ||
-		ch == ',') {
+	if ((ch >= 'a' && ch <= 'z') || ch == ':' || ch == ';' || ch == '.'
+		|| ch == ',') {
 		return 4.f;
-	}
-	else {
+	} else {
 		return 0.f;
 	}
 }
@@ -56,23 +50,17 @@ void mark::tick_context::render(const text_info& info)
 		let end = ('Z' - 'A' + 1) * 2 + '9' - '0' + 1;
 		if (ch >= 'A' && ch <= 'Z') {
 			frame = ch - 'A';
-		}
-		else if (ch >= 'a' && ch <= 'z') {
+		} else if (ch >= 'a' && ch <= 'z') {
 			frame = ch - 'a' + ('Z' - 'A') + 1;
-		}
-		else if (ch >= '0' && ch <= '9') {
+		} else if (ch >= '0' && ch <= '9') {
 			frame = ch - '0' + 2 * ('Z' - 'A' + 1);
-		}
-		else if (ch == ':') {
+		} else if (ch == ':') {
 			frame = end;
-		}
-		else if (ch == ';') {
+		} else if (ch == ';') {
 			frame = end + 1;
-		}
-		else if (ch == '.') {
+		} else if (ch == '.') {
 			frame = end + 2;
-		}
-		else if (ch == ',') {
+		} else if (ch == ',') {
 			frame = end + 3;
 		}
 		if (frame >= 0) {
@@ -92,8 +80,7 @@ void mark::tick_context::render(const text_info& info)
 			for (size_t j = i + 1; j <= text.size(); j++) {
 				if (isalnum(text[j])) {
 					word_width += width(text[j]) * size;
-				}
-				else {
+				} else {
 					if (offset.x + word_width > box.x) {
 						offset.x = -size / 2.0;
 						offset.y += size * 1.5;
@@ -104,8 +91,7 @@ void mark::tick_context::render(const text_info& info)
 		}
 		if (offset.x + size < box.x && ch != '\n') {
 			offset.x += width(ch) * size;
-		}
-		else {
+		} else {
 			offset.y += size * 1.5f;
 			offset.x = size / 2.0;
 		}
@@ -114,8 +100,7 @@ void mark::tick_context::render(const text_info& info)
 
 mark::tick_context::tick_context(resource::manager& rm)
 	: m_resource_manager(rm)
-{
-}
+{}
 
 mark::tick_context::~tick_context() = default;
 
@@ -149,21 +134,16 @@ void mark::tick_context::render(const bar_info& info)
 			// choose color
 			if (type == tick_context::bar_kind::shield) {
 				frame = 5;
-			}
-			else if (type == tick_context::bar_kind::energy) {
+			} else if (type == tick_context::bar_kind::energy) {
 				frame = 4;
-			}
-			else if (type == tick_context::bar_kind::health) {
+			} else if (type == tick_context::bar_kind::health) {
 				if (percent > 75.f) {
 					frame = 3;
-				}
-				else if (percent > 50.f) {
+				} else if (percent > 50.f) {
 					frame = 2;
-				}
-				else if (percent > 25.f) {
+				} else if (percent > 25.f) {
 					frame = 1;
-				}
-				else {
+				} else {
 					frame = 0;
 				}
 			}
@@ -190,10 +170,10 @@ void mark::tick_context::render(const tick_context::spray_info& info)
 		let tmp_diameter = !std::isnan(info.max_diameter)
 			? this->random(info.min_diameter, info.max_diameter)
 			: info.min_diameter;
-		let tmp_pos = info.pos +
-			rotate(vector<double>(1, 0), info.direction) *
-				(info.step * static_cast<double>(i) /
-				 static_cast<double>(info.count));
+		let tmp_pos = info.pos
+			+ rotate(vector<double>(1, 0), info.direction)
+				* (info.step * static_cast<double>(i)
+				   / static_cast<double>(info.count));
 		let rotation =
 			info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
 		particle::info attr;

@@ -4,7 +4,8 @@
 
 namespace mark {
 namespace module {
-class engine final : public module::base {
+class engine final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_engine";
 
@@ -23,7 +24,12 @@ private:
 	void bind(mark::property_manager&) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
-	enum class state { off, manual, toggled };
+	enum class state
+	{
+		off,
+		manual,
+		toggled
+	};
 	state m_state = state::off;
 };
 } // namespace module

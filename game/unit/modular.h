@@ -8,9 +8,11 @@
 namespace mark {
 namespace unit {
 
-class modular final : public unit::mobile,
-					  public interface::container,
-					  public interface::has_bindings {
+class modular final
+	: public unit::mobile
+	, public interface::container
+	, public interface::has_bindings
+{
 public:
 	using find_result = std::vector<std::reference_wrapper<module::base>>;
 	using const_find_result =
@@ -20,7 +22,8 @@ public:
 	static constexpr unsigned max_size = 40;
 
 	modular(mark::world& world, const YAML::Node&);
-	struct info : mobile::info {
+	struct info : mobile::info
+	{
 		float rotation = 0.f;
 	};
 	modular(info info);
@@ -103,7 +106,8 @@ private:
 
 	std::vector<std::unique_ptr<module::base>> m_modules;
 	std::array<std::pair<module::base*, bool>, max_size* max_size> m_grid = {
-		std::pair<module::base*, bool>(nullptr, false)};
+		std::pair<module::base*, bool>(nullptr, false)
+	};
 	module::core* m_core = nullptr;
 	float m_rotation = 0.f;
 	bool m_ai = false;

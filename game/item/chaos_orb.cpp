@@ -9,8 +9,7 @@ mark::item::chaos_orb::chaos_orb(
 	const YAML::Node& node)
 	: m_thumbnail(rm.image("chaos-orb.png"))
 	, m_quantity(node["quantity"].as<size_t>(1))
-{
-}
+{}
 
 auto mark::item::chaos_orb::use_on(
 	resource::manager& rm,
@@ -43,7 +42,10 @@ void mark::item::chaos_orb::serialise(YAML::Emitter& out) const
 	out << Key << "type" << Value << type_name;
 }
 
-auto mark::item::chaos_orb::size() const -> vector<unsigned> { return {2, 2}; }
+auto mark::item::chaos_orb::size() const -> vector<unsigned>
+{
+	return { 2, 2 };
+}
 
 auto mark::item::chaos_orb::thumbnail() const
 	-> std::shared_ptr<const resource::image>
@@ -57,8 +59,7 @@ void mark::item::chaos_orb::stack(std::unique_ptr<interface::item>& item)
 		m_quantity += other->m_quantity;
 		if (m_quantity > 20) {
 			other->m_quantity = m_quantity - 20;
-		}
-		else {
+		} else {
 			item.reset();
 		}
 	}

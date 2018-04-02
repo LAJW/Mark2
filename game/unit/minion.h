@@ -7,7 +7,8 @@
 
 namespace mark {
 namespace unit {
-class minion final : public unit::mobile {
+class minion final : public unit::mobile
+{
 public:
 	static constexpr const char* type_name = "unit_minion";
 

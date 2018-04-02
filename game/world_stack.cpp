@@ -30,10 +30,9 @@ void mark::world_stack::next()
 		data.world =
 			std::make_unique<mark::world>(*this, m_resource_manager, false);
 		m_worlds.push_back(std::move(data));
-		target->pos({0., 0.});
+		target->pos({ 0., 0. });
 		target->stop();
-	}
-	else {
+	} else {
 		target->pos(m_worlds[m_current_world_id].target_pos);
 		target->stop();
 	}

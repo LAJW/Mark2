@@ -20,7 +20,7 @@ class damageable;
 class has_bindings;
 class item;
 class world_object;
-};
+}; // namespace interface
 namespace module {
 class base;
 class cargo;

@@ -9,7 +9,8 @@
 
 namespace mark {
 namespace module {
-class cannon final : public module::base {
+class cannon final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_cannon";
 

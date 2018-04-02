@@ -4,7 +4,8 @@
 
 namespace mark {
 namespace module {
-class energy_generator final : public module::base {
+class energy_generator final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_energy_generator";
 

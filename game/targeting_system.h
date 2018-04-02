@@ -10,7 +10,8 @@ namespace unit {
 class base;
 }
 
-class targeting_system final {
+class targeting_system final
+{
 public:
 	targeting_system(interface::world_object& parent);
 	void command(const command::any&);

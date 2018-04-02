@@ -32,7 +32,7 @@ void mark::ui::container::tick(tick_context& context)
 	sprite.pos = vector<double>(this->pos());
 	sprite.size = 64.f;
 	sprite.frame = std::numeric_limits<size_t>::max();
-	sprite.color = {255, 255, 255, 200};
+	sprite.color = { 255, 255, 255, 200 };
 	sprite.world = false;
 	sprite.centred = false;
 	context.sprites[100].push_back(sprite);
@@ -43,8 +43,7 @@ bool mark::ui::container::click(const event& event)
 {
 	if (let handled = this->window::click(event)) {
 		return true;
-	}
-	else if (m_ui.grabbed) {
+	} else if (m_ui.grabbed) {
 		auto& module = *m_ui.grabbed;
 		const vector<int> module_size(module.size());
 		const vector<double> relative_pos(event.cursor - this->pos());
@@ -65,8 +64,8 @@ auto mark::ui::container::cargo() const -> const module::cargo&
 
 auto mark::ui::container::size() const -> vector<int>
 {
-	return vector<int>(m_container.interior_size()) *
-		static_cast<int>(mark::module::size * 1.5f);
+	return vector<int>(m_container.interior_size())
+		* static_cast<int>(mark::module::size * 1.5f);
 }
 
 void mark::ui::container::attach(vector<int> pos, interface::item& item)
@@ -92,8 +91,7 @@ void mark::ui::container::attach(vector<int> pos, interface::item& item)
 			}
 			this->remove(button);
 			m_container.detachable();
-		}
-		else {
+		} else {
 			(void)m_container.attach(pos, m_ui.grabbed);
 		}
 		return true;

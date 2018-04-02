@@ -6,7 +6,8 @@ namespace mark {
 namespace resource {
 class image;
 
-class manager {
+class manager
+{
 public:
 	virtual auto image(const std::string& filename)
 		-> std::shared_ptr<const resource::image> = 0;
@@ -21,12 +22,10 @@ public:
 		if constexpr (std::is_integral_v<T>) {
 			if constexpr (std::is_signed_v<T>) {
 				return static_cast<T>(random_signed(min, max));
-			}
-			else {
+			} else {
 				return static_cast<T>(random_unsigned(min, max));
 			}
-		}
-		else {
+		} else {
 			return static_cast<T>(random_double(min, max));
 		}
 	}
@@ -37,7 +36,8 @@ protected:
 	virtual auto random_double(double min, double max) -> double = 0;
 };
 
-class manager_impl final : public manager {
+class manager_impl final : public manager
+{
 public:
 	manager_impl();
 	auto image(const std::string& filename)
@@ -55,7 +55,8 @@ private:
 	std::mt19937_64 m_gen;
 };
 
-class manager_stub final : public manager {
+class manager_stub final : public manager
+{
 public:
 	auto image(const std::string& filename)
 		-> std::shared_ptr<const resource::image> override;

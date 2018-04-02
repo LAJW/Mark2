@@ -26,7 +26,7 @@ auto mark::resource::image_impl::texture() const noexcept -> const sf::Texture&
 
 auto mark::resource::image_stub::size() const noexcept -> vector<unsigned>
 {
-	return {64, 64};
+	return { 64, 64 };
 }
 
 auto mark::resource::image_stub::filename() const noexcept -> const std::string&

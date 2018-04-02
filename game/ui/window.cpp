@@ -53,11 +53,10 @@ void mark::ui::window::tick(tick_context& context)
 	int top = 0;
 	for (let& node : m_nodes) {
 		if (node->relative()) {
-			node->pos({0, top});
+			node->pos({ 0, top });
 			node->tick(context);
 			top += node->size().y + 10;
-		}
-		else {
+		} else {
 			node->tick(context);
 		}
 	}

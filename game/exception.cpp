@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 #include "exception.h"
 
-class custom_category_t : public std::error_category {
+class custom_category_t : public std::error_category
+{
 public:
 	virtual const char* name() const noexcept { return "custom"; }
 	virtual std::string message(int ev) const noexcept

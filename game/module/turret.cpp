@@ -44,10 +44,10 @@ void mark::module::turret::tick(tick_context& context)
 		}
 		return m_cur_cooldown - fdt;
 	}();
-	if (m_cur_cooldown <= 0.f &&
-		((!m_is_chargeable && !m_stunned &&
-		  m_targeting_system.request_charge()) ||
-		 (m_is_chargeable && !m_is_charging))) {
+	if (m_cur_cooldown <= 0.f
+		&& ((!m_is_chargeable && !m_stunned
+			 && m_targeting_system.request_charge())
+			|| (m_is_chargeable && !m_is_charging))) {
 		m_cur_cooldown = cooldown;
 		m_adsr.trigger();
 		let projectile_count = static_cast<float>(m_projectile_count);
@@ -61,10 +61,10 @@ void mark::module::turret::tick(tick_context& context)
 				_.world = &parent().world();
 				_.guide = m_guided ? m_shared_target : nullptr;
 				_.pos = pos;
-				let heat_angle = m_cone * m_cone_curve(m_cur_heat / 100.f) *
-								m_angular_velocity !=
-							0.f &&
-						m_cone_curve == curve::flat
+				let heat_angle = m_cone * m_cone_curve(m_cur_heat / 100.f)
+								* m_angular_velocity
+							!= 0.f
+						&& m_cone_curve == curve::flat
 					? context.random(-1.f, 1.f)
 					: 0.f;
 				let cur_angle = projectile_count != 1.f
@@ -119,9 +119,9 @@ void mark::module::turret::tick(tick_context& context)
 		context.particles.push_back([&] {
 			let direction = context.random(-180.f, 180.f);
 			mark::particle::info _;
-			_.pos = fx_pos +
-				rotate(vector<double>(64, 0), direction) *
-					static_cast<double>(charge) * context.random(.5, 1.);
+			_.pos = fx_pos
+				+ rotate(vector<double>(64, 0), direction)
+					* static_cast<double>(charge) * context.random(.5, 1.);
 			_.direction = direction;
 			_.velocity = -charge * 64.f;
 			_.image = m_im_orb;
@@ -152,11 +152,9 @@ auto mark::module::turret::describe() const -> std::string
 	os << "Heat per shot: " << m_heat_per_shot << std::endl;
 	if (m_cone_curve == curve::linear) {
 		os << "Low accuracy when hot" << std::endl;
-	}
-	else if (m_cone_curve == curve::invert) {
+	} else if (m_cone_curve == curve::invert) {
 		os << "High accuracy when hot" << std::endl;
-	}
-	else if (m_cone_curve == curve::sin) {
+	} else if (m_cone_curve == curve::sin) {
 		os << "Average heat for best accuracy" << std::endl;
 	}
 	return os.str();
@@ -235,8 +233,7 @@ void mark::module::turret::command(const command::any& any)
 {
 	if (std::holds_alternative<command::activate>(any)) {
 		m_is_charging = true;
-	}
-	else if (std::holds_alternative<command::release>(any)) {
+	} else if (std::holds_alternative<command::release>(any)) {
 		m_is_charging = false;
 	}
 	m_targeting_system.command(any);

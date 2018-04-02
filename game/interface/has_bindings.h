@@ -12,9 +12,11 @@ class base;
 
 namespace interface {
 
-class has_bindings {
+class has_bindings
+{
 public:
-	struct binding final {
+	struct binding final
+	{
 		std::shared_ptr<const resource::image> thumbnail;
 		uint16_t total = 0;
 		uint16_t ready = 0;

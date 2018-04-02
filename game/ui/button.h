@@ -6,9 +6,11 @@
 namespace mark {
 namespace ui {
 class window;
-class button final : public node {
+class button final : public node
+{
 public:
-	struct info {
+	struct info
+	{
 		// Resource manager
 		std::shared_ptr<const resource::image> image = nullptr;
 		// Parent window

@@ -7,8 +7,7 @@
 mark::model::animated::animated(
 	const std::shared_ptr<const resource::image>& image)
 	: m_image(image)
-{
-}
+{}
 
 void mark::model::animated::tick(double dt)
 {

@@ -8,7 +8,8 @@
 #include "unit/base.h"
 
 namespace mark {
-class world final {
+class world final
+{
 public:
 	// Small empty world with square map for testing purposes
 	world(resource::manager& resource_manager);
@@ -23,12 +24,13 @@ public:
 	auto map() const -> const map&;
 	auto camera() const -> vector<double>
 	{
-		return m_camera +
-			vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get()) *
-			std::pow(m_camera_adsr.get(), 3.f) * 10.;
+		return m_camera
+			+ vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get())
+			* std::pow(m_camera_adsr.get(), 3.f) * 10.;
 	}
 
-	struct true_predicate {
+	struct true_predicate
+	{
 		template <typename T>
 		auto operator()(const T&) const
 		{
@@ -62,7 +64,8 @@ public:
 	auto target() -> std::shared_ptr<unit::base>;
 	auto target() const -> std::shared_ptr<const unit::base>;
 	void attach(const std::shared_ptr<mark::unit::base>& unit);
-	struct damage_info {
+	struct damage_info
+	{
 		interface::damageable::info damage;
 		tick_context* context = nullptr;
 		segment_t segment;

@@ -14,8 +14,7 @@ mark::unit::minion::minion(const unit::mobile::info& info)
 		  info.world->resource_manager(),
 		  static_cast<float>(this->radius()) * 2.f)
 	, m_image_explosion(info.world->resource_manager().image("explosion.png"))
-{
-}
+{}
 
 void mark::unit::minion::tick(tick_context& context)
 {
@@ -41,7 +40,7 @@ void mark::unit::minion::tick(tick_context& context)
 					direction2 += dist;
 				}
 			}
-			mobile::command(command::move{target->pos()});
+			mobile::command(command::move{ target->pos() });
 			mobile::tick_movement([&] {
 				mobile::tick_movement_info _;
 				_.dt = dt;
@@ -79,8 +78,8 @@ auto mark::unit::minion::dead() const -> bool { return m_health <= 0.; }
 
 auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool
 {
-	if (m_health >= 0 && attr.team != this->team() &&
-		attr.damaged->find(this) == attr.damaged->end()) {
+	if (m_health >= 0 && attr.team != this->team()
+		&& attr.damaged->find(this) == attr.damaged->end()) {
 		m_model_shield.trigger(attr.pos);
 		this->m_health -= attr.physical;
 		attr.damaged->insert(this);
@@ -93,7 +92,7 @@ auto mark::unit::minion::collide(const segment_t& ray) -> std::optional<
 	std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
 {
 	if (let intersection = intersect(ray, pos(), this->radius())) {
-		return {{*this, *intersection}};
+		return { { *this, *intersection } };
 	}
 	return {};
 }
@@ -103,7 +102,7 @@ auto mark::unit::minion::collide(vector<double> center, float radius)
 {
 	std::vector<std::reference_wrapper<interface::damageable>> out;
 	if (length(pos() - center) <= this->radius() + radius) {
-		return {*this};
+		return { *this };
 	}
 	return {};
 }

@@ -5,8 +5,10 @@
 
 namespace mark {
 namespace unit {
-class landing_pad final : public unit::activable,
-						  public interface::has_bindings {
+class landing_pad final
+	: public unit::activable
+	, public interface::has_bindings
+{
 public:
 	static constexpr const char* type_name = "unit_landing_pad";
 	static constexpr let radius = 300.0;

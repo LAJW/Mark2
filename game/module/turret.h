@@ -8,7 +8,8 @@
 
 namespace mark {
 namespace module {
-class turret final : public module::base {
+class turret final : public module::base
+{
 public:
 	static constexpr const char* type_name = "module_turret";
 
