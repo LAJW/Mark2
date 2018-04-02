@@ -115,6 +115,7 @@ mark::world::world(
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
+	, m_camera(std::make_unique<mark::camera>())
 	, m_stack(&stack)
 {
 	let map_size = vector<int>(1000, 1000);
