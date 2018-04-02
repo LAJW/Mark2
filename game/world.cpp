@@ -118,6 +118,7 @@ mark::world::world(
 	, m_camera(std::make_unique<mark::camera>())
 	, m_stack(&stack)
 {
+	let constexpr spawn_ships = false;
 	let map_size = vector<int>(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
@@ -150,26 +151,27 @@ mark::world::world(
 
 	for (let point : range(map_size)) {
 		let pos = m_map->map_to_world(point);
-		if (m_map->traversable(pos, ship_radius)
-			&& this->find(pos, ship_radius * 4.).empty()) {
-			/*
-			auto unit = spawn_ship();
-			unit->pos(pos);
-			unit->ai(true);
-			m_units.push_back(move(unit)); */
-
-			auto new_unit = std::make_shared<unit::minion>([&] {
+		if (!m_map->traversable(pos, ship_radius)
+			|| !this->find(pos, ship_radius * 4.).empty()) {
+			continue;
+		}
+		let enemy = [&]()->std::shared_ptr<unit::base> {
+			if (spawn_ships) {
+				let unit = spawn_ship();
+				unit->pos(pos);
+				unit->ai(true);
+				return unit;
+			}
+			return std::make_shared<unit::minion>([&] {
 				unit::minion::info _;
 				_.pos = pos;
 				_.world = this;
 				return _;
 			}());
-			m_units.push_back(new_unit);
-			// It's important to keep updating the spatial partition so that
-			// `find` works as expected
-			m_space_bins.at(compute_index(m_space_bins, new_unit->pos()))
-				.emplace_back(new_unit);
-		}
+		}();
+		m_units.push_back(enemy);
+		m_space_bins.at(compute_index(m_space_bins, enemy->pos()))
+			.emplace_back(enemy);
 	}
 	if (initial) {
 		auto vessel = spawn_ship();
