@@ -8,6 +8,7 @@
 #include "unit/base.h"
 
 namespace mark {
+class camera;
 class world final
 {
 public:
@@ -22,12 +23,7 @@ public:
 	auto resource_manager() -> resource::manager&;
 	void tick(tick_context&, vector<double> screen_size);
 	auto map() const -> const map&;
-	auto camera() const -> vector<double>
-	{
-		return m_camera
-			+ vector<double>(m_camera_x_lfo.get(), m_camera_y_lfo.get())
-			* std::pow(m_camera_adsr.get(), 3.f) * 10.;
-	}
+	auto camera() const -> vector<double>;
 
 	struct true_predicate
 	{
@@ -99,18 +95,11 @@ private:
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	void update_spatial_partition();
 
+	resource::manager& m_resource_manager;
 	std::unique_ptr<mark::map> m_map;
-	lfo m_camera_x_lfo = lfo(6.f, .5f);
-	lfo m_camera_y_lfo = lfo(10.f, .0f);
-	adsr m_camera_adsr = adsr(0, 1, .5f, .3f);
 	std::vector<std::shared_ptr<unit::base>> m_units;
 	space_bins<unit::base> m_space_bins;
-	resource::manager& m_resource_manager;
-	std::weak_ptr<unit::base> m_camera_target;
-	vector<double> m_camera;
-	double m_camera_velocity = 0.;
-	vector<double> m_prev_target_pos;
-	double m_a = 0.;
+	std::unique_ptr<mark::camera> m_camera;
 	std::vector<particle> m_particles;
 	world_stack* m_stack = nullptr;
 };

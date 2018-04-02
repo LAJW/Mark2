@@ -1,5 +1,6 @@
 ﻿#include "world.h"
 #include "algorithm.h"
+#include "camera.h"
 #include "command.h"
 #include "map.h"
 #include "module/battery.h"
@@ -175,7 +176,7 @@ mark::world::world(
 		vessel->command(command::move{ vector<double>() });
 		vessel->team(1);
 		vessel->pos({ 0., 0. });
-		m_camera_target = vessel;
+		m_camera->target(vessel);
 		m_units.push_back(move(vessel));
 	} else {
 		spawn_gate({ 0, 0 }, true);
@@ -185,6 +186,11 @@ mark::world::world(
 mark::world::~world() = default;
 
 auto mark::world::map() const -> const mark::map& { return *m_map; }
+
+auto mark::world::camera() const -> vector<double>
+{
+	return m_camera->pos();
+}
 
 auto mark::world::resource_manager() -> resource::manager&
 {
@@ -196,12 +202,9 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
 	}
-	m_camera_adsr.tick(context.dt);
-	m_camera_x_lfo.tick(context.dt);
-	m_camera_y_lfo.tick(context.dt);
-
+	m_camera->update(context.dt);
 	{
-		let camera = vmap(m_camera, std::round);
+		let camera = vmap(m_camera->pos(), std::round);
 		let offset = screen_size / 2.0
 			+ vector<double>(map::tile_size, map::tile_size) * 2.;
 		m_map->tick(camera - offset, camera + offset, context);
@@ -247,55 +250,31 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 			make_move_iterator(begin(context.particles)),
 			make_move_iterator(end(context.particles)));
 	}
-	if (context.crit == true) {
-		m_camera_adsr.trigger();
-	}
-
-	if (let camera_target = m_camera_target.lock()) {
-		constexpr let T = .5;
-		let target_pos = camera_target->pos();
-		let diff = target_pos - m_camera;
-		let dist = length(diff);
-		if (target_pos != m_prev_target_pos) {
-			m_prev_target_pos = target_pos;
-			m_a = 2. * dist / T / T;
-			m_camera_velocity = m_a * T;
-		}
-		if (dist != 0.) {
-			let dir = diff / dist;
-			m_camera_velocity -= m_a * context.dt;
-			if (m_camera_velocity * context.dt < dist
-				&& m_camera_velocity > 0) {
-				m_camera += m_camera_velocity * dir * context.dt;
-			} else {
-				m_camera = target_pos;
-				m_camera_velocity = 0.;
-				m_a = 0;
-			}
-		}
+	if (context.crit) {
+		m_camera->trigger();
 	}
 }
 
 void mark::world::command(const mark::command::any& command)
 {
-	if (auto camera_target = m_camera_target.lock()) {
+	if (auto camera_target = m_camera->target()) {
 		camera_target->command(command);
 	}
 }
 
 void mark::world::target(const std::shared_ptr<unit::base>& target)
 {
-	m_camera_target = target;
+	m_camera->target(target);
 }
 
 auto mark::world::target() -> std::shared_ptr<unit::base>
 {
-	return m_camera_target.lock();
+	return m_camera->target();
 }
 
 auto mark::world::target() const -> std::shared_ptr<const unit::base>
 {
-	return m_camera_target.lock();
+	return m_camera->target();
 }
 
 void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
@@ -405,16 +384,14 @@ mark::world::world(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
 		  m_map->map_to_world(vector<int>{ m_map->size() }))
-	, m_camera(
-		  node["camera"]["x"].as<double>(),
-		  node["camera"]["y"].as<double>())
+	, m_camera(std::make_unique<mark::camera>(node["camera"]))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
 	, m_stack(&stack)
 {
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
-	let camera_target_id = node["camera_target_id"].as<uint64_t>();
+	let camera_target_id = node["camera"]["target_id"].as<uint64_t>();
 	for (let& unit_node : node["units"]) {
 		m_units.push_back(unit::deserialise(*this, unit_node));
 		let unit_id = unit_node["id"].as<uint64_t>();
@@ -424,7 +401,7 @@ mark::world::world(
 		let unit_id = unit_node["id"].as<uint64_t>();
 		unit_map[unit_id].lock()->resolve_ref(unit_node, unit_map);
 	}
-	m_camera_target = unit_map.at(camera_target_id);
+	m_camera->target(unit_map.at(camera_target_id).lock());
 }
 
 void mark::world::next() { m_stack->next(); }
@@ -438,16 +415,8 @@ void mark::world::serialise(YAML::Emitter& out) const
 
 	out << Key << "type" << Value << "world";
 
-	let camera_target = m_camera_target.lock();
-	if (camera_target) {
-		out << Key << "camera_target_id" << Value
-			<< reinterpret_cast<size_t>(camera_target.get());
-	}
-
-	out << Key << "camera" << Value << BeginMap;
-	out << Key << "x" << Value << m_camera.x;
-	out << Key << "y" << Value << m_camera.y;
-	out << EndMap;
+	out << Key << "camera" << Value;
+	m_camera->serialize(out);
 
 	out << Key << "units" << Value << BeginSeq;
 	for (let& unit : m_units) {
