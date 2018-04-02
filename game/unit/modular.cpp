@@ -495,15 +495,17 @@ auto mark::unit::modular::dead() const -> bool
 void mark::unit::modular::on_death(tick_context& context)
 {
 	for (auto& module : m_modules) {
-		if (!module->dead()) {
-			context.units.emplace_back(std::make_shared<unit::bucket>([&] {
-				unit::bucket::info info;
-				info.world = &this->world();
-				info.pos = pos();
-				info.item = move(module);
-				return info;
-			}()));
+		if (module->dead()) {
+			continue;
 		}
+		context.units.emplace_back(std::make_shared<unit::bucket>([&] {
+			unit::bucket::info info;
+			info.world = &this->world();
+			info.pos = module->pos();
+			info.rotation = rotation();
+			info.item = move(module);
+			return info;
+		}()));
 	}
 }
 

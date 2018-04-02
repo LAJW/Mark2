@@ -12,6 +12,7 @@ public:
 	struct info : unit::base::info
 	{
 		std::unique_ptr<interface::item> item;
+		float rotation = 0.f;
 	};
 	bucket(info);
 	auto dead() const -> bool override;
@@ -23,6 +24,7 @@ private:
 	void tick(tick_context& context) override;
 	std::unique_ptr<interface::item> m_item;
 	float m_direction = NAN;
+	float m_rotation = 0;
 };
 } // namespace unit
 } // namespace mark
