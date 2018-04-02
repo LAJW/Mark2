@@ -37,13 +37,6 @@ void mark::module::turret::tick(tick_context& context)
 		return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
 	}();
 	const auto cooldown = 1.f / m_rate_of_fire;
-	m_cur_cooldown = [&] {
-		if (m_is_chargeable && m_cur_cooldown != 0.f) {
-			return m_is_charging ? std::max(m_cur_cooldown - fdt, 0.f)
-								 : std::min(m_cur_cooldown + fdt, cooldown);
-		}
-		return m_cur_cooldown - fdt;
-	}();
 	if (m_cur_cooldown <= 0.f
 		&& ((!m_is_chargeable && !m_stunned
 			 && m_targeting_system.request_charge())
@@ -83,6 +76,13 @@ void mark::module::turret::tick(tick_context& context)
 			});
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
+	m_cur_cooldown = [&] {
+		if (m_is_chargeable && m_cur_cooldown != 0.f) {
+			return m_is_charging ? std::max(m_cur_cooldown - fdt, 0.f)
+								 : std::min(m_cur_cooldown + fdt, cooldown);
+		}
+		return m_cur_cooldown - fdt;
+	}();
 	let heat_color = this->heat_color();
 	context.sprites[2].emplace_back([&] {
 		sprite _;
