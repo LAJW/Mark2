@@ -1,8 +1,8 @@
-﻿#include "battery.h"
+﻿#include <stdafx.h>
+#include "battery.h"
 #include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <stdafx.h>
 #include <tick_context.h>
 
 void mark::module::battery::tick(tick_context& context)

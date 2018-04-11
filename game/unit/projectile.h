@@ -24,6 +24,7 @@ public:
 		// 0 - infinite targets
 		// 1, 2, 3 - 1, 2, 3 targets.
 		size_t piercing = 1;
+		double knockback = 0.;
 	};
 	projectile(mark::world&, const YAML::Node&);
 	projectile(const projectile::info&);
@@ -42,6 +43,7 @@ private:
 	std::shared_ptr<const resource::image> m_im_tail;
 	std::shared_ptr<const resource::image> m_im_explosion;
 	std::unordered_set<interface::damageable*> m_damaged;
+	std::unordered_set<interface::damageable*> m_knocked;
 	std::shared_ptr<const vector<double>> m_guide;
 	float m_physical;
 	float m_rotation;
@@ -51,6 +53,7 @@ private:
 	float m_critical_chance;
 	float m_critical_multiplier;
 	size_t m_piercing;
+	double m_knockback;
 	bool m_dead = false;
 };
 } // namespace unit

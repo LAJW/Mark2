@@ -15,6 +15,7 @@ public:
 		// damage(). idamageable upon taking damage should store itself
 		// here
 		std::unordered_set<damageable*>* damaged = nullptr;
+		std::unordered_set<damageable*>* knocked = nullptr;
 		vector<double> pos;
 		float physical = 0.f;
 		float energy = 0.f;
@@ -22,6 +23,7 @@ public:
 		float critical_multiplier = 1.50f;
 		float stun_chance = 0.0f;
 		float stun_duration = 0.f;
+		double knockback = 0.f;
 		size_t team = 0;
 		bool pierce = false;
 	};

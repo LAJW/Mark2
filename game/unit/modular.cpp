@@ -13,6 +13,7 @@
 #include <stdafx.h>
 #include <tick_context.h>
 #include <world.h>
+#include <map.h>
 
 // MODULAR
 
@@ -518,6 +519,22 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr)
 		}
 	}
 	return false;
+}
+
+void mark::unit::modular::knockback(
+	std::unordered_set<interface::damageable*>& damaged,
+	float angle,
+	double distance)
+{
+	if (distance <= 0. || damaged.count(this)) {
+		return;
+	}
+	damaged.insert(this);
+	const auto new_pos = pos() + rotate(vector<double>(distance, 0.), angle);
+	let path = world().map().find_path(pos(), new_pos, radius());
+	if (!path.empty()) {
+		pos(path.front());
+	}
 }
 
 auto mark::unit::modular::collide(const segment_t& ray) -> std::optional<

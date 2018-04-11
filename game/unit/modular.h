@@ -53,6 +53,10 @@ public:
 	auto containers() const
 		-> std::vector<std::reference_wrapper<const module::cargo>>;
 	auto damage(const interface::damageable::info&) -> bool override;
+	void knockback(
+		std::unordered_set<interface::damageable*>& knocked,
+		float angle,
+		double distance);
 	auto collide(const segment_t&) -> std::optional<std::pair<
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>> override;

@@ -37,6 +37,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_piercing(args.piercing)
 	, m_guide(args.guide)
 	, m_physical(args.physical)
+	, m_knockback(args.knockback)
 {}
 
 void mark::unit::projectile::tick(tick_context& context)
@@ -67,6 +68,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	info.segment = { pos() - step * 1.2, pos() };
 	info.aoe_radius = m_aoe_radius;
 	info.piercing = m_piercing;
+	info.damage.knocked = &m_knocked;
 	info.damage.damaged = &m_damaged;
 	info.damage.team = this->team();
 	info.damage.physical = m_physical;
@@ -74,6 +76,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
+	info.damage.knockback = m_knockback;
 	let[collisions, terrain_hit] = world().damage(info);
 	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;

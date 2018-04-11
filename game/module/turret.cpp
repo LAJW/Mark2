@@ -72,6 +72,7 @@ void mark::module::turret::tick(tick_context& context)
 				_.piercing = m_piercing;
 				_.critical_chance = m_critical_chance;
 				_.critical_multiplier = m_critical_multiplier;
+				_.knockback = m_knockback;
 				return std::make_shared<unit::projectile>(_);
 			});
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
@@ -184,6 +185,7 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(range);
 	MARK_BIND(piercing);
 	MARK_BIND(is_chargeable);
+	MARK_BIND(knockback);
 }
 
 void mark::module::turret::bind(mark::property_manager& property_manager)

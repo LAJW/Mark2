@@ -58,6 +58,7 @@ private:
 	float m_aoe_radius = 0.f;
 	float m_seek_radius = 500.f;
 	float m_range = 2000.f;
+	double m_knockback = 0.;
 	size_t m_piercing;
 };
 } // namespace module
