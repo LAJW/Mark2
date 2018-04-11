@@ -118,7 +118,7 @@ mark::world::world(
 	, m_camera(std::make_unique<mark::camera>())
 	, m_stack(&stack)
 {
-	let constexpr spawn_ships = false;
+	let constexpr spawn_ships = true;
 	let map_size = vector<int>(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
@@ -295,14 +295,15 @@ auto mark::world::collide(const segment_t& ray)
 	const double min_length =
 		map_collision ? length(*map_collision - ray.first) : INFINITY;
 	std::deque<collision_type> collisions;
-	for (auto& unit_ : m_units) {
-		if (let unit = dynamic_cast<unit::damageable*>(unit_.get())) {
-			if (let result = unit->collide(ray)) {
-				auto [damageable, pos] = *result;
-				let length = mark::length(pos - ray.first);
-				if (length < min_length) {
-					collisions.push_back({ damageable, pos });
-				}
+	const auto ray_center = ray.first + (ray.second - ray.first) / 2.;
+	// TODO: Magical variable - space bins don't seem to respect radius.
+	const auto ray_radius = 400. + length(ray.second - ray.first);
+	for (auto& unit : this->find<unit::damageable>(ray_center, ray_radius)) {
+		if (let result = unit->collide(ray)) {
+			auto [damageable, pos] = *result;
+			let length = mark::length(pos - ray.first);
+			if (length < min_length) {
+				collisions.push_back({ damageable, pos });
 			}
 		}
 	}
@@ -316,11 +317,9 @@ auto mark::world::collide(vector<double> center, float radius)
 	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
 	std::vector<std::reference_wrapper<interface::damageable>> out;
-	for (auto& unit_ : m_units) {
-		if (let unit = dynamic_cast<unit::damageable*>(unit_.get())) {
-			let tmp = unit->collide(center, radius);
-			copy(begin(tmp), end(tmp), back_inserter(out));
-		}
+	for (auto& unit : this->find<unit::damageable>(center, radius)) {
+		let tmp = unit->collide(center, radius);
+		copy(begin(tmp), end(tmp), back_inserter(out));
 	}
 	return out;
 }
