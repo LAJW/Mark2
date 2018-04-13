@@ -30,15 +30,17 @@ auto target(
 
 void mark::targeting_system::tick()
 {
-	if (const auto queue = std::get_if<queue_type>(&m_target)) {
+	if (let queue = std::get_if<queue_type>(&m_target)) {
 		if (queue->empty()) {
 			auto unit = m_parent.world().find_one<unit::damageable>(
-				m_parent.pos(), 1000.0, [&](const auto& unit) {
+				m_parent.pos(), 1000.0, [&](let& unit) {
 					return !unit.dead() && unit.team() != m_parent.team();
 					/* && m_parent.world().resource_manager().random(0, 3) == 0
 					 */
 				});
-			queue->push_back({ move(unit), {} });
+			if (unit) {
+				queue->push_back({ move(unit), {} });
+			}
 		}
 	}
 	if (let queue = std::get_if<queue_type>(&m_target)) {
