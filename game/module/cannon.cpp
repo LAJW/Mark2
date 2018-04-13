@@ -129,3 +129,8 @@ void mark::module::cannon::serialise(YAML::Emitter& out) const
 }
 
 auto mark::module::cannon::passive() const noexcept -> bool { return false; }
+
+void mark::module::cannon::command(const command::any& any)
+{
+	m_targeting_system.command(any);
+}
