@@ -25,6 +25,11 @@ private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;
+	void render(
+		tick_context& context,
+		std::vector<vector<double>> collisions,
+		bool is_firing,
+		vector<double>) const;
 
 	model::animated m_model;
 	std::shared_ptr<const resource::image> m_im_ray;
