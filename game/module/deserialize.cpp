@@ -13,7 +13,7 @@
 #include <exception.h>
 #include <item/chaos_orb.h>
 
-auto mark::module::deserialise(resource::manager& rm, const YAML::Node& node)
+auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
 	-> std::unique_ptr<interface::item>
 {
 	let type = node["type"].as<std::string>();

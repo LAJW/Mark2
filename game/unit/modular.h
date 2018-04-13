@@ -68,7 +68,7 @@ public:
 	auto bindings() const -> bindings_t override;
 	// Get vector of commands controlling this module
 	auto binding(vector<int> pos) const -> std::vector<int8_t>;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
 	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;

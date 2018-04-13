@@ -19,7 +19,7 @@ public:
 	[[nodiscard]] auto use(const std::shared_ptr<unit::modular>& by)
 		-> std::error_code override;
 	void command(const mark::command::any& command) override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units)

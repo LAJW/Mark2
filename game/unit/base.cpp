@@ -39,7 +39,7 @@ void mark::unit::base::resolve_ref(
 { /* no-op */
 }
 
-void mark::unit::base::serialise(YAML::Emitter& out) const
+void mark::unit::base::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);

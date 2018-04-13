@@ -75,7 +75,7 @@ public:
 	// go to the next map
 	void next();
 	void prev();
-	void serialise(YAML::Emitter& out) const;
+	void serialize(YAML::Emitter& out) const;
 	auto blueprints() const
 		-> const std::unordered_map<std::string, YAML::Node>&;
 

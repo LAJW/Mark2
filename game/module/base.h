@@ -24,7 +24,7 @@ struct modifiers
 	float mass = 1.f;
 };
 
-auto deserialise(resource::manager&, const YAML::Node&)
+auto deserialize(resource::manager&, const YAML::Node&)
 	-> std::unique_ptr<interface::item>;
 
 enum class reserved_kind
@@ -48,7 +48,7 @@ protected:
 	base_ref(const YAML::Node& node);
 	auto parent() const -> const unit::modular&;
 	auto parent() -> unit::modular&;
-	void serialise(YAML::Emitter& out) const;
+	void serialize(YAML::Emitter& out) const;
 	// Position on the grid
 	~base_ref() = default;
 
@@ -65,8 +65,8 @@ class base
 	, public interface::item
 {
 public:
-	// serialise module::base properties
-	virtual void serialise(YAML::Emitter&) const;
+	// serialize module::base properties
+	virtual void serialize(YAML::Emitter&) const;
 
 	static constexpr auto max_heat = 100.f;
 

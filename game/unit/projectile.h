@@ -29,7 +29,7 @@ public:
 	projectile(mark::world&, const YAML::Node&);
 	projectile(const projectile::info&);
 	auto dead() const -> bool override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units)

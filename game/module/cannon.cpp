@@ -136,12 +136,12 @@ mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node)
 	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f))
 {}
 
-void mark::module::cannon::serialise(YAML::Emitter& out) const
+void mark::module::cannon::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
+	base::serialize(out);
 	out << EndMap;
 }
 

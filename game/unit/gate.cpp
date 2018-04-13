@@ -62,12 +62,12 @@ mark::unit::gate::gate(mark::world& world, const YAML::Node& node)
 	, m_inverted(node["inverted"].as<bool>(false))
 {}
 
-void mark::unit::gate::serialise(YAML::Emitter& out) const
+void mark::unit::gate::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::gate::type_name;
 	out << Key << "inverted" << Value << m_inverted;
-	base::serialise(out);
+	base::serialize(out);
 	out << EndMap;
 }

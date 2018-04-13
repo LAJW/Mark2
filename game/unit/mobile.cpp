@@ -139,10 +139,10 @@ void mark::unit::mobile::command(const command::any& any)
 	}
 }
 
-void mark::unit::mobile::serialise(YAML::Emitter& out) const
+void mark::unit::mobile::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
-	damageable::serialise(out);
+	damageable::serialize(out);
 	out << Key << "velocity" << Value << m_velocity;
 	out << Key << "moveto" << Value << BeginMap;
 	out << Key << "x" << Value << m_moveto.x;

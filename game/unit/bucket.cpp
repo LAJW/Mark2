@@ -9,7 +9,7 @@
 
 mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
 	: unit::base(world, node)
-	, m_item(module::deserialise(world.resource_manager(), node["module"]))
+	, m_item(module::deserialize(world.resource_manager(), node["module"]))
 	, m_rotation(node["rotation"].as<float>(m_rotation))
 {}
 
@@ -77,16 +77,16 @@ void mark::unit::bucket::insert(std::unique_ptr<interface::item> item)
 	m_item = std::move(item);
 }
 
-void mark::unit::bucket::serialise(YAML::Emitter& out) const
+void mark::unit::bucket::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::bucket::type_name;
-	base::serialise(out);
+	base::serialize(out);
 
 	// TODO: Change to item
 	out << Key << "module" << Value;
-	m_item->serialise(out);
+	m_item->serialize(out);
 
 	out << Key << "rotation" << Value << m_rotation;
 

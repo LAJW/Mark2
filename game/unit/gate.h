@@ -20,7 +20,7 @@ public:
 	auto dead() const -> bool override { return false; };
 	[[nodiscard]] auto use(const std::shared_ptr<unit::modular>& by)
 		-> std::error_code override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 
 private:
 	void update(update_context& context) override;

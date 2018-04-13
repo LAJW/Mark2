@@ -84,7 +84,7 @@ public:
 		static_assert(!std::is_const_v<T>, "Value must be mutable");
 		m_properties[key] = std::make_unique<property<T>>(ref);
 	}
-	[[nodiscard]] auto deserialise(const YAML::Node& node) -> std::error_code;
+	[[nodiscard]] auto deserialize(const YAML::Node& node) -> std::error_code;
 	[[nodiscard]] auto randomise(const YAML::Node& node) -> std::error_code;
 	[[nodiscard]] auto randomise(const YAML::Node& node, const std::string& key)
 		-> std::error_code;
@@ -111,13 +111,13 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<iproperty>> m_properties;
 };
 
-class property_serialiser final
+class property_serializer final
 {
 private:
 	struct property_config
 	{
 		std::any value_ref;
-		std::function<YAML::Node(std::any)> serialise;
+		std::function<YAML::Node(std::any)> serialize;
 	};
 
 public:
@@ -125,7 +125,7 @@ public:
 	void bind(std::string key, const T& value_ref, std::any = {})
 	{
 		property_config config;
-		config.serialise = [](std::any value_ref) {
+		config.serialize = [](std::any value_ref) {
 			return YAML::Node(
 				std::any_cast<std::reference_wrapper<const T>>(value_ref)
 					.get());
@@ -133,7 +133,7 @@ public:
 		config.value_ref = std::ref(value_ref);
 		m_properties[key] = std::move(config);
 	}
-	void serialise(YAML::Emitter& out);
+	void serialize(YAML::Emitter& out);
 
 private:
 	std::unordered_map<std::string, property_config> m_properties;

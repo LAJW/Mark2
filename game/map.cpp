@@ -599,7 +599,7 @@ auto mark::map::collide(const segment_t& segment) const
 	return {};
 }
 
-void mark::map::serialise(YAML::Emitter& out) const
+void mark::map::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;

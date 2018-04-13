@@ -6,7 +6,7 @@ namespace unit {
 class mobile : public damageable
 {
 public:
-	void serialise(YAML::Emitter& out) const override;
+	void serialize(YAML::Emitter& out) const override;
 	void stop();
 
 protected:

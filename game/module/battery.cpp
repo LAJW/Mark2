@@ -47,7 +47,7 @@ auto mark::module::battery::energy_ratio() const -> float
 	return m_cur_energy / m_max_energy;
 }
 
-// deserialise / serialise
+// deserialize / serialize
 
 template <typename prop_man, typename T>
 void mark::module::battery::bind(prop_man& property_manager, T& instance)
@@ -68,20 +68,20 @@ mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	if (property_manager.deserialise(node)) {
+	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
-			"Could not deserialise " + std::string(type_name));
+			"Could not deserialize " + std::string(type_name));
 	}
 }
 
-void mark::module::battery::serialise(YAML::Emitter& out) const
+void mark::module::battery::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	property_serialiser property_serialiser;
-	bind(property_serialiser, *this);
-	property_serialiser.serialise(out);
+	property_serializer property_serializer;
+	bind(property_serializer, *this);
+	property_serializer.serialize(out);
 	out << EndMap;
 }
 

@@ -12,7 +12,7 @@ public:
 	flamethrower(resource::manager&, const YAML::Node&);
 	void command(const command::any& any) override;
 	auto describe() const -> std::string override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	auto reserved() const noexcept -> reserved_kind override;
 	auto passive() const noexcept -> bool override;
 

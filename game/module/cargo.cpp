@@ -34,17 +34,17 @@ mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
 {
 	for (let& slot_node : node["contents"]) {
 		let slot = slot_node["slot"].as<size_t>();
-		m_items[slot] = module::deserialise(rm, slot_node["item"]);
+		m_items[slot] = module::deserialize(rm, slot_node["item"]);
 	}
 }
 
-void mark::module::cargo::serialise(YAML::Emitter& out) const
+void mark::module::cargo::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
 
-	base::serialise(out);
+	base::serialize(out);
 
 	out << Key << "contents" << Value << BeginSeq;
 	for (size_t i = 0, size = m_items.size(); i < size; i++) {
@@ -53,7 +53,7 @@ void mark::module::cargo::serialise(YAML::Emitter& out) const
 			out << BeginMap;
 			out << Key << "slot" << Value << i;
 			out << Key << "item" << Value;
-			module->serialise(out);
+			module->serialize(out);
 			out << EndMap;
 		}
 	}

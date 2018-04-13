@@ -8,7 +8,7 @@
 namespace mark {
 namespace unit {
 
-auto deserialise(world& world, const YAML::Node& node)
+auto deserialize(world& world, const YAML::Node& node)
 	-> std::shared_ptr<unit::base>;
 
 // Part of the unit modifiable by world and nothing else
@@ -35,7 +35,7 @@ class base
 {
 public:
 	virtual ~base() = default;
-	virtual void serialise(YAML::Emitter&) const;
+	virtual void serialize(YAML::Emitter&) const;
 	virtual void command(const command::any&){ /* no-op */ };
 	virtual auto dead() const -> bool = 0;
 	// Resolve references after deserializing

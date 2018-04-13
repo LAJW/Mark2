@@ -45,7 +45,7 @@ using namespace std::experimental;
 void save_world(const mark::world& world, std::string filename)
 {
 	YAML::Emitter out;
-	world.serialise(out);
+	world.serialize(out);
 	std::ofstream state(filename);
 	state << out.c_str();
 }

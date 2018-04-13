@@ -17,7 +17,7 @@ mark::property_manager::property_manager(resource::manager& rm)
 	: m_rm(rm)
 {}
 
-auto mark::property_manager::deserialise(const YAML::Node& node)
+auto mark::property_manager::deserialize(const YAML::Node& node)
 	-> std::error_code
 {
 	for (let & [ key, property ] : m_properties) {
@@ -106,10 +106,10 @@ auto mark::property_manager::update_inherited_properties(const YAML::Node& node)
 	return error::code::success;
 }
 
-void mark::property_serialiser::serialise(YAML::Emitter& out)
+void mark::property_serializer::serialize(YAML::Emitter& out)
 {
 	using namespace YAML;
 	for (let & [ key, config ] : m_properties) {
-		out << Key << key << Value << config.serialise(config.value_ref);
+		out << Key << key << Value << config.serialize(config.value_ref);
 	}
 }

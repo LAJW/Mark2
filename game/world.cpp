@@ -122,7 +122,7 @@ mark::world::world(
 	let map_size = vector<int>(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialise(*this, stack.blueprints().at("ship")));
+			unit::deserialize(*this, stack.blueprints().at("ship")));
 	};
 	let spawn_gate = [&](vector<double> pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
@@ -395,7 +395,7 @@ mark::world::world(
 	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
 	let camera_target_id = node["camera"]["target_id"].as<uint64_t>();
 	for (let& unit_node : node["units"]) {
-		m_units.push_back(unit::deserialise(*this, unit_node));
+		m_units.push_back(unit::deserialize(*this, unit_node));
 		let unit_id = unit_node["id"].as<uint64_t>();
 		unit_map.emplace(unit_id, m_units.back());
 	}
@@ -410,7 +410,7 @@ void mark::world::next() { m_stack->next(); }
 
 void mark::world::prev() { m_stack->prev(); }
 
-void mark::world::serialise(YAML::Emitter& out) const
+void mark::world::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
@@ -422,12 +422,12 @@ void mark::world::serialise(YAML::Emitter& out) const
 
 	out << Key << "units" << Value << BeginSeq;
 	for (let& unit : m_units) {
-		unit->serialise(out);
+		unit->serialize(out);
 	}
 	out << EndSeq;
 
 	out << Key << "map" << Value;
-	m_map->serialise(out);
+	m_map->serialize(out);
 
 	out << EndMap;
 }

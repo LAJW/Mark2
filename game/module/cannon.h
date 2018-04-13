@@ -16,7 +16,7 @@ public:
 
 	cannon(resource::manager&, const YAML::Node&);
 	auto describe() const -> std::string override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 	void command(const mark::command::any&) override;
 

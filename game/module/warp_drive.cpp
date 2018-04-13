@@ -61,12 +61,12 @@ mark::module::warp_drive::warp_drive(
 	, m_image_base(rm.image("engine.png"))
 {}
 
-void mark::module::warp_drive::serialise(YAML::Emitter& out) const
+void mark::module::warp_drive::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
+	base::serialize(out);
 	out << EndMap;
 }
 

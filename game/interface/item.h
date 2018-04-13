@@ -30,7 +30,7 @@ public:
 		result.consumed = false;
 		return result;
 	}
-	virtual void serialise(YAML::Emitter& out) const = 0;
+	virtual void serialize(YAML::Emitter& out) const = 0;
 	virtual auto describe() const -> std::string = 0;
 	// Stack modules on top of each other, return error if cannot stack
 	// Remove module from passed in unique_ptr on success

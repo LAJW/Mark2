@@ -14,7 +14,7 @@ mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vector<int>>(vector<int>()))
 {}
 
-void mark::module::base_ref::serialise(YAML::Emitter& out) const
+void mark::module::base_ref::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << Key << "grid_pos" << Value << BeginMap;
@@ -252,7 +252,7 @@ auto mark::module::base::thumbnail() const
 
 auto mark::module::base::size() const -> vector<unsigned> { return m_size; }
 
-// Serialiser / Deserialiser
+// Serialiser / Deserializer
 
 static auto size_to_image_file_name(const mark::vector<unsigned>& size)
 	-> std::string
@@ -316,22 +316,22 @@ mark::module::base::base(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager, *this);
-	if (property_manager.deserialise(node)) {
-		throw std::runtime_error("Could not deserialise module::base");
+	if (property_manager.deserialize(node)) {
+		throw std::runtime_error("Could not deserialize module::base");
 	}
 	m_im_shadow = rm.image(size_to_image_file_name(m_size));
 }
 
-void mark::module::base::serialise(YAML::Emitter& out) const
+void mark::module::base::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << Key << "id" << Value << reinterpret_cast<size_t>(this);
 
-	property_serialiser serialiser;
-	bind(serialiser, *this);
-	serialiser.serialise(out);
+	property_serializer serializer;
+	bind(serializer, *this);
+	serializer.serialize(out);
 
-	base_ref::serialise(out);
+	base_ref::serialize(out);
 
 	out << Key << "thumbnail" << Value << m_thumbnail->filename();
 }

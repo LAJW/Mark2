@@ -169,12 +169,12 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
 	, m_physical(node["physical"].as<float>(10.f))
 {}
 
-void mark::unit::projectile::serialise(YAML::Emitter& out) const
+void mark::unit::projectile::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << unit::projectile::type_name;
-	base::serialise(out);
+	base::serialize(out);
 	out << Key << "rotation" << Value << m_rotation;
 	out << Key << "velocity" << Value << m_velocity;
 	out << Key << "seek_radius" << Value << m_seek_radius;

@@ -36,7 +36,7 @@ auto mark::item::chaos_orb::describe() const -> std::string
 	return os.str();
 }
 
-void mark::item::chaos_orb::serialise(YAML::Emitter& out) const
+void mark::item::chaos_orb::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;

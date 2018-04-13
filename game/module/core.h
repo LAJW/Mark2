@@ -13,7 +13,7 @@ public:
 	core(resource::manager&, const YAML::Node&);
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 
 private:

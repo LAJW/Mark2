@@ -202,30 +202,30 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 	, m_image_variant(rm.random(0, 11))
 	, m_adsr(0.1f, 8.f, 0.1f, 0.8f)
 	, m_cone_curve(
-		  curve::deserialise(node["cone_curve"].as<std::string>("flat")))
-	, m_rate_of_fire_curve(curve::deserialise(
+		  curve::deserialize(node["cone_curve"].as<std::string>("flat")))
+	, m_rate_of_fire_curve(curve::deserialize(
 		  node["rate_of_fire_curve"].as<std::string>("flat")))
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	if (property_manager.deserialise(node)) {
+	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
-			"Could not deserialise" + std::string(type_name));
+			"Could not deserialize" + std::string(type_name));
 	}
 }
 
-void mark::module::turret::serialise(YAML::Emitter& out) const
+void mark::module::turret::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	property_serialiser serialiser;
-	bind(serialiser, *this);
-	serialiser.serialise(out);
+	property_serializer serializer;
+	bind(serializer, *this);
+	serializer.serialize(out);
 	out << Key << "rate_of_fire_curve" << Value
-		<< curve::serialise(m_rate_of_fire_curve);
-	out << Key << "cone_curve" << Value << curve::serialise(m_cone_curve);
-	base::serialise(out);
+		<< curve::serialize(m_rate_of_fire_curve);
+	out << Key << "cone_curve" << Value << curve::serialize(m_cone_curve);
+	base::serialize(out);
 	out << EndMap;
 }
 

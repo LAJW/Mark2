@@ -15,7 +15,7 @@ public:
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
 		module::base& item) -> use_on_result;
 	auto describe() const -> std::string override;
-	void serialise(YAML::Emitter&) const override;
+	void serialize(YAML::Emitter&) const override;
 	auto size() const -> vector<unsigned> override;
 	auto thumbnail() const -> std::shared_ptr<const resource::image> override;
 	void stack(std::unique_ptr<interface::item>& item) override;

@@ -128,12 +128,12 @@ mark::module::healing_turret::healing_turret(
 	, m_im_ray(rm.image("ray.png"))
 {}
 
-void mark::module::healing_turret::serialise(YAML::Emitter& out) const
+void mark::module::healing_turret::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	base::serialise(out);
+	base::serialize(out);
 	out << EndMap;
 }
 

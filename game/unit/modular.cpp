@@ -664,7 +664,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			let blueprint_node = module_node["blueprint"];
 			auto& rm = world.resource_manager();
 			if (!blueprint_node) {
-				return module::deserialise(rm, module_node);
+				return module::deserialize(rm, module_node);
 			}
 			let blueprint_id = [&] {
 				if (blueprint_node.IsSequence()) {
@@ -680,7 +680,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			for (let& property : module_node) {
 				properties[property.first] = property.second;
 			}
-			return module::deserialise(rm, properties);
+			return module::deserialize(rm, properties);
 		}();
 		std::unique_ptr<module::base> module(
 			dynamic_cast<module::base*>(item.release()));
@@ -697,17 +697,17 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	}
 }
 
-void mark::unit::modular::serialise(YAML::Emitter& out) const
+void mark::unit::modular::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
-	mobile::serialise(out);
+	mobile::serialize(out);
 
 	out << Key << "type" << Value << unit::modular::type_name;
 
 	out << Key << "modules" << Value << BeginSeq;
 	for (let& module : m_modules) {
-		module->serialise(out);
+		module->serialize(out);
 	}
 	out << EndSeq;
 

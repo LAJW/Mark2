@@ -18,7 +18,7 @@ public:
 	auto dead() const -> bool override;
 	auto release() -> std::unique_ptr<interface::item>;
 	void insert(std::unique_ptr<interface::item>);
-	void serialise(YAML::Emitter& out) const override;
+	void serialize(YAML::Emitter& out) const override;
 
 private:
 	void update(update_context& context) override;

@@ -37,20 +37,20 @@ mark::module::shield_generator::shield_generator(
 {
 	property_manager property_manager(rm);
 	bind(property_manager);
-	if (property_manager.deserialise(node)) {
+	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
-			"Could not deserialise " + std::string(type_name));
+			"Could not deserialize " + std::string(type_name));
 	};
 }
 
-void mark::module::shield_generator::serialise(YAML::Emitter& out) const
+void mark::module::shield_generator::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
 	out << Key << "type" << Value << type_name;
-	property_serialiser property_serialiser;
-	bind(property_serialiser, *this);
-	property_serialiser.serialise(out);
+	property_serializer property_serializer;
+	bind(property_serializer, *this);
+	property_serializer.serialize(out);
 	out << EndMap;
 }
 

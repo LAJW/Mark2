@@ -7,7 +7,7 @@
 #include "projectile.h"
 #include <module/base.h>
 
-auto mark::unit::deserialise(world& world, const YAML::Node& node)
+auto mark::unit::deserialize(world& world, const YAML::Node& node)
 	-> std::shared_ptr<unit::base>
 {
 
