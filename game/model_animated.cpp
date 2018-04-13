@@ -9,7 +9,7 @@ mark::model::animated::animated(
 	: m_image(image)
 {}
 
-void mark::model::animated::tick(double dt)
+void mark::model::animated::update(double dt)
 {
 	let size = m_image->size();
 	let frame_count = size.x / size.y;

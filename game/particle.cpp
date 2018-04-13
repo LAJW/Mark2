@@ -31,7 +31,7 @@ mark::particle::particle(const particle::info& attr, bool)
 	, m_layer(attr.layer)
 {}
 
-void mark::particle::tick(
+void mark::particle::update(
 	double dt,
 	std::map<int, std::vector<std::variant<sprite, path, rectangle>>>& sprites)
 {

@@ -3,12 +3,12 @@
 #include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
-void mark::module::energy_generator::tick(tick_context& context)
+void mark::module::energy_generator::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	m_cur_energy = std::min(
 		m_cur_energy + m_energy_regen * static_cast<float>(context.dt),
 		m_max_energy);

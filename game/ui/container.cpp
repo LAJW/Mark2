@@ -7,7 +7,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 
 mark::ui::container::container(const info& info)
 	: window(info.pos)
@@ -25,7 +25,7 @@ mark::ui::container::container(const info& info)
 	}
 }
 
-void mark::ui::container::tick(tick_context& context)
+void mark::ui::container::update(update_context& context)
 {
 	sprite sprite;
 	sprite.image = m_cargo_bg;
@@ -36,7 +36,7 @@ void mark::ui::container::tick(tick_context& context)
 	sprite.world = false;
 	sprite.centred = false;
 	context.sprites[100].push_back(sprite);
-	this->window::tick(context);
+	this->window::update(context);
 }
 
 bool mark::ui::container::click(const event& event)

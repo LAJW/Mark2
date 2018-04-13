@@ -24,7 +24,7 @@ public:
 	};
 
 	button(const info&);
-	void tick(tick_context&) override;
+	void update(update_context&) override;
 
 	bool click(const event&) override;
 	callback_group on_click;
@@ -37,7 +37,7 @@ public:
 
 private:
 	button(const info&, bool);
-	void render(tick_context&);
+	void render(update_context&);
 
 	const window& m_parent;
 	// Size of the button

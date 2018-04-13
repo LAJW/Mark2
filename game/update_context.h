@@ -3,10 +3,10 @@
 #include "stdafx.h"
 
 namespace mark {
-struct tick_context
+struct update_context
 {
-	tick_context(resource::manager&);
-	~tick_context();
+	update_context(resource::manager&);
+	~update_context();
 	double dt;
 	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
 	std::map<int, std::vector<sprite>> normals;

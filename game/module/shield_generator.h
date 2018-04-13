@@ -23,8 +23,8 @@ public:
 	void command(const command::any& any) override;
 
 private:
-	void tick(tick_context& context) override;
-	void render(tick_context& context) const;
+	void update(update_context& context) override;
+	void render(update_context& context) const;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;

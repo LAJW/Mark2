@@ -53,7 +53,7 @@ protected:
 	~base_ref() = default;
 
 private:
-	virtual void tick(tick_context& context) = 0;
+	virtual void update(update_context& context) = 0;
 	unit::modular* m_parent = nullptr;
 	vector<int8_t> m_grid_pos;
 };
@@ -113,7 +113,7 @@ public:
 	auto damage(const interface::damageable::info& attr) -> bool override;
 
 	// called on module's death
-	virtual void on_death(tick_context& context);
+	virtual void on_death(update_context& context);
 
 	// get modifiers for parent modular ship
 	virtual auto global_modifiers() const -> module::modifiers;
@@ -155,7 +155,7 @@ public:
 protected:
 	base(resource::manager&, const YAML::Node&);
 
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 
 	auto heat_color() const -> sf::Color;
 

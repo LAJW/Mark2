@@ -6,7 +6,7 @@
 #include "resource_manager.h"
 #include "sprite.h"
 #include "stdafx.h"
-#include "tick_context.h"
+#include "update_context.h"
 #include "ui/ui.h"
 #include "unit/modular.h"
 #include "world.h"
@@ -56,7 +56,7 @@ struct on_event_info {
 	mark::vector<double> mouse_pos;
 };
 
-struct on_tick_info {
+struct on_update_info {
 	double dt;
 	mark::vector<double> window_res;
 	mark::vector<double> mouse_pos;
@@ -66,18 +66,18 @@ struct event_loop_info {
 	std::string window_title;
 	mark::vector<unsigned> res;
 	std::function<void(on_event_info)> on_event;
-	std::function<mark::renderer::render_info(on_tick_info)> on_tick;
+	std::function<mark::renderer::render_info(on_update_info)> on_update;
 	mark::mode_stack* stack;
 };
 
 void event_loop(event_loop_info& info)
 {
 	assert(info.on_event);
-	assert(info.on_tick);
+	assert(info.on_update);
 	assert(info.stack);
 	sf::RenderWindow window({info.res.x, info.res.y}, info.window_title);
 	mark::renderer renderer(info.res);
-	let& on_tick = info.on_tick;
+	let& on_update = info.on_update;
 	let& on_event = info.on_event;
 
 	auto last = std::chrono::system_clock::now();
@@ -116,12 +116,12 @@ void event_loop(event_loop_info& info)
 		if (dt >= 1.0 / 60.0) {
 			last = now;
 
-			on_tick_info info;
+			on_update_info info;
 			info.dt = dt;
 			info.mouse_pos =
 				mark::vector<double>(sf::Mouse::getPosition(window));
 			info.window_res = mark::vector<double>(window.getSize());
-			window.draw(renderer.render(on_tick(info)));
+			window.draw(renderer.render(on_update(info)));
 			window.display();
 		}
 	}
@@ -167,15 +167,15 @@ void mark::main(std::vector<std::string> args)
 			}
 		}
 	};
-	event_loop_info.on_tick = [&](const on_tick_info& info) {
+	event_loop_info.on_update = [&](const on_update_info& info) {
 		auto& world = world_stack.world();
 		let resolution = info.window_res;
-		mark::tick_context context(rm);
+		mark::update_context context(rm);
 		context.dt = info.dt;
 		if (!stack.paused()) {
-			world.tick(context, resolution);
+			world.update(context, resolution);
 		}
-		ui.tick(context, resolution, info.mouse_pos);
+		ui.update(context, resolution, info.mouse_pos);
 
 		mark::renderer::render_info render_info;
 		render_info.camera = world.camera();

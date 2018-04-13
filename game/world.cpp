@@ -15,7 +15,7 @@
 #include "particle.h"
 #include "resource_manager.h"
 #include "stdafx.h"
-#include "tick_context.h"
+#include "update_context.h"
 #include "unit/base.h"
 #include "unit/damageable.h"
 #include "unit/gate.h"
@@ -200,7 +200,7 @@ auto mark::world::resource_manager() -> resource::manager&
 	return m_resource_manager;
 }
 
-void mark::world::tick(tick_context& context, vector<double> screen_size)
+void mark::world::update(update_context& context, vector<double> screen_size)
 {
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
@@ -210,21 +210,21 @@ void mark::world::tick(tick_context& context, vector<double> screen_size)
 		let camera = vmap(m_camera->pos(), std::round);
 		let offset = screen_size / 2.0
 			+ vector<double>(map::tile_size, map::tile_size) * 2.;
-		m_map->tick(camera - offset, camera + offset, context);
+		m_map->update(camera - offset, camera + offset, context);
 	}
 
 	update_spatial_partition();
 
 	for (auto& unit : m_units) {
-		// ticking can damage other units and they may become dead in the
+		// updateing can damage other units and they may become dead in the
 		// process
 		// dead unit is a unit due to be removed
 		if (!unit->dead()) {
-			unit->tick(context);
+			unit->update(context);
 		}
 	}
 	for (auto& particle : m_particles) {
-		particle.tick(context.dt, context.sprites);
+		particle.update(context.dt, context.sprites);
 	}
 	// Add/Remove units
 	{

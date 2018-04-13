@@ -16,17 +16,17 @@ public:
 	auto traversable(const vector<int>& i_pos, const size_t radius) const
 		-> bool;
 
-	void tick(
+	void update(
 		vector<double> top_left,
 		vector<double> bottom_right,
-		tick_context& context);
+		update_context& context);
 
 	auto find_path(
 		const vector<double>& start,
 		const vector<double>& end,
 		double radius = 0.0) const -> std::vector<vector<double>>;
 
-	// Can find be called in this tick (limit find count per frame)
+	// Can find be called in this update (limit find count per frame)
 	auto can_find() const -> bool;
 
 	auto collide(const segment_t&) const -> std::optional<vector<double>>;

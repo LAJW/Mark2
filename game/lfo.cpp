@@ -6,7 +6,7 @@ mark::lfo::lfo(float frequency, float phase)
 	, m_phase(phase)
 {}
 
-void mark::lfo::tick(double dt)
+void mark::lfo::update(double dt)
 {
 	m_phase = std::fmod(m_phase + static_cast<float>(dt), 1 / m_frequency);
 }

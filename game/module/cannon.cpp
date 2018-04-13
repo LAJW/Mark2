@@ -2,17 +2,17 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
-void mark::module::cannon::tick(tick_context& context)
+void mark::module::cannon::update(update_context& context)
 {
-	this->module::base::tick(context);
-	m_randomiser.tick(context.dt);
-	m_model.tick(context.dt);
+	this->module::base::update(context);
+	m_randomiser.update(context.dt);
+	m_model.update(context.dt);
 	auto pos = this->pos();
-	m_targeting_system.tick();
+	m_targeting_system.update();
 	if (m_angular_velocity == 0.f) {
 		m_rotation = parent().rotation();
 	} else if (let target = m_targeting_system.target()) {
@@ -43,7 +43,7 @@ void mark::module::cannon::tick(tick_context& context)
 }
 
 void mark::module::cannon::render(
-	tick_context& context,
+	update_context& context,
 	std::vector<vector<double>> collisions,
 	bool is_firing,
 	const vector<double> dir) const
@@ -79,7 +79,7 @@ void mark::module::cannon::render(
 	}
 	for (let& collision : collisions) {
 		context.render([&] {
-			tick_context::spray_info _;
+			update_context::spray_info _;
 			_.image = m_im_ray;
 			_.pos = collision;
 			_.velocity(25.f, 50.f);

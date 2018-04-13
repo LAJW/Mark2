@@ -28,7 +28,7 @@ auto target(
 	return {};
 }
 
-void mark::targeting_system::tick()
+void mark::targeting_system::update()
 {
 	if (let queue = std::get_if<queue_type>(&m_target)) {
 		if (queue->empty()) {

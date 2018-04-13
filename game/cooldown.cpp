@@ -6,7 +6,7 @@ mark::cooldown::cooldown(float max)
 	: m_max(max)
 {}
 
-void mark::cooldown::tick(double dt)
+void mark::cooldown::update(double dt)
 {
 	m_now = std::max(m_now - static_cast<float>(dt), 0.f);
 }

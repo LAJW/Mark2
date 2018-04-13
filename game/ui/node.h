@@ -8,7 +8,7 @@ class node
 {
 public:
 	virtual ~node() = default;
-	virtual void tick(tick_context& ctx) = 0;
+	virtual void update(update_context& ctx) = 0;
 	virtual bool click(const event&) = 0;
 	virtual bool hover(const event&) = 0;
 	// get absolute pos

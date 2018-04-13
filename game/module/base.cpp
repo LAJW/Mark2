@@ -6,7 +6,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
@@ -45,7 +45,7 @@ constexpr let HEAT_LOSS_RATE = 2.f;
 
 mark::module::base::~base() = default;
 
-void mark::module::base::tick(tick_context& context)
+void mark::module::base::update(update_context& context)
 {
 	let health_percentage = m_cur_health / m_max_health;
 	let pos = this->pos();
@@ -76,7 +76,7 @@ void mark::module::base::tick(tick_context& context)
 	if (!this->parent().landed()) {
 		if (health_percentage <= 0.5f) {
 			context.render([&] {
-				tick_context::spray_info _;
+				update_context::spray_info _;
 				_.image = world().resource_manager().image("glare.png");
 				_.lifespan(.3f, 1.f);
 				_.direction = -45.f;
@@ -91,7 +91,7 @@ void mark::module::base::tick(tick_context& context)
 			}());
 		} else if (health_percentage <= 0.25f) {
 			context.render([&] {
-				tick_context::spray_info _;
+				update_context::spray_info _;
 				_.image = world().resource_manager().image("glare.png");
 				_.lifespan(.3f, 1.f);
 				_.direction = -45.f;
@@ -202,10 +202,10 @@ auto mark::module::base::dead() const -> bool { return m_cur_health <= 0.f; }
 
 void mark::module::base::command(const command::any&) {}
 
-void mark::module::base::on_death(tick_context& context)
+void mark::module::base::on_death(update_context& context)
 {
 	context.render([&] {
-		tick_context::spray_info _;
+		update_context::spray_info _;
 		_.image = parent().world().resource_manager().image("explosion.png");
 		_.pos = pos();
 		_.velocity(75.f, 150.f);

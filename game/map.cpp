@@ -5,7 +5,7 @@
 #include "exception.h"
 #include "resource_manager.h"
 #include "sprite.h"
-#include "tick_context.h"
+#include "update_context.h"
 #include "vector.h"
 
 // Make specific types of maps
@@ -121,10 +121,10 @@ auto mark::map::p_traversable(const vector<int>& i_pos, const size_t uradius)
 	return true;
 }
 
-void mark::map::tick(
+void mark::map::update(
 	vector<double> world_tl,
 	vector<double> world_br,
-	tick_context& context)
+	update_context& context)
 {
 	m_find_count = 0;
 	let range = [&] {

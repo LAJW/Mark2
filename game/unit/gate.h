@@ -23,7 +23,7 @@ public:
 	void serialise(YAML::Emitter&) const override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	std::shared_ptr<const resource::image> m_im_base;
 	std::shared_ptr<const resource::image> m_im_enclosure;
 	mark::model::animated m_rotor;

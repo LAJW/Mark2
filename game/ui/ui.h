@@ -17,8 +17,8 @@ public:
 		mode_stack& stack,
 		world_stack& world_stack);
 	~ui();
-	void tick(
-		tick_context& context,
+	void update(
+		update_context& context,
 		vector<double> resolution,
 		vector<double> mouse_pos_);
 	[[nodiscard]] auto command(world& world, const command::any& command)
@@ -28,9 +28,9 @@ public:
 	void show_ship_editor(unit::modular&);
 	void hide_ship_editor();
 	void tooltip(vector<int> pos, const std::string& text);
-	void tooltip(tick_context&, const std::string& text, vector<double> pos);
+	void tooltip(update_context&, const std::string& text, vector<double> pos);
 	void
-	world_tooltip(tick_context&, const std::string& text, vector<double> pos);
+	world_tooltip(update_context&, const std::string& text, vector<double> pos);
 
 	std::unique_ptr<interface::item> grabbed;
 	vector<int> grabbed_prev_pos;
@@ -41,7 +41,7 @@ public:
 
 private:
 	void container_ui(
-		tick_context& context,
+		update_context& context,
 		vector<double> resolution,
 		const unit::landing_pad& landing_pad,
 		const unit::modular& ship);

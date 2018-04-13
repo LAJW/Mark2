@@ -35,8 +35,8 @@ mark::unit::mobile::mobile(const info& info)
 	, m_moveto(info.moveto ? *info.moveto : info.pos)
 {}
 
-auto mark::unit::mobile::tick_movement_impl(
-	const tick_movement_info& info,
+auto mark::unit::mobile::update_movement_impl(
+	const update_movement_info& info,
 	const bool random_can_pathfind) const
 	-> std::tuple<vector<double>, double, std::vector<vector<double>>, float>
 {
@@ -116,11 +116,11 @@ auto mark::unit::mobile::tick_movement_impl(
 	return { new_pos, velocity, path_cache, path_age };
 }
 
-void mark::unit::mobile::tick_movement(const tick_movement_info& info)
+void mark::unit::mobile::update_movement(const update_movement_info& info)
 {
 	let random_can_pathfind = world().resource_manager().random(0, 2);
 	auto [pos, velocity, path, path_age] =
-		this->tick_movement_impl(info, random_can_pathfind);
+		this->update_movement_impl(info, random_can_pathfind);
 	m_path_cache = std::move(path);
 	m_path_age = path_age;
 	this->pos(pos);

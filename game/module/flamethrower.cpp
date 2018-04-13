@@ -2,7 +2,7 @@
 #include "flamethrower.h"
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
@@ -15,9 +15,9 @@ void mark::module::flamethrower::command(const command::any& any)
 	}
 }
 
-void mark::module::flamethrower::tick(tick_context& context)
+void mark::module::flamethrower::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	let pos = this->pos();
 	context.sprites[2].emplace_back([&] {
 		sprite _;
@@ -30,7 +30,7 @@ void mark::module::flamethrower::tick(tick_context& context)
 	}());
 	if (!m_stunned && m_shoot) {
 		context.render([&] {
-			tick_context::spray_info _;
+			update_context::spray_info _;
 			_.image =
 				parent().world().resource_manager().image("explosion.png");
 			_.pos = pos;

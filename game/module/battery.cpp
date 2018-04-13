@@ -3,11 +3,11 @@
 #include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 
-void mark::module::battery::tick(tick_context& context)
+void mark::module::battery::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_image_base;

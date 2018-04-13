@@ -20,7 +20,7 @@ public:
 	void command(const command::any&) override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;

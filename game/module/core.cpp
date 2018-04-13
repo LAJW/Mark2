@@ -3,16 +3,16 @@
 #include <resource_image.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 
 mark::module::core::core(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image(rm.image("core.png"))
 {}
 
-void mark::module::core::tick(tick_context& context)
+void mark::module::core::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_image;

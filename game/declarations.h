@@ -6,7 +6,7 @@ class Color;
 }
 
 namespace mark {
-struct tick_context;
+struct update_context;
 struct sprite;
 struct path;
 struct rectangle;

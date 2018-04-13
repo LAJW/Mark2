@@ -5,7 +5,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <sstream>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/bucket.h>
 #include <world.h>
 
@@ -64,10 +64,10 @@ void mark::module::cargo::serialise(YAML::Emitter& out) const
 
 auto mark::module::cargo::passive() const noexcept -> bool { return true; }
 
-void mark::module::cargo::tick(tick_context& context)
+void mark::module::cargo::update(update_context& context)
 {
-	this->module::base::tick(context);
-	m_lfo.tick(context.dt);
+	this->module::base::update(context);
+	m_lfo.update(context.dt);
 	let pos = this->pos();
 	let light_offset = rotate(vector<double>(24.f, 8.f), parent_rotation());
 	let light_strength =
@@ -253,7 +253,7 @@ std::string mark::module::cargo::describe() const
 	return os.str();
 }
 
-void mark::module::cargo::on_death(tick_context& context)
+void mark::module::cargo::on_death(update_context& context)
 {
 	module::base::on_death(context);
 	for (auto& item : m_items) {

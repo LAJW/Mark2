@@ -3,13 +3,13 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
-void mark::module::warp_drive::tick(tick_context& context)
+void mark::module::warp_drive::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_image_base;

@@ -24,8 +24,8 @@ protected:
 	~base_ref() = default;
 
 private:
-	virtual void tick(tick_context& context) = 0;
-	virtual void on_death(tick_context&){ /* no-op */ };
+	virtual void update(update_context& context) = 0;
+	virtual void on_death(update_context&){ /* no-op */ };
 	std::reference_wrapper<mark::world> m_world;
 };
 

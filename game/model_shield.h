@@ -5,7 +5,7 @@
 #include "vector.h"
 
 namespace mark {
-struct tick_context;
+struct update_context;
 namespace resource {
 class manager;
 class image;
@@ -15,7 +15,7 @@ class shield
 {
 public:
 	shield(resource::manager& resource_manager, float radius);
-	void tick(tick_context& context, vector<double> pos);
+	void update(update_context& context, vector<double> pos);
 	void trigger(vector<double> pos);
 
 private:

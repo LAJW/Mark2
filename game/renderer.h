@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 namespace mark {
-struct tick_context;
+struct update_context;
 struct sprite;
 
 class renderer

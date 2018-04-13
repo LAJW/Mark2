@@ -3,7 +3,7 @@
 #include "projectile.h"
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
 mark::unit::minion::minion(const unit::mobile::info& info)
@@ -16,13 +16,13 @@ mark::unit::minion::minion(const unit::mobile::info& info)
 	, m_image_explosion(info.world->resource_manager().image("explosion.png"))
 {}
 
-void mark::unit::minion::tick(tick_context& context)
+void mark::unit::minion::update(update_context& context)
 {
 	double dt = context.dt;
 	context.lights.emplace_back(pos(), sf::Color::White);
-	m_gun_cooldown.tick(dt);
-	m_model.tick(dt);
-	m_model_shield.tick(context, pos());
+	m_gun_cooldown.update(dt);
+	m_model.update(dt);
+	m_model_shield.update(context, pos());
 	let velocity = 100.0;
 	let angular_velocity = 90.f;
 
@@ -41,8 +41,8 @@ void mark::unit::minion::tick(tick_context& context)
 				}
 			}
 			mobile::command(command::move{ target->pos() });
-			mobile::tick_movement([&] {
-				mobile::tick_movement_info _;
+			mobile::update_movement([&] {
+				mobile::update_movement_info _;
 				_.dt = dt;
 				_.ai = true;
 				_.acceleration = 500.;
@@ -66,10 +66,10 @@ void mark::unit::minion::tick(tick_context& context)
 
 	context.sprites[1].push_back(
 		m_model.render(pos(), 116.f, m_rotation, sf::Color::White));
-	tick_context::bar_info bar;
+	update_context::bar_info bar;
 	bar.image = world().image_bar;
 	bar.pos = pos() + vector<double>(0, -72);
-	bar.type = tick_context::bar_kind::health;
+	bar.type = update_context::bar_kind::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
 }
@@ -107,9 +107,9 @@ auto mark::unit::minion::collide(vector<double> center, float radius)
 	return {};
 }
 
-void mark::unit::minion::on_death(tick_context& context)
+void mark::unit::minion::on_death(update_context& context)
 {
-	tick_context::spray_info spray;
+	update_context::spray_info spray;
 	spray.image = m_image_explosion;
 	spray.pos = pos();
 	spray.velocity(50.f, 350.f);

@@ -7,7 +7,7 @@ class adsr
 public:
 	adsr(float attack, float decay, float sustain, float release);
 	void trigger();
-	void tick(double dt);
+	void update(double dt);
 	double get() const;
 
 private:

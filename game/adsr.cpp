@@ -15,7 +15,7 @@ adsr::adsr(float attack, float decay, float sustain, float release)
 
 void adsr::trigger() { m_state = 0.f; }
 
-void adsr::tick(double dt)
+void adsr::update(double dt)
 {
 	m_state += static_cast<float>(dt);
 	if (m_state > m_attack + m_sustain + m_release) {

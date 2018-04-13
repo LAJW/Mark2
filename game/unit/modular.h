@@ -77,8 +77,8 @@ public:
 	auto radius() const -> double override;
 
 private:
-	void tick(tick_context& context) override;
-	void on_death(tick_context& context) override;
+	void update(update_context& context) override;
+	void on_death(update_context& context) override;
 
 	// Attach without checking structure of the ship
 	[[nodiscard]] auto
@@ -88,14 +88,14 @@ private:
 	// ship
 	auto p_can_attach(const module::base& module, vector<int> pos) const
 		-> bool;
-	void remove_dead(tick_context&);
-	void pick_up(tick_context&);
+	void remove_dead(update_context&);
+	void pick_up(update_context&);
 	// Remove module from module bindings
 	void unbind(const module::base& module);
 	auto modifiers() const -> module::modifiers;
-	void tick_modules(tick_context& context);
+	void update_modules(update_context& context);
 	// Generate a list of commands for self
-	std::vector<command::any> tick_ai() const;
+	std::vector<command::any> update_ai() const;
 	auto p_connected_to_core(const module::base&) const -> bool;
 
 	// get pointer in reference to the center of the grid

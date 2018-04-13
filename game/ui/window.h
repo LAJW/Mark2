@@ -13,7 +13,7 @@ public:
 	void remove(node& node);
 	bool click(const event&) override;
 	bool hover(const event&) override;
-	void tick(tick_context&) override;
+	void update(update_context&) override;
 	auto children() -> std::list<std::unique_ptr<node>>&;
 	void visibility(bool) noexcept;
 

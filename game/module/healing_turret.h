@@ -19,7 +19,7 @@ public:
 	auto passive() const noexcept -> bool override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	module::base* target();
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);

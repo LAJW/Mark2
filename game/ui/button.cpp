@@ -3,7 +3,7 @@
 #include "window.h"
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 
 static bool validate(const mark::ui::button::info& info) noexcept
 {
@@ -36,7 +36,7 @@ auto mark::ui::button::size() const noexcept -> vector<int>
 	return vector<int>(m_size);
 }
 
-void mark::ui::button::tick(tick_context& context)
+void mark::ui::button::update(update_context& context)
 {
 	if (m_hovering) {
 		m_opacity = std::min(1., m_opacity + context.dt * 3.);
@@ -46,7 +46,7 @@ void mark::ui::button::tick(tick_context& context)
 	this->render(context);
 }
 
-void mark::ui::button::render(tick_context& context)
+void mark::ui::button::render(update_context& context)
 {
 	const double total = size().x * 2 + size().y * 2;
 	int cur = int(total * m_opacity);
@@ -93,7 +93,7 @@ void mark::ui::button::render(tick_context& context)
 	}
 
 	if (!m_title.empty()) {
-		tick_context::text_info text;
+		update_context::text_info text;
 		text.box = { 300., 50. };
 		text.pos = vector<double>(this->pos());
 		text.font = m_font;

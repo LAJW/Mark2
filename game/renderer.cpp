@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "resource_image.h"
 #include "sprite.h"
-#include "tick_context.h"
+#include "update_context.h"
 
 namespace {
 

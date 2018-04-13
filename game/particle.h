@@ -25,7 +25,7 @@ public:
 		int layer = 0;
 	};
 	particle(const particle::info& info);
-	void tick(
+	void update(
 		double dt,
 		std::map<int, std::vector<std::variant<sprite, path, rectangle>>>&
 			sprites);

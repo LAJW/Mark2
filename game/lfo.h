@@ -6,7 +6,7 @@ class lfo final
 {
 public:
 	lfo(float frequency = 1.0f, float phase = 0.0f);
-	void tick(double dt);
+	void update(double dt);
 	auto get() const -> float;
 
 private:

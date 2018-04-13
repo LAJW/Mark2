@@ -2,7 +2,7 @@
 #include "model_shield.h"
 #include "resource_manager.h"
 #include "sprite.h"
-#include "tick_context.h"
+#include "update_context.h"
 
 mark::model::shield::shield(resource::manager& rm, float radius)
 	: m_adsr(0, 255, 0.1f, 1)
@@ -12,10 +12,10 @@ mark::model::shield::shield(resource::manager& rm, float radius)
 	, m_radius(radius)
 {}
 
-void mark::model::shield::tick(tick_context& context, vector<double> pos)
+void mark::model::shield::update(update_context& context, vector<double> pos)
 {
-	m_lfo.tick(context.dt);
-	m_adsr.tick(context.dt);
+	m_lfo.update(context.dt);
+	m_adsr.update(context.dt);
 	context.sprites[3].emplace_back([&] {
 		let shield_opacity =
 			static_cast<uint8_t>((m_lfo.get() * 0.5f + 0.5f) * 255.f);

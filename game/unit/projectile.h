@@ -37,7 +37,7 @@ public:
 
 private:
 	projectile(const projectile::info&, bool);
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image;
 	std::shared_ptr<const resource::image> m_im_tail;

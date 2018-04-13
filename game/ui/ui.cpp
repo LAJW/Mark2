@@ -8,7 +8,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/landing_pad.h>
 #include <unit/modular.h>
 #include <world.h>
@@ -108,8 +108,8 @@ mark::ui::ui::ui(
 
 mark::ui::ui::~ui() = default;
 
-void mark::ui::ui::tick(
-	tick_context& context,
+void mark::ui::ui::update(
+	update_context& context,
 	vector<double> resolution,
 	vector<double> mouse_pos_)
 {
@@ -127,10 +127,10 @@ void mark::ui::ui::tick(
 			}
 		}
 	}
-	m_action_bar.tick(world, context, m_rm, resolution, mouse_pos_);
+	m_action_bar.update(world, context, m_rm, resolution, mouse_pos_);
 	let image_circle = m_rm.image("circle.png");
 	for (let& window : m_windows) {
-		window->tick(context);
+		window->update(context);
 	}
 	let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 
@@ -283,7 +283,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 }
 
 void mark::ui::ui::tooltip(
-	tick_context& context,
+	update_context& context,
 	const std::string& text,
 	vector<double> screen_pos)
 {
@@ -296,7 +296,7 @@ void mark::ui::ui::tooltip(
 	info.color = { 50, 50, 50, 200 };
 	context.sprites[110].emplace_back(info);
 
-	tick_context::text_info text_info;
+	update_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 110;
 	text_info.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
@@ -308,7 +308,7 @@ void mark::ui::ui::tooltip(
 }
 
 void mark::ui::ui::world_tooltip(
-	tick_context& context,
+	update_context& context,
 	const std::string& text,
 	vector<double> pos)
 {
@@ -318,7 +318,7 @@ void mark::ui::ui::world_tooltip(
 	info.color = { 50, 50, 50, 200 };
 	context.sprites[100].emplace_back(info);
 
-	tick_context::text_info text_info;
+	update_context::text_info text_info;
 	text_info.font = m_font;
 	text_info.layer = 100;
 	text_info.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
@@ -369,7 +369,7 @@ void mark::ui::ui::release()
 }
 
 void mark::ui::ui::container_ui(
-	tick_context& context,
+	update_context& context,
 	vector<double> mouse_pos,
 	const unit::landing_pad& landing_pad,
 	const unit::modular& ship)

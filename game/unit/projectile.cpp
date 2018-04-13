@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
 namespace {
@@ -40,7 +40,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_knockback(args.knockback)
 {}
 
-void mark::unit::projectile::tick(tick_context& context)
+void mark::unit::projectile::update(update_context& context)
 {
 	double dt = context.dt;
 	let step = rotate(vector<double>(1, 0), m_rotation)
@@ -91,7 +91,7 @@ void mark::unit::projectile::tick(tick_context& context)
 		context.crit = true;
 	}
 	for (let collision : collisions) {
-		tick_context::spray_info spray;
+		update_context::spray_info spray;
 		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
 		spray.pos = collision;
 		spray.velocity(5.f, is_heavy_damage ? 500.f : 75.f);
@@ -104,7 +104,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	}
 	// tail: grey dust
 	{
-		tick_context::spray_info spray;
+		update_context::spray_info spray;
 		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
 		spray.pos = pos();
 		spray.velocity(100.f);
@@ -119,7 +119,7 @@ void mark::unit::projectile::tick(tick_context& context)
 	}
 	// tail: white overlay
 	{
-		tick_context::spray_info spray;
+		update_context::spray_info spray;
 		spray.image = m_im_tail;
 		spray.pos = pos();
 		spray.velocity(75.f);

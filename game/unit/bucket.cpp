@@ -4,7 +4,7 @@
 #include <module/base.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
 mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
@@ -24,7 +24,7 @@ mark::unit::bucket::bucket(info info)
 	}
 }
 
-void mark::unit::bucket::tick(tick_context& context)
+void mark::unit::bucket::update(update_context& context)
 {
 	if (this->dead()) { // dead bucket
 		return;

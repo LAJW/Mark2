@@ -7,9 +7,9 @@ class action_bar final
 {
 public:
 	explicit action_bar(resource::manager& rm);
-	void tick(
+	void update(
 		world& world,
-		tick_context& context,
+		update_context& context,
 		resource::manager& rm,
 		vector<double> resolution,
 		vector<double> mouse_pos_);

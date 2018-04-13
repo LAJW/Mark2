@@ -28,7 +28,7 @@ public:
 		-> std::unique_ptr<interface::item> override;
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
-	void on_death(tick_context& context) override;
+	void on_death(update_context& context) override;
 	void serialise(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 
@@ -40,7 +40,7 @@ public:
 	auto items() const -> const std::vector<std::unique_ptr<interface::item>>&;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;

@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "tick_context.h"
+#include "update_context.h"
 #include "particle.h"
 #include "sprite.h"
 
@@ -31,7 +31,7 @@ static float offset_y(char ch)
 }
 } // namespace
 
-void mark::tick_context::render(const text_info& info)
+void mark::update_context::render(const text_info& info)
 {
 	let& font = info.font;
 	auto& out = sprites[info.layer];
@@ -98,13 +98,13 @@ void mark::tick_context::render(const text_info& info)
 	}
 }
 
-mark::tick_context::tick_context(resource::manager& rm)
+mark::update_context::update_context(resource::manager& rm)
 	: m_resource_manager(rm)
 {}
 
-mark::tick_context::~tick_context() = default;
+mark::update_context::~update_context() = default;
 
-void mark::tick_context::render(const bar_info& info)
+void mark::update_context::render(const bar_info& info)
 {
 	auto& image = info.image;
 	auto type = info.type;
@@ -132,11 +132,11 @@ void mark::tick_context::render(const bar_info& info)
 		}
 		if (i <= edge) {
 			// choose color
-			if (type == tick_context::bar_kind::shield) {
+			if (type == update_context::bar_kind::shield) {
 				frame = 5;
-			} else if (type == tick_context::bar_kind::energy) {
+			} else if (type == update_context::bar_kind::energy) {
 				frame = 4;
-			} else if (type == tick_context::bar_kind::health) {
+			} else if (type == update_context::bar_kind::health) {
 				if (percent > 75.f) {
 					frame = 3;
 				} else if (percent > 50.f) {
@@ -158,7 +158,7 @@ void mark::tick_context::render(const bar_info& info)
 	}
 }
 
-void mark::tick_context::render(const tick_context::spray_info& info)
+void mark::update_context::render(const update_context::spray_info& info)
 {
 	for (size_t i = 0; i < info.count; i++) {
 		let tmp_velocity = !std::isnan(info.max_velocity)
@@ -190,19 +190,19 @@ void mark::tick_context::render(const tick_context::spray_info& info)
 	}
 }
 
-void mark::tick_context::spray_info::velocity(float min, float max)
+void mark::update_context::spray_info::velocity(float min, float max)
 {
 	min_velocity = min;
 	max_velocity = max;
 }
 
-void mark::tick_context::spray_info::lifespan(float min, float max)
+void mark::update_context::spray_info::lifespan(float min, float max)
 {
 	min_lifespan = min;
 	max_lifespan = max;
 }
 
-void mark::tick_context::spray_info::diameter(float min, float max)
+void mark::update_context::spray_info::diameter(float min, float max)
 {
 	min_diameter = min;
 	max_diameter = max;

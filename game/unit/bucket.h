@@ -21,7 +21,7 @@ public:
 	void serialise(YAML::Emitter& out) const override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	std::unique_ptr<interface::item> m_item;
 	float m_direction = NAN;
 	float m_rotation = 0;

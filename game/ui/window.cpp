@@ -45,7 +45,7 @@ bool mark::ui::window::hover(const event& event)
 	return false;
 }
 
-void mark::ui::window::tick(tick_context& context)
+void mark::ui::window::update(update_context& context)
 {
 	if (!m_visible) {
 		return;
@@ -54,10 +54,10 @@ void mark::ui::window::tick(tick_context& context)
 	for (let& node : m_nodes) {
 		if (node->relative()) {
 			node->pos({ 0, top });
-			node->tick(context);
+			node->update(context);
 			top += node->size().y + 10;
 		} else {
-			node->tick(context);
+			node->update(context);
 		}
 	}
 }

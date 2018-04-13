@@ -12,7 +12,7 @@ class animated
 {
 public:
 	animated(const std::shared_ptr<const resource::image>& image);
-	void tick(double dt);
+	void update(double dt);
 	auto render(
 		vector<double> pos,
 		float size,

@@ -7,20 +7,20 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <unit/projectile.h>
 #include <utility>
 #include <world.h>
 
-void mark::module::turret::tick(tick_context& context)
+void mark::module::turret::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	let dt = context.dt;
 	let fdt = static_cast<float>(dt);
-	m_adsr.tick(dt);
+	m_adsr.update(dt);
 	let pos = this->pos();
-	m_targeting_system.tick();
+	m_targeting_system.update();
 
 	if (let target = m_targeting_system.target()) {
 		*m_shared_target = *target;

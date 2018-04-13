@@ -21,11 +21,11 @@ public:
 		vector<double>>> override;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>> override;
-	void on_death(tick_context& context) override;
+	void on_death(update_context& context) override;
 	auto radius() const -> double override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 
 	model::animated m_model;
 	model::shield m_model_shield;

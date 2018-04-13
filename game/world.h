@@ -21,7 +21,7 @@ public:
 	world(world_stack& stack, resource::manager&, const YAML::Node&);
 	~world();
 	auto resource_manager() -> resource::manager&;
-	void tick(tick_context&, vector<double> screen_size);
+	void update(update_context&, vector<double> screen_size);
 	auto map() const -> const map&;
 	auto camera() const -> vector<double>;
 
@@ -63,7 +63,7 @@ public:
 	struct damage_info
 	{
 		interface::damageable::info damage;
-		tick_context* context = nullptr;
+		update_context* context = nullptr;
 		segment_t segment;
 		size_t piercing = 1; // Number of objects to pierce
 		float aoe_radius = 0.f;

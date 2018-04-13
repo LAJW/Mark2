@@ -5,7 +5,7 @@
 #include <model_animated.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
 constexpr let UNIT_GATE_SIZE = 256.f;
@@ -18,7 +18,7 @@ mark::unit::gate::gate(const info& info)
 	, m_inverted(info.inverted)
 {}
 
-void mark::unit::gate::tick(tick_context& context)
+void mark::unit::gate::update(update_context& context)
 {
 	let target = world().target();
 	let angle = target ? static_cast<float>(atan(pos() - target->pos())) : 0.f;
@@ -29,7 +29,7 @@ void mark::unit::gate::tick(tick_context& context)
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
 
-	m_rotor.tick(context.dt);
+	m_rotor.update(context.dt);
 	context.sprites[10].emplace_back(
 		m_rotor.render(pos(), UNIT_GATE_SIZE, angle, sf::Color::White));
 

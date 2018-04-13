@@ -5,7 +5,7 @@
 #include <sprite.h>
 #include <sstream>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
@@ -54,11 +54,11 @@ void mark::module::shield_generator::serialise(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-void mark::module::shield_generator::tick(tick_context& context)
+void mark::module::shield_generator::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	if (!m_stunned && m_cur_shield > 0 && m_on) {
-		m_model_shield.tick(context, this->pos());
+		m_model_shield.update(context, this->pos());
 	}
 	// Recharge
 	for (auto& module : this->neighbours()) {
@@ -74,7 +74,7 @@ void mark::module::shield_generator::tick(tick_context& context)
 	this->render(context);
 }
 
-void mark::module::shield_generator::render(tick_context& context) const
+void mark::module::shield_generator::render(update_context& context) const
 {
 	let pos = this->pos();
 	let module_size = module::size * 2.f;
@@ -88,10 +88,10 @@ void mark::module::shield_generator::render(tick_context& context) const
 		return _;
 	}());
 	context.render([&] {
-		tick_context::bar_info _;
+		update_context::bar_info _;
 		_.image = parent().world().image_bar;
 		_.pos = pos + vector<double>(0, -module_size);
-		_.type = tick_context::bar_kind::shield;
+		_.type = update_context::bar_kind::shield;
 		_.percentage = m_cur_shield / m_max_shield;
 		return _;
 	}());

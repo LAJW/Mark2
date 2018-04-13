@@ -19,7 +19,7 @@ public:
 		vector<int> pos;
 	};
 	container(const info& info);
-	void tick(tick_context&) override;
+	void update(update_context&) override;
 	bool click(const event& event) override;
 	auto cargo() const -> const module::cargo&;
 	auto size() const -> vector<int> override;

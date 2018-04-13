@@ -6,7 +6,7 @@ class cooldown
 {
 public:
 	cooldown(float cooldown);
-	void tick(double dt);
+	void update(double dt);
 	bool ready();
 	bool trigger(); // returns true if ready
 private:

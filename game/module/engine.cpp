@@ -2,11 +2,11 @@
 #include "engine.h"
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 
-void mark::module::engine::tick(tick_context& context)
+void mark::module::engine::update(update_context& context)
 {
-	this->module::base::tick(context);
+	this->module::base::update(context);
 	let pos = this->pos();
 	context.sprites[2].emplace_back([&] {
 		sprite _;

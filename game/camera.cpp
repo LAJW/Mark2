@@ -21,9 +21,9 @@ auto mark::camera::target() const -> std::shared_ptr<const unit::base>
 
 void mark::camera::update(double dt)
 {
-	m_adsr.tick(dt);
-	m_x_lfo.tick(dt);
-	m_y_lfo.tick(dt);
+	m_adsr.update(dt);
+	m_x_lfo.update(dt);
+	m_y_lfo.update(dt);
 	constexpr let T = .5;
 	let target_pos = m_target->pos();
 	let diff = target_pos - m_pos;

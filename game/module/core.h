@@ -17,7 +17,7 @@ public:
 	auto passive() const noexcept -> bool override;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 	void bind(mark::property_manager&) override{};
 
 	std::shared_ptr<const resource::image> m_image;

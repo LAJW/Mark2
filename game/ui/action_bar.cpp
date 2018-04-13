@@ -5,7 +5,7 @@
 #include <module/base.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/landing_pad.h>
 #include <world.h>
 
@@ -15,9 +15,9 @@ mark::ui::action_bar::action_bar(resource::manager& rm)
 	, m_hotbar_overlay(rm.image("hotbar-overlay.png"))
 {}
 
-void mark::ui::action_bar::tick(
+void mark::ui::action_bar::update(
 	world& world,
-	tick_context& context,
+	update_context& context,
 	resource::manager& rm,
 	vector<double> resolution,
 	vector<double> mouse_pos_)
@@ -106,7 +106,7 @@ void mark::ui::action_bar::tick(
 			{
 				std::ostringstream os;
 				os << static_cast<int>(i);
-				tick_context::text_info text;
+				update_context::text_info text;
 				text.font = m_font;
 				text.layer = 101;
 				text.pos = vector<double>(x + 32.f, y + 8.f);
@@ -118,7 +118,7 @@ void mark::ui::action_bar::tick(
 			{
 				std::ostringstream os;
 				os << binding.total;
-				tick_context::text_info text;
+				update_context::text_info text;
 				text.font = m_font;
 				text.layer = 101;
 				text.pos = vector<double>(x + 32.f, y + 32.f);

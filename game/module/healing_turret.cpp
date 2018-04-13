@@ -3,14 +3,14 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 
-void mark::module::healing_turret::tick(tick_context& context)
+void mark::module::healing_turret::update(update_context& context)
 {
-	this->module::base::tick(context);
-	m_model.tick(context.dt);
+	this->module::base::update(context);
+	m_model.update(context.dt);
 	let pos = this->pos();
 	let model_size = std::max(this->size().x, this->size().y) * module::size;
 	context.sprites[2].push_back(m_model.render(
@@ -54,7 +54,7 @@ void mark::module::healing_turret::tick(tick_context& context)
 	let dir = normalize(collision - pos);
 	let rotation = static_cast<float>(atan(dir));
 	context.render([&] {
-		tick_context::spray_info _;
+		update_context::spray_info _;
 		_.image = m_im_ray;
 		_.pos = collision;
 		_.velocity(25.f, 50.f);

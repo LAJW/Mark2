@@ -29,7 +29,7 @@ public:
 	auto ship() const -> std::shared_ptr<const unit::modular>;
 
 private:
-	void tick(tick_context& context) override;
+	void update(update_context& context) override;
 
 	std::shared_ptr<const resource::image> m_image;
 	std::weak_ptr<unit::modular> m_ship;

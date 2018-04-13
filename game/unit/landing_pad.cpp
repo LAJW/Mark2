@@ -8,7 +8,7 @@
 #include <module/shield_generator.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 
 constexpr let LANDING_PAD_SIZE = 320.f;
@@ -39,7 +39,7 @@ void mark::unit::landing_pad::serialise(YAML::Emitter& out) const
 
 // Methods
 
-void mark::unit::landing_pad::tick(mark::tick_context& context)
+void mark::unit::landing_pad::update(mark::update_context& context)
 {
 	sprite info;
 	info.image = m_image;

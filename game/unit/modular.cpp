@@ -11,7 +11,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <world.h>
 #include <map.h>
 
@@ -96,18 +96,18 @@ mark::unit::modular::modular(info info)
 	, m_rotation(info.rotation)
 {}
 
-void mark::unit::modular::tick_modules(tick_context& context)
+void mark::unit::modular::update_modules(update_context& context)
 {
 	this->remove_dead(context);
 	for (auto& module : m_modules) {
-		// Module might be already dead, don't tick dead modules
+		// Module might be already dead, don't update dead modules
 		if (!module->dead()) {
-			static_cast<module::base_ref&>(*module).tick(context);
+			static_cast<module::base_ref&>(*module).update(context);
 		}
 	}
 }
 
-std::vector<mark::command::any> mark::unit::modular::tick_ai() const
+std::vector<mark::command::any> mark::unit::modular::update_ai() const
 {
 	let enemy = world().find_one<unit::damageable>(
 		this->pos(), 1000.f, [this](let& unit) {
@@ -232,15 +232,15 @@ auto mark::unit::modular::modifiers() const -> module::modifiers
 	return mods;
 }
 
-void mark::unit::modular::tick(tick_context& context)
+void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
-	this->tick_modules(context);
+	this->update_modules(context);
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);
 	}
-	this->tick_movement([&] {
-		tick_movement_info _;
+	this->update_movement([&] {
+		update_movement_info _;
 		_.ai = m_ai;
 		_.max_velocity = m_ai ? 64.0 : 320.0 + modifiers.velocity;
 		_.acceleration = modifiers.mass > 1.f ? 5000.f / modifiers.mass : 500.f;
@@ -252,7 +252,7 @@ void mark::unit::modular::tick(tick_context& context)
 		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, context.dt);
 	}
 	if (m_ai) {
-		for (let& command : this->tick_ai()) {
+		for (let& command : this->update_ai()) {
 			this->command(command);
 		}
 	}
@@ -493,7 +493,7 @@ auto mark::unit::modular::dead() const -> bool
 	return !m_core || m_core->dead();
 }
 
-void mark::unit::modular::on_death(tick_context& context)
+void mark::unit::modular::on_death(update_context& context)
 {
 	for (auto& module : m_modules) {
 		if (module->dead()) {
@@ -767,7 +767,7 @@ auto mark::unit::modular::landed() const noexcept -> bool
 	return !m_ai && world().target().get() != this;
 }
 
-void mark::unit::modular::remove_dead(tick_context& context)
+void mark::unit::modular::remove_dead(update_context& context)
 {
 	let first_dead_it = partition(
 		m_modules.begin(),
@@ -818,7 +818,7 @@ void mark::unit::modular::remove_dead(tick_context& context)
 	}
 }
 
-void mark::unit::modular::pick_up(tick_context&)
+void mark::unit::modular::pick_up(update_context&)
 {
 	auto buckets = world().find<unit::bucket>(
 		pos(), 150.f, [](let& unit) { return !unit.dead(); });
