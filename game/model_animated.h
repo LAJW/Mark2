@@ -13,11 +13,11 @@ class animated
 public:
 	animated(const std::shared_ptr<const resource::image>& image);
 	void tick(double dt);
-	sprite render(
+	auto render(
 		vector<double> pos,
 		float size,
 		float rotation,
-		const sf::Color& color);
+		const sf::Color& color) const -> sprite;
 
 private:
 	std::shared_ptr<const resource::image> m_image;
