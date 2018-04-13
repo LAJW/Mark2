@@ -39,7 +39,10 @@ auto mark::item::chaos_orb::describe() const -> std::string
 void mark::item::chaos_orb::serialise(YAML::Emitter& out) const
 {
 	using namespace YAML;
+	out << BeginMap;
 	out << Key << "type" << Value << type_name;
+	out << Key << "quantity" << Value << m_quantity;
+	out << EndMap;
 }
 
 auto mark::item::chaos_orb::size() const -> vector<unsigned>
