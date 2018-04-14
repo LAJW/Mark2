@@ -22,7 +22,7 @@ void mark::unit::minion::update(update_context& context)
 	context.lights.emplace_back(pos(), sf::Color::White);
 	m_gun_cooldown.update(dt);
 	m_model.update(dt);
-	m_model_shield.update(context, pos());
+	m_model_shield.update(context, pos(), true);
 	let velocity = 100.0;
 	let angular_velocity = 90.f;
 

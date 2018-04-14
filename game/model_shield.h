@@ -15,7 +15,7 @@ class shield
 {
 public:
 	shield(resource::manager& resource_manager, float radius);
-	void update(update_context& context, vector<double> pos);
+	void update(update_context& context, vector<double> pos, bool active);
 	void trigger(vector<double> pos);
 
 private:
@@ -23,8 +23,15 @@ private:
 	adsr m_adsr;
 	const std::shared_ptr<const resource::image> m_image_shield;
 	const std::shared_ptr<const resource::image> m_image_reflection;
+	// Texture used for the "break" effect
+	const std::shared_ptr<const resource::image> m_image_shard;
+	// State of the "active/break" animation.
+	// 1 - shield is fully expanded
+	// 0 - shield has collapsed
+	float m_radius_multiplier = 1.f;
 	const float m_radius;
 	vector<double> m_trigger_pos;
+	bool m_active = true;
 };
 } // namespace model
 } // namespace mark

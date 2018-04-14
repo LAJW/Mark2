@@ -64,9 +64,7 @@ void mark::module::shield_generator::serialize(YAML::Emitter& out) const
 void mark::module::shield_generator::update(update_context& context)
 {
 	this->module::base::update(context);
-	if (this->active()) {
-		m_model_shield.update(context, this->pos());
-	}
+	m_model_shield.update(context, this->pos(), this->active());
 	// Recharge
 	for (auto& module : this->neighbours()) {
 		if (m_cur_shield >= m_max_shield) {
