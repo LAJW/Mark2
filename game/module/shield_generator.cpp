@@ -40,7 +40,7 @@ mark::module::shield_generator::shield_generator(
 	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_generator(rm.image("shield-generator.png"))
-	, m_model_shield(rm, node["radius"].as<float>(default_radius) * 2.f)
+	, m_model_shield(rm, node["radius"].as<float>(default_radius))
 {
 	property_manager property_manager(rm);
 	bind(property_manager);

@@ -23,7 +23,8 @@ void mark::model::shield::update(
 	// Shield "break" particle effect
 	if (!active && m_active) {
 		for (let i : range(double(m_radius))) {
-			let offset = rotate(vector<double>(m_radius / 2., 0.), i / m_radius * 360.);
+			let offset =
+				rotate(vector<double>(m_radius, 0.), i / m_radius * 360.);
 			context.particles.push_back([&] {
 				particle::info _;
 				_.direction = float(atan(offset)) + context.random(-15.f, 15.f);
@@ -47,13 +48,14 @@ void mark::model::shield::update(
 		: std::max(0.f, m_radius_multiplier - dtf * 10.f);
 	m_lfo.update(context.dt);
 	m_adsr.update(context.dt);
+	let shield_sprite_size = 2.f * m_radius * m_radius_multiplier;
 	context.sprites[3].emplace_back([&] {
 		let shield_opacity =
 			static_cast<uint8_t>((m_lfo.get() * 0.5f + 0.5f) * 255.f);
 		sprite _;
 		_.image = m_image_shield;
 		_.pos = pos;
-		_.size = m_radius * m_radius_multiplier;
+		_.size = shield_sprite_size;
 		_.color = { 150, 255, 255, shield_opacity };
 		return _;
 	}());
@@ -64,7 +66,7 @@ void mark::model::shield::update(
 		_.image = m_image_reflection;
 		_.pos = pos;
 		_.rotation = static_cast<float>(atan(m_trigger_pos - pos));
-		_.size = m_radius * m_radius_multiplier;
+		_.size = shield_sprite_size;
 		_.color = { 150, 255, 255, reflection_opacity };
 		return _;
 	}());
