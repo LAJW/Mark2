@@ -8,11 +8,7 @@
 
 void mark::module::flamethrower::command(const command::any& any)
 {
-	if (std::holds_alternative<command::activate>(any)) {
-		m_shoot = true;
-	} else if (std::holds_alternative<command::release>(any)) {
-		m_shoot = false;
-	}
+	parent().target(any);
 }
 
 void mark::module::flamethrower::update(update_context& context)
@@ -28,7 +24,7 @@ void mark::module::flamethrower::update(update_context& context)
 		_.color = this->heat_color();
 		return _;
 	}());
-	if (!m_stunned && m_shoot) {
+	if (!m_stunned && parent().request_charge()) {
 		context.render([&] {
 			update_context::spray_info _;
 			_.image =

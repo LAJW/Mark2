@@ -6,14 +6,15 @@ class Color;
 }
 
 namespace mark {
-struct update_context;
-struct sprite;
+class map;
+class particle;
 struct path;
 struct rectangle;
-class particle;
+struct sprite;
+class targeting_system;
+struct update_context;
 class world;
 class world_stack;
-class map;
 namespace interface {
 class container;
 class damageable;

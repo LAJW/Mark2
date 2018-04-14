@@ -23,7 +23,6 @@ private:
 	void bind(mark::property_manager&) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
-	bool m_shoot = false;
 };
 } // namespace module
 } // namespace mark

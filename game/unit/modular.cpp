@@ -1,9 +1,8 @@
 ﻿#include "modular.h"
-#include "activable.h"
-#include "bucket.h"
 #include <algorithm.h>
 #include <command.h>
 #include <exception.h>
+#include <map.h>
 #include <module/base.h>
 #include <module/cargo.h>
 #include <module/core.h>
@@ -11,9 +10,11 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <targeting_system.h>
+#include <unit/activable.h>
+#include <unit/bucket.h>
 #include <update_context.h>
 #include <world.h>
-#include <map.h>
 
 // MODULAR
 
@@ -94,7 +95,10 @@ static auto filter_modules(vector_type& modules)
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
 	, m_rotation(info.rotation)
+	, m_targeting_system(std::make_unique<targeting_system>(*this))
 {}
+
+mark::unit::modular::~modular() = default;
 
 void mark::unit::modular::update_modules(update_context& context)
 {
@@ -209,6 +213,16 @@ void mark::unit::modular::ai(bool ai) { m_ai = ai; }
 
 auto mark::unit::modular::radius() const -> double { return m_radius; }
 
+void mark::unit::modular::target(const command::any& command)
+{
+	m_targeting_system->command(command);
+}
+
+auto mark::unit::modular::request_charge() const -> bool
+{
+	return m_targeting_system->request_charge();
+}
+
 auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) noexcept
 	-> std::pair<module::base*, bool>&
 {
@@ -235,6 +249,7 @@ auto mark::unit::modular::modifiers() const -> module::modifiers
 void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
+	m_targeting_system->update();
 	this->update_modules(context);
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);
@@ -248,8 +263,10 @@ void mark::unit::modular::update(update_context& context)
 		return _;
 	}());
 	if (m_lookat != pos()) {
-		let turn_speed = m_ai ? 32.f : 360.f;
-		m_rotation = turn(m_lookat - pos(), m_rotation, turn_speed, context.dt);
+		let turn_speed = m_ai ? 32.f : 128.f;
+		let target = m_targeting_system->target();
+		let lookat = target ? *target : m_lookat;
+		m_rotation = turn(lookat - pos(), m_rotation, turn_speed, context.dt);
 	}
 	if (m_ai) {
 		for (let& command : this->update_ai()) {
@@ -655,6 +672,7 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	: unit::mobile(world, node)
 	, m_ai(node["ai"].as<bool>())
+	, m_targeting_system(std::make_unique<targeting_system>(*this))
 {
 	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
 	for (let& module_node : node["modules"]) {
