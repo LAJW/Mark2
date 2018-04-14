@@ -21,7 +21,7 @@ mark::map mark::map::make_cavern(mark::resource::manager& resource_manager)
 	std::uniform_int_distribution<> dist_0_3(0, 3);
 
 	auto point = vector<int>(500, 500);
-	for (int i = 0; i < 100; i++) {
+	for (let i : range(100)) {
 		let direction =
 			vector<int>(rotate(vector<float>(1, 0), dist_0_3(gen) * 90.f));
 		let orto = vector<int>(rotate(vector<float>(direction), 90.f));
@@ -135,7 +135,6 @@ void mark::map::update(
 		let br = vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
 		return mark::range(tl, br);
 	}();
-	let floor = m_rm.get().image("jungle-1.png");
 	transform(
 		range.begin(),
 		range.end(),
@@ -152,7 +151,7 @@ void mark::map::update(
 					| ((cbr == terrain_kind::floor_1) & 1) << 3;
 			}();
 			sprite info;
-			info.image = floor;
+			info.image = m_tileset;
 			info.frame = frame + get_variant(pos) * 16;
 			info.size = map::tile_size;
 			info.pos = map_to_world(pos) - vector<double>(0.5, 0.5) * tile_size;
@@ -201,7 +200,7 @@ auto mark::map::deserialize_terrain_kind(const std::string& str)
 }
 
 mark::map::map(resource::manager& rm, const vector<size_t>& size)
-	: m_rm(rm)
+	: m_tileset(rm.image("jungle-1.png"))
 	, m_size(size)
 	, m_terrain(size.x * size.y)
 {

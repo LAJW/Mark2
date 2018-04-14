@@ -75,7 +75,7 @@ private:
 	void calculate_traversable();
 
 	std::vector<terrain> m_terrain;
-	std::reference_wrapper<resource::manager> m_rm;
+	std::shared_ptr<const resource::image> m_tileset;
 	vector<size_t> m_size;
 	mutable unsigned m_find_count = 0;
 };
