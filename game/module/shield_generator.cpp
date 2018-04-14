@@ -19,6 +19,8 @@ void mark::module::shield_generator::bind(
 	MARK_BIND(max_shield);
 	MARK_BIND(radius);
 	MARK_BIND(shield_per_energy);
+	MARK_BIND(broken);
+	MARK_BIND(reboot_level);
 }
 
 void mark::module::shield_generator::bind(
@@ -26,6 +28,11 @@ void mark::module::shield_generator::bind(
 {
 	bind(property_manager, *this);
 	base::bind(property_manager);
+}
+
+auto mark::module::shield_generator::active() const -> bool
+{
+	return m_on && !m_stunned && !m_broken && m_cur_shield >= 0.f;
 }
 
 mark::module::shield_generator::shield_generator(
@@ -57,7 +64,7 @@ void mark::module::shield_generator::serialize(YAML::Emitter& out) const
 void mark::module::shield_generator::update(update_context& context)
 {
 	this->module::base::update(context);
-	if (!m_stunned && m_cur_shield > 0 && m_on) {
+	if (this->active()) {
 		m_model_shield.update(context, this->pos());
 	}
 	// Recharge
@@ -70,6 +77,9 @@ void mark::module::shield_generator::update(update_context& context)
 			m_cur_shield
 				+ module.first.get().harvest_energy(context.dt)
 					* m_shield_per_energy);
+		if (m_cur_shield / m_max_shield >= m_reboot_level) {
+			m_broken = false;
+		}
 	}
 	this->render(context);
 }
@@ -105,9 +115,12 @@ auto mark::module::shield_generator::damage(
 		return false;
 	}
 	attr.damaged->insert(this);
-	if (m_cur_shield > 0.f) {
+	if (this->active()) {
 		m_model_shield.trigger(attr.pos);
-		m_cur_shield -= attr.physical;
+		m_cur_shield = std::max(0.f, m_cur_shield - attr.physical);
+		if (m_cur_shield == 0.f) {
+			m_broken = true;
+		}
 	} else {
 		m_cur_health -= attr.physical;
 	}
@@ -137,7 +150,7 @@ auto mark::module::shield_generator::collide(const segment_t& ray)
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>>
 {
-	if (m_stunned || m_cur_shield <= 0.f || !m_on) {
+	if (!this->active()) {
 		return module::base::collide(ray);
 	}
 	if (let intersection = intersect(ray, pos(), m_radius)) {

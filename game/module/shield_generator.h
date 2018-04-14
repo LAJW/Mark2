@@ -28,6 +28,8 @@ private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;
+	// Is shield active (not stunned, broken, etc.)
+	auto active() const -> bool;
 
 	static constexpr let default_radius = 128.f;
 	static constexpr let default_shield_per_energy = 10.f;
@@ -38,6 +40,15 @@ private:
 	float m_shield_per_energy = 10.f;
 	model::shield m_model_shield;
 	float m_cur_shield = 1000.f;
+	// Level (fraction) at which the shield comes back online after breaking
+	// min: 0, max: 1. Value of zero means that shield should always absorb
+	// damage, as long as it has at least one HP. This mechanism should prevent
+	// shields from being too overpowered and being able to reliably absorb
+	// large hits on low health. Default: 10%
+	float m_reboot_level = .1f;
+	// Is shield currently broken - did its health dropped to zero, and is
+	// recharging to go back online
+	bool m_broken = false;
 	bool m_on = true;
 };
 } // namespace module
