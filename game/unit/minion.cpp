@@ -12,7 +12,7 @@ mark::unit::minion::minion(const unit::mobile::info& info)
 	, m_gun_cooldown(0.5f)
 	, m_model_shield(
 		  info.world->resource_manager(),
-		  static_cast<float>(this->radius()) * 2.f)
+		  static_cast<float>(this->radius()))
 	, m_image_explosion(info.world->resource_manager().image("explosion.png"))
 {}
 
