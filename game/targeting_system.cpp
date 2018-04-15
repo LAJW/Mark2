@@ -50,7 +50,7 @@ void mark::targeting_system::update()
 	}
 }
 
-auto mark::targeting_system::request_charge() -> bool
+auto mark::targeting_system::request_charge() const -> bool
 {
 	if (let pair = std::get_if<target_type>(&m_target)) {
 		return pair->first;

@@ -1,11 +1,12 @@
-﻿#include <stdafx.h>
-#include "flamethrower.h"
+﻿#include "flamethrower.h"
+#include "targeting_system.h"
+#include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <update_context.h>
+#include <stdafx.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
-#include "targeting_system.h"
 
 void mark::module::flamethrower::command(const command::any& any)
 {
@@ -15,6 +16,32 @@ void mark::module::flamethrower::command(const command::any& any)
 void mark::module::flamethrower::update(update_context& context)
 {
 	this->module::base::update(context);
+	this->render(context);
+	if (!this->can_shoot()) {
+		return;
+	}
+	let pos = this->pos();
+	std::unordered_set<interface::damageable*> damaged;
+	let half_cone = m_cone_of_fire / 2.f;
+	for (let cur_angle : mark::range(-half_cone, half_cone + 1.f)) {
+		let absolute_angle = cur_angle + parent().rotation();
+		let offset = rotate(vector<double>(m_range, 0.), absolute_angle);
+		let collision = parent().world().damage([&] {
+			world::damage_info _;
+			_.context = &context;
+			_.aoe_radius = 0.f;
+			_.piercing = 1;
+			_.segment = { pos, pos + offset };
+			_.damage.damaged = &damaged;
+			_.damage.physical = m_dps * static_cast<float>(context.dt);
+			_.damage.team = parent().team();
+			return _;
+		}());
+	}
+}
+
+void mark::module::flamethrower::render(update_context& context) const
+{
 	let pos = this->pos();
 	context.sprites[2].emplace_back([&] {
 		sprite _;
@@ -25,43 +52,37 @@ void mark::module::flamethrower::update(update_context& context)
 		_.color = this->heat_color();
 		return _;
 	}());
-	if (!m_stunned && parent().targeting_system().request_charge()) {
-		context.render([&] {
-			update_context::spray_info _;
-			_.image =
-				parent().world().resource_manager().image("explosion.png");
-			_.pos = pos;
-			_.lifespan(0.2f, 0.5f);
-			_.diameter(16.f, 64.f);
-			_.direction = parent().rotation();
-			_.cone = 30.f;
-			_.velocity(700.f, 1000.f);
-			_.count = 4;
-			return _;
-		}());
-
-		std::unordered_set<interface::damageable*> damaged;
-		for (float i = -15; i < 15; i++) {
-			let cur =
-				pos + rotate(vector<double>(300, 0), i + parent().rotation());
-			let collision = parent().world().damage([&] {
-				world::damage_info _;
-				_.context = &context;
-				_.aoe_radius = 0.f;
-				_.piercing = 1;
-				_.segment = { pos, cur };
-				_.damage.damaged = &damaged;
-				_.damage.physical = 200.f * static_cast<float>(context.dt);
-				_.damage.team = parent().team();
-				return _;
-			}());
-		}
+	if (!this->can_shoot()) {
+		return;
 	}
+	context.render([&] {
+		update_context::spray_info _;
+		_.image = m_image_fire;
+		_.pos = pos;
+		_.lifespan(0.2f, 0.5f);
+		_.diameter(16.f, 64.f);
+		_.direction = parent().rotation();
+		_.cone = m_cone_of_fire;
+		_.velocity(
+			static_cast<float>(m_range * 2.5), static_cast<float>(m_range * 3.));
+		_.count = 4;
+		return _;
+	}());
+}
+
+auto mark::module::flamethrower::can_shoot() const -> bool
+{
+	return !m_stunned && parent().targeting_system().request_charge();
 }
 
 auto mark::module::flamethrower::describe() const -> std::string
 {
-	return "Battery";
+	std::ostringstream os;
+	os << "Flamethrower" << std::endl;
+	os << "Damage per second: " << m_dps << std::endl;
+	os << "Range: " << m_range << std::endl;
+	os << "Cone of fire: " << m_cone_of_fire << " degrees" << std::endl;
+	return os.str();
 }
 
 // Serialize / Deserialize
@@ -69,8 +90,9 @@ auto mark::module::flamethrower::describe() const -> std::string
 template <typename prop_man, typename T>
 void mark::module::flamethrower::bind(prop_man& property_manager, T& instance)
 {
-	(void)property_manager;
-	(void)instance;
+	MARK_BIND(cone_of_fire);
+	MARK_BIND(dps);
+	MARK_BIND(range);
 }
 
 void mark::module::flamethrower::bind(mark::property_manager& property_manager)
@@ -84,6 +106,7 @@ mark::module::flamethrower::flamethrower(
 	const YAML::Node& node)
 	: module::base(rm, node)
 	, m_image_base(rm.image("turret.png"))
+	, m_image_fire(rm.image("explosion.png"))
 {}
 
 void mark::module::flamethrower::serialize(YAML::Emitter& out) const

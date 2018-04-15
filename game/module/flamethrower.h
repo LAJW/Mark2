@@ -18,11 +18,17 @@ public:
 
 private:
 	void update(update_context& context) override;
+	void render(update_context& context) const;
+	auto can_shoot() const -> bool;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;
 
 	std::shared_ptr<const resource::image> m_image_base;
+	std::shared_ptr<const resource::image> m_image_fire;
+	float m_cone_of_fire = 30.f;
+	float m_dps = 200.f;
+	double m_range = 300.;
 };
 } // namespace module
 } // namespace mark

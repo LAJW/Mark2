@@ -18,7 +18,7 @@ public:
 	void update();
 	// Can the inheriting turret perform a shot in this frame.  Mutable, as
 	// requesting charge might reset the internal clock.
-	auto request_charge() -> bool;
+	auto request_charge() const -> bool;
 	// Target at which turret is pointing
 	auto target() const -> std::optional<vector<double>>;
 	// Level of turret's charge (between 0 and 1)
