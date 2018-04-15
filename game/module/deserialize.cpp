@@ -1,6 +1,6 @@
 ﻿#include <stdafx.h>
 #include "battery.h"
-#include "cannon.h"
+#include "laser.h"
 #include "cargo.h"
 #include "core.h"
 #include "energy_generator.h"
@@ -19,8 +19,8 @@ auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
 	let type = node["type"].as<std::string>();
 	if (type == module::battery::type_name) {
 		return std::make_unique<module::battery>(rm, node);
-	} else if (type == module::cannon::type_name) {
-		return std::make_unique<module::cannon>(rm, node);
+	} else if (type == module::laser::type_name) {
+		return std::make_unique<module::laser>(rm, node);
 	} else if (type == module::cargo::type_name) {
 		return std::make_unique<module::cargo>(rm, node);
 	} else if (type == module::core::type_name) {

@@ -9,12 +9,12 @@
 
 namespace mark {
 namespace module {
-class cannon final : public module::base
+class laser final : public module::base
 {
 public:
 	static constexpr const char* type_name = "module_cannon";
 
-	cannon(resource::manager&, const YAML::Node&);
+	laser(resource::manager&, const YAML::Node&);
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

@@ -16,8 +16,7 @@ public:
 	targeting_system(interface::world_object& parent);
 	void command(const command::any&);
 	void update(update_context& update_context);
-	// Can the inheriting turret perform a shot in this frame.  Mutable, as
-	// requesting charge might reset the internal clock.
+	// Can the inheriting turret perform a shot in this frame.
 	auto request_charge() const -> bool;
 	// Target at which turret is pointing
 	auto target() const -> std::optional<vector<double>>;

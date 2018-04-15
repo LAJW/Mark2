@@ -1,4 +1,4 @@
-﻿#include "cannon.h"
+﻿#include "laser.h"
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -6,7 +6,7 @@
 #include <unit/modular.h>
 #include <world.h>
 
-void mark::module::cannon::update(update_context& context)
+void mark::module::laser::update(update_context& context)
 {
 	this->module::base::update(context);
 	m_randomiser.update(context.dt);
@@ -42,7 +42,7 @@ void mark::module::cannon::update(update_context& context)
 	this->render(context, move(pair.first), is_firing, dir);
 }
 
-void mark::module::cannon::render(
+void mark::module::laser::render(
 	update_context& context,
 	std::vector<vector<double>> collisions,
 	bool is_firing,
@@ -106,7 +106,7 @@ void mark::module::cannon::render(
 	}
 }
 
-std::string mark::module::cannon::describe() const
+std::string mark::module::laser::describe() const
 {
 	return "Laser Cannon\n"
 		   "DPS: 60\n";
@@ -115,20 +115,20 @@ std::string mark::module::cannon::describe() const
 // Serialize / Deserialize
 
 template <typename prop_man, typename T>
-void mark::module::cannon::bind(prop_man& property_manager, T& instance)
+void mark::module::laser::bind(prop_man& property_manager, T& instance)
 {
 	// No properties to serialize yet
 	(void)property_manager;
 	(void)instance;
 }
 
-void mark::module::cannon::bind(mark::property_manager& property_manager)
+void mark::module::laser::bind(mark::property_manager& property_manager)
 {
 	bind(property_manager, *this);
 	base::bind(property_manager);
 }
 
-mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node)
+mark::module::laser::laser(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_targeting_system(*this)
 	, m_model(rm.image("cannon.png"))
@@ -136,7 +136,7 @@ mark::module::cannon::cannon(resource::manager& rm, const YAML::Node& node)
 	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f))
 {}
 
-void mark::module::cannon::serialize(YAML::Emitter& out) const
+void mark::module::laser::serialize(YAML::Emitter& out) const
 {
 	using namespace YAML;
 	out << BeginMap;
@@ -145,9 +145,9 @@ void mark::module::cannon::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::module::cannon::passive() const noexcept -> bool { return false; }
+auto mark::module::laser::passive() const noexcept -> bool { return false; }
 
-void mark::module::cannon::command(const command::any& any)
+void mark::module::laser::command(const command::any& any)
 {
 	m_targeting_system.command(any);
 }
