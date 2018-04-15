@@ -30,21 +30,39 @@ auto target(
 
 void mark::targeting_system::update()
 {
+	let pos = m_parent.pos();
 	if (let queue = std::get_if<queue_type>(&m_target)) {
-		if (queue->empty()) {
-			auto unit = m_parent.world().find_one<unit::damageable>(
-				m_parent.pos(), 1000.0, [&](let& unit) {
+		auto unit = [&] {
+			auto closest = m_parent.world().find<unit::damageable>(
+				pos, 500.0, [&](let& unit) {
 					return !unit.dead() && unit.team() != m_parent.team();
-					/* && m_parent.world().resource_manager().random(0, 3) == 0
-					 */
 				});
-			if (unit) {
-				queue->push_back({ move(unit), {} });
+			let min_it = std::min_element(
+				closest.begin(), closest.end(), [&](let a, let b) {
+					let dist_a = length(pos - a->pos());
+					let dist_b = length(pos - b->pos());
+					return dist_a < dist_b;
+				});
+			if (min_it != closest.end()) {
+				return *min_it;
 			}
+			if (queue->empty()) {
+				return m_parent.world().find_one<unit::damageable>(
+					pos, 1000.0, [&](let& unit) {
+						return !unit.dead() && unit.team() != m_parent.team();
+						/* && m_parent.world().resource_manager().random(0, 3)
+						 * == 0
+						 */
+					});
+			}
+			return std::shared_ptr<unit::damageable>(nullptr);
+		}();
+		if (unit) {
+			queue->push_front({ move(unit), {} });
 		}
 	}
 	if (let queue = std::get_if<queue_type>(&m_target)) {
-		while (!queue->empty() && !::target(m_parent.pos(), queue->front())) {
+		while (!queue->empty() && !::target(pos, queue->front())) {
 			queue->pop_front();
 		}
 	}
