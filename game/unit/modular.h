@@ -76,10 +76,9 @@ public:
 	void ai(bool);
 	// Set velocity (and acceleration) of this vessel to zero
 	auto radius() const -> double override;
-	// Set target for the targeting system (to be used by stationary turets)
-	void target(const command::any&);
-	// Check if there is a target in sight
-	auto request_charge() const -> bool;
+	// Get a reference to modular's targeting system
+	auto targeting_system() const -> const mark::targeting_system&;
+	auto targeting_system() -> mark::targeting_system&;
 
 private:
 	void update(update_context& context) override;
@@ -117,7 +116,7 @@ private:
 	std::array<std::pair<module::base*, bool>, max_size* max_size> m_grid = {
 		std::pair<module::base*, bool>(nullptr, false)
 	};
-	std::unique_ptr<targeting_system> m_targeting_system;
+	std::unique_ptr<mark::targeting_system> m_targeting_system;
 	module::core* m_core = nullptr;
 	float m_rotation = 0.f;
 	bool m_ai = false;

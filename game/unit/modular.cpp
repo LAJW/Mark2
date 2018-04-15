@@ -95,7 +95,7 @@ static auto filter_modules(vector_type& modules)
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
 	, m_rotation(info.rotation)
-	, m_targeting_system(std::make_unique<targeting_system>(*this))
+	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 {}
 
 mark::unit::modular::~modular() = default;
@@ -213,14 +213,15 @@ void mark::unit::modular::ai(bool ai) { m_ai = ai; }
 
 auto mark::unit::modular::radius() const -> double { return m_radius; }
 
-void mark::unit::modular::target(const command::any& command)
+auto mark::unit::modular::targeting_system() const
+	-> const mark::targeting_system&
 {
-	m_targeting_system->command(command);
+	return *m_targeting_system;
 }
 
-auto mark::unit::modular::request_charge() const -> bool
+auto mark::unit::modular::targeting_system() -> mark::targeting_system&
 {
-	return m_targeting_system->request_charge();
+	return *m_targeting_system;
 }
 
 auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) noexcept
@@ -672,7 +673,7 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t
 mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	: unit::mobile(world, node)
 	, m_ai(node["ai"].as<bool>())
-	, m_targeting_system(std::make_unique<targeting_system>(*this))
+	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 {
 	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
 	for (let& module_node : node["modules"]) {

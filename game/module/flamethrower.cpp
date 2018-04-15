@@ -5,10 +5,11 @@
 #include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
+#include "targeting_system.h"
 
 void mark::module::flamethrower::command(const command::any& any)
 {
-	parent().target(any);
+	parent().targeting_system().command(any);
 }
 
 void mark::module::flamethrower::update(update_context& context)
@@ -24,7 +25,7 @@ void mark::module::flamethrower::update(update_context& context)
 		_.color = this->heat_color();
 		return _;
 	}());
-	if (!m_stunned && parent().request_charge()) {
+	if (!m_stunned && parent().targeting_system().request_charge()) {
 		context.render([&] {
 			update_context::spray_info _;
 			_.image =
