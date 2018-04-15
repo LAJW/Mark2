@@ -7,6 +7,9 @@
 #include <targeting_system.h>
 
 namespace mark {
+namespace unit {
+class projectile;
+}
 namespace module {
 class turret final : public module::base
 {
@@ -21,6 +24,10 @@ public:
 
 private:
 	void update(update_context& context) override;
+	void render(update_context& context) const;
+	auto
+	make_projectile(update_context& context, mark::world&, float index) const
+		-> std::shared_ptr<unit::projectile>;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;

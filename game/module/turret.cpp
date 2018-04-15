@@ -7,9 +7,9 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/modular.h>
 #include <unit/projectile.h>
+#include <update_context.h>
 #include <utility>
 #include <world.h>
 
@@ -48,32 +48,9 @@ void mark::module::turret::update(update_context& context)
 		std::transform(
 			range.begin(),
 			range.end(),
-			std::back_inserter(context.units),
-			[&](let i) {
-				unit::projectile::info _;
-				_.world = &parent().world();
-				_.guide = m_guided ? m_shared_target : nullptr;
-				_.pos = pos;
-				let heat_angle = m_cone * m_cone_curve(m_cur_heat / 100.f)
-								* m_angular_velocity
-							!= 0.f
-						&& m_cone_curve == curve::flat
-					? context.random(-1.f, 1.f)
-					: 0.f;
-				let cur_angle = projectile_count != 1.f
-					? (i / (projectile_count - 1.f) - 0.5f) * m_cone
-					: 0.f;
-				_.rotation = m_rotation + cur_angle + heat_angle;
-				_.velocity = m_velocity;
-				_.physical = m_physical;
-				_.aoe_radius = m_aoe_radius;
-				_.seek_radius = m_seek_radius;
-				_.team = parent().team();
-				_.piercing = m_piercing;
-				_.critical_chance = m_critical_chance;
-				_.critical_multiplier = m_critical_multiplier;
-				_.knockback = m_knockback;
-				return std::make_shared<unit::projectile>(_);
+			back_inserter(context.units),
+			[&](let index) {
+				return this->make_projectile(context, parent().world(), index);
 			});
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
@@ -84,7 +61,44 @@ void mark::module::turret::update(update_context& context)
 		}
 		return m_cur_cooldown - fdt;
 	}();
+	this->render(context);
+}
+
+auto mark::module::turret::make_projectile(
+	update_context& context,
+	mark::world& world,
+	float index) const -> std::shared_ptr<unit::projectile>
+{
+	unit::projectile::info _;
+	_.world = &world;
+	_.guide = m_guided ? m_shared_target : nullptr;
+	_.pos = pos();
+	let heat_angle =
+		m_cone * m_cone_curve(m_cur_heat / 100.f) * m_angular_velocity != 0.f
+			&& m_cone_curve == curve::flat
+		? context.random(-1.f, 1.f)
+		: 0.f;
+	let projectile_count = static_cast<float>(m_projectile_count);
+	let cur_angle = m_projectile_count != 1
+		? (index / (projectile_count - 1.f) - 0.5f) * m_cone
+		: 0.f;
+	_.rotation = m_rotation + cur_angle + heat_angle;
+	_.velocity = m_velocity;
+	_.physical = m_physical;
+	_.aoe_radius = m_aoe_radius;
+	_.seek_radius = m_seek_radius;
+	_.team = parent().team();
+	_.piercing = m_piercing;
+	_.critical_chance = m_critical_chance;
+	_.critical_multiplier = m_critical_multiplier;
+	_.knockback = m_knockback;
+	return std::make_shared<unit::projectile>(_);
+}
+
+void mark::module::turret::render(update_context& context) const
+{
 	let heat_color = this->heat_color();
+	let pos = this->pos();
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_image;
@@ -106,6 +120,7 @@ void mark::module::turret::update(update_context& context)
 		_.frame = m_image_variant * 2;
 		return _;
 	}());
+	let cooldown = 1.f / m_rate_of_fire;
 	if (m_is_chargeable && m_cur_cooldown < cooldown) {
 		let charge = 1.f - m_cur_cooldown / cooldown;
 		let fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
