@@ -1,10 +1,10 @@
-﻿#include "stdafx.h"
-#include "map.h"
+﻿#include "map.h"
 #include "algorithm.h"
 #include "base64.h"
 #include "exception.h"
 #include "resource_manager.h"
 #include "sprite.h"
+#include "stdafx.h"
 #include "update_context.h"
 #include "vector.h"
 
@@ -12,25 +12,28 @@
 
 using Node = mark::map::Node;
 
-mark::map mark::map::make_cavern(mark::resource::manager& resource_manager)
+mark::map mark::map::make_cavern(mark::resource::manager& rm)
 {
-	map map(resource_manager, { 1000, 1000 });
-	std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::uniform_int_distribution<> dist_1_100(1, 10);
-	std::uniform_int_distribution<> dist_0_3(0, 3);
+	let constexpr map_size = 1000ull;
+	let depth = 100;
+	let max_corridor_length = 10;
+	let spacing = 5;
+	let corridor_width = 3;
 
-	auto point = vector<int>(500, 500);
-	for (let i : range(100)) {
-		let direction =
-			vector<int>(rotate(vector<float>(1, 0), dist_0_3(gen) * 90.f));
-		let orto = vector<int>(rotate(vector<float>(direction), 90.f));
-		let length = dist_1_100(gen);
+	auto map = mark::map(rm, { map_size, map_size });
+	auto point = vector<int>(map.size()) / 2;
+	for (let cur_depth : range(depth)) {
+		(void)cur_depth;
+		let direction_d = rotate(vector<double>(1, 0), rm.random(0, 3) * 90.);
+		let direction = round(direction_d);
+		let orto = round(rotate(direction_d, 90.));
+		let length = rm.random(1, max_corridor_length);
 
-		for (int j = -5; j < length + 5; j++) {
-			for (int k = -3; k <= 3; k++) {
+		for (let cur_spacing : range(-spacing, length + spacing)) {
+			for (let orto_offset : range(-corridor_width, corridor_width + 1)) {
 				map.set(
-					point + direction * j + orto * k, terrain_kind::floor_1);
+					point + direction * cur_spacing + orto * orto_offset,
+					terrain_kind::floor_1);
 			}
 		}
 		point += direction * length;
@@ -41,11 +44,10 @@ mark::map mark::map::make_cavern(mark::resource::manager& resource_manager)
 
 mark::map mark::map::make_square(resource::manager& resource_manager)
 {
-	mark::map map(resource_manager, { 20, 20 });
-	for (int x = 1; x < 20 - 1; x++) {
-		for (int y = 1; y < 20 - 1; y++) {
-			map.set({ x, y }, terrain_kind::floor_1);
-		}
+	let constexpr square_size = 20ull;
+	auto map = mark::map(resource_manager, { square_size, square_size });
+	for (let pos : range(map.size())) {
+		map.set(vector<int>(pos), terrain_kind::floor_1);
 	}
 	map.calculate_traversable();
 	return map;
@@ -62,16 +64,11 @@ auto mark::map::world_to_map(const vector<double>& pos) const noexcept
 void mark::map::calculate_traversable()
 {
 	for (let pos : range(m_size)) {
-		auto& arr = m_terrain[pos.x + pos.y * m_size.x].traversable;
-		bool traversable = true;
-		for (let radius : range<size_t>(0, 20)) {
-			// Avoid checking if block is traversable by an entity with that
-			// radius, if it's known that it's not traversable by an entity
-			// with smaller radius
-			if (traversable) {
-				traversable = p_traversable(vector<int>(pos), radius);
-			}
-			arr[radius] = traversable;
+		auto& traversables = m_terrain[pos.x + pos.y * m_size.x].traversable;
+		traversables.front() = p_traversable(vector<int>(pos), 0);
+		for (let radius : range<size_t>(1, traversables.size())) {
+			traversables[radius] = traversables[radius - 1]
+				&& p_traversable(vector<int>(pos), radius);
 		}
 	}
 }
@@ -98,27 +95,23 @@ auto mark::map::traversable(const vector<int>& pos, const size_t radius) const
 		&& m_terrain[pos.x + m_size.x * pos.y].traversable[radius];
 }
 
-auto mark::map::p_traversable(const vector<int>& i_pos, const size_t uradius)
+auto mark::map::p_traversable(const vector<int>& pos, const size_t uradius)
 	const -> bool
 {
-	if (uradius > 1) {
-		let radius = static_cast<int>(uradius);
-		let offset = vector<int>(radius, radius);
-		for (let i : range(-offset, offset)) {
-			if (length(i) <= radius) {
-				let tile = this->get(i_pos + i);
-				if (tile == terrain_kind::null || tile == terrain_kind::wall) {
-					return false;
-				}
-			}
-		}
-	} else {
-		let tile = this->get(i_pos);
-		if (tile == terrain_kind::null || tile == terrain_kind::wall) {
-			return false;
-		}
+	if (uradius <= 1) {
+		let tile = this->get(pos);
+		return tile != terrain_kind::null && tile != terrain_kind::wall;
 	}
-	return true;
+	let radius = static_cast<int>(uradius);
+	let offset = vector<int>(radius, radius);
+	let range = mark::range(-offset, offset);
+	return std::all_of(range.begin(), range.end(), [&](let offset) {
+		if (length(offset) > radius) {
+			return true;
+		}
+		let tile = this->get(pos + offset);
+		return tile != terrain_kind::null && tile != terrain_kind::wall;
+	});
 }
 
 void mark::map::update(
@@ -182,21 +175,19 @@ std::string mark::map::serialize_terrain_kind(terrain_kind t)
 auto mark::map::deserialize_terrain_kind(const std::string& str)
 	-> map::terrain_kind
 {
-	if (str == "null") {
+	if (str == "null")
 		return terrain_kind::null;
-	} else if (str == "abyss") {
+	if (str == "abyss")
 		return terrain_kind::abyss;
-	} else if (str == "floor_1") {
+	if (str == "floor_1")
 		return terrain_kind::floor_1;
-	} else if (str == "floor_2") {
+	if (str == "floor_2")
 		return terrain_kind::floor_2;
-	} else if (str == "floor_3") {
+	if (str == "floor_3")
 		return terrain_kind::floor_3;
-	} else if (str == "wall") {
+	if (str == "wall")
 		return terrain_kind::wall;
-	} else {
-		throw std::bad_cast();
-	}
+	throw std::bad_cast();
 }
 
 mark::map::map(resource::manager& rm, const vector<size_t>& size)
@@ -219,9 +210,8 @@ auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
 		&& pos.y < (int)m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].type;
-	} else {
-		return terrain_kind::null;
 	}
+	return terrain_kind::null;
 }
 
 auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
@@ -229,9 +219,8 @@ auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
 		&& pos.y < (int)m_size.y) {
 		return m_terrain[pos.x + m_size.x * pos.y].variant;
-	} else {
-		return 0;
 	}
+	return 0;
 }
 
 void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
@@ -397,9 +386,8 @@ static auto make_direction(const Node& node) -> mark::vector<int>
 		direction.x = mark::sgn(direction.x);
 		direction.y = mark::sgn(direction.y);
 		return direction;
-	} else {
-		return { 0, 0 };
 	}
+	return { 0, 0 };
 }
 
 static auto
@@ -414,7 +402,9 @@ pruned_neighbours(const mark::map& map, const Node& node, const int radius)
 				out.push_back(next_direction + node.pos);
 			}
 		}
-	} else if (is_diagonal(direction)) {
+		return out;
+	}
+	if (is_diagonal(direction)) {
 		let right = node.pos + mark::vector<int>(direction.x, 0);
 		if (map.traversable(right, radius)) {
 			out.push_back(right);
@@ -427,7 +417,9 @@ pruned_neighbours(const mark::map& map, const Node& node, const int radius)
 		if (map.traversable(edge, radius)) {
 			out.push_back(edge);
 		}
-	} else if (map.traversable(node.pos + direction, radius)) {
+		return out;
+	}
+	if (map.traversable(node.pos + direction, radius)) {
 		out.push_back(node.pos + direction);
 		if (!map.traversable(node.pos + turn_left(direction), radius)
 			&& map.traversable(
@@ -439,8 +431,9 @@ pruned_neighbours(const mark::map& map, const Node& node, const int radius)
 				   node.pos + turn_right(direction) + direction, radius)) {
 			out.push_back(node.pos + turn_right(direction) + direction);
 		}
+		return out;
 	}
-	return out;
+	return {};
 }
 
 static auto jump(
@@ -453,15 +446,17 @@ static auto jump(
 	let next = cur + direction;
 	if (!map.traversable(next, radius)) {
 		return {};
-	} else if (next == end) {
+	}
+	if (next == end) {
 		return next;
-	} else if (has_forced_neighbours(map, next, direction, radius)) {
+	}
+	if (has_forced_neighbours(map, next, direction, radius)) {
 		return next;
-	} else if (is_diagonal(direction)) {
-		if (jump(map, next, { direction.x, 0 }, end, radius)
-			|| jump(map, next, { 0, direction.y }, end, radius)) {
-			return next;
-		}
+	}
+	if (is_diagonal(direction)
+		&& (jump(map, next, { direction.x, 0 }, end, radius)
+			|| jump(map, next, { 0, direction.y }, end, radius))) {
+		return next;
 	}
 	return jump(map, next, direction, end, radius);
 }
