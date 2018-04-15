@@ -20,7 +20,7 @@ void mark::module::laser::update(update_context& context)
 			turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
 	let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get());
-	let is_firing = !m_stunned && m_targeting_system.request_charge();
+	let is_firing = !m_stunned && m_targeting_system.can_shoot();
 	if (!is_firing) {
 		this->render(context, {}, is_firing, dir);
 		return;

@@ -42,7 +42,7 @@ void mark::module::turret::update(update_context& context)
 	let cooldown = 1.f / m_rate_of_fire;
 	if (m_cur_cooldown <= 0.f
 		&& ((!m_is_chargeable && !m_stunned
-			 && this->targeting_system().request_charge())
+			 && this->targeting_system().can_shoot())
 			|| (m_is_chargeable && !m_is_charging))) {
 		for (let index : mark::range(m_projectile_count)) {
 			context.units.push_back(

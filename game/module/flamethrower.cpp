@@ -72,7 +72,7 @@ void mark::module::flamethrower::render(update_context& context) const
 
 auto mark::module::flamethrower::can_shoot() const -> bool
 {
-	if (m_stunned || !parent().targeting_system().request_charge()) {
+	if (m_stunned || !parent().targeting_system().can_shoot()) {
 		return false;
 	}
 	if (!parent().targeting_system().ai()) {

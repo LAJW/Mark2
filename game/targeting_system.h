@@ -17,7 +17,7 @@ public:
 	void command(const command::any&);
 	void update(update_context& update_context);
 	// Can the inheriting turret perform a shot in this frame.
-	auto request_charge() const -> bool;
+	auto can_shoot() const -> bool;
 	// Target at which turret is pointing
 	auto target() const -> std::optional<vector<double>>;
 	// Is turret in the AI mode (is it using queue for targeting)
