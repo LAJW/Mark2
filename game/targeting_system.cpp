@@ -69,6 +69,11 @@ auto mark::targeting_system::target() const -> std::optional<vector<double>>
 	return std::get<target_type>(m_target).second;
 }
 
+auto mark::targeting_system::ai() const -> bool
+{
+	return std::holds_alternative<queue_type>(m_target);
+}
+
 void mark::targeting_system::target(vector<double> pos)
 {
 	if (let pair = std::get_if<target_type>(&m_target)) {

@@ -21,7 +21,9 @@ public:
 	auto request_charge() const -> bool;
 	// Target at which turret is pointing
 	auto target() const -> std::optional<vector<double>>;
-	// Level of turret's charge (between 0 and 1)
+	// Is turret in the AI mode (is it using queue for targeting)
+	auto ai() const -> bool;
+
 protected:
 private:
 	void target(vector<double> pos);

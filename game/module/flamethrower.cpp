@@ -72,7 +72,17 @@ void mark::module::flamethrower::render(update_context& context) const
 
 auto mark::module::flamethrower::can_shoot() const -> bool
 {
-	return !m_stunned && parent().targeting_system().request_charge();
+	if (m_stunned || !parent().targeting_system().request_charge()) {
+		return false;
+	}
+	if (!parent().targeting_system().ai()) {
+		return true;
+	}
+	let target = parent().targeting_system().target();
+	if (!target) {
+		return false;
+	}
+	return length(*target - this->pos()) <= m_range;
 }
 
 auto mark::module::flamethrower::describe() const -> std::string

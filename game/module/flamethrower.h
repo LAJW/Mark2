@@ -19,6 +19,7 @@ public:
 private:
 	void update(update_context& context) override;
 	void render(update_context& context) const;
+	// Check if can shoot and target is in range
 	auto can_shoot() const -> bool;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);

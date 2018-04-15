@@ -118,7 +118,7 @@ mark::world::world(
 	, m_camera(std::make_unique<mark::camera>())
 	, m_stack(&stack)
 {
-	let constexpr spawn_ships = true;
+	let constexpr spawn_ships = false;
 	let map_size = vector<int>(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
