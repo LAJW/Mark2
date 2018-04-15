@@ -4,9 +4,9 @@
 #include <curve.h>
 #include <deque>
 #include <stdafx.h>
-#include <targeting_system.h>
 
 namespace mark {
+class targeting_system;
 namespace unit {
 class projectile;
 }
@@ -17,6 +17,7 @@ public:
 	static constexpr const char* type_name = "module_turret";
 
 	turret(resource::manager&, const YAML::Node&);
+	~turret();
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
@@ -31,8 +32,12 @@ private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	void bind(mark::property_manager&) override;
+	// Get targeting system
+	// Returns parent targeting system if turret is stationary
+	// Returns this module's targeting system if turret is not stationary
+	auto targeting_system() -> mark::targeting_system&;
 
-	targeting_system m_targeting_system;
+	std::unique_ptr<mark::targeting_system> m_targeting_system;
 	std::shared_ptr<const resource::image> m_image;
 	std::shared_ptr<const resource::image> m_im_orb;
 	size_t m_image_variant;

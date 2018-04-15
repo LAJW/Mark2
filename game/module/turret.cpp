@@ -7,6 +7,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <targeting_system.h>
 #include <unit/modular.h>
 #include <unit/projectile.h>
 #include <update_context.h>
@@ -20,9 +21,11 @@ void mark::module::turret::update(update_context& context)
 	let fdt = static_cast<float>(dt);
 	m_adsr.update(dt);
 	let pos = this->pos();
-	m_targeting_system.update();
+	if (m_targeting_system) {
+		m_targeting_system->update();
+	}
 
-	if (let target = m_targeting_system.target()) {
+	if (let target = this->targeting_system().target()) {
 		*m_shared_target = *target;
 	}
 
@@ -39,7 +42,7 @@ void mark::module::turret::update(update_context& context)
 	let cooldown = 1.f / m_rate_of_fire;
 	if (m_cur_cooldown <= 0.f
 		&& ((!m_is_chargeable && !m_stunned
-			 && m_targeting_system.request_charge())
+			 && this->targeting_system().request_charge())
 			|| (m_is_chargeable && !m_is_charging))) {
 		for (let index : mark::range(m_projectile_count)) {
 			context.units.push_back(
@@ -205,9 +208,14 @@ void mark::module::turret::bind(mark::property_manager& property_manager)
 	base::bind(property_manager);
 }
 
+auto mark::module::turret::targeting_system() -> mark::targeting_system&
+{
+	return m_targeting_system ? *m_targeting_system
+							  : parent().targeting_system();
+}
+
 mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
-	, m_targeting_system(*this)
 	, m_image(rm.image("turret.png"))
 	, m_im_orb(rm.image("orb.png"))
 	, m_image_variant(rm.random(0, 11))
@@ -223,7 +231,12 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 		throw std::runtime_error(
 			"Could not deserialize" + std::string(type_name));
 	}
+	if (m_angular_velocity > 0.f) {
+		m_targeting_system = std::make_unique<mark::targeting_system>(*this);
+	}
 }
+
+mark::module::turret::~turret() = default;
 
 void mark::module::turret::serialize(YAML::Emitter& out) const
 {
@@ -249,5 +262,5 @@ void mark::module::turret::command(const command::any& any)
 	} else if (std::holds_alternative<command::release>(any)) {
 		m_is_charging = false;
 	}
-	m_targeting_system.command(any);
+	targeting_system().command(any);
 }
