@@ -22,7 +22,7 @@ void mark::module::turret::update(update_context& context)
 	m_adsr.update(dt);
 	let pos = this->pos();
 	if (m_targeting_system) {
-		m_targeting_system->update();
+		m_targeting_system->update(context);
 	}
 
 	if (let target = this->targeting_system().target()) {

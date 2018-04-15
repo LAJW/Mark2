@@ -12,7 +12,7 @@ void mark::module::cannon::update(update_context& context)
 	m_randomiser.update(context.dt);
 	m_model.update(context.dt);
 	auto pos = this->pos();
-	m_targeting_system.update();
+	m_targeting_system.update(context);
 	if (m_angular_velocity == 0.f) {
 		m_rotation = parent().rotation();
 	} else if (let target = m_targeting_system.target()) {

@@ -250,7 +250,7 @@ auto mark::unit::modular::modifiers() const -> module::modifiers
 void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
-	m_targeting_system->update();
+	m_targeting_system->update(context);
 	this->update_modules(context);
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up(context);

@@ -1,9 +1,10 @@
 #include "targeting_system.h"
-#include "interface/world_object.h"
-#include "resource_manager.h"
-#include "stdafx.h"
-#include "unit/modular.h"
-#include "world.h"
+#include <interface/world_object.h>
+#include <resource_manager.h>
+#include <stdafx.h>
+#include <unit/modular.h>
+#include <update_context.h>
+#include <world.h>
 
 auto target(
 	const mark::vector<double>& turret_pos,
@@ -28,7 +29,7 @@ auto target(
 	return {};
 }
 
-void mark::targeting_system::update()
+void mark::targeting_system::update(update_context& context)
 {
 	let pos = m_parent.pos();
 	if (let queue = std::get_if<queue_type>(&m_target)) {
@@ -49,10 +50,8 @@ void mark::targeting_system::update()
 			if (queue->empty()) {
 				return m_parent.world().find_one<unit::damageable>(
 					pos, 1000.0, [&](let& unit) {
-						return !unit.dead() && unit.team() != m_parent.team();
-						/* && m_parent.world().resource_manager().random(0, 3)
-						 * == 0
-						 */
+						return !unit.dead() && unit.team() != m_parent.team()
+						&& context.random(0, 3) == 0;
 					});
 			}
 			return std::shared_ptr<unit::damageable>(nullptr);
