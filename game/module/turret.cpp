@@ -36,22 +36,17 @@ void mark::module::turret::update(update_context& context)
 		}
 		return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
 	}();
-	const auto cooldown = 1.f / m_rate_of_fire;
+	let cooldown = 1.f / m_rate_of_fire;
 	if (m_cur_cooldown <= 0.f
 		&& ((!m_is_chargeable && !m_stunned
 			 && m_targeting_system.request_charge())
 			|| (m_is_chargeable && !m_is_charging))) {
+		for (let index : mark::range(m_projectile_count)) {
+			context.units.push_back(
+				this->make_projectile(context, parent().world(), index));
+		}
 		m_cur_cooldown = cooldown;
 		m_adsr.trigger();
-		let projectile_count = static_cast<float>(m_projectile_count);
-		let range = mark::range(projectile_count);
-		std::transform(
-			range.begin(),
-			range.end(),
-			back_inserter(context.units),
-			[&](let index) {
-				return this->make_projectile(context, parent().world(), index);
-			});
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
 	m_cur_cooldown = [&] {
@@ -67,7 +62,7 @@ void mark::module::turret::update(update_context& context)
 auto mark::module::turret::make_projectile(
 	update_context& context,
 	mark::world& world,
-	float index) const -> std::shared_ptr<unit::projectile>
+	size_t index) const -> std::shared_ptr<unit::projectile>
 {
 	unit::projectile::info _;
 	_.world = &world;
@@ -79,8 +74,9 @@ auto mark::module::turret::make_projectile(
 		? context.random(-1.f, 1.f)
 		: 0.f;
 	let projectile_count = static_cast<float>(m_projectile_count);
+	let indexf = static_cast<float>(index);
 	let cur_angle = m_projectile_count != 1
-		? (index / (projectile_count - 1.f) - 0.5f) * m_cone
+		? (indexf / (projectile_count - 1.f) - 0.5f) * m_cone
 		: 0.f;
 	_.rotation = m_rotation + cur_angle + heat_angle;
 	_.velocity = m_velocity;

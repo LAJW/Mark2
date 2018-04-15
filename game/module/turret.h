@@ -26,7 +26,7 @@ private:
 	void update(update_context& context) override;
 	void render(update_context& context) const;
 	auto
-	make_projectile(update_context& context, mark::world&, float index) const
+	make_projectile(update_context& context, mark::world&, size_t index) const
 		-> std::shared_ptr<unit::projectile>;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
