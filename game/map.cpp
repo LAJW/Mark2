@@ -553,41 +553,50 @@ auto mark::map::find_path(
 
 auto mark::map::can_find() const -> bool { return m_find_count <= 5; }
 
-const std::array<mark::segment_t, 4> square{ mark::segment_t{ { -1, -1 },
-															  { -1, 1 } },
-											 { { -1, 1 }, { 1, 1 } },
-											 { { 1, 1 }, { 1, -1 } },
-											 { { 1, -1 }, { -1, -1 } } };
+// clang-format off
+const std::array<mark::segment_t, 4> square {
+	mark::segment_t{ { -1, -1 }, { -1, 1 } },
+	{ { -1, 1 }, { 1, 1 } },
+	{ { 1, 1 }, { 1, -1 } },
+	{ { 1, -1 }, { -1, -1 } }
+};
+// clang-format on
+
+auto mark::map::collide_with_block_at(vector<double> pos, segment_t ray) const
+	noexcept -> std::optional<vector<double>>
+{
+	let constexpr hs = mark::map::tile_size / 2.; // Half size (of the map tile)
+	let cur_pos = this->world_to_map(pos);
+	let cur_kind = this->get(cur_pos);
+	if (cur_kind == terrain_kind::floor_1) {
+		return {};
+	}
+	let center = this->map_to_world(cur_pos);
+	std::vector<vector<double>> collisions;
+	for (let& wall : square) {
+		let extended_wall = segment_t(wall.first * hs, wall.second * hs);
+		let offset_wall = segment_t(
+			extended_wall.first + center, extended_wall.second + center);
+		if (let intersection = intersect(ray, offset_wall)) {
+			collisions.push_back(*intersection);
+		}
+	}
+	let origin = ray.first;
+	return min_element_v(collisions, [&](let& a, let& b) {
+		return length(a - origin) < length(b - origin);
+	});
+}
 
 auto mark::map::collide(const segment_t& segment) const
 	-> std::optional<vector<double>>
 {
+	let constexpr hs = mark::map::tile_size / 2.; // Half size (of the map tile)
 	let direction = normalize(segment.second - segment.first);
-	constexpr let a = map::tile_size / 2.0;
-	// floating point error margin for comparing segments
 	let length = mark::length(segment.second - segment.first);
-	std::optional<vector<double>> min;
-	for (double i = a; i < length + a; i += a) {
-		let cur_pos = this->world_to_map(segment.first + i * direction);
-		let cur = this->get(cur_pos);
-		if (cur != terrain_kind::floor_1) {
-			let center = this->map_to_world(cur_pos);
-			double min_len = INFINITY;
-			for (let& border : square) {
-				let intersection = intersect(
-					segment,
-					{ border.first * a + center, border.second * a + center });
-				if (intersection) {
-					let len = mark::length(*intersection - segment.first);
-					if (len < min_len) {
-						min = *intersection;
-						min_len = len;
-					}
-				}
-			}
-		}
-		if (min) {
-			return min;
+	for (double i = hs; i < length + hs; i += hs) {
+		if (let collision = this->collide_with_block_at(
+				segment.first + i * direction, segment)) {
+			return *collision;
 		}
 	}
 	return {};
@@ -603,6 +612,7 @@ void mark::map::serialize(YAML::Emitter& out) const
 	out << Key << "y" << Value << m_size.y;
 	out << EndMap;
 	std::string data;
+	data.reserve(m_terrain.size());
 	for (let terrain : m_terrain) {
 		data.push_back(static_cast<unsigned char>(terrain.type));
 	}

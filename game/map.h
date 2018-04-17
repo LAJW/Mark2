@@ -72,6 +72,8 @@ private:
 	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
 	void set(const vector<int>& pos, terrain_kind) noexcept;
 	auto world_to_map(const vector<double>&) const noexcept -> vector<int>;
+	auto collide_with_block_at(vector<double> pos, segment_t segment) const
+		noexcept -> std::optional<vector<double>>;
 	void calculate_traversable();
 
 	std::vector<terrain> m_terrain;
