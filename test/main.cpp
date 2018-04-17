@@ -5,7 +5,7 @@
 
 // Map
 
-TEST_CASE("should return nullptr or possibly crash")
+TEST_CASE("Map collide with a horizontal ray")
 {
 	mark::resource::manager_stub rm;
 	let map = mark::map::make_square(rm);
