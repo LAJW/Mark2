@@ -3,7 +3,7 @@
 #include <module/core.h>
 #include <module/turret.h>
 #include <resource_manager.h>
-#include <tick_context.h>
+#include <update_context.h>
 #include <unit/modular.h>
 #include <world.h>
 #include <world_stack.h>
@@ -198,8 +198,8 @@ TEST_CASE("Remove dead modules")
 			return node;
 		}());
 	REQUIRE(error::code::success == modular->attach({ 1, -1 }, turret));
-	tick_context context(rm);
+	update_context context(rm);
 	context.dt = 0.15;
-	world.tick(context, {});
+	world.update(context, {});
 	REQUIRE(modular->at({ 1, -1 }) == nullptr);
 }

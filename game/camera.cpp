@@ -25,14 +25,18 @@ void mark::camera::update(double dt)
 	m_x_lfo.update(dt);
 	m_y_lfo.update(dt);
 	constexpr let T = .5;
-	let target_pos = m_target->pos();
+	if (m_target) {
+		let target_pos = m_target->pos();
+		if (target_pos != m_prev_target_pos) {
+			m_prev_target_pos = target_pos;
+			let dist = length(target_pos - m_pos);
+			m_a = 2. * dist / T / T;
+			m_velocity = m_a * T;
+		}
+	}
+	let target_pos = m_prev_target_pos;
 	let diff = target_pos - m_pos;
 	let dist = length(diff);
-	if (target_pos != m_prev_target_pos) {
-		m_prev_target_pos = target_pos;
-		m_a = 2. * dist / T / T;
-		m_velocity = m_a * T;
-	}
 	if (dist == 0.) {
 		return;
 	}

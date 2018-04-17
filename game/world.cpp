@@ -27,6 +27,7 @@ mark::world::world(resource::manager& rm)
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
 		  m_map->map_to_world(vector<int>{ m_map->size() }))
+	, m_camera(std::make_unique<mark::camera>())
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
 	, image_stun(rm.image("stun.png"))
