@@ -301,4 +301,26 @@ auto diff(const old_container_t& old_list, const new_container_t& new_list)
 	return diff(old_list, new_list, [](let& a, let& b) { return a == b; });
 }
 
+/** Get minimum element and store its copy in an optional
+ * @param begin: An iterator to the beginning of the range
+ * @param end: An iterator to the end of the range
+ * @param comp: Binary function comparing two elements
+ * @return An optional storing a copy to the minimum element
+ */
+template <typename iterator_t, typename comparator_t>
+auto min_element_v(iterator_t begin, iterator_t end, comparator_t comp)
+	-> std::optional<std::remove_reference_t<decltype(*begin)>>
+{
+	let min_it = min_element(begin, end, comp);
+	if (min_it != end) {
+		return *min_it;
+	}
+	return {};
+}
+
+template <typename container_t, typename comparator_t>
+auto min_element_v(const container_t& container, comparator_t comp)
+{
+	return mark::min_element_v(std::begin(container), std::end(container), comp);
+}
 } // namespace mark
