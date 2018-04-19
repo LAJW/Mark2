@@ -59,7 +59,6 @@ void mark::module::battery::bind(prop_man& property_manager, T& instance)
 void mark::module::battery::bind(mark::property_manager& property_manager)
 {
 	bind(property_manager, *this);
-	base::bind(property_manager);
 }
 
 mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
@@ -67,7 +66,7 @@ mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
 	, m_image_base(rm.image("battery.png"))
 {
 	property_manager property_manager(rm);
-	bind(property_manager);
+	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize " + std::string(type_name));
@@ -81,6 +80,7 @@ void mark::module::battery::serialize(YAML::Emitter& out) const
 	out << Key << "type" << Value << type_name;
 	property_serializer property_serializer;
 	bind(property_serializer, *this);
+	base::serialize(out);
 	property_serializer.serialize(out);
 	out << EndMap;
 }

@@ -122,7 +122,7 @@ private:
 
 public:
 	template <typename T>
-	void bind(std::string key, const T& value_ref, std::any = {})
+	void bind(std::string key, const T& value_ref)
 	{
 		property_config config;
 		config.serialize = [](std::any value_ref) {
