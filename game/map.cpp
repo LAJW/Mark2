@@ -46,7 +46,8 @@ mark::map mark::map::make_square(resource::manager& resource_manager)
 {
 	let constexpr square_size = 20ull;
 	auto map = mark::map(resource_manager, { square_size, square_size });
-	for (let pos : range(map.size())) {
+	let middle = range(vector<size_t>(1, 1), map.size() - vector<size_t>(1, 1));
+	for (let pos : middle) {
 		map.set(vector<int>(pos), terrain_kind::floor_1);
 	}
 	map.calculate_traversable();
