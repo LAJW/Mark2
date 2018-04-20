@@ -23,13 +23,6 @@ void mark::module::shield_generator::bind(
 	MARK_BIND(reboot_level);
 }
 
-void mark::module::shield_generator::bind(
-	mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 auto mark::module::shield_generator::active() const -> bool
 {
 	return m_on && !m_stunned && !m_broken && m_cur_shield >= 0.f;
@@ -43,7 +36,7 @@ mark::module::shield_generator::shield_generator(
 	, m_model_shield(rm, node["radius"].as<float>(default_radius))
 {
 	property_manager property_manager(rm);
-	bind(property_manager);
+	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize " + std::string(type_name));
@@ -58,6 +51,7 @@ void mark::module::shield_generator::serialize(YAML::Emitter& out) const
 	property_serializer property_serializer;
 	bind(property_serializer, *this);
 	property_serializer.serialize(out);
+	base::serialize(out);
 	out << EndMap;
 }
 

@@ -27,7 +27,6 @@ private:
 	void render(update_context& context) const;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-	void bind(mark::property_manager&) override;
 	// Is shield active (not stunned, broken, etc.)
 	auto active() const -> bool;
 

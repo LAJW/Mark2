@@ -166,7 +166,6 @@ protected:
 
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-	virtual void bind(mark::property_manager&);
 
 protected:
 	float m_cur_health = 100.f;

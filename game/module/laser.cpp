@@ -122,12 +122,6 @@ void mark::module::laser::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-void mark::module::laser::bind(mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 mark::module::laser::laser(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_targeting_system(*this)

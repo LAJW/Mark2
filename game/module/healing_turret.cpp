@@ -113,13 +113,6 @@ void mark::module::healing_turret::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-void mark::module::healing_turret::bind(
-	mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 mark::module::healing_turret::healing_turret(
 	resource::manager& rm,
 	const YAML::Node& node)

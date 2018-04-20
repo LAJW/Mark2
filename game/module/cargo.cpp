@@ -18,12 +18,6 @@ void mark::module::cargo::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-void mark::module::cargo::bind(mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
 	: module::base(rm, node)
 	, m_im_body(rm.image("cargo.png"))

@@ -48,12 +48,6 @@ void mark::module::warp_drive::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-void mark::module::warp_drive::bind(mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 mark::module::warp_drive::warp_drive(
 	resource::manager& rm,
 	const YAML::Node& node)

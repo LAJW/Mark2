@@ -290,7 +290,7 @@ auto mark::module::base::randomise(
 		return error::code::module_not_random;
 	}
 	property_manager property_manager(resource_manager);
-	this->bind(property_manager);
+	bind(property_manager, *this);
 	return property_manager.randomise(blueprints.at(m_blueprint_id));
 }
 
@@ -303,11 +303,6 @@ void mark::module::base::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(cur_heat);
 	MARK_BIND(size);
 	MARK_BIND(blueprint_id)
-}
-
-void mark::module::base::bind(mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
 }
 
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)

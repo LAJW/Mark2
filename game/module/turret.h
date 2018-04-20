@@ -31,7 +31,6 @@ private:
 		-> std::shared_ptr<unit::projectile>;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-	void bind(mark::property_manager&) override;
 	// Get targeting system
 	// Returns parent targeting system if turret is stationary
 	// Returns this module's targeting system if turret is not stationary

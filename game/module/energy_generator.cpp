@@ -58,13 +58,6 @@ void mark::module::energy_generator::bind(
 	MARK_BIND(energy_regen);
 }
 
-void mark::module::energy_generator::bind(
-	mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 mark::module::energy_generator::energy_generator(
 	resource::manager& rm,
 	const YAML::Node& node)
@@ -73,7 +66,7 @@ mark::module::energy_generator::energy_generator(
 	, m_image_bar(rm.image("bar.png"))
 {
 	property_manager property_manager(rm);
-	bind(property_manager);
+	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize " + std::string(type_name));
@@ -88,6 +81,7 @@ void mark::module::energy_generator::serialize(YAML::Emitter& out) const
 	property_serializer property_serializer;
 	bind(property_serializer, *this);
 	property_serializer.serialize(out);
+	base::serialize(out);
 	out << EndMap;
 }
 

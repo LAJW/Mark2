@@ -202,12 +202,6 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(knockback);
 }
 
-void mark::module::turret::bind(mark::property_manager& property_manager)
-{
-	bind(property_manager, *this);
-	base::bind(property_manager);
-}
-
 auto mark::module::turret::targeting_system() -> mark::targeting_system&
 {
 	return m_targeting_system ? *m_targeting_system
@@ -226,7 +220,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 		  node["rate_of_fire_curve"].as<std::string>("flat")))
 {
 	property_manager property_manager(rm);
-	bind(property_manager);
+	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize" + std::string(type_name));
