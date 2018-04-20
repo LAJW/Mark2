@@ -30,6 +30,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_im_explosion(args.world->resource_manager().image("explosion.png"))
 	, m_velocity(args.velocity)
 	, m_rotation(args.rotation)
+	, m_rotation_lfo(args.lfo, args.phase)
 	, m_seek_radius(args.seek_radius)
 	, m_aoe_radius(args.aoe_radius)
 	, m_critical_chance(args.critical_chance)
@@ -43,7 +44,9 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 void mark::unit::projectile::update(update_context& context)
 {
 	double dt = context.dt;
-	let step = rotate(vector<double>(1, 0), m_rotation)
+	m_rotation_lfo.update(dt);
+	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
+	let step = rotate(vector<double>(1, 0), rotation)
 		* static_cast<double>(m_velocity) * dt;
 	let turn_speed = 500.f;
 	if (m_guide) {

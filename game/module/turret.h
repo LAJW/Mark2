@@ -51,6 +51,7 @@ private:
 	curve::ptr m_rate_of_fire_curve = curve::flat;
 	float m_rotation = 0.f;
 	float m_angular_velocity = 360.f;
+	bool m_unstable = false; // Does the projectile wobble while flying
 	unsigned m_projectile_count;
 	float m_burst_delay = 0.f;
 	bool m_guided = false;

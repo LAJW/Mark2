@@ -82,6 +82,10 @@ auto mark::module::turret::make_projectile(
 		? (indexf / (projectile_count - 1.f) - 0.5f) * m_cone
 		: 0.f;
 	_.rotation = m_rotation + cur_angle + heat_angle;
+	if (m_unstable) {
+		_.lfo = context.random(2.f, 4.f);
+		_.phase = context.random(0.f, 1.f);
+	}
 	_.velocity = m_velocity;
 	_.physical = m_physical;
 	_.aoe_radius = m_aoe_radius;
@@ -182,6 +186,7 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(cur_cooldown);
 	MARK_BIND(rotation);
 	MARK_BIND(angular_velocity);
+	MARK_BIND(unstable);
 	MARK_BIND(projectile_count);
 	MARK_BIND(burst_delay);
 	MARK_BIND(guided);

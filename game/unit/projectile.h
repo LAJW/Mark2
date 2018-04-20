@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "unit/base.h"
+#include <stdafx.h>
+#include <unit/base.h>
+#include <lfo.h>
 
 namespace mark {
 namespace unit {
@@ -14,6 +15,8 @@ public:
 		// for mouse-guided missiles
 		std::shared_ptr<const vector<double>> guide;
 		float rotation = NAN;
+		float phase = 0.f;
+		float lfo = 0.f;
 		float velocity = NAN;
 		float physical = 10.f;
 		float seek_radius = 0.f;
@@ -47,6 +50,7 @@ private:
 	std::shared_ptr<const vector<double>> m_guide;
 	float m_physical;
 	float m_rotation;
+	lfo m_rotation_lfo;
 	float m_velocity;
 	float m_seek_radius;
 	float m_aoe_radius;
