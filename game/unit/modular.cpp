@@ -20,12 +20,12 @@
 
 namespace {
 
-// temporary refactor helper
-auto to_new(mark::vector<int8_t> pos) -> mark::vector<uint8_t>
+// Map from modular coordinates (relative to center) to grid coordinates
+// (relative to top left corner)
+auto to_grid(mark::vector<int8_t> pos) -> mark::vector<size_t>
 {
 	let hs = static_cast<int8_t>(mark::unit::modular::max_size / 2);
-	return { static_cast<uint8_t>(hs + pos.x),
-			 static_cast<uint8_t>(hs + pos.y) };
+	return { static_cast<size_t>(hs + pos.x), static_cast<size_t>(hs + pos.y) };
 }
 
 struct Node
@@ -134,7 +134,7 @@ std::vector<mark::command::any> mark::unit::modular::update_ai() const
 auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 	-> bool
 {
-	let size = static_cast<int8_t>(std::sqrt(m_grid.size()));
+	let size = static_cast<int8_t>(m_grid.size().x);
 	let hs = int8_t(size / 2);
 	let start = vector<int8_t>(module.grid_pos()) + vector<int8_t>(hs, hs);
 	let end = vector<int8_t>(size, size) / int8_t(2);
@@ -160,7 +160,7 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 				+ vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
 			let traversable = neighbour_pos.x > 0 && neighbour_pos.y > 0
 				&& neighbour_pos.x < size && neighbour_pos.y < size
-				&& m_grid[neighbour_pos.y * size + neighbour_pos.x].first;
+				&& m_grid[vector<size_t>(neighbour_pos)].module;
 			let isClosed = closed.end()
 				!= find_if(closed.cbegin(),
 						   closed.cend(),
@@ -187,26 +187,15 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 }
 
 auto mark::unit::modular::p_at(vector<int8_t> user_pos) noexcept
-	-> module::base*&
+	-> grid_element&
 {
-	return p_grid(to_new(user_pos)).first;
+	return m_grid[to_grid(user_pos)];
 }
 
 auto mark::unit::modular::p_at(vector<int8_t> user_pos) const noexcept
-	-> const module::base*
+	-> const grid_element&
 {
-	return p_grid(to_new(user_pos)).first;
-}
-
-auto mark::unit::modular::p_reserved(vector<int8_t> user_pos) noexcept -> bool&
-{
-	return p_grid(to_new(user_pos)).second;
-}
-
-auto mark::unit::modular::p_reserved(vector<int8_t> user_pos) const noexcept
-	-> bool
-{
-	return p_grid(to_new(user_pos)).second;
+	return m_grid[to_grid(user_pos)];
 }
 
 void mark::unit::modular::ai(bool ai) { m_ai = ai; }
@@ -222,18 +211,6 @@ auto mark::unit::modular::targeting_system() const
 auto mark::unit::modular::targeting_system() -> mark::targeting_system&
 {
 	return *m_targeting_system;
-}
-
-auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) noexcept
-	-> std::pair<module::base*, bool>&
-{
-	return m_grid[user_pos.x + user_pos.y * max_size];
-}
-
-auto mark::unit::modular::p_grid(vector<uint8_t> user_pos) const noexcept
-	-> const std::pair<module::base*, bool>&
-{
-	return m_grid[user_pos.x + user_pos.y * max_size];
 }
 
 auto mark::unit::modular::modifiers() const -> module::modifiers
@@ -323,14 +300,14 @@ auto mark::unit::modular::p_attach(
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
 	for (let i : range(module->size())) {
-		this->p_at(module_pos + vector<int8_t>(i)) = module.get();
+		this->p_at(module_pos + vector<int8_t>(i)).module = module.get();
 	}
 	if (module->reserved() == module::reserved_kind::back) {
 		for (let i : range<vector<int>>(
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_reserved(vector<int8_t>(i)) = true;
+			this->p_at(vector<int8_t>(i)).reserved = true;
 		}
 	} else if (module->reserved() == module::reserved_kind::front) {
 		for (let i : range<vector<int>>(
@@ -338,7 +315,7 @@ auto mark::unit::modular::p_attach(
 				   module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_reserved(vector<int8_t>(i)) = true;
+			this->p_at(vector<int8_t>(i)).reserved = true;
 		}
 	}
 	m_radius = std::max(
@@ -374,7 +351,8 @@ auto mark::unit::modular::p_can_attach(
 	}
 	let module_pos = vector<int8_t>(pos_);
 	for (let i : range(vector<int8_t>(module.size()))) {
-		if (this->p_at(module_pos + i) || this->p_reserved(module_pos + i)) {
+		let[module_ptr, reserved] = this->p_at(module_pos + i);
+		if (module_ptr || reserved) {
 			return false;
 		}
 	}
@@ -387,7 +365,7 @@ auto mark::unit::modular::p_can_attach(
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			if (this->p_at(vector<int8_t>(i))) {
+			if (this->p_at(vector<int8_t>(i)).module) {
 				return false;
 			}
 		}
@@ -397,7 +375,7 @@ auto mark::unit::modular::p_can_attach(
 				   module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			if (this->p_at(vector<int8_t>(i))) {
+			if (this->p_at(vector<int8_t>(i)).module) {
 				return false;
 			}
 		}
@@ -422,7 +400,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 	// remove module from the grid
 	let surface = range(module_pos, module_pos + module_size);
 	for (let grid_pos : surface) {
-		this->p_at(grid_pos) = nullptr;
+		this->p_at(grid_pos).module = nullptr;
 	}
 	let neighbours = this->neighbours_of(module);
 	let disconnected =
@@ -431,7 +409,7 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 		});
 	if (disconnected != neighbours.end()) {
 		for (let grid_pos : surface) {
-			this->p_at(grid_pos) = module_ptr;
+			this->p_at(grid_pos).module = module_ptr;
 		}
 		return nullptr;
 	}
@@ -440,14 +418,14 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			this->p_reserved(vector<int8_t>(i)) = false;
+			this->p_at(vector<int8_t>(i)).reserved = false;
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vector<int>>(
 				 { module_pos.x + module_size.x, module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			this->p_reserved(vector<int8_t>(i)) = false;
+			this->p_at(vector<int8_t>(i)).reserved = false;
 		}
 	}
 	this->unbind(module);
@@ -764,19 +742,22 @@ auto mark::unit::modular::at(const vector<int>& module_pos) const noexcept
 	return module_at(module_pos);
 }
 
-auto mark::unit::modular::module_at(const vector<int>& module_pos) noexcept
+auto mark::unit::modular::module_at(const vector<int>& pos) noexcept
 	-> module::base*
 {
-	return const_cast<module::base*>(
-		static_cast<const modular*>(this)->module_at(module_pos));
+	let hs = static_cast<int8_t>(max_size / 2);
+	if (pos.x >= -hs && pos.y < hs) {
+		return this->p_at(vector<int8_t>(pos)).module;
+	}
+	return nullptr;
 }
 
-auto mark::unit::modular::module_at(const vector<int>& user_pos) const noexcept
+auto mark::unit::modular::module_at(const vector<int>& pos) const noexcept
 	-> const module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);
-	if (user_pos.x >= -hs && user_pos.y < hs) {
-		return this->p_at(vector<int8_t>(user_pos));
+	if (pos.x >= -hs && pos.y < hs) {
+		return this->p_at(vector<int8_t>(pos)).module;
 	}
 	return nullptr;
 }
@@ -807,7 +788,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 				let module_pos = vector<int8_t>(module->grid_pos());
 				let module_size = vector<int8_t>(module->size());
 				for (let i : range(module_size)) {
-					this->p_at(module_pos + i) = nullptr;
+					this->p_at(module_pos + i).module = nullptr;
 				}
 			});
 		let first_detached_it =
@@ -819,7 +800,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			let module_pos = vector<int8_t>(module->grid_pos());
 			let module_size = vector<int8_t>(module->size());
 			for (let i : range(module_size)) {
-				this->p_at(module_pos + i) = nullptr;
+				this->p_at(module_pos + i).module = nullptr;
 			}
 		});
 		transform(

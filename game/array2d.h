@@ -27,7 +27,7 @@ public:
 		return at(*this, pos).get();
 	}
 	auto data() const -> const data_type& { return *m_data; }
-	auto size() -> vector<size_t> { return { size_x, size_y }; }
+	auto size() const -> vector<size_t> { return { size_x, size_y }; }
 	void fill(const T& t) { m_data->fill(t); }
 };
 } // namespace mark

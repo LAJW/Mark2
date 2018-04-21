@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "mobile.h"
+#include <array2d.h>
 #include <command.h>
 #include <interface/container.h>
 #include <interface/has_bindings.h>
@@ -72,7 +73,6 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	// is module resting on the landing pad
 	auto landed() const noexcept -> bool;
-	auto p_reserved(vector<int8_t> pos) const noexcept -> bool;
 	void ai(bool);
 	// Set velocity (and acceleration) of this vessel to zero
 	auto radius() const -> double override;
@@ -102,20 +102,16 @@ private:
 	std::vector<command::any> update_ai() const;
 	auto p_connected_to_core(const module::base&) const -> bool;
 
-	// get pointer in reference to the center of the grid
-	auto p_at(vector<int8_t> pos) noexcept -> module::base*&;
-	auto p_at(vector<int8_t> pos) const noexcept -> const module::base*;
-	auto p_reserved(vector<int8_t> pos) noexcept -> bool&;
-	// get pointer in reference to the top left corner of the grid
-	auto p_grid(vector<uint8_t> pos) noexcept
-		-> std::pair<module::base*, bool>&;
-	auto p_grid(vector<uint8_t> pos) const noexcept
-		-> const std::pair<module::base*, bool>&;
+	struct grid_element
+	{
+		module::base* module = nullptr;
+		bool reserved = false;
+	};
+	auto p_at(vector<int8_t> pos) noexcept -> grid_element&;
+	auto p_at(vector<int8_t> pos) const noexcept -> const grid_element&;
 
 	std::vector<std::unique_ptr<module::base>> m_modules;
-	std::array<std::pair<module::base*, bool>, max_size* max_size> m_grid = {
-		std::pair<module::base*, bool>(nullptr, false)
-	};
+	array2d<grid_element, max_size, max_size> m_grid;
 	std::unique_ptr<mark::targeting_system> m_targeting_system;
 	module::core* m_core = nullptr;
 	float m_rotation = 0.f;
