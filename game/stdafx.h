@@ -21,6 +21,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <gsl/gsl>
 
 #include "declarations.h"
 #include "vector.h"
