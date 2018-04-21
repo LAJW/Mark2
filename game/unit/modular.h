@@ -44,9 +44,9 @@ public:
 	auto detach(const vector<int>& pos)
 		-> std::unique_ptr<interface::item> override;
 
-	auto neighbours_of(const module::base&) -> std::vector<
+	auto neighbors_of(const module::base&) -> std::vector<
 		std::pair<std::reference_wrapper<module::base>, unsigned>>;
-	auto neighbours_of(const module::base&) const -> std::vector<
+	auto neighbors_of(const module::base&) const -> std::vector<
 		std::pair<std::reference_wrapper<const module::base>, unsigned>>;
 
 	auto rotation() const { return m_rotation; }

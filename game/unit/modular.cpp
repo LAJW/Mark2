@@ -37,11 +37,11 @@ struct Node
 
 bool operator<(const Node& left, const Node& right) { return left.f < right.f; }
 
-// Shared implementation of the modular::neighbours_of() function
+// Shared implementation of the modular::neighbors_of() function
 // Returns list of references to modules and counts, where count is the
 // number of blocks touching the modules
 template <typename module_t, typename modular_t>
-static auto neighbours_of(
+static auto neighbors_of(
 	modular_t& modular,
 	mark::vector<int8_t> pos,
 	mark::vector<int8_t> size)
@@ -253,20 +253,20 @@ void mark::unit::modular::update(update_context& context)
 	}
 }
 
-auto mark::unit::modular::neighbours_of(const module::base& module)
+auto mark::unit::modular::neighbors_of(const module::base& module)
 	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>
 {
-	return ::neighbours_of<module::base>(
+	return ::neighbors_of<module::base>(
 		*this,
 		vector<int8_t>(module.grid_pos()),
 		vector<int8_t>(module.size()));
 }
 
-auto mark::unit::modular::neighbours_of(const module::base& module) const
+auto mark::unit::modular::neighbors_of(const module::base& module) const
 	-> std::vector<
 		std::pair<std::reference_wrapper<const module::base>, unsigned>>
 {
-	return ::neighbours_of<const module::base>(
+	return ::neighbors_of<const module::base>(
 		*this,
 		vector<int8_t>(module.grid_pos()),
 		vector<int8_t>(module.size()));
@@ -335,7 +335,7 @@ auto mark::unit::modular::can_attach(
 	}
 	return p_can_attach(*module, pos_)
 		&& (m_modules.empty()
-			|| !::neighbours_of<const module::base>(
+			|| !::neighbors_of<const module::base>(
 					*this, vector<int8_t>(pos_), vector<int8_t>(module->size()))
 					.empty());
 }
@@ -402,12 +402,12 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 	for (let grid_pos : surface) {
 		this->p_at(grid_pos).module = nullptr;
 	}
-	let neighbours = this->neighbours_of(module);
+	let neighbors = this->neighbors_of(module);
 	let disconnected =
-		find_if(neighbours.begin(), neighbours.end(), [this](let& neighbour) {
+		find_if(neighbors.begin(), neighbors.end(), [this](let& neighbour) {
 			return !this->p_connected_to_core(neighbour.first.get());
 		});
-	if (disconnected != neighbours.end()) {
+	if (disconnected != neighbors.end()) {
 		for (let grid_pos : surface) {
 			this->p_at(grid_pos).module = module_ptr;
 		}

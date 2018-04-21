@@ -50,9 +50,9 @@ void mark::module::base::update(update_context& context)
 	let health_percentage = m_cur_health / m_max_health;
 	let pos = this->pos();
 
-	auto neighbours = parent().neighbours_of(*this);
+	auto neighbors = parent().neighbors_of(*this);
 	let total_surface = 2 * (m_size.x + m_size.y);
-	for (auto& pair : neighbours) {
+	for (auto& pair : neighbors) {
 		let & [ module, surface ] = pair;
 		auto& module_heat = module.get().m_cur_heat;
 		let delta_heat = static_cast<float>(surface)
@@ -167,10 +167,10 @@ auto mark::module::base::collide(const segment_t& ray) -> std::optional<
 	return {};
 }
 
-auto mark::module::base::neighbours()
+auto mark::module::base::neighbors()
 	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>
 {
-	return parent().neighbours_of(*this);
+	return parent().neighbors_of(*this);
 }
 
 bool mark::module::base::damage(const interface::damageable::info& attr)

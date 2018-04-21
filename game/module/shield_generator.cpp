@@ -60,7 +60,7 @@ void mark::module::shield_generator::update(update_context& context)
 	this->module::base::update(context);
 	m_model_shield.update(context, this->pos(), this->active());
 	// Recharge
-	for (auto& module : this->neighbours()) {
+	for (auto& module : this->neighbors()) {
 		if (m_cur_shield >= m_max_shield) {
 			break;
 		}
