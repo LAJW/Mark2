@@ -570,8 +570,7 @@ static auto intersect_and_reflect(mark::segment_t wall, mark::segment_t ray)
 		let dir = ray.second - ray.first;
 		let reflection = horizontal ? atan(vector<double>(-dir.x, dir.y))
 									: atan(vector<double>(dir.x, -dir.y));
-		let reflection_f = static_cast<float>(reflection);
-		return collide_result{ *intersection, reflection_f };
+		return collide_result{ *intersection, reflection };
 	}
 	return {};
 }

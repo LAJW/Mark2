@@ -116,10 +116,7 @@ auto mark::module::shield_generator::damage(
 	} else {
 		m_cur_health -= attr.physical;
 	}
-	parent().knockback(
-		*attr.knocked,
-		static_cast<float>(atan(pos() - attr.pos)),
-		attr.knockback);
+	parent().knockback(*attr.knocked, atan(pos() - attr.pos), attr.knockback);
 	return true;
 }
 

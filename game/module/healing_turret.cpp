@@ -52,7 +52,7 @@ void mark::module::healing_turret::update(update_context& context)
 	target->heal(static_cast<float>(10. * context.dt));
 	let collision = target->pos();
 	let dir = normalize(collision - pos);
-	let rotation = static_cast<float>(atan(dir));
+	let rotation = atan(dir);
 	context.render([&] {
 		update_context::spray_info _;
 		_.image = m_im_ray;

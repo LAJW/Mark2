@@ -6,7 +6,8 @@ namespace mark {
 template <typename T>
 using vector = sf::Vector2<T>;
 
-struct collide_result {
+struct collide_result
+{
 	vector<double> pos;
 	float reflected_angle = 0.f;
 };
@@ -50,9 +51,10 @@ auto normalize(vector<T> vector)
 }
 // get vector's arcus tangens in degrees
 template <typename T>
-auto atan(const vector<T>& vector)
+float atan(const vector<T>& vector)
 {
-	return std::atan2(vector.y, vector.x) / static_cast<float>(M_PI) * 180.f;
+	return static_cast<float>(std::atan2(vector.y, vector.x))
+		/ static_cast<float>(M_PI) * 180.f;
 }
 // convert [i, width] into vector
 template <typename T>

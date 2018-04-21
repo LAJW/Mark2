@@ -189,10 +189,8 @@ bool mark::module::base::damage(const interface::damageable::info& attr)
 		if (stun) {
 			m_stunned += attr.stun_duration;
 		}
-		parent().knockback(
-			*attr.knocked,
-			static_cast<float>(atan(parent().pos() - attr.pos)),
-			attr.knockback);
+		let direction = atan(parent().pos() - attr.pos);
+		parent().knockback(*attr.knocked, direction, attr.knockback);
 		return true;
 	}
 	return false;
