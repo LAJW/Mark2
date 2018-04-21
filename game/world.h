@@ -71,6 +71,7 @@ public:
 	struct damage_result {
 		std::vector<vector<double>> collisions;
 		bool hit_terrain = false;
+		float reflected = 0.f;
 	};
 	auto damage(world::damage_info) -> damage_result;
 	// go to the next map
@@ -91,7 +92,7 @@ private:
 	};
 	struct collide_result {
 		std::deque<collision_type> unit_collisions;
-		std::optional<vector<double>> terrain_collision;
+		std::optional<mark::collide_result> terrain_collision;
 	};
 	// Collide with units and terrain
 	// Returns all collisions in a line stopping at the first terrain collision

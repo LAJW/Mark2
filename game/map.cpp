@@ -563,8 +563,22 @@ const std::array<mark::segment_t, 4> square {
 };
 // clang-format on
 
+static auto intersect_and_reflect(mark::segment_t wall, mark::segment_t ray)
+	-> std::optional<mark::collide_result>
+{
+	using namespace mark;
+	if (let intersection = intersect(ray, wall)) {
+		let horizontal = (wall.first.x == wall.second.x);
+		let dir = ray.second - ray.first;
+		let reflection = horizontal ? atan(vector<double>(-dir.x, dir.y))
+									: atan(vector<double>(dir.x, -dir.y));
+		let reflection_f = static_cast<float>(reflection);
+		return collide_result{ *intersection, reflection_f };
+	}
+	return {};
+}
 auto mark::map::collide_with_block_at(vector<double> pos, segment_t ray) const
-	noexcept -> std::optional<vector<double>>
+	noexcept -> std::optional<collide_result>
 {
 	let constexpr hs = mark::map::tile_size / 2.; // Half size (of the map tile)
 	let cur_pos = this->world_to_map(pos);
@@ -573,23 +587,23 @@ auto mark::map::collide_with_block_at(vector<double> pos, segment_t ray) const
 		return {};
 	}
 	let center = this->map_to_world(cur_pos);
-	std::vector<vector<double>> collisions;
+	std::vector<collide_result> collisions;
 	for (let& wall : square) {
 		let extended_wall = segment_t(wall.first * hs, wall.second * hs);
 		let offset_wall = segment_t(
 			extended_wall.first + center, extended_wall.second + center);
-		if (let intersection = intersect(ray, offset_wall)) {
+		if (let intersection = intersect_and_reflect(offset_wall, ray)) {
 			collisions.push_back(*intersection);
 		}
 	}
 	let origin = ray.first;
 	return min_element_v(collisions, [&](let& a, let& b) {
-		return length(a - origin) < length(b - origin);
+		return length(a.pos - origin) < length(b.pos - origin);
 	});
 }
 
 auto mark::map::collide(const segment_t& segment) const
-	-> std::optional<vector<double>>
+	-> std::optional<collide_result>
 {
 	let constexpr hs = mark::map::tile_size / 2.; // Half size (of the map tile)
 	let direction = normalize(segment.second - segment.first);

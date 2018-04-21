@@ -1,9 +1,9 @@
-﻿#include <stdafx.h>
-#include "projectile.h"
+﻿#include "projectile.h"
 #include "modular.h"
 #include <assert.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -81,16 +81,21 @@ void mark::unit::projectile::update(update_context& context)
 	info.damage.stun_duration = 1.f;
 	info.damage.knockback = m_knockback;
 
-	const auto[collisions, terrain_hit] = world().damage(info);
-	if (terrain_hit || collisions.size() >= m_piercing) {
+	let[collisions, terrain_hit, reflected_angle] = world().damage(info);
+	if (collisions.size() >= m_piercing) {
 		m_dead = true;
 	} else {
 		m_piercing -= collisions.size();
+		if (terrain_hit) {
+			m_rotation = reflected_angle;
+			pos(pos() - collisions.back()
+				+ rotate(vector<double>(5., 0.), reflected_angle));
+		}
 	}
 	if (!collisions.empty() && terrain_hit) {
 		pos(collisions.back());
 	}
-	const auto is_heavy_damage = m_physical > 100;
+	let is_heavy_damage = m_physical > 100;
 	if (is_heavy_damage && !collisions.empty()) {
 		context.crit = true;
 	}

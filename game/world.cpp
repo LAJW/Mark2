@@ -17,7 +17,7 @@
 #include "world_stack.h"
 
 namespace {
-const auto voxel_dim = mark::vector<std::size_t>{ 50, 50 };
+let voxel_dim = mark::vector<std::size_t>{ 50, 50 };
 } // namespace
 
 mark::world::world(resource::manager& rm)
@@ -281,11 +281,11 @@ auto mark::world::collide(const segment_t& ray) -> collide_result
 {
 	auto map_collision = m_map->collide(ray);
 	const double max_length =
-		map_collision ? length(*map_collision - ray.first) : INFINITY;
+		map_collision ? length(map_collision->pos - ray.first) : INFINITY;
 	std::deque<collision_type> collisions;
-	const auto ray_center = ray.first + (ray.second - ray.first) / 2.;
+	let ray_center = ray.first + (ray.second - ray.first) / 2.;
 	// TODO: Magical variable - space bins don't seem to respect radius.
-	const auto ray_radius = 400. + length(ray.second - ray.first);
+	let ray_radius = 400. + length(ray.second - ray.first);
 	for (auto& unit : this->find<unit::damageable>(ray_center, ray_radius)) {
 		if (let result = unit->collide(ray)) {
 			auto [damageable, pos] = *result;
@@ -347,7 +347,7 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 	}
 	if (terrain_collision
 		&& (info.piercing < collisions.size() || collisions.empty())) {
-		collisions.push_back(*terrain_collision);
+		collisions.push_back(terrain_collision->pos);
 	}
 	if (info.aoe_radius > 0.f) {
 		for (let& collision : collisions) {
@@ -361,6 +361,8 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 	damage_result result;
 	result.collisions = move(collisions);
 	result.hit_terrain = terrain_collision.has_value();
+	if (terrain_collision)
+		result.reflected = terrain_collision->reflected_angle;
 	return result;
 }
 

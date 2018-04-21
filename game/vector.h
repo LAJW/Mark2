@@ -6,6 +6,11 @@ namespace mark {
 template <typename T>
 using vector = sf::Vector2<T>;
 
+struct collide_result {
+	vector<double> pos;
+	float reflected_angle = 0.f;
+};
+
 template <typename T>
 auto min(vector<T> t, vector<T> u)
 {

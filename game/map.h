@@ -29,7 +29,7 @@ public:
 	// Can find be called in this update (limit find count per frame)
 	auto can_find() const -> bool;
 
-	auto collide(const segment_t&) const -> std::optional<vector<double>>;
+	auto collide(const segment_t&) const -> std::optional<collide_result>;
 
 	void serialize(YAML::Emitter&) const;
 
@@ -73,7 +73,7 @@ private:
 	void set(const vector<int>& pos, terrain_kind) noexcept;
 	auto world_to_map(const vector<double>&) const noexcept -> vector<int>;
 	auto collide_with_block_at(vector<double> pos, segment_t segment) const
-		noexcept -> std::optional<vector<double>>;
+		noexcept -> std::optional<collide_result>;
 	void calculate_traversable();
 
 	std::vector<terrain> m_terrain;
