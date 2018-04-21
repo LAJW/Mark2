@@ -1,6 +1,5 @@
 ﻿#include "projectile.h"
 #include "modular.h"
-#include <assert.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -10,11 +9,11 @@
 namespace {
 static auto validate(const mark::unit::projectile::info& args)
 {
-	assert(args.world != nullptr);
-	assert(!std::isnan(args.rotation));
-	assert(!std::isnan(args.velocity));
-	assert(args.seek_radius >= 0.f);
-	assert(args.aoe_radius >= 0.f);
+	Expects(args.world != nullptr);
+	Expects(!std::isnan(args.rotation));
+	Expects(!std::isnan(args.velocity));
+	Expects(args.seek_radius >= 0.f);
+	Expects(args.aoe_radius >= 0.f);
 	return args;
 }
 } // namespace
@@ -46,8 +45,7 @@ void mark::unit::projectile::update(update_context& context)
 	double dt = context.dt;
 	m_rotation_lfo.update(dt);
 	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
-	let step = rotate(vector<double>(1, 0), rotation)
-		* static_cast<double>(m_velocity) * dt;
+	let step = rotate(vector<double>(1, 0), rotation) * m_velocity * dt;
 	let turn_speed = 500.f;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {

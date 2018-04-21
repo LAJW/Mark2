@@ -17,10 +17,10 @@ public:
 		float rotation = NAN;
 		float phase = 0.f;
 		float lfo = 0.f;
-		float velocity = NAN;
+		double velocity = NAN;
 		float physical = 10.f;
-		float seek_radius = 0.f;
-		float aoe_radius = 0.f;
+		double seek_radius = 0.f;
+		double aoe_radius = 0.f;
 		float critical_chance = 0.1f;
 		float critical_multiplier = 0.1f;
 		// Can missile go through multiple targets
@@ -51,9 +51,9 @@ private:
 	float m_physical;
 	float m_rotation;
 	lfo m_rotation_lfo;
-	float m_velocity;
-	float m_seek_radius;
-	float m_aoe_radius;
+	double m_velocity;
+	double m_seek_radius;
+	double m_aoe_radius;
 	float m_critical_chance;
 	float m_critical_multiplier;
 	size_t m_piercing;

@@ -18,7 +18,7 @@ void mark::module::turret::update(update_context& context)
 {
 	this->module::base::update(context);
 	let dt = context.dt;
-	let fdt = static_cast<float>(dt);
+	let fdt = gsl::narrow_cast<float>(dt);
 	m_adsr.update(dt);
 	let pos = this->pos();
 	if (m_targeting_system) {
@@ -76,10 +76,10 @@ auto mark::module::turret::make_projectile(
 			&& m_cone_curve == curve::flat
 		? context.random(-1.f, 1.f)
 		: 0.f;
-	let projectile_count = static_cast<float>(m_projectile_count);
-	let indexf = static_cast<float>(index);
+	let projectile_count_f = static_cast<float>(m_projectile_count);
+	let index_f = static_cast<float>(index);
 	let cur_angle = m_projectile_count != 1
-		? (indexf / (projectile_count - 1.f) - 0.5f) * m_cone
+		? (index_f / (projectile_count_f - 1.f) - 0.5f) * m_cone
 		: 0.f;
 	_.rotation = m_rotation + cur_angle + heat_angle;
 	if (m_unstable) {
@@ -161,8 +161,7 @@ auto mark::module::turret::describe() const -> std::string
 	os << "Physical damage: " << m_physical << std::endl;
 	os << "Energy damage: " << m_energy << std::endl;
 	os << "Heat damage: " << m_energy << std::endl;
-	os << "Missiles per shot: " << static_cast<unsigned>(m_projectile_count)
-	   << std::endl;
+	os << "Missiles per shot: " << m_projectile_count << std::endl;
 	os << "Cone of fire: " << m_cone << std::endl;
 	os << "Critical chance: " << std::round(m_critical_chance * 1000) / 10
 	   << std::endl;

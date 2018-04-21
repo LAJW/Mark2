@@ -48,7 +48,7 @@ public:
 	auto neighbours_of(const module::base&) const -> std::vector<
 		std::pair<std::reference_wrapper<const module::base>, unsigned>>;
 
-	inline auto rotation() const { return m_rotation; }
+	auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;
 	auto containers() -> std::vector<std::reference_wrapper<module::cargo>>;
 	auto containers() const
@@ -61,7 +61,7 @@ public:
 	auto collide(const segment_t&) -> std::optional<std::pair<
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>> override;
-	auto collide(vector<double> center, float radius)
+	auto collide(vector<double> center, double radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>> override;
 	auto lookat() const noexcept -> vector<double>;
 	// bind module at position to command

@@ -19,7 +19,7 @@ public:
 	auto collide(const segment_t&) -> std::optional<std::pair<
 		std::reference_wrapper<interface::damageable>,
 		vector<double>>> override;
-	auto collide(vector<double> center, float radius)
+	auto collide(vector<double> center, double radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>> override;
 	void on_death(update_context& context) override;
 	auto radius() const -> double override;

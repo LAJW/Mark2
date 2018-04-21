@@ -97,7 +97,7 @@ auto mark::unit::minion::collide(const segment_t& ray) -> std::optional<
 	return {};
 }
 
-auto mark::unit::minion::collide(vector<double> center, float radius)
+auto mark::unit::minion::collide(vector<double> center, double radius)
 	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
 	std::vector<std::reference_wrapper<interface::damageable>> out;

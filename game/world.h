@@ -66,7 +66,7 @@ public:
 		update_context* context = nullptr;
 		segment_t segment;
 		size_t piercing = 1; // Number of objects to pierce
-		float aoe_radius = 0.f;
+		double aoe_radius = 0.f;
 	};
 	struct damage_result {
 		std::vector<vector<double>> collisions;
@@ -97,7 +97,7 @@ private:
 	// Collide with units and terrain
 	// Returns all collisions in a line stopping at the first terrain collision
 	auto collide(const segment_t&) -> collide_result;
-	auto collide(vector<double> center, float radius)
+	auto collide(vector<double> center, double radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	void update_spatial_partition();
 

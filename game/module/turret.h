@@ -52,7 +52,7 @@ private:
 	float m_rotation = 0.f;
 	float m_angular_velocity = 360.f;
 	bool m_unstable = false; // Does the projectile wobble while flying
-	unsigned m_projectile_count;
+	unsigned m_projectile_count = 0;
 	float m_burst_delay = 0.f;
 	bool m_guided = false;
 	float m_cone = 0.f;
@@ -65,13 +65,13 @@ private:
 	float m_energy = 10.f;
 	float m_heat = 1.f;
 	float m_projectile_angular_velocity = 0.f;
-	float m_velocity = 1000.f;
+	double m_velocity = 1000.f;
 	float m_acceleration = 100.f;
-	float m_aoe_radius = 0.f;
-	float m_seek_radius = 500.f;
-	float m_range = 2000.f;
+	double m_aoe_radius = 0.f;
+	double m_seek_radius = 500.f;
+	double m_range = 2000.f;
 	double m_knockback = 0.;
-	size_t m_piercing;
+	size_t m_piercing = 0;
 };
 } // namespace module
 } // namespace mark
