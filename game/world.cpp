@@ -6,7 +6,6 @@
 #include "particle.h"
 #include "resource_manager.h"
 #include "stdafx.h"
-#include "update_context.h"
 #include "unit/base.h"
 #include "unit/damageable.h"
 #include "unit/gate.h"
@@ -14,6 +13,7 @@
 #include "unit/minion.h"
 #include "unit/modular.h"
 #include "unit/projectile.h"
+#include "update_context.h"
 #include "world_stack.h"
 
 namespace {
@@ -147,7 +147,7 @@ mark::world::world(
 			|| !this->find(pos, ship_radius * 4.).empty()) {
 			continue;
 		}
-		let enemy = [&]()->std::shared_ptr<unit::base> {
+		let enemy = [&]() -> std::shared_ptr<unit::base> {
 			if (spawn_ships) {
 				let unit = spawn_ship();
 				unit->pos(pos);
@@ -182,10 +182,7 @@ mark::world::~world() = default;
 
 auto mark::world::map() const -> const mark::map& { return *m_map; }
 
-auto mark::world::camera() const -> vector<double>
-{
-	return m_camera->pos();
-}
+auto mark::world::camera() const -> vector<double> { return m_camera->pos(); }
 
 auto mark::world::resource_manager() -> resource::manager&
 {
@@ -280,11 +277,10 @@ void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
 	unit->m_world = *this;
 }
 
-auto mark::world::collide(const segment_t& ray)
-	-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>
+auto mark::world::collide(const segment_t& ray) -> collide_result
 {
 	auto map_collision = m_map->collide(ray);
-	const double min_length =
+	const double max_length =
 		map_collision ? length(*map_collision - ray.first) : INFINITY;
 	std::deque<collision_type> collisions;
 	const auto ray_center = ray.first + (ray.second - ray.first) / 2.;
@@ -294,13 +290,13 @@ auto mark::world::collide(const segment_t& ray)
 		if (let result = unit->collide(ray)) {
 			auto [damageable, pos] = *result;
 			let length = mark::length(pos - ray.first);
-			if (length < min_length) {
+			if (length < max_length) {
 				collisions.push_back({ damageable, pos });
 			}
 		}
 	}
 	sort(begin(collisions), end(collisions), [&](let& a, let& b) {
-		return length(a.second - ray.first) < length(b.second - ray.first);
+		return length(a.pos - ray.first) < length(b.pos - ray.first);
 	});
 	return { move(collisions), map_collision };
 }
@@ -330,17 +326,16 @@ void mark::world::update_spatial_partition()
 	divide_space(begin(non_projectiles), end(non_projectiles), m_space_bins);
 }
 
-auto mark::world::damage(world::damage_info info)
-	-> std::pair<std::vector<vector<double>>, bool>
+auto mark::world::damage(world::damage_info info) -> damage_result
 {
 	assert(info.context);
-	auto [potential_collisions, crash_pos] = this->collide(info.segment);
-	if (potential_collisions.empty() && !crash_pos) {
+	auto [unit_collisions, terrain_collision] = this->collide(info.segment);
+	if (unit_collisions.empty() && !terrain_collision) {
 		return {};
 	}
 	std::vector<vector<double>> collisions;
-	while (!potential_collisions.empty()) {
-		let & [ damageable, pos ] = potential_collisions.front();
+	while (!unit_collisions.empty()) {
+		let & [ damageable, pos ] = unit_collisions.front();
 		info.damage.pos = pos;
 		if (damageable.get().damage(info.damage)) {
 			collisions.push_back(pos);
@@ -348,11 +343,11 @@ auto mark::world::damage(world::damage_info info)
 				break;
 			}
 		}
-		potential_collisions.pop_front();
+		unit_collisions.pop_front();
 	}
-	if (crash_pos
+	if (terrain_collision
 		&& (info.piercing < collisions.size() || collisions.empty())) {
-		collisions.push_back(*crash_pos);
+		collisions.push_back(*terrain_collision);
 	}
 	if (info.aoe_radius > 0.f) {
 		for (let& collision : collisions) {
@@ -363,7 +358,10 @@ auto mark::world::damage(world::damage_info info)
 			}
 		}
 	}
-	return { collisions, crash_pos.has_value() };
+	damage_result result;
+	result.collisions = move(collisions);
+	result.hit_terrain = terrain_collision.has_value();
+	return result;
 }
 
 // Serializer / Deserializer

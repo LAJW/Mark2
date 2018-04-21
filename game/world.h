@@ -68,10 +68,11 @@ public:
 		size_t piercing = 1; // Number of objects to pierce
 		float aoe_radius = 0.f;
 	};
-	// Returns pair containing list of collision points and boolean signaling
-	// whether or not terrain was hit
-	auto damage(world::damage_info)
-		-> std::pair<std::vector<vector<double>>, bool>;
+	struct damage_result {
+		std::vector<vector<double>> collisions;
+		bool hit_terrain = false;
+	};
+	auto damage(world::damage_info) -> damage_result;
 	// go to the next map
 	void next();
 	void prev();
@@ -84,13 +85,17 @@ public:
 	const std::shared_ptr<const resource::image> image_stun;
 
 private:
-	using collision_type = std::
-		pair<std::reference_wrapper<interface::damageable>, vector<double>>;
+	struct collision_type {
+		std::reference_wrapper<interface::damageable> victim;
+		vector<double> pos;
+	};
+	struct collide_result {
+		std::deque<collision_type> unit_collisions;
+		std::optional<vector<double>> terrain_collision;
+	};
 	// Collide with units and terrain
 	// Returns all collisions in a line stopping at the first terrain collision
-	// Returns monostate if didn't collide with anything
-	auto collide(const segment_t&)
-		-> std::pair<std::deque<collision_type>, std::optional<vector<double>>>;
+	auto collide(const segment_t&) -> collide_result;
 	auto collide(vector<double> center, float radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	void update_spatial_partition();

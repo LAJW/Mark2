@@ -26,7 +26,7 @@ void mark::module::laser::update(update_context& context)
 		return;
 	}
 	std::unordered_set<interface::damageable*> damaged;
-	auto pair = parent().world().damage([&] {
+	auto damage_result = parent().world().damage([&] {
 		world::damage_info _;
 		_.context = &context;
 		_.aoe_radius = 0.f;
@@ -39,7 +39,7 @@ void mark::module::laser::update(update_context& context)
 		_.damage.team = parent().team();
 		return _;
 	}());
-	this->render(context, move(pair.first), is_firing, dir);
+	this->render(context, move(damage_result.collisions), is_firing, dir);
 }
 
 void mark::module::laser::render(

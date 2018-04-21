@@ -80,7 +80,8 @@ void mark::unit::projectile::update(update_context& context)
 	info.damage.stun_chance = 0.1f;
 	info.damage.stun_duration = 1.f;
 	info.damage.knockback = m_knockback;
-	let[collisions, terrain_hit] = world().damage(info);
+
+	const auto[collisions, terrain_hit] = world().damage(info);
 	if (terrain_hit || collisions.size() >= m_piercing) {
 		m_dead = true;
 	} else {
