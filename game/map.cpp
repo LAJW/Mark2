@@ -14,7 +14,6 @@ using Node = mark::map::Node;
 
 mark::map mark::map::make_cavern(mark::resource::manager& rm)
 {
-	let constexpr map_size = 1000ull;
 	let depth = 100;
 	let max_corridor_length = 10;
 	let spacing = 5;
@@ -64,8 +63,8 @@ auto mark::map::world_to_map(const vector<double>& pos) const noexcept
 
 void mark::map::calculate_traversable()
 {
-	for (let pos : range(m_size)) {
-		auto& traversables = m_terrain[pos.x + pos.y * m_size.x].traversable;
+	for (let pos : range(m_terrain.size())) {
+		auto& traversables = m_terrain[pos].traversable;
 		traversables.front() = p_traversable(vector<int>(pos), 0);
 		for (let radius : range<size_t>(1, traversables.size())) {
 			traversables[radius] = traversables[radius - 1]
@@ -91,9 +90,9 @@ auto mark::map::traversable(const vector<double>& pos, const double radius_)
 auto mark::map::traversable(const vector<int>& pos, const size_t radius) const
 	-> bool
 {
-	return pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
-		&& pos.y < (int)m_size.y && radius < 20
-		&& m_terrain[pos.x + m_size.x * pos.y].traversable[radius];
+	return pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
+		&& pos.y < (int)size().y && radius < 20
+		&& m_terrain[vector<size_t>(pos)].traversable[radius];
 }
 
 auto mark::map::p_traversable(const vector<int>& pos, const size_t uradius)
@@ -193,42 +192,41 @@ auto mark::map::deserialize_terrain_kind(const std::string& str)
 
 mark::map::map(resource::manager& rm, const vector<size_t>& size)
 	: m_tileset(rm.image("jungle-1.png"))
-	, m_size(size)
-	, m_terrain(size.x * size.y)
+	, m_terrain(size)
 {
-	for (auto& terrain : m_terrain) {
+	for (auto& terrain : m_terrain.data()) {
 		terrain.variant = rm.random<unsigned>(0, 2);
 	}
 }
 
 auto mark::map::size() const noexcept -> const vector<size_t>&
 {
-	return m_size;
+	return m_terrain.size();
 }
 
 auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 {
-	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
-		&& pos.y < (int)m_size.y) {
-		return m_terrain[pos.x + m_size.x * pos.y].type;
+	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
+		&& pos.y < (int)size().y) {
+		return m_terrain[vector<size_t>(pos)].type;
 	}
 	return terrain_kind::null;
 }
 
 auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 {
-	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
-		&& pos.y < (int)m_size.y) {
-		return m_terrain[pos.x + m_size.x * pos.y].variant;
+	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
+		&& pos.y < (int)size().y) {
+		return m_terrain[vector<size_t>(pos)].variant;
 	}
 	return 0;
 }
 
 void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
 {
-	if (pos.x >= 0 && pos.x < (int)m_size.x && pos.y >= 0
-		&& pos.y < (int)m_size.y) {
-		m_terrain[pos.x + m_size.x * pos.y].type = type;
+	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
+		&& pos.y < (int)size().y) {
+		m_terrain[vector<size_t>(pos)].type = type;
 	}
 }
 
@@ -623,12 +621,12 @@ void mark::map::serialize(YAML::Emitter& out) const
 	out << BeginMap;
 	out << Key << "type" << Value << "map";
 	out << Key << "size" << Value << BeginMap;
-	out << Key << "x" << Value << m_size.x;
-	out << Key << "y" << Value << m_size.y;
+	out << Key << "x" << Value << size().x;
+	out << Key << "y" << Value << size().y;
 	out << EndMap;
 	std::string data;
-	data.reserve(m_terrain.size());
-	for (let terrain : m_terrain) {
+	data.reserve(m_terrain.data().size());
+	for (let terrain : m_terrain.data()) {
 		data.push_back(static_cast<unsigned char>(terrain.type));
 	}
 	out << Key << "data" << Value << base64_encode(data);
@@ -641,12 +639,11 @@ mark::map::map(resource::manager& resource_manager, const YAML::Node& node)
 	if (node["type"].as<std::string>() != "map") {
 		std::runtime_error("BAD_DESERIALIZE");
 	}
-	m_terrain = { m_size.x * m_size.y, terrain() };
 	size_t i = 0;
 	auto data = base64_decode(node["data"].as<std::string>());
 	for (let ch : data) {
-		m_terrain[i].type = static_cast<terrain_kind>(ch);
-		m_terrain[i].variant = resource_manager.random(0, 2);
+		m_terrain.data()[i].type = static_cast<terrain_kind>(ch);
+		m_terrain.data()[i].variant = resource_manager.random(0, 2);
 		i++;
 	}
 	this->calculate_traversable();

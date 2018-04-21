@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include <vector2d.h>
 
 namespace mark {
 class map final
@@ -76,9 +77,9 @@ private:
 		noexcept -> std::optional<collide_result>;
 	void calculate_traversable();
 
-	std::vector<terrain> m_terrain;
+	static constexpr size_t map_size = 1000;
+	vector2d<terrain> m_terrain;
 	std::shared_ptr<const resource::image> m_tileset;
-	vector<size_t> m_size;
 	mutable unsigned m_find_count = 0;
 };
 } // namespace mark
