@@ -64,7 +64,6 @@ public:
 		vector<double>>> override;
 	auto collide(vector<double> center, double radius)
 		-> std::vector<std::reference_wrapper<interface::damageable>> override;
-	auto lookat() const noexcept -> vector<double>;
 	// bind module at position to command
 	void toggle_bind(int8_t, vector<int> pos);
 	auto bindings() const -> bindings_t override;

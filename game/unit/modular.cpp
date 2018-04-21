@@ -595,11 +595,6 @@ auto mark::unit::modular::collide(vector<double> center, double radius)
 	return tmp;
 }
 
-auto mark::unit::modular::lookat() const noexcept -> vector<double>
-{
-	return m_lookat;
-}
-
 void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
 {
 	if (let module_ptr = this->module_at(user_pos)) {
