@@ -27,15 +27,17 @@ mark::ui::container::container(const info& info)
 
 void mark::ui::container::update(update_context& context)
 {
-	sprite sprite;
-	sprite.image = m_cargo_bg;
-	sprite.pos = vector<double>(this->pos());
-	sprite.size = 64.f;
-	sprite.frame = std::numeric_limits<size_t>::max();
-	sprite.color = { 255, 255, 255, 200 };
-	sprite.world = false;
-	sprite.centred = false;
-	context.sprites[100].push_back(sprite);
+	context.sprites[100].push_back([&] {
+		sprite _;
+		_.image = m_cargo_bg;
+		_.pos = vector<double>(this->pos());
+		_.size = 64.f;
+		_.frame = std::numeric_limits<size_t>::max();
+		_.color = { 255, 255, 255, 200 };
+		_.world = false;
+		_.centred = false;
+		return _;
+	}());
 	this->window::update(context);
 }
 
@@ -43,16 +45,18 @@ bool mark::ui::container::click(const event& event)
 {
 	if (let handled = this->window::click(event)) {
 		return true;
-	} else if (m_ui.grabbed) {
-		auto& module = *m_ui.grabbed;
-		const vector<int> module_size(module.size());
-		const vector<double> relative_pos(event.cursor - this->pos());
-		let pos = round(relative_pos / 16.) - module_size / 2;
-		let result = m_container.attach(pos, m_ui.grabbed);
-		if (result == error::code::success || result == error::code::stacked) {
-			this->attach(pos, module);
-			return true;
-		}
+	}
+	if (!m_ui.grabbed) {
+		return false;
+	}
+	auto& module = *m_ui.grabbed;
+	const vector<int> module_size(module.size());
+	const vector<double> relative_pos(event.cursor - this->pos());
+	let pos = round(relative_pos / 16.) - module_size / 2;
+	let result = m_container.attach(pos, m_ui.grabbed);
+	if (result == error::code::success || result == error::code::stacked) {
+		this->attach(pos, module);
+		return true;
 	}
 	return false;
 }
@@ -71,29 +75,30 @@ auto mark::ui::container::size() const -> vector<int>
 void mark::ui::container::attach(vector<int> pos, interface::item& item)
 {
 	let button_pos = pos * 16;
-	mark::ui::button::info info;
-	info.parent = this;
-	info.size = item.size() * 16U;
-	info.pos = button_pos;
-	info.image = item.thumbnail();
-	auto button_ptr = std::make_unique<mark::ui::button>(info);
+	auto button_ptr = std::make_unique<mark::ui::button>([&] {
+		mark::ui::button::info _;
+		_.parent = this;
+		_.size = item.size() * 16U;
+		_.pos = button_pos;
+		_.image = item.thumbnail();
+		return _;
+	}());
 	auto& button = *button_ptr;
 	button.on_click.insert([pos, this, &button](const event&) {
-		if (!m_ui.grabbed) {
-			m_ui.grabbed = m_container.detach(pos);
-			if (m_ui.grabbed) {
-				m_ui.grabbed_prev_parent = &m_container;
-				// TODO: We've removed pos from the item, we need to obtain old
-				// item position in some other way, or not remove the item at
-				// all
-				// m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
-				m_ui.grabbed_bind.clear();
-			}
-			this->remove(button);
-			m_container.detachable();
-		} else {
+		if (m_ui.grabbed) {
 			(void)m_container.attach(pos, m_ui.grabbed);
+			return true;
 		}
+		m_ui.grabbed = m_container.detach(pos);
+		if (m_ui.grabbed) {
+			m_ui.grabbed_prev_parent = &m_container;
+			// TODO: We've removed pos from the item, we need to obtain old item
+			// position in some other way, or not remove the item at all
+			// m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
+			m_ui.grabbed_bind.clear();
+		}
+		// Don't call anything after this. This call destroys "this" lambda.
+		this->remove(button);
 		return true;
 	});
 	let length = static_cast<int>(item.size().x) * 16;
@@ -102,5 +107,5 @@ void mark::ui::container::attach(vector<int> pos, interface::item& item)
 			this->pos() + button_pos + vector<int>(length, 0), item.describe());
 		return true;
 	});
-	this->insert(std::move(button_ptr));
+	this->insert(move(button_ptr));
 }
