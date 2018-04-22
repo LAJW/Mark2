@@ -221,15 +221,22 @@ auto enumerate(T& max)
 }
 
 template <typename container_t, typename pred_t>
-auto any_of(container_t container, pred_t& pred)
+auto any_of(const container_t& container, pred_t pred)
 {
 	let begin = std::begin(container);
 	let end = std::end(container);
-	return std::any_of(begin, end, pred);
+	return std::any_of(begin, end, std::move(pred));
+}
+
+template <typename container_t, typename out_t, typename pred_t>
+auto transform(const container_t& container, out_t out, pred_t pred)
+{
+	return std::transform(
+		std::begin(container), std::end(container), out, std::move(pred));
 }
 
 template <typename container_t, typename pred_t>
-auto count_if(const container_t &container, pred_t pred) noexcept
+auto count_if(const container_t& container, pred_t pred) noexcept
 {
 	let begin = std::begin(container);
 	let end = std::end(container);

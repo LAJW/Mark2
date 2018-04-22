@@ -3,8 +3,8 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
 
 void mark::module::healing_turret::update(update_context& context)
@@ -17,7 +17,7 @@ void mark::module::healing_turret::update(update_context& context)
 		pos, model_size, parent().rotation(), this->heat_color()));
 	if (!this->target()) {
 		let neighbours = [&] {
-			std::unordered_set<mark::module::base*> neighbours;
+			std::unordered_set<gsl::not_null<mark::module::base*>> neighbours;
 			const auto m_radius = 100.f;
 			let radius = static_cast<int>(std::round(m_radius / 16.f));
 			for (let offset : mark::range<vector<int>>(
@@ -31,18 +31,11 @@ void mark::module::healing_turret::update(update_context& context)
 			}
 			return neighbours;
 		}();
-		let min_health_neighbour = std::min_element(
-			neighbours.begin(),
-			neighbours.end(),
-			[](let neighbour_l, let neighbour_r) {
-				let left =
-					neighbour_l->cur_health() / neighbour_l->max_health();
-				let right =
-					neighbour_r->cur_health() / neighbour_r->max_health();
-				return left < right;
-			});
-		if (min_health_neighbour != neighbours.end()
-			&& (*min_health_neighbour)->needs_healing()) {
+		let min_health_neighbour = min_element_v(neighbours, [](let a, let b) {
+			return a->cur_health() / a->max_health()
+				< b->cur_health() / b->max_health();
+		});
+		if (min_health_neighbour && (*min_health_neighbour)->needs_healing()) {
 			m_target = (*min_health_neighbour)->grid_pos();
 		}
 	}
@@ -67,23 +60,18 @@ void mark::module::healing_turret::update(update_context& context)
 		_.layer = 3;
 		return _;
 	}());
-	let len = int(length(collision - pos) / double(module::size));
-	let seq = range(1, len);
-	std::transform(
-		seq.begin(),
-		seq.end(),
-		std::back_inserter(context.sprites[3]),
-		[&](let i) {
-			let cur_len =
-				module::size * static_cast<double>(i) - module::size * 0.5;
-			sprite _;
-			_.image = m_im_ray;
-			_.pos = collision - dir * cur_len;
-			_.size = module::size;
-			_.rotation = rotation;
-			_.color = sf::Color::Green;
-			return _;
-		});
+	let len = static_cast<int>(length(collision - pos) / double(module::size));
+	transform(range(1, len), back_inserter(context.sprites[3]), [&](let i) {
+		let di = static_cast<double>(i);
+		let cur_len = module::size * di - module::size * 0.5;
+		sprite _;
+		_.image = m_im_ray;
+		_.pos = collision - dir * cur_len;
+		_.size = module::size;
+		_.rotation = rotation;
+		_.color = sf::Color::Green;
+		return _;
+	});
 }
 
 auto mark::module::healing_turret::target() -> mark::module::base*
