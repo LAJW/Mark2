@@ -23,34 +23,34 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 	using namespace mark;
 	using namespace ui;
 	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
-	{
-		button::info play_button;
-		play_button.size = { 250, 50 };
-		play_button.parent = menu.get();
-		play_button.font = rm.image("font.png");
-		play_button.title = "Solitary Traveller";
-		auto button = std::make_unique<mark::ui::button>(play_button);
-		button->m_relative = true;
-		button->on_click.insert([&](let&) {
-			stack.push(mode::world);
-			return true;
-		});
-		menu->insert(std::move(button));
-	}
-	{
-		button::info quit_button;
-		quit_button.size = { 250, 50 };
-		quit_button.parent = menu.get();
-		quit_button.font = rm.image("font.png");
-		quit_button.title = "Abandon Expedition";
-		auto button = std::make_unique<mark::ui::button>(quit_button);
-		button->m_relative = true;
-		button->on_click.insert([&](let&) {
-			stack.push(mode::prompt);
-			return true;
-		});
-		menu->insert(std::move(button));
-	}
+	auto play_button = std::make_unique<button>([&] {
+		button::info _;
+		_.size = { 250, 50 };
+		_.parent = menu.get();
+		_.font = rm.image("font.png");
+		_.title = "Solitary Traveller";
+		return _;
+	}());
+	play_button->m_relative = true;
+	play_button->on_click.insert([&](let&) {
+		stack.push(mode::world);
+		return true;
+	});
+	menu->insert(move(play_button));
+	auto quit_button = std::make_unique<button>([&] {
+		button::info _;
+		_.size = { 250, 50 };
+		_.parent = menu.get();
+		_.font = rm.image("font.png");
+		_.title = "Abandon Expedition";
+		return _;
+	}());
+	quit_button->m_relative = true;
+	quit_button->on_click.insert([&](let&) {
+		stack.push(mode::prompt);
+		return true;
+	});
+	menu->insert(move(quit_button));
 	return menu;
 }
 
@@ -59,34 +59,34 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	using namespace mark;
 	using namespace ui;
 	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
-	{
-		button::info play_button;
-		play_button.size = { 250, 50 };
-		play_button.parent = menu.get();
-		play_button.font = rm.image("font.png");
-		play_button.title = "Yes";
-		auto button = std::make_unique<mark::ui::button>(play_button);
-		button->m_relative = true;
-		button->on_click.insert([&](let&) {
-			stack.clear();
-			return true;
-		});
-		menu->insert(std::move(button));
-	}
-	{
-		button::info quit_button;
-		quit_button.size = { 250, 50 };
-		quit_button.parent = menu.get();
-		quit_button.font = rm.image("font.png");
-		quit_button.title = "No";
-		auto button = std::make_unique<mark::ui::button>(quit_button);
-		button->m_relative = true;
-		button->on_click.insert([&](let&) {
-			stack.pop();
-			return true;
-		});
-		menu->insert(std::move(button));
-	}
+	auto play_button = std::make_unique<button>([&] {
+		button::info _;
+		_.size = { 250, 50 };
+		_.parent = menu.get();
+		_.font = rm.image("font.png");
+		_.title = "Yes";
+		return _;
+	}());
+	play_button->m_relative = true;
+	play_button->on_click.insert([&](let&) {
+		stack.clear();
+		return true;
+	});
+	menu->insert(move(play_button));
+	auto cancel_button = std::make_unique<button>([&] {
+		button::info _;
+		_.size = { 250, 50 };
+		_.parent = menu.get();
+		_.font = rm.image("font.png");
+		_.title = "No";
+		return _;
+	}());
+	cancel_button->m_relative = true;
+	cancel_button->on_click.insert([&](let&) {
+		stack.pop();
+		return true;
+	});
+	menu->insert(std::move(cancel_button));
 	return menu;
 }
 
@@ -296,29 +296,35 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 	return false;
 }
 
+let constexpr tooltip_layer = 110ull;
+
 void mark::ui::ui::tooltip(
 	update_context& context,
 	const std::string& text,
 	vector<double> screen_pos)
 {
-	sprite info;
-	info.image = m_tooltip_bg;
-	info.pos = screen_pos;
-	info.size = tooltip_size;
-	info.world = false;
-	info.centred = false;
-	info.color = { 50, 50, 50, 200 };
-	context.sprites[110].emplace_back(info);
+	context.sprites[tooltip_layer].emplace_back([&] {
+		sprite _;
+		_.image = m_tooltip_bg;
+		_.pos = screen_pos;
+		_.size = tooltip_size;
+		_.world = false;
+		_.centred = false;
+		_.color = { 50, 50, 50, 200 };
+		return _;
+	}());
 
-	update_context::text_info text_info;
-	text_info.font = m_font;
-	text_info.layer = 110;
-	text_info.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
-	text_info.box = { tooltip_size - tooltip_margin * 2.f,
-					  tooltip_size - tooltip_margin * 2.f };
-	text_info.size = font_size;
-	text_info.text = text;
-	context.render(text_info);
+	context.render([&] {
+		update_context::text_info _;
+		_.font = m_font;
+		_.layer = tooltip_layer;
+		_.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
+		_.box = { tooltip_size - tooltip_margin * 2.f,
+				  tooltip_size - tooltip_margin * 2.f };
+		_.size = font_size;
+		_.text = text;
+		return _;
+	}());
 }
 
 void mark::ui::ui::world_tooltip(
@@ -326,23 +332,26 @@ void mark::ui::ui::world_tooltip(
 	const std::string& text,
 	vector<double> pos)
 {
-	sprite info;
-	info.image = m_tooltip_bg;
-	info.pos = pos + vector<double>(150, 150), info.size = tooltip_size;
-	info.color = { 50, 50, 50, 200 };
-	context.sprites[100].emplace_back(info);
-
-	update_context::text_info text_info;
-	text_info.font = m_font;
-	text_info.layer = 100;
-	text_info.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
-	text_info.box = { tooltip_size - tooltip_margin,
-					  tooltip_size - tooltip_margin };
-	text_info.size = font_size;
-	text_info.text = text;
-	text_info.world = true;
-	text_info.centred = true;
-	context.render(text_info);
+	context.sprites[tooltip_layer].emplace_back([&] {
+		sprite _;
+		_.image = m_tooltip_bg;
+		_.pos = pos + vector<double>(150, 150), _.size = tooltip_size;
+		_.color = { 50, 50, 50, 200 };
+		return _;
+	}());
+	context.render([&] {
+		update_context::text_info _;
+		_.font = m_font;
+		_.layer = 100;
+		_.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
+		_.box = { tooltip_size - tooltip_margin,
+				  tooltip_size - tooltip_margin };
+		_.size = font_size;
+		_.text = text;
+		_.world = true;
+		_.centred = true;
+		return _;
+	}());
 }
 
 static std::vector<bool> make_available_map(
@@ -400,14 +409,16 @@ void mark::ui::ui::container_ui(
 			if (available
 					[offset.x + grid_size / 2
 					 + (offset.y + grid_size / 2) * grid_size]) {
-				sprite info;
-				info.image = m_grid_bg;
-				info.pos = landing_pad.pos()
-					+ vector<double>(offset) * double(module::size)
-					+ vector<double>(module::size, module::size) / 2.;
-				info.size = module::size;
-				info.color = sf::Color(0, 255, 255, 255);
-				context.sprites[1].emplace_back(info);
+				context.sprites[1].push_back([&] {
+					sprite _;
+					_.image = m_grid_bg;
+					_.pos = landing_pad.pos()
+						+ vector<double>(offset) * double(module::size)
+						+ vector<double>(module::size, module::size) / 2.;
+					_.size = module::size;
+					_.color = { 0, 255, 255, 255 };
+					return _;
+				}());
 			}
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
@@ -418,22 +429,26 @@ void mark::ui::ui::container_ui(
 				- vector<int>(grabbed->size()) / 2; // module's top-left corner
 			let color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green
 															: sf::Color::Red;
-			sprite info;
-			info.image = grabbed->thumbnail();
-			info.pos = vector<double>(module_pos) * double(module::size)
-				+ landing_pad.pos();
-			info.size = size;
-			info.color = color;
-			context.sprites[100].emplace_back(info);
+			context.sprites[100].emplace_back([&] {
+				sprite _;
+				_.image = grabbed->thumbnail();
+				_.pos = vector<double>(module_pos) * double(module::size)
+					+ landing_pad.pos();
+				_.size = size;
+				_.color = color;
+				return _;
+			}());
 		} else {
 			let size = static_cast<float>(
 						   std::max(grabbed->size().x, grabbed->size().y))
 				* module::size;
-			sprite info;
-			info.image = grabbed->thumbnail();
-			info.pos = mouse_pos;
-			info.size = size;
-			context.sprites[100].emplace_back(info);
+			context.sprites[100].emplace_back([&] {
+				sprite _;
+				_.image = grabbed->thumbnail();
+				_.pos = mouse_pos;
+				_.size = size;
+				return _;
+			}());
 		}
 	}
 
