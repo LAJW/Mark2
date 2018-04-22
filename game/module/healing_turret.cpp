@@ -7,45 +7,80 @@
 #include <update_context.h>
 #include <world.h>
 
+namespace mark {
+static auto in_range(const module::base& a, const module::base& b, double range)
+{
+	return length(a.pos() - b.pos()) < range;
+}
+
+static auto neighbor_at_pos_in_range(
+	const module::base& root,
+	vector<int> pos,
+	double range)
+{
+	let module = root.parent().module_at(pos);
+	return module && module != &root && in_range(*module, root, range)
+		? module
+		: nullptr;
+}
+
+static auto neighbors_in_radius(const module::base& root, double radius)
+{
+	std::unordered_set<gsl::not_null<const module::base*>> neighbors;
+	let center = root.grid_pos() + vector<int>(root.size()) / 2;
+	let bound = static_cast<int>(std::ceil(radius / 16.));
+	for (let offset :
+		 range<vector<int>>({ -bound, -bound }, { bound + 1, bound + 1 })) {
+		let module = neighbor_at_pos_in_range(root, center + offset, radius);
+		if (module) {
+			neighbors.insert(module);
+		}
+	}
+	return neighbors;
+}
+
+static auto
+most_damaged_neighbor_in_range(const module::base& root, double range)
+{
+	let neighbors = neighbors_in_radius(root, range);
+	let min_health_neighbour = min_element_v(neighbors, [](let a, let b) {
+		return a->cur_health() / a->max_health()
+			< b->cur_health() / b->max_health();
+	});
+	return min_health_neighbour && (*min_health_neighbour)->needs_healing()
+		? min_health_neighbour->get()
+		: nullptr;
+}
+} // namespace mark
+
 void mark::module::healing_turret::update(update_context& context)
 {
 	this->module::base::update(context);
 	m_model.update(context.dt);
+	if (!this->target()) {
+		if (let target = most_damaged_neighbor_in_range(*this, 100.0)) {
+			m_target = target->grid_pos();
+		}
+	}
+	if (let target = this->target()) {
+		target->heal(static_cast<float>(10. * context.dt));
+	}
+	this->render(context);
+}
+
+void mark::module::healing_turret::render(update_context& context) const
+{
 	let pos = this->pos();
 	let model_size = std::max(this->size().x, this->size().y) * module::size;
 	context.sprites[2].push_back(m_model.render(
 		pos, model_size, parent().rotation(), this->heat_color()));
-	if (!this->target()) {
-		let neighbours = [&] {
-			std::unordered_set<gsl::not_null<mark::module::base*>> neighbours;
-			const auto m_radius = 100.f;
-			let radius = static_cast<int>(std::round(m_radius / 16.f));
-			for (let offset : mark::range<vector<int>>(
-					 { -radius, -radius }, { radius + 1, radius + 1 })) {
-				let module =
-					this->parent().module_at(this->grid_pos() + offset);
-				if (module && module != this
-					&& length(module->pos() - this->pos()) < m_radius) {
-					neighbours.insert(module);
-				}
-			}
-			return neighbours;
-		}();
-		let min_health_neighbour = min_element_v(neighbours, [](let a, let b) {
-			return a->cur_health() / a->max_health()
-				< b->cur_health() / b->max_health();
-		});
-		if (min_health_neighbour && (*min_health_neighbour)->needs_healing()) {
-			m_target = (*min_health_neighbour)->grid_pos();
-		}
-	}
 	let target = this->target();
-	if (!target)
+	if (!target) {
 		return;
-	target->heal(static_cast<float>(10. * context.dt));
+	}
 	let collision = target->pos();
 	let dir = normalize(collision - pos);
-	let rotation = atan(dir);
+	let rotation = atan(-dir);
 	context.render([&] {
 		update_context::spray_info _;
 		_.image = m_im_ray;
@@ -54,7 +89,7 @@ void mark::module::healing_turret::update(update_context& context)
 		_.lifespan(1.f);
 		_.diameter(8.f);
 		_.count = 4;
-		_.direction = -rotation;
+		_.direction = rotation;
 		_.cone = 180.f;
 		_.color = sf::Color::Green;
 		_.layer = 3;
@@ -74,7 +109,7 @@ void mark::module::healing_turret::update(update_context& context)
 	});
 }
 
-auto mark::module::healing_turret::target() -> mark::module::base*
+auto mark::module::healing_turret::target() const -> const mark::module::base*
 {
 	if (m_stunned || !m_target) {
 		return nullptr;
@@ -84,6 +119,12 @@ auto mark::module::healing_turret::target() -> mark::module::base*
 		return nullptr;
 	}
 	return target;
+}
+
+auto mark::module::healing_turret::target() -> mark::module::base*
+{
+	let& self = *this;
+	return const_cast<module::base*>(self.target());
 }
 
 std::string mark::module::healing_turret::describe() const

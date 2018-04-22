@@ -42,11 +42,11 @@ public:
 	friend module::cargo;
 
 	auto grid_pos() const noexcept -> vector<int>;
+	auto parent() const -> const unit::modular&;
 
 protected:
 	base_ref() = default;
 	base_ref(const YAML::Node& node);
-	auto parent() const -> const unit::modular&;
 	auto parent() -> unit::modular&;
 	void serialize(YAML::Emitter& out) const;
 	// Position on the grid

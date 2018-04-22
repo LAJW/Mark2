@@ -25,13 +25,13 @@ void mark::module::base_ref::serialize(YAML::Emitter& out) const
 
 auto mark::module::base_ref::parent() const -> const unit::modular&
 {
-	assert(m_parent);
+	Expects(m_parent);
 	return *m_parent;
 }
 
 auto mark::module::base_ref::parent() -> unit::modular&
 {
-	assert(m_parent);
+	Expects(m_parent);
 	return *m_parent;
 }
 

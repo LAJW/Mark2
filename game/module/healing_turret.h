@@ -20,7 +20,9 @@ public:
 
 private:
 	void update(update_context& context) override;
-	module::base* target();
+	void render(update_context& context) const;
+	auto target() const -> const module::base*;
+	auto target() -> module::base*;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
