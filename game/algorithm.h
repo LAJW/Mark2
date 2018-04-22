@@ -220,18 +220,12 @@ auto enumerate(T& max)
 	return enumerator<T>(max);
 }
 
-template <typename iterator_t, typename pred_t>
-auto has_if(iterator_t begin, iterator_t end, pred_t& pred)
-{
-	return std::find_if(begin, end, pred) != end;
-}
-
 template <typename container_t, typename pred_t>
-auto has_if(container_t container, pred_t& pred)
+auto any_of(container_t container, pred_t& pred)
 {
 	let begin = std::begin(container);
 	let end = std::end(container);
-	return std::find_if(begin, end, pred) != end;
+	return std::any_of(begin, end, pred);
 }
 
 template <typename container_t, typename pred_t>
