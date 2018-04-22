@@ -8,9 +8,9 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/landing_pad.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
 #include <world_stack.h>
 
@@ -143,22 +143,29 @@ void mark::ui::ui::update(
 			auto& window = m_windows.back();
 			let[removed, added] =
 				diff(window->children(), containers, [](let& a, let& b) {
-					return &dynamic_cast<const mark::ui::container*>(a.get())
-								->cargo()
-						== &b.get();
+					let& container =
+						dynamic_cast<const mark::ui::container&>(*a.get());
+					let item_count = count_if(b.get().items(), [](let& item) {
+						return item.get() != nullptr;
+					});
+					return &container.cargo() == &b.get()
+						&& container.children().size() == item_count;
 				});
 			for (let& it : removed) {
 				window->children().erase(it);
 			}
 			for (let& pair : added) {
 				auto& [it, container] = pair;
-				mark::ui::container::info info;
-				info.rm = &m_rm;
-				info.container = &container.get();
-				info.ui = this;
-				window->children().insert(
-					it, std::make_unique<mark::ui::container>(info));
-				window->children().back()->m_relative = true;
+				auto container_window =
+					std::make_unique<mark::ui::container>([&] {
+						mark::ui::container::info _;
+						_.rm = &m_rm;
+						_.container = &container.get();
+						_.ui = this;
+						return _;
+					}());
+				container_window->m_relative = true;
+				window->children().insert(it, move(container_window));
 			}
 		}
 	} else {
@@ -237,6 +244,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 		}
 		return true;
 	} else if (let move = std::get_if<command::move>(&any)) {
+		let shift = move->shift;
 		if (move->release) {
 			return false;
 		}
@@ -271,6 +279,12 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 					grabbed = ship->detach(pick_pos);
 					if (grabbed) {
 						grabbed_prev_parent = ship.get();
+						if (shift) {
+							if (push(*ship, grabbed) != error::code::success) {
+								Expects(
+									!ship->attach(grabbed_prev_pos, grabbed));
+							}
+						}
 					} else {
 						grabbed_bind.clear();
 					}
@@ -358,7 +372,7 @@ static std::vector<bool> make_available_map(
 void mark::ui::ui::release()
 {
 	if (grabbed && grabbed_prev_parent) {
-		(void)grabbed_prev_parent->attach(grabbed_prev_pos, grabbed);
+		Expects(!grabbed_prev_parent->attach(grabbed_prev_pos, grabbed));
 		if (let ship = dynamic_cast<unit::modular*>(grabbed_prev_parent)) {
 			for (let& bind : this->grabbed_bind) {
 				ship->toggle_bind(bind, grabbed_prev_pos);

@@ -70,10 +70,10 @@ auto make_make_command(int8_t id) -> mark::hid::make_command_type
 auto make_command_move(
 	const mark::vector<int>& screen_pos,
 	const mark::vector<double>& mouse_pos,
-	bool,
+	bool shift,
 	bool release) -> mark::command::any
 {
-	return mark::command::move{ mouse_pos, release, screen_pos };
+	return mark::command::move{ mouse_pos, release, shift, screen_pos };
 };
 
 auto make_command_guide(

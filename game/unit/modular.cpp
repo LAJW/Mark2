@@ -230,7 +230,7 @@ void mark::unit::modular::update(update_context& context)
 	m_targeting_system->update(context);
 	this->update_modules(context);
 	if (!m_ai && world().target().get() == this) {
-		this->pick_up(context);
+		this->pick_up();
 	}
 	this->update_movement([&] {
 		update_movement_info _;
@@ -813,19 +813,13 @@ void mark::unit::modular::remove_dead(update_context& context)
 	}
 }
 
-void mark::unit::modular::pick_up(update_context&)
+void mark::unit::modular::pick_up()
 {
 	auto buckets = world().find<unit::bucket>(
 		pos(), 150.f, [](let& unit) { return !unit.dead(); });
-	auto containers = this->containers();
 	for (auto& bucket : buckets) {
 		auto module = bucket->release();
-		for (auto& container : containers) {
-			if (container.get().push(module) == error::code::success) {
-				break;
-			}
-		}
-		if (module) {
+		if (push(*this, module) != error::code::success) {
 			bucket->insert(move(module));
 		}
 	}
@@ -854,4 +848,16 @@ auto mark::unit::modular::containers() const
 	-> std::vector<std::reference_wrapper<const module::cargo>>
 {
 	return filter_modules<const module::cargo>(m_modules);
+}
+
+auto mark::unit::push(
+	modular& modular,
+	std::unique_ptr<interface::item>& module) -> std::error_code
+{
+	for (auto& container : modular.containers()) {
+		if (container.get().push(module) == error::code::success) {
+			return error::code::success;
+		}
+	}
+	return error::code::occupied;
 }

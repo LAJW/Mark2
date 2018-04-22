@@ -15,6 +15,7 @@ public:
 	bool hover(const event&) override;
 	void update(update_context&) override;
 	auto children() -> std::list<std::unique_ptr<node>>&;
+	auto children() const -> const std::list<std::unique_ptr<node>>&;
 	void visibility(bool) noexcept;
 
 private:

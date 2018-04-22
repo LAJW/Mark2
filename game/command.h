@@ -7,6 +7,7 @@ struct move
 {
 	vector<double> to;
 	bool release;
+	bool shift;
 	vector<int> screen_pos;
 };
 struct guide

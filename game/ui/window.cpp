@@ -1,6 +1,6 @@
-﻿#include <stdafx.h>
-#include "window.h"
+﻿#include "window.h"
 #include <algorithm.h>
+#include <stdafx.h>
 
 mark::ui::window::window(const vector<int>& pos) { m_pos = pos; }
 
@@ -63,6 +63,12 @@ void mark::ui::window::update(update_context& context)
 }
 
 auto mark::ui::window::children() -> std::list<std::unique_ptr<node>>&
+{
+	return m_nodes;
+}
+
+auto mark::ui::window::children() const
+	-> const std::list<std::unique_ptr<node>>&
 {
 	return m_nodes;
 }

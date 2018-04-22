@@ -92,7 +92,7 @@ private:
 	auto p_can_attach(const module::base& module, vector<int> pos) const
 		-> bool;
 	void remove_dead(update_context&);
-	void pick_up(update_context&);
+	void pick_up();
 	// Remove module from module bindings
 	void unbind(const module::base& module);
 	auto modifiers() const -> module::modifiers;
@@ -121,5 +121,10 @@ private:
 	double m_velocity = 0;
 	double m_radius = 0.;
 };
+
+// Drop module into the modular's containers if possible
+[[nodiscard]] auto push(modular& modular, std::unique_ptr<interface::item>&)
+	-> std::error_code;
+;
 } // namespace unit
 } // namespace mark

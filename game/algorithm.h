@@ -234,6 +234,14 @@ auto has_if(container_t container, pred_t& pred)
 	return std::find_if(begin, end, pred) != end;
 }
 
+template <typename container_t, typename pred_t>
+auto count_if(const container_t &container, pred_t pred) noexcept
+{
+	let begin = std::begin(container);
+	let end = std::end(container);
+	return gsl::narrow<size_t>(std::count_if(begin, end, std::move(pred)));
+}
+
 // vector erase, don't preserve element order
 template <typename vector_t, typename iterator_t>
 auto drop(vector_t& vector, iterator_t it)
@@ -244,34 +252,35 @@ auto drop(vector_t& vector, iterator_t it)
 	return std::move(owner);
 }
 
-// Diff two lists. Return list of iterators to elements to be removed from
-// the old list and a list of elements to be added to the old list
-template <typename old_container_t, typename new_container_t, typename equals_t>
-auto diff(
-	const old_container_t& old_list,
-	const new_container_t& new_list,
-	const equals_t& equals)
-	-> std::pair<
-		std::vector<typename old_container_t::const_iterator>,
-		std::vector<std::pair<
-			typename old_container_t::const_iterator,
-			typename new_container_t::value_type>>>
+template <typename old_container_t, typename new_container_t>
+struct diff_result
 {
 	std::vector<typename old_container_t::const_iterator> removed;
 	std::vector<std::pair<
 		typename old_container_t::const_iterator,
 		typename new_container_t::value_type>>
 		added;
+};
+
+// Diff two lists. Return list of iterators to elements to be removed from
+// the old list and a list of elements to be added to the old list
+template <typename old_container_t, typename new_container_t, typename equals_t>
+auto diff(
+	const old_container_t& old_list,
+	const new_container_t& new_list,
+	equals_t equals) -> diff_result<old_container_t, new_container_t>
+{
+	diff_result<old_container_t, new_container_t> result;
 	auto old_it = old_list.begin();
 	let old_end = old_list.end();
 	auto new_it = new_list.begin();
 	let new_end = new_list.end();
 	while (old_it != old_end || new_it != new_end) {
 		if (old_it == old_end) {
-			added.push_back({ old_end, *new_it });
+			result.added.push_back({ old_end, *new_it });
 			++new_it;
 		} else if (new_it == new_end) {
-			removed.push_back(old_it);
+			result.removed.push_back(old_it);
 			++old_it;
 		} else if (equals(*old_it, *new_it)) {
 			++new_it;
@@ -281,18 +290,18 @@ auto diff(
 				return equals(*old_it, value);
 			});
 			if (found_new == new_end) {
-				removed.push_back(old_it);
+				result.removed.push_back(old_it);
 				++old_it;
 			} else {
 				for (auto it = new_it; it != found_new; ++it) {
-					added.push_back({ old_it, *it });
+					result.added.push_back({ old_it, *it });
 				}
 				new_it = std::next(found_new);
 				++old_it;
 			}
 		}
 	}
-	return { removed, added };
+	return result;
 }
 
 template <typename old_container_t, typename new_container_t>
@@ -321,6 +330,7 @@ auto min_element_v(iterator_t begin, iterator_t end, comparator_t comp)
 template <typename container_t, typename comparator_t>
 auto min_element_v(const container_t& container, comparator_t comp)
 {
-	return mark::min_element_v(std::begin(container), std::end(container), comp);
+	return mark::min_element_v(
+		std::begin(container), std::end(container), comp);
 }
 } // namespace mark
