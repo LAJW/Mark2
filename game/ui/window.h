@@ -8,7 +8,11 @@ struct event;
 class window : public node
 {
 public:
-	window(const vector<int>& pos = { 0, 0 });
+	struct info : node::info
+	{
+		vector<int> pos;
+	};
+	window(const info& info);
 	void insert(std::unique_ptr<node> node);
 	void remove(node& node);
 	bool click(const event&) override;

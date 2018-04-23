@@ -10,7 +10,7 @@
 #include <update_context.h>
 
 mark::ui::container::container(const info& info)
-	: window(info.pos)
+	: window(info)
 	, m_ui(*info.ui)
 	, m_container(*info.container)
 	, m_cargo_bg(info.rm->image("cargo-background.png"))
@@ -81,6 +81,7 @@ void mark::ui::container::attach(vector<int> pos, interface::item& item)
 		_.size = item.size() * 16U;
 		_.pos = button_pos;
 		_.image = item.thumbnail();
+		_.relative = false;
 		return _;
 	}());
 	auto& button = *button_ptr;

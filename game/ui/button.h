@@ -9,7 +9,7 @@ class window;
 class button final : public node
 {
 public:
-	struct info
+	struct info : node::info
 	{
 		// Resource manager
 		std::shared_ptr<const resource::image> image = nullptr;
@@ -37,7 +37,7 @@ public:
 
 private:
 	button(const info&, bool);
-	void render(update_context&);
+	void render(update_context&) const;
 
 	const window& m_parent;
 	// Size of the button

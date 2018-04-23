@@ -22,16 +22,20 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
 	using namespace ui;
-	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
+	auto menu = std::make_unique<window>([&] {
+		window::info _;
+		_.pos = { 300, 300 };
+		return _;
+	}());
 	auto play_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
 		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Solitary Traveller";
+		_.relative = true;
 		return _;
 	}());
-	play_button->m_relative = true;
 	play_button->on_click.insert([&](let&) {
 		stack.push(mode::world);
 		return true;
@@ -43,9 +47,9 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Abandon Expedition";
+		_.relative = true;
 		return _;
 	}());
-	quit_button->m_relative = true;
 	quit_button->on_click.insert([&](let&) {
 		stack.push(mode::prompt);
 		return true;
@@ -58,16 +62,20 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
 	using namespace ui;
-	auto menu = std::make_unique<window>(vector<int>{ 300, 300 });
+	auto menu = std::make_unique<window>([&] {
+		window::info _;
+		_.pos = { 300, 300 };
+		return _;
+	}());
 	auto play_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
 		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Yes";
+		_.relative = true;
 		return _;
 	}());
-	play_button->m_relative = true;
 	play_button->on_click.insert([&](let&) {
 		stack.clear();
 		return true;
@@ -79,9 +87,9 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "No";
+		_.relative = true;
 		return _;
 	}());
-	cancel_button->m_relative = true;
 	cancel_button->on_click.insert([&](let&) {
 		stack.pop();
 		return true;
@@ -102,8 +110,10 @@ mark::ui::ui::ui(
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
 {
-	m_windows.push_back(std::make_unique<mark::ui::window>());
-	m_windows.push_back(std::make_unique<mark::ui::window>());
+	m_windows.push_back(
+		std::make_unique<mark::ui::window>(mark::ui::window::info()));
+	m_windows.push_back(
+		std::make_unique<mark::ui::window>(mark::ui::window::info()));
 }
 
 mark::ui::ui::~ui() = default;
@@ -121,7 +131,8 @@ void mark::ui::ui::update(
 			if (m_mode == mode::main_menu) {
 				m_windows.front() = make_main_menu(m_rm, m_stack);
 			} else if (m_mode == mode::world) {
-				m_windows.front() = std::make_unique<mark::ui::window>();
+				m_windows.front() = std::make_unique<mark::ui::window>(
+					mark::ui::window::info());
 			} else if (m_mode == mode::prompt) {
 				m_windows.front() = make_prompt(m_rm, m_stack);
 			}
@@ -162,9 +173,9 @@ void mark::ui::ui::update(
 						_.rm = &m_rm;
 						_.container = &container.get();
 						_.ui = this;
+						_.relative = true;
 						return _;
 					}());
-				container_window->m_relative = true;
 				window->children().insert(it, move(container_window));
 			}
 		}

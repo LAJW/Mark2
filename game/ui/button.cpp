@@ -1,19 +1,19 @@
-﻿#include <stdafx.h>
-#include "button.h"
+﻿#include "button.h"
 #include "window.h"
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 
 static bool validate(const mark::ui::button::info& info) noexcept
 {
-	assert(info.parent);
-	(void)info;
+	Expects(info.parent);
 	return true;
 }
 
 mark::ui::button::button(const info& info, bool)
-	: m_parent(*info.parent)
+	: node(info)
+	, m_parent(*info.parent)
 	, m_size(info.size)
 	, m_image(info.image)
 	, m_font(info.font)
@@ -46,7 +46,7 @@ void mark::ui::button::update(update_context& context)
 	this->render(context);
 }
 
-void mark::ui::button::render(update_context& context)
+void mark::ui::button::render(update_context& context) const
 {
 	const double total = size().x * 2 + size().y * 2;
 	int cur = int(total * m_opacity);

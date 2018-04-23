@@ -7,19 +7,28 @@ struct event;
 class node
 {
 public:
-	virtual ~node() = default;
+	struct info
+	{
+		bool relative = false;
+	};
+
 	virtual void update(update_context& ctx) = 0;
 	virtual bool click(const event&) = 0;
 	virtual bool hover(const event&) = 0;
 	// get absolute pos
 	virtual auto pos() const noexcept -> vector<int> { return m_pos; }
 	void pos(const vector<int>& pos) { m_pos = pos; }
-	virtual vector<int> size() const { return { 0, 0 }; }
-	bool m_relative = false;
+	virtual auto size() const -> vector<int> { return { 0, 0 }; }
 	auto relative() const noexcept -> bool { return m_relative; }
 
 protected:
+	node(const info& info)
+		: m_relative(info.relative)
+	{}
 	vector<int> m_pos;
+
+private:
+	bool m_relative = false;
 };
 } // namespace ui
 } // namespace mark

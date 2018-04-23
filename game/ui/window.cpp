@@ -2,7 +2,11 @@
 #include <algorithm.h>
 #include <stdafx.h>
 
-mark::ui::window::window(const vector<int>& pos) { m_pos = pos; }
+mark::ui::window::window(const info& info)
+	: node(info)
+{
+	pos(info.pos);
+}
 
 void mark::ui::window::insert(std::unique_ptr<node> node)
 {

@@ -11,12 +11,11 @@ struct event;
 class container final : public window
 {
 public:
-	struct info
+	struct info : window::info
 	{
 		resource::manager* rm = nullptr;
 		module::cargo* container = nullptr;
 		mark::ui::ui* ui = nullptr;
-		vector<int> pos;
 	};
 	container(const info& info);
 	void update(update_context&) override;
