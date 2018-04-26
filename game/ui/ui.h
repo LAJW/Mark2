@@ -40,6 +40,9 @@ public:
 	void release();
 
 private:
+	auto command(world& world, const command::move& move) -> bool;
+	void drop(world& world, vector<double> relative);
+	void drag(world& world, vector<double> relative, bool shift);
 	void container_ui(
 		update_context& context,
 		vector<double> resolution,

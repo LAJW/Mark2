@@ -216,6 +216,15 @@ bool mark::ui::ui::hover(vector<int> screen_pos)
 	return false;
 }
 
+namespace mark {
+static auto ship(mark::world& world) -> std::shared_ptr<unit::modular>
+{
+	let target = world.target();
+	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
+	return landing_pad ? landing_pad->ship() : nullptr;
+}
+} // namespace mark
+
 bool mark::ui::ui::command(world& world, const mark::command::any& any)
 {
 	if (std::holds_alternative<command::cancel>(any)) {
@@ -233,78 +242,102 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 			return false;
 		}
 	}
-
-	auto landing_pad =
-		std::dynamic_pointer_cast<unit::landing_pad>(world.target());
-	if (!landing_pad) {
-		return false;
-	}
-	auto ship = landing_pad->ship();
-	if (!ship) {
-		return false;
-	}
 	if (let activate = std::get_if<command::activate>(&any)) {
+		let ship = mark::ship(world);
+		if (!ship) {
+			return false;
+		}
 		if (grabbed) {
 			this->release();
 			return true;
-		} else {
-			let relative =
-				(activate->pos - landing_pad->pos()) / double(module::size);
-			let pick_pos = floor(relative);
-			ship->toggle_bind(activate->id, pick_pos);
 		}
-		return true;
-	} else if (let move = std::get_if<command::move>(&any)) {
-		let shift = move->shift;
-		if (move->release) {
-			return false;
-		}
-		if (this->click(move->screen_pos)) {
-			return true;
-		}
-		let relative = (move->to - landing_pad->pos()) / double(module::size);
-		let module_pos = round(relative);
+		let relative =
+			(activate->pos - world.target()->pos()) / double(module::size);
 		let pick_pos = floor(relative);
-		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
-			// ship drag&drop
-			if (grabbed) {
-				// module's top-left corner
-				let drop_pos = module_pos - vector<int>(grabbed->size()) / 2;
-				if (error::code::success == ship->attach(drop_pos, grabbed)) {
-					for (let& bind : this->grabbed_bind) {
-						ship->toggle_bind(bind, drop_pos);
-					}
-					grabbed_bind.clear();
-				} else if (let module = ship->module_at(drop_pos)) {
-					let result =
-						grabbed->use_on(m_rm, world.blueprints(), *module);
-					if (result.error == error::code::success
-						&& result.consumed) {
-						grabbed.reset();
-					}
-				}
-			} else {
-				grabbed_bind = ship->binding(pick_pos);
-				if (let module = ship->module_at(pick_pos)) {
-					grabbed_prev_pos = module->grid_pos();
-					grabbed = ship->detach(pick_pos);
-					if (grabbed) {
-						grabbed_prev_parent = ship.get();
-						if (shift) {
-							if (push(*ship, grabbed) != error::code::success) {
-								Expects(
-									!ship->attach(grabbed_prev_pos, grabbed));
-							}
-						}
-					} else {
-						grabbed_bind.clear();
-					}
-				}
-			}
-		}
+		ship->toggle_bind(activate->id, pick_pos);
 		return true;
 	}
+	if (let move = std::get_if<command::move>(&any)) {
+		return this->command(world, *move);
+	}
 	return false;
+}
+
+auto mark::ui::ui::command(world& world, const mark::command::move& move)
+	-> bool
+{
+	if (move.release) {
+		return false;
+	}
+	if (this->click(move.screen_pos)) {
+		return true;
+	}
+	if (!ship(world)) {
+		return false;
+	}
+	let relative = (move.to - world.target()->pos()) / double(module::size);
+	let module_pos = round(relative);
+	if (!(std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17)) {
+		return true;
+	}
+	// ship drag&drop
+	if (this->grabbed) {
+		this->drop(world, relative);
+	} else {
+		this->drag(world, relative, move.shift);
+	}
+	return true;
+}
+
+void mark::ui::ui::drop(world& world, vector<double> relative)
+{
+	Expects(grabbed);
+	let module_pos = round(relative);
+	let ship = mark::ship(world);
+	// module's top-left corner
+	let drop_pos = module_pos - vector<int>(grabbed->size()) / 2;
+	if (ship->attach(drop_pos, grabbed) == error::code::success) {
+		for (let& bind : this->grabbed_bind) {
+			ship->toggle_bind(bind, drop_pos);
+		}
+		grabbed_bind.clear();
+		return;
+	}
+	if (let module = ship->module_at(drop_pos)) {
+		let[error, consumed] =
+			grabbed->use_on(m_rm, world.blueprints(), *module);
+		if (error == error::code::success && consumed) {
+			grabbed.reset();
+		}
+	}
+}
+
+void mark::ui::ui::drag(world& world, vector<double> relative, bool shift)
+{
+	Expects(!grabbed);
+	let pick_pos = floor(relative);
+	let ship = mark::ship(world);
+	grabbed_bind = ship->binding(pick_pos);
+	let module = ship->module_at(pick_pos);
+	if (!module) {
+		return;
+	}
+	grabbed_prev_pos = module->grid_pos();
+	if (!shift) {
+		if (grabbed = ship->detach(pick_pos)) {
+			grabbed_prev_parent = ship.get();
+		}
+		return;
+	}
+	auto detached = ship->detach(pick_pos);
+	if (!detached) {
+		return;
+	}
+	if (error::code::success != push(*ship, detached)) {
+		// It should be possible to reattach a module, if it was already
+		// attached
+		Expects(!ship->attach(grabbed_prev_pos, detached));
+	}
 }
 
 let constexpr tooltip_layer = 110ull;
