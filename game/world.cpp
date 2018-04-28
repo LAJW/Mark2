@@ -113,7 +113,7 @@ mark::world::world(
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialize(*this, stack.blueprints().at("ship")));
+			unit::deserialize(*this, stack.blueprints().at("ship")).get());
 	};
 	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
@@ -313,9 +313,9 @@ auto mark::world::collide(vd center, double radius)
 
 void mark::world::update_spatial_partition()
 {
-	std::vector<shared_ptr<unit::base>> non_projectiles;
+	decltype(m_units) non_projectiles;
 	non_projectiles.reserve(m_units.size());
-	std::copy_if(
+	copy_if(
 		begin(m_units),
 		end(m_units),
 		back_inserter(non_projectiles),

@@ -5,6 +5,12 @@
 
 namespace mark {
 
+template <typename T, typename... Args>
+auto make_shared(Args&&... args) -> not_null<shared_ptr<T>>
+{
+	return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
 // Vector/Area range_t
 // TODO: Type static assert to check whether T is specialization of vector
 template <typename T, typename = void>

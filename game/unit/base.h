@@ -9,7 +9,7 @@ namespace mark {
 namespace unit {
 
 auto deserialize(world& world, const YAML::Node& node)
-	-> shared_ptr<unit::base>;
+	-> not_null<shared_ptr<unit::base>>;
 
 // Part of the unit modifiable by world and nothing else
 class base_ref : public interface::world_object

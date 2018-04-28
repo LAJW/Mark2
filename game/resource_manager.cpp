@@ -1,5 +1,6 @@
 ﻿#include "resource_manager.h"
 #include "resource_image.h"
+#include "algorithm.h"
 #include "stdafx.h"
 
 mark::resource::manager_impl::manager_impl()
@@ -12,9 +13,9 @@ auto mark::resource::manager_impl::image(const std::string& filename)
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
 	if (!image) {
-		auto new_image = std::make_shared<resource::image_impl>(filename);
-		image_ptr = new_image;
-		return new_image;
+		let new_image = mark::make_shared<resource::image_impl>(filename);
+		image_ptr = new_image.get();
+		return new_image.get();
 	}
 	return image;
 }
