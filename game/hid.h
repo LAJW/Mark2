@@ -31,7 +31,7 @@ private:
 	std::vector<button> m_released;
 	// Map from sfml device button to command (Loaded from file)
 	std::unordered_map<button, make_command_type> m_to_command;
-	bool m_shift;
+	bool m_shift = false;
 	bool m_moving = false;
 };
 } // namespace mark
