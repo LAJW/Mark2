@@ -268,10 +268,10 @@ auto mark::world::target() const -> std::shared_ptr<const unit::base>
 	return m_camera->target();
 }
 
-void mark::world::attach(const std::shared_ptr<mark::unit::base>& unit)
+void mark::world::attach(gsl::not_null<std::shared_ptr<mark::unit::base>> unit)
 {
 	if (std::find(m_units.cbegin(), m_units.cend(), unit) == m_units.cend()) {
-		m_units.push_back(unit);
+		m_units.push_back(unit.get());
 	}
 	unit->m_world = *this;
 }
@@ -320,7 +320,7 @@ void mark::world::update_spatial_partition()
 		end(m_units),
 		back_inserter(non_projectiles),
 		[](let& base) {
-			return !std::dynamic_pointer_cast<unit::projectile>(base);
+			return !std::dynamic_pointer_cast<unit::projectile>(base.get());
 		});
 	divide_space(begin(non_projectiles), end(non_projectiles), m_space_bins);
 }
@@ -388,7 +388,7 @@ mark::world::world(
 	for (let& unit_node : node["units"]) {
 		m_units.push_back(unit::deserialize(*this, unit_node));
 		let unit_id = unit_node["id"].as<uint64_t>();
-		unit_map.emplace(unit_id, m_units.back());
+		unit_map.emplace(unit_id, m_units.back().get());
 	}
 	for (let& unit_node : node["units"]) {
 		let unit_id = unit_node["id"].as<uint64_t>();

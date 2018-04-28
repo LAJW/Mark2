@@ -36,14 +36,12 @@ public:
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
 	auto find(vd pos, const double radius, T pred = true_predicate{}) const
-		-> std::vector<std::shared_ptr<unit_type>>
 	{
 		return mark::find<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
 	auto find_one(vd pos, const double radius, T pred = true_predicate{}) const
-		-> std::shared_ptr<unit_type>
 	{
 		return mark::find_one<unit_type>(m_space_bins, pos, radius, pred);
 	}
@@ -54,7 +52,7 @@ public:
 	// get target for commands
 	auto target() -> std::shared_ptr<unit::base>;
 	auto target() const -> std::shared_ptr<const unit::base>;
-	void attach(const std::shared_ptr<mark::unit::base>& unit);
+	void attach(gsl::not_null<std::shared_ptr<mark::unit::base>> unit);
 	struct damage_info
 	{
 		interface::damageable::info damage;
@@ -101,7 +99,7 @@ private:
 
 	resource::manager& m_resource_manager;
 	std::unique_ptr<mark::map> m_map;
-	std::vector<std::shared_ptr<unit::base>> m_units;
+	std::vector<gsl::not_null<std::shared_ptr<unit::base>>> m_units;
 	space_bins<unit::base> m_space_bins;
 	std::unique_ptr<mark::camera> m_camera;
 	std::vector<particle> m_particles;

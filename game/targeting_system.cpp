@@ -33,7 +33,7 @@ void mark::targeting_system::update(update_context& context)
 {
 	let pos = m_parent.pos();
 	if (let queue = std::get_if<queue_type>(&m_target)) {
-		auto unit = [&] {
+		auto unit = [&] () -> std::shared_ptr<unit::damageable> {
 			auto closest = m_parent.world().find<unit::damageable>(
 				pos, 500.0, [&](let& unit) {
 					return !unit.dead() && unit.team() != m_parent.team();
@@ -45,7 +45,7 @@ void mark::targeting_system::update(update_context& context)
 					return dist_a < dist_b;
 				});
 			if (min_it != closest.end()) {
-				return *min_it;
+				return min_it->get();
 			}
 			if (queue->empty()) {
 				return m_parent.world().find_one<unit::damageable>(
@@ -54,10 +54,10 @@ void mark::targeting_system::update(update_context& context)
 						&& context.random(0, 3) == 0;
 					});
 			}
-			return std::shared_ptr<unit::damageable>(nullptr);
+			return nullptr;
 		}();
 		if (unit) {
-			queue->push_front({ move(unit), {} });
+			queue->push_front({ std::move(unit), {} });
 		}
 	}
 	if (let queue = std::get_if<queue_type>(&m_target)) {
