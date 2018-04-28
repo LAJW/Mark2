@@ -21,8 +21,8 @@ private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
-	std::shared_ptr<const resource::image> m_image_base;
-	std::shared_ptr<const resource::image> m_image_bar;
+	resource::image_ptr m_image_base;
+	resource::image_ptr m_image_bar;
 	float m_cur_energy = 0.f;
 	float m_max_energy = 100.f;
 	float m_energy_regen = 30.f;

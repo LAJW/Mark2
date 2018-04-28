@@ -43,7 +43,7 @@ void mark::update_context::render(const text_info& info)
 	let world = info.world;
 	let centred = info.centred;
 
-	auto offset = vector<double>(size, size) / 2.0;
+	auto offset = vd(size, size) / 2.0;
 	for (size_t i = 0; i < text.size(); i++) {
 		let ch = text[i];
 		char frame = -1;
@@ -66,7 +66,7 @@ void mark::update_context::render(const text_info& info)
 		if (frame >= 0) {
 			sprite args;
 			args.image = font;
-			args.pos = pos + offset + vector<double>(0, offset_y(ch));
+			args.pos = pos + offset + vd(0, offset_y(ch));
 			args.size = size;
 			args.frame = frame;
 			args.color = color;
@@ -120,7 +120,7 @@ void mark::update_context::render(const bar_info& info)
 		if (i >= edge) {
 			sprite args;
 			args.image = image;
-			args.pos = pos + vector<double>(offset_x, 0);
+			args.pos = pos + vd(offset_x, 0);
 			args.size = 8.f;
 			args.frame = 6;
 			this->sprites[50].emplace_back(args);
@@ -149,7 +149,7 @@ void mark::update_context::render(const bar_info& info)
 			}
 			sprite args;
 			args.image = image;
-			args.pos = pos + vector<double>(offset_x, 0);
+			args.pos = pos + vd(offset_x, 0);
 			args.size = 8.f;
 			args.frame = frame;
 			args.color = sf::Color(255, 255, 255, opacity);
@@ -171,7 +171,7 @@ void mark::update_context::render(const update_context::spray_info& info)
 			? this->random(info.min_diameter, info.max_diameter)
 			: info.min_diameter;
 		let tmp_pos = info.pos
-			+ rotate(vector<double>(1, 0), info.direction)
+			+ rotate(vd(1, 0), info.direction)
 				* (info.step * static_cast<double>(i)
 				   / static_cast<double>(info.count));
 		let rotation =

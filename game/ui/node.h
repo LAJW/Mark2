@@ -16,16 +16,16 @@ public:
 	virtual bool click(const event&) = 0;
 	virtual bool hover(const event&) = 0;
 	// get absolute pos
-	virtual auto pos() const noexcept -> vector<int> { return m_pos; }
-	void pos(const vector<int>& pos) { m_pos = pos; }
-	virtual auto size() const -> vector<int> { return { 0, 0 }; }
+	virtual auto pos() const noexcept -> vi32 { return m_pos; }
+	void pos(const vi32& pos) { m_pos = pos; }
+	virtual auto size() const -> vi32 { return { 0, 0 }; }
 	auto relative() const noexcept -> bool { return m_relative; }
 
 protected:
 	node(const info& info)
 		: m_relative(info.relative)
 	{}
-	vector<int> m_pos;
+	vi32 m_pos;
 
 private:
 	bool m_relative = false;

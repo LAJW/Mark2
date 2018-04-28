@@ -20,10 +20,10 @@ mark::map mark::map::make_cavern(mark::resource::manager& rm)
 	let corridor_width = 3;
 
 	auto map = mark::map(rm, { map_size, map_size });
-	auto point = vector<int>(map.size()) / 2;
+	auto point = vi32(map.size()) / 2;
 	for (let cur_depth : range(depth)) {
 		(void)cur_depth;
-		let direction_d = rotate(vector<double>(1, 0), rm.random(0, 3) * 90.);
+		let direction_d = rotate(vd(1, 0), rm.random(0, 3) * 90.);
 		let direction = round(direction_d);
 		let orto = round(rotate(direction_d, 90.));
 		let length = rm.random(1, max_corridor_length);
@@ -47,7 +47,7 @@ mark::map mark::map::make_square(resource::manager& resource_manager)
 	auto map = mark::map(resource_manager, { square_size, square_size });
 	let middle = range(vector<size_t>(1, 1), map.size() - vector<size_t>(1, 1));
 	for (let pos : middle) {
-		map.set(vector<int>(pos), terrain_kind::floor_1);
+		map.set(vi32(pos), terrain_kind::floor_1);
 	}
 	map.calculate_traversable();
 	return map;
@@ -55,55 +55,51 @@ mark::map mark::map::make_square(resource::manager& resource_manager)
 
 // Map functionality
 
-auto mark::map::world_to_map(const vector<double>& pos) const noexcept
-	-> vector<int>
+auto mark::map::world_to_map(const vd& pos) const noexcept -> vi32
 {
-	return round(pos / map::tile_size) + vector<int>(this->size() / size_t(2));
+	return round(pos / map::tile_size) + vi32(this->size() / size_t(2));
 }
 
 void mark::map::calculate_traversable()
 {
 	for (let pos : range(m_terrain.size())) {
 		auto& traversables = m_terrain[pos].traversable;
-		traversables.front() = p_traversable(vector<int>(pos), 0);
+		traversables.front() = p_traversable(vi32(pos), 0);
 		for (let radius : range<size_t>(1, traversables.size())) {
-			traversables[radius] = traversables[radius - 1]
-				&& p_traversable(vector<int>(pos), radius);
+			traversables[radius] =
+				traversables[radius - 1] && p_traversable(vi32(pos), radius);
 		}
 	}
 }
 
-auto mark::map::map_to_world(const vector<int>& pos) const noexcept
-	-> vector<double>
+auto mark::map::map_to_world(const vi32& pos) const noexcept -> vd
 {
-	let center = vector<int>(this->size() / size_t(2));
-	return vector<double>(pos - center) * map::tile_size;
+	let center = vi32(this->size() / size_t(2));
+	return vd(pos - center) * map::tile_size;
 }
 
-auto mark::map::traversable(const vector<double>& pos, const double radius_)
-	const -> bool
+auto mark::map::traversable(const vd& pos, const double radius_) const -> bool
 {
 	let radius = size_t(std::ceil(radius_ / map::tile_size));
 	return this->traversable(this->world_to_map(pos), radius);
 }
 
-auto mark::map::traversable(const vector<int>& pos, const size_t radius) const
-	-> bool
+auto mark::map::traversable(const vi32& pos, const size_t radius) const -> bool
 {
 	return pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y && radius < 20
 		&& m_terrain[vector<size_t>(pos)].traversable[radius];
 }
 
-auto mark::map::p_traversable(const vector<int>& pos, const size_t uradius)
-	const -> bool
+auto mark::map::p_traversable(const vi32& pos, const size_t uradius) const
+	-> bool
 {
 	if (uradius <= 1) {
 		let tile = this->get(pos);
 		return tile != terrain_kind::null && tile != terrain_kind::wall;
 	}
 	let radius = static_cast<int>(uradius);
-	let offset = vector<int>(radius, radius);
+	let offset = vi32(radius, radius);
 	let range = mark::range(-offset, offset);
 	return std::all_of(range.begin(), range.end(), [&](let offset) {
 		if (length(offset) > radius) {
@@ -114,18 +110,15 @@ auto mark::map::p_traversable(const vector<int>& pos, const size_t uradius)
 	});
 }
 
-void mark::map::update(
-	vector<double> world_tl,
-	vector<double> world_br,
-	update_context& context)
+void mark::map::update(vd world_tl, vd world_br, update_context& context)
 {
 	m_find_count = 0;
 	let range = [&] {
-		let size = vector<int>(this->size());
+		let size = vi32(this->size());
 		let tl_ = this->world_to_map(world_tl);
 		let br_ = this->world_to_map(world_br);
-		let tl = vector<int>(std::max(tl_.x, 0), std::max(tl_.y, 0));
-		let br = vector<int>(std::min(br_.x, size.x), std::min(br_.y, size.y));
+		let tl = vi32(std::max(tl_.x, 0), std::max(tl_.y, 0));
+		let br = vi32(std::min(br_.x, size.x), std::min(br_.y, size.y));
 		return mark::range(tl, br);
 	}();
 	transform(
@@ -134,9 +127,9 @@ void mark::map::update(
 		back_inserter(context.sprites[-1]),
 		[&](let pos) {
 			let frame = [&] {
-				let ctl = this->get(pos - vector<int>(1, 1));
-				let cbl = this->get(pos - vector<int>(1, 0));
-				let ctr = this->get(pos - vector<int>(0, 1));
+				let ctl = this->get(pos - vi32(1, 1));
+				let cbl = this->get(pos - vi32(1, 0));
+				let ctr = this->get(pos - vi32(0, 1));
 				let cbr = this->get(pos);
 				return ((ctl == terrain_kind::floor_1) & 1)
 					| ((cbl == terrain_kind::floor_1) & 1) << 1
@@ -147,7 +140,7 @@ void mark::map::update(
 			info.image = m_tileset;
 			info.frame = frame + get_variant(pos) * 16;
 			info.size = map::tile_size;
-			info.pos = map_to_world(pos) - vector<double>(0.5, 0.5) * tile_size;
+			info.pos = map_to_world(pos) - vd(0.5, 0.5) * tile_size;
 			return info;
 		});
 }
@@ -204,7 +197,7 @@ auto mark::map::size() const noexcept -> const vector<size_t>&
 	return m_terrain.size();
 }
 
-auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
+auto mark::map::get(const vi32& pos) const noexcept -> terrain_kind
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -213,7 +206,7 @@ auto mark::map::get(const vector<int>& pos) const noexcept -> terrain_kind
 	return terrain_kind::null;
 }
 
-auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
+auto mark::map::get_variant(const vi32& pos) const noexcept -> unsigned
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -222,7 +215,7 @@ auto mark::map::get_variant(const vector<int>& pos) const noexcept -> unsigned
 	return 0;
 }
 
-void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
+void mark::map::set(const vi32& pos, terrain_kind type) noexcept
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -231,8 +224,8 @@ void mark::map::set(const vector<int>& pos, terrain_kind type) noexcept
 }
 
 // 16-point star
-std::array<mark::vector<int>, 16> directions{
-	mark::vector<int>{ -2, -1 },
+std::array<mark::vi32, 16> directions{
+	mark::vi32{ -2, -1 },
 	{ -1, -1 },
 	{ -1, -2 },
 	{ 2, -1 },
@@ -252,8 +245,8 @@ std::array<mark::vector<int>, 16> directions{
 
 auto nearest_traversable(
 	const mark::map& map,
-	const mark::vector<int>& end,
-	const size_t radius) -> mark::vector<int>
+	const mark::vi32& end,
+	const size_t radius) -> mark::vi32
 {
 	if (!map.traversable(end, radius)) {
 		for (let i : mark::range(100)) {
@@ -270,9 +263,9 @@ auto nearest_traversable(
 
 auto nearest_traversable(
 	const mark::map& map,
-	const mark::vector<int>& start,
-	const mark::vector<int>& end,
-	const size_t radius) -> mark::vector<int>
+	const mark::vi32& start,
+	const mark::vi32& end,
+	const size_t radius) -> mark::vi32
 {
 	using namespace mark;
 	if (!map.traversable(end, radius)) {
@@ -292,8 +285,8 @@ auto nearest_traversable(
 
 static auto straight_exists(
 	const mark::map& map,
-	const mark::vector<double>& start,
-	const mark::vector<double>& end,
+	const mark::vd& start,
+	const mark::vd& end,
 	const double radius)
 {
 	using namespace mark;
@@ -309,15 +302,14 @@ static auto straight_exists(
 }
 
 static bool
-has_one(const std::vector<std::unique_ptr<Node>>& nodes, mark::vector<int> pos)
+has_one(const std::vector<std::unique_ptr<Node>>& nodes, mark::vi32 pos)
 {
 	return any_of(nodes.begin(), nodes.end(), [&pos](let& node) {
 		return node->pos == pos;
 	});
 }
 
-static auto find_one(std::vector<Node>& nodes, const mark::vector<int>& pos)
-	-> Node*
+static auto find_one(std::vector<Node>& nodes, const mark::vi32& pos) -> Node*
 {
 	auto node_it = find_if(nodes.begin(), nodes.end(), [&pos](let& node) {
 		return pos == node.pos;
@@ -328,8 +320,7 @@ static auto find_one(std::vector<Node>& nodes, const mark::vector<int>& pos)
 static auto make_path(
 	const mark::map& map,
 	const Node* node,
-	std::vector<mark::vector<double>> out = {})
-	-> std::vector<mark::vector<double>>
+	std::vector<mark::vd> out = {}) -> std::vector<mark::vd>
 {
 	if (node) {
 		out.push_back(map.map_to_world(node->pos));
@@ -340,25 +331,25 @@ static auto make_path(
 
 // Jump Point Search Functions - Beginning
 
-static auto is_diagonal(const mark::vector<int>& direction)
+static auto is_diagonal(const mark::vi32& direction)
 {
 	return direction.x != 0 && direction.y != 0;
 }
 
-static auto turn_left(const mark::vector<int>& direction) -> mark::vector<int>
+static auto turn_left(const mark::vi32& direction) -> mark::vi32
 {
 	return { -direction.y, direction.x };
 }
 
-static auto turn_right(const mark::vector<int>& direction) -> mark::vector<int>
+static auto turn_right(const mark::vi32& direction) -> mark::vi32
 {
 	return { direction.y, -direction.x };
 }
 
 static auto has_forced_neighbours(
 	const mark::map& map,
-	const mark::vector<int>& next,
-	const mark::vector<int>& direction,
+	const mark::vi32& next,
+	const mark::vi32& direction,
 	const int radius) -> bool
 {
 	if (!is_diagonal(direction)) {
@@ -378,7 +369,7 @@ static auto has_forced_neighbours(
 					   next + turn_right(direction) + direction, radius)));
 }
 
-static auto make_direction(const Node& node) -> mark::vector<int>
+static auto make_direction(const Node& node) -> mark::vi32
 {
 	if (node.parent) {
 		auto direction = node.pos - node.parent->pos;
@@ -391,9 +382,9 @@ static auto make_direction(const Node& node) -> mark::vector<int>
 
 static auto
 pruned_neighbours(const mark::map& map, const Node& node, const int radius)
-	-> std::vector<mark::vector<int>>
+	-> std::vector<mark::vi32>
 {
-	std::vector<mark::vector<int>> out;
+	std::vector<mark::vi32> out;
 	let direction = make_direction(node);
 	if (direction.x == 0 && direction.y == 0) {
 		for (let& next_direction : directions) {
@@ -404,11 +395,11 @@ pruned_neighbours(const mark::map& map, const Node& node, const int radius)
 		return out;
 	}
 	if (is_diagonal(direction)) {
-		let right = node.pos + mark::vector<int>(direction.x, 0);
+		let right = node.pos + mark::vi32(direction.x, 0);
 		if (map.traversable(right, radius)) {
 			out.push_back(right);
 		}
-		let top = node.pos + mark::vector<int>(0, direction.y);
+		let top = node.pos + mark::vi32(0, direction.y);
 		if (map.traversable(top, radius)) {
 			out.push_back(top);
 		}
@@ -437,10 +428,10 @@ pruned_neighbours(const mark::map& map, const Node& node, const int radius)
 
 static auto jump(
 	const mark::map& map,
-	const mark::vector<int>& cur,
-	const mark::vector<int>& direction,
-	const mark::vector<int>& end,
-	const int radius) -> std::optional<mark::vector<int>>
+	const mark::vi32& cur,
+	const mark::vi32& direction,
+	const mark::vi32& end,
+	const int radius) -> std::optional<mark::vi32>
 {
 	let next = cur + direction;
 	if (!map.traversable(next, radius)) {
@@ -463,7 +454,7 @@ static auto jump(
 static auto identify_successors(
 	const mark::map& map,
 	const Node& cur,
-	const mark::vector<int>& end,
+	const mark::vi32& end,
 	const int radius) -> std::vector<Node>
 {
 	std::vector<Node> successors;
@@ -484,11 +475,10 @@ static auto identify_successors(
 
 static auto find_path(
 	const mark::map& map,
-	const mark::vector<int>& end,
+	const mark::vi32& end,
 	const int radius,
 	std::vector<Node> open,
-	std::vector<std::unique_ptr<Node>> closed)
-	-> std::vector<mark::vector<double>>
+	std::vector<std::unique_ptr<Node>> closed) -> std::vector<mark::vd>
 {
 	if (open.empty()) {
 		return {};
@@ -527,9 +517,9 @@ static auto find_path(
 }
 
 auto mark::map::find_path(
-	const vector<double>& world_start,
-	const vector<double>& world_end,
-	const double world_radius) const -> std::vector<vector<double>>
+	const vd& world_start,
+	const vd& world_end,
+	const double world_radius) const -> std::vector<vd>
 {
 	if (straight_exists(*this, world_start, world_end, world_radius)) {
 		return { world_end };
@@ -568,14 +558,14 @@ static auto intersect_and_reflect(mark::segment_t wall, mark::segment_t ray)
 	if (let intersection = intersect(ray, wall)) {
 		let horizontal = (wall.first.x == wall.second.x);
 		let dir = ray.second - ray.first;
-		let reflection = horizontal ? atan(vector<double>(-dir.x, dir.y))
-									: atan(vector<double>(dir.x, -dir.y));
+		let reflection =
+			horizontal ? atan(vd(-dir.x, dir.y)) : atan(vd(dir.x, -dir.y));
 		return collide_result{ *intersection, reflection };
 	}
 	return {};
 }
-auto mark::map::collide_with_block_at(vector<double> pos, segment_t ray) const
-	noexcept -> std::optional<collide_result>
+auto mark::map::collide_with_block_at(vd pos, segment_t ray) const noexcept
+	-> std::optional<collide_result>
 {
 	let constexpr hs = mark::map::tile_size / 2.; // Half size (of the map tile)
 	let cur_pos = this->world_to_map(pos);

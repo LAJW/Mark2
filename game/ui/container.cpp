@@ -30,7 +30,7 @@ void mark::ui::container::update(update_context& context)
 	context.sprites[100].push_back([&] {
 		sprite _;
 		_.image = m_cargo_bg;
-		_.pos = vector<double>(this->pos());
+		_.pos = vd(this->pos());
 		_.size = 64.f;
 		_.frame = std::numeric_limits<size_t>::max();
 		_.color = { 255, 255, 255, 200 };
@@ -50,8 +50,8 @@ bool mark::ui::container::click(const event& event)
 		return false;
 	}
 	auto& module = *m_ui.grabbed;
-	const vector<int> module_size(module.size());
-	const vector<double> relative_pos(event.cursor - this->pos());
+	const vi32 module_size(module.size());
+	const vd relative_pos(event.cursor - this->pos());
 	let pos = round(relative_pos / 16.) - module_size / 2;
 	let result = m_container.attach(pos, m_ui.grabbed);
 	if (result == error::code::success || result == error::code::stacked) {
@@ -66,13 +66,13 @@ auto mark::ui::container::cargo() const -> const module::cargo&
 	return m_container;
 }
 
-auto mark::ui::container::size() const -> vector<int>
+auto mark::ui::container::size() const -> vi32
 {
-	return vector<int>(m_container.interior_size())
+	return vi32(m_container.interior_size())
 		* static_cast<int>(mark::module::size * 1.5f);
 }
 
-void mark::ui::container::attach(vector<int> pos, interface::item& item)
+void mark::ui::container::attach(vi32 pos, interface::item& item)
 {
 	let button_pos = pos * 16;
 	auto button_ptr = std::make_unique<mark::ui::button>([&] {
@@ -105,7 +105,7 @@ void mark::ui::container::attach(vector<int> pos, interface::item& item)
 	let length = static_cast<int>(item.size().x) * 16;
 	button.on_hover.insert([=, &item](const event&) {
 		m_ui.tooltip(
-			this->pos() + button_pos + vector<int>(length, 0), item.describe());
+			this->pos() + button_pos + vi32(length, 0), item.describe());
 		return true;
 	});
 	this->insert(move(button_ptr));

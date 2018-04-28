@@ -5,8 +5,8 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <sstream>
-#include <update_context.h>
 #include <unit/bucket.h>
+#include <update_context.h>
 #include <world.h>
 
 // Serialize / Deserialize
@@ -63,7 +63,7 @@ void mark::module::cargo::update(update_context& context)
 	this->module::base::update(context);
 	m_lfo.update(context.dt);
 	let pos = this->pos();
-	let light_offset = rotate(vector<double>(24.f, 8.f), parent_rotation());
+	let light_offset = rotate(vd(24.f, 8.f), parent_rotation());
 	let light_strength =
 		static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
 	context.sprites[2].emplace_back([&] {
@@ -96,14 +96,13 @@ void mark::module::cargo::update(update_context& context)
 	}());
 }
 
-auto mark::module::cargo::items()
-	-> std::vector<std::unique_ptr<interface::item>>&
+auto mark::module::cargo::items() -> std::vector<interface::item_ptr>&
 {
 	return m_items;
 }
 
 auto mark::module::cargo::items() const
-	-> const std::vector<std::unique_ptr<interface::item>>&
+	-> const std::vector<interface::item_ptr>&
 {
 	return m_items;
 }
@@ -111,26 +110,24 @@ auto mark::module::cargo::items() const
 namespace {
 
 auto overlaps(
-	const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& left,
-	const std::pair<mark::vector<unsigned>, mark::vector<unsigned>>& right)
-	-> bool
+	const std::pair<mark::vu32, mark::vu32>& left,
+	const std::pair<mark::vu32, mark::vu32>& right) -> bool
 {
 	return left.first.x < right.second.x && left.second.x > right.first.x
 		&& left.first.y < right.second.y && left.second.y > right.first.y;
 }
 } // namespace
 
-auto mark::module::cargo::attach(
-	const vector<int>& pos,
-	std::unique_ptr<interface::item>& item) -> std::error_code
+auto mark::module::cargo::attach(const vi32& pos, interface::item_ptr& item)
+	-> std::error_code
 {
 	{
-		let incoming_pos = vector<unsigned>(pos);
+		let incoming_pos = vu32(pos);
 		let incoming_border = incoming_pos + item->size();
 		for (let pair : enumerate(m_items)) {
 			if (let& cur_item = pair.second) {
 				let i = static_cast<unsigned>(pair.first);
-				let item_pos = vector<unsigned>(i % 16, i / 16);
+				let item_pos = vu32(i % 16, i / 16);
 				let item_border = item_pos + cur_item->size();
 				if (overlaps(
 						{ incoming_pos, incoming_border },
@@ -150,7 +147,7 @@ auto mark::module::cargo::attach(
 }
 
 auto mark::module::cargo::can_attach(
-	const vector<int>& pos,
+	const vi32& pos,
 	const interface::item& item) const -> bool
 {
 	// Check if fits inside the container
@@ -160,12 +157,12 @@ auto mark::module::cargo::can_attach(
 		return false;
 	}
 	// Check if doesn't overlap with any of the existing modules
-	let incoming_pos = vector<unsigned>(pos);
+	let incoming_pos = vu32(pos);
 	let incoming_border = incoming_pos + item.size();
 	for (let pair : enumerate(m_items)) {
 		if (let& cur_item = pair.second) {
 			let i = static_cast<unsigned>(pair.first);
-			let item_pos = vector<unsigned>(i % 16, i / 16);
+			let item_pos = vu32(i % 16, i / 16);
 			let item_border = item_pos + cur_item->size();
 			if (overlaps(
 					{ incoming_pos, incoming_border },
@@ -177,19 +174,18 @@ auto mark::module::cargo::can_attach(
 	return true;
 }
 
-auto mark::module::cargo::at(const vector<int>& pos) -> interface::item*
+auto mark::module::cargo::at(const vi32& pos) -> interface::item*
 {
 	return const_cast<interface::item*>(
 		static_cast<const module::cargo*>(this)->at(pos));
 }
 
-auto mark::module::cargo::at(const vector<int>& i_pos) const
-	-> const interface::item*
+auto mark::module::cargo::at(const vi32& i_pos) const -> const interface::item*
 {
 	if (i_pos.x < 0 || i_pos.y < 0) {
 		return nullptr;
 	}
-	let pos = vector<unsigned>(i_pos);
+	let pos = vu32(i_pos);
 	for (let pair : enumerate(m_items)) {
 		let item_pos = modulo_vector<size_t>(pair.first, 16LLU);
 		if (let& slot = pair.second) {
@@ -203,8 +199,7 @@ auto mark::module::cargo::at(const vector<int>& i_pos) const
 	return nullptr;
 }
 
-auto mark::module::cargo::detach(const vector<int>& pos)
-	-> std::unique_ptr<interface::item>
+auto mark::module::cargo::detach(const vi32& pos) -> interface::item_ptr
 {
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
@@ -213,7 +208,7 @@ auto mark::module::cargo::detach(const vector<int>& pos)
 		let i = static_cast<int>(pair.first);
 		let item_pos = modulo_vector<int>(i, 16);
 		if (auto& item = pair.second) {
-			let border = item_pos + vector<int>(item->size());
+			let border = item_pos + vi32(item->size());
 			if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
 				&& pos.y < border.y) {
 				return move(item);
@@ -223,10 +218,10 @@ auto mark::module::cargo::detach(const vector<int>& pos)
 	return nullptr;
 }
 
-auto mark::module::cargo::interior_size() const -> vector<int>
+auto mark::module::cargo::interior_size() const -> vi32
 {
 	auto size_v = static_cast<int>(m_items.size());
-	return vector<int>(16, size_v / 16);
+	return vi32(16, size_v / 16);
 }
 
 auto mark::module::cargo::detachable() const -> bool
@@ -263,8 +258,7 @@ void mark::module::cargo::on_death(update_context& context)
 	}
 }
 
-auto mark::module::cargo::push(std::unique_ptr<interface::item>& item)
-	-> std::error_code
+auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 {
 	for (let i : range(static_cast<int>(m_items.size()))) {
 		let drop_pos = modulo_vector<int>(i, 16);

@@ -34,7 +34,7 @@ void mark::unit::bucket::update(update_context& context)
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
-		vector<double> diff;
+		vd diff;
 		for (let& bucket : nearby_buckets) {
 			let vec = bucket->pos() - pos();
 			let len = length(vec);
@@ -42,12 +42,12 @@ void mark::unit::bucket::update(update_context& context)
 				diff -= vec / (len * len);
 			}
 		}
-		if (diff == vector<double>(0, 0)) {
+		if (diff == vd(0, 0)) {
 			m_direction = context.random<float>(-180.f, 180.f);
 		} else {
 			m_direction = static_cast<float>(atan(diff));
 		}
-		let ds = rotate(vector<double>(30.0 * context.dt, 0), m_direction);
+		let ds = rotate(vd(30.0 * context.dt, 0), m_direction);
 		if (world().map().traversable(pos() + ds, size)) {
 			this->pos(pos() + ds);
 		}
@@ -64,12 +64,12 @@ void mark::unit::bucket::update(update_context& context)
 
 auto mark::unit::bucket::dead() const -> bool { return m_item == nullptr; }
 
-auto mark::unit::bucket::release() -> std::unique_ptr<interface::item>
+auto mark::unit::bucket::release() -> interface::item_ptr
 {
 	return std::move(m_item);
 }
 
-void mark::unit::bucket::insert(std::unique_ptr<interface::item> item)
+void mark::unit::bucket::insert(interface::item_ptr item)
 {
 	if (m_item) {
 		throw exception("BUCKET_FULL");

@@ -17,14 +17,14 @@ mark::model::shield::shield(resource::manager& rm, float radius)
 
 void mark::model::shield::update(
 	update_context& context,
-	vector<double> pos,
+	vd pos,
 	bool active)
 {
 	// Shield "break" particle effect
 	if (!active && m_active) {
 		for (let i : range(double(m_radius))) {
 			let offset =
-				rotate(vector<double>(m_radius, 0.), i / m_radius * 360.);
+				rotate(vd(m_radius, 0.), i / m_radius * 360.);
 			context.particles.push_back([&] {
 				particle::info _;
 				_.direction = float(atan(offset)) + context.random(-15.f, 15.f);
@@ -72,7 +72,7 @@ void mark::model::shield::update(
 	}());
 }
 
-void mark::model::shield::trigger(vector<double> pos)
+void mark::model::shield::trigger(vd pos)
 {
 	m_adsr.trigger();
 	m_trigger_pos = pos;

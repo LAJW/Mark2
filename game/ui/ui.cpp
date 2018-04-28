@@ -120,8 +120,8 @@ mark::ui::ui::~ui() = default;
 
 void mark::ui::ui::update(
 	update_context& context,
-	vector<double> resolution,
-	vector<double> mouse_pos_)
+	vd resolution,
+	vd mouse_pos_)
 {
 	auto& world = m_world_stack.world();
 	if (!m_stack.get().empty()) {
@@ -187,7 +187,7 @@ void mark::ui::ui::update(
 	}
 }
 
-bool mark::ui::ui::click(vector<int> screen_pos)
+bool mark::ui::ui::click(vi32 screen_pos)
 {
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
@@ -201,7 +201,7 @@ bool mark::ui::ui::click(vector<int> screen_pos)
 	return false;
 }
 
-bool mark::ui::ui::hover(vector<int> screen_pos)
+bool mark::ui::ui::hover(vi32 screen_pos)
 {
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
@@ -289,13 +289,13 @@ auto mark::ui::ui::command(world& world, const mark::command::move& move)
 	return true;
 }
 
-void mark::ui::ui::drop(world& world, vector<double> relative)
+void mark::ui::ui::drop(world& world, vd relative)
 {
 	Expects(grabbed);
 	let module_pos = round(relative);
 	let ship = mark::ship(world);
 	// module's top-left corner
-	let drop_pos = module_pos - vector<int>(grabbed->size()) / 2;
+	let drop_pos = module_pos - vi32(grabbed->size()) / 2;
 	if (ship->attach(drop_pos, grabbed) == error::code::success) {
 		for (let& bind : this->grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
@@ -312,7 +312,7 @@ void mark::ui::ui::drop(world& world, vector<double> relative)
 	}
 }
 
-void mark::ui::ui::drag(world& world, vector<double> relative, bool shift)
+void mark::ui::ui::drag(world& world, vd relative, bool shift)
 {
 	Expects(!grabbed);
 	let pick_pos = floor(relative);
@@ -345,7 +345,7 @@ let constexpr tooltip_layer = 110ull;
 void mark::ui::ui::tooltip(
 	update_context& context,
 	const std::string& text,
-	vector<double> screen_pos)
+	vd screen_pos)
 {
 	context.sprites[tooltip_layer].emplace_back([&] {
 		sprite _;
@@ -362,7 +362,7 @@ void mark::ui::ui::tooltip(
 		update_context::text_info _;
 		_.font = m_font;
 		_.layer = tooltip_layer;
-		_.pos = screen_pos + vector<double>(tooltip_margin, tooltip_margin);
+		_.pos = screen_pos + vd(tooltip_margin, tooltip_margin);
 		_.box = { tooltip_size - tooltip_margin * 2.f,
 				  tooltip_size - tooltip_margin * 2.f };
 		_.size = font_size;
@@ -374,12 +374,12 @@ void mark::ui::ui::tooltip(
 void mark::ui::ui::world_tooltip(
 	update_context& context,
 	const std::string& text,
-	vector<double> pos)
+	vd pos)
 {
 	context.sprites[tooltip_layer].emplace_back([&] {
 		sprite _;
 		_.image = m_tooltip_bg;
-		_.pos = pos + vector<double>(150, 150), _.size = tooltip_size;
+		_.pos = pos + vd(150, 150), _.size = tooltip_size;
 		_.color = { 50, 50, 50, 200 };
 		return _;
 	}());
@@ -387,7 +387,7 @@ void mark::ui::ui::world_tooltip(
 		update_context::text_info _;
 		_.font = m_font;
 		_.layer = 100;
-		_.pos = pos + vector<double>(tooltip_margin, tooltip_margin);
+		_.pos = pos + vd(tooltip_margin, tooltip_margin);
 		_.box = { tooltip_size - tooltip_margin,
 				  tooltip_size - tooltip_margin };
 		_.size = font_size;
@@ -404,15 +404,15 @@ static std::vector<bool> make_available_map(
 {
 	using namespace mark;
 	constexpr let grid_size = unit::modular::max_size;
-	let surface = range<vector<int>>(
+	let surface = range<vi32>(
 		{ -int(grid_size) / 2, -int(grid_size) / 2 },
 		{ grid_size / 2, grid_size / 2 });
 	std::vector<bool> available(grid_size * grid_size, false);
 	for (let top_left : surface) {
 		if (ship.can_attach(top_left, item)) {
 			for (let relative : range(item.size())) {
-				let pos = top_left + vector<int>(grid_size / 2, grid_size / 2)
-					+ vector<int>(relative);
+				let pos = top_left + vi32(grid_size / 2, grid_size / 2)
+					+ vi32(relative);
 				if (pos.x < grid_size && pos.y < grid_size) {
 					available[pos.x + pos.y * grid_size] = true;
 				}
@@ -437,12 +437,12 @@ void mark::ui::ui::release()
 
 void mark::ui::ui::container_ui(
 	update_context& context,
-	vector<double> mouse_pos,
+	vd mouse_pos,
 	const unit::landing_pad& landing_pad,
 	const unit::modular& ship)
 {
 	constexpr let grid_size = unit::modular::max_size;
-	let surface = range<vector<int>>(
+	let surface = range<vi32>(
 		{ -int(grid_size) / 2, -int(grid_size) / 2 },
 		{ grid_size / 2, grid_size / 2 });
 	let relative = (mouse_pos - landing_pad.pos()) / double(module::size);
@@ -457,8 +457,8 @@ void mark::ui::ui::container_ui(
 					sprite _;
 					_.image = m_grid_bg;
 					_.pos = landing_pad.pos()
-						+ vector<double>(offset) * double(module::size)
-						+ vector<double>(module::size, module::size) / 2.;
+						+ vd(offset) * double(module::size)
+						+ vd(module::size, module::size) / 2.;
 					_.size = module::size;
 					_.color = { 0, 255, 255, 255 };
 					return _;
@@ -470,13 +470,13 @@ void mark::ui::ui::container_ui(
 						   std::max(grabbed->size().x, grabbed->size().y))
 				* module::size;
 			let drop_pos = module_pos
-				- vector<int>(grabbed->size()) / 2; // module's top-left corner
+				- vi32(grabbed->size()) / 2; // module's top-left corner
 			let color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green
 															: sf::Color::Red;
 			context.sprites[100].emplace_back([&] {
 				sprite _;
 				_.image = grabbed->thumbnail();
-				_.pos = vector<double>(module_pos) * double(module::size)
+				_.pos = vd(module_pos) * double(module::size)
 					+ landing_pad.pos();
 				_.size = size;
 				_.color = color;
@@ -505,10 +505,10 @@ void mark::ui::ui::container_ui(
 			let module = ship.module_at(pick_pos);
 			if (module) {
 				let description = module->describe();
-				let module_size = vector<double>(module->size())
+				let module_size = vd(module->size())
 					* static_cast<double>(module::size);
 				let tooltip_pos = module->pos()
-					+ vector<double>(module_size.x, -module_size.y) / 2.0;
+					+ vd(module_size.x, -module_size.y) / 2.0;
 
 				this->world_tooltip(context, description, tooltip_pos);
 			}
@@ -520,8 +520,8 @@ void mark::ui::ui::show_ship_editor(unit::modular&) {}
 
 void mark::ui::ui::hide_ship_editor() {}
 
-void mark::ui::ui::tooltip(mark::vector<int> pos, const std::string& str)
+void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 {
 	m_tooltip_text = str;
-	m_tooltip_pso = vector<double>(pos);
+	m_tooltip_pso = vd(pos);
 }

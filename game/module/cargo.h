@@ -17,15 +17,13 @@ public:
 
 	cargo(resource::manager&, const YAML::Node&);
 
-	[[nodiscard]] auto
-	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item)
+	[[nodiscard]] auto attach(const vi32& pos, interface::item_ptr& item)
 		-> std::error_code override;
-	auto can_attach(const vector<int>& pos, const interface::item& item) const
+	auto can_attach(const vi32& pos, const interface::item& item) const
 		-> bool override;
-	auto at(const vector<int>& pos) -> interface::item* override;
-	auto at(const vector<int>& pos) const -> const interface::item* override;
-	auto detach(const vector<int>& pos)
-		-> std::unique_ptr<interface::item> override;
+	auto at(const vi32& pos) -> interface::item* override;
+	auto at(const vi32& pos) const -> const interface::item* override;
+	auto detach(const vi32& pos) -> interface::item_ptr override;
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(update_context& context) override;
@@ -33,22 +31,22 @@ public:
 	auto passive() const noexcept -> bool override;
 
 	// try to push element to the container
-	[[nodiscard]] std::error_code push(std::unique_ptr<interface::item>& item);
-	auto interior_size() const -> vector<int>; // size of the contents of the
-											   // cargo hold in modular units
-	auto items() -> std::vector<std::unique_ptr<interface::item>>&;
-	auto items() const -> const std::vector<std::unique_ptr<interface::item>>&;
+	[[nodiscard]] std::error_code push(interface::item_ptr& item);
+	auto interior_size() const -> vi32; // size of the contents of the
+										// cargo hold in modular units
+	auto items() -> std::vector<interface::item_ptr>&;
+	auto items() const -> const std::vector<interface::item_ptr>&;
 
 private:
 	void update(update_context& context) override;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
-	std::shared_ptr<const resource::image> m_grid_bg;
-	std::shared_ptr<const resource::image> m_im_body;
-	std::shared_ptr<const resource::image> m_im_light;
+	resource::image_ptr m_grid_bg;
+	resource::image_ptr m_im_body;
+	resource::image_ptr m_im_light;
 	lfo m_lfo;
-	std::vector<std::unique_ptr<interface::item>> m_items;
+	std::vector<interface::item_ptr> m_items;
 };
 } // namespace module
 } // namespace mark

@@ -8,7 +8,7 @@ namespace interface {
 class world_object
 {
 public:
-	virtual auto pos() const -> vector<double> = 0;
+	virtual auto pos() const -> vd = 0;
 	virtual auto world() const -> const world& = 0;
 	virtual auto team() const -> size_t = 0;
 

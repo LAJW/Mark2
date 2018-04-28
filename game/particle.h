@@ -15,8 +15,8 @@ class particle
 public:
 	struct info
 	{
-		std::shared_ptr<const resource::image> image;
-		vector<double> pos;
+		resource::image_ptr image;
+		vd pos;
 		float velocity = NAN;
 		float direction = NAN;
 		float lifespan = 0.3f;
@@ -33,8 +33,8 @@ public:
 
 private:
 	particle(const particle::info& info, bool);
-	std::shared_ptr<const resource::image> m_image;
-	vector<double> m_pos;
+	resource::image_ptr m_image;
+	vd m_pos;
 	float m_lifespan;
 	float m_cur_lifespan;
 	float m_velocity;

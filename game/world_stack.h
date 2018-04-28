@@ -21,7 +21,7 @@ private:
 	struct world_data
 	{
 		std::unique_ptr<mark::world> world;
-		vector<double> target_pos;
+		vd target_pos;
 	};
 	std::vector<world_data> m_worlds;
 	size_t m_current_world_id = 0;

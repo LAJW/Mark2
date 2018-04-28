@@ -18,11 +18,12 @@
 
 // MODULAR
 
+using namespace mark;
 namespace {
 
 // Map from modular coordinates (relative to center) to grid coordinates
 // (relative to top left corner)
-auto to_grid(mark::vector<int8_t> pos) -> mark::vector<size_t>
+auto to_grid(vi8 pos) -> vector<size_t>
 {
 	let hs = static_cast<int8_t>(mark::unit::modular::max_size / 2);
 	return { static_cast<size_t>(hs + pos.x), static_cast<size_t>(hs + pos.y) };
@@ -30,7 +31,7 @@ auto to_grid(mark::vector<int8_t> pos) -> mark::vector<size_t>
 
 struct Node
 {
-	mark::vector<int8_t> pos;
+	vi8 pos;
 	int f = 0; // distance from starting + distance from ending (h)
 	Node* parent = nullptr;
 };
@@ -41,12 +42,9 @@ bool operator<(const Node& left, const Node& right) { return left.f < right.f; }
 // Returns list of references to modules and counts, where count is the
 // number of blocks touching the modules
 template <typename module_t, typename modular_t>
-static auto neighbors_of(
-	modular_t& modular,
-	mark::vector<int8_t> pos,
-	mark::vector<int8_t> size)
+static auto neighbors_of(modular_t& modular, vi8 pos, vi8 size)
 {
-	std::vector<std::pair<std::reference_wrapper<module_t>, unsigned>> out;
+	std::vector<std::pair<ref<module_t>, unsigned>> out;
 	auto out_insert = [&out](module_t* module_ptr) {
 		if (module_ptr) {
 			if (out.empty() || &out.back().first.get() != module_ptr) {
@@ -82,7 +80,7 @@ static auto neighbors_of(
 template <typename module_type, typename vector_type>
 static auto filter_modules(vector_type& modules)
 {
-	std::vector<std::reference_wrapper<module_type>> out;
+	std::vector<ref<module_type>> out;
 	for (let& module : modules) {
 		if (let derived = dynamic_cast<module_type*>(module.get())) {
 			out.push_back(std::ref(*derived));
@@ -136,8 +134,8 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 {
 	let size = static_cast<int8_t>(m_grid.size().x);
 	let hs = int8_t(size / 2);
-	let start = vector<int8_t>(module.grid_pos()) + vector<int8_t>(hs, hs);
-	let end = vector<int8_t>(size, size) / int8_t(2);
+	let start = vi8(module.grid_pos()) + vi8(hs, hs);
+	let end = vi8(size, size) / int8_t(2);
 	std::vector<Node> open = { Node{
 		start, static_cast<int>(length(end - start)), nullptr } };
 	std::vector<std::unique_ptr<Node>> closed;
@@ -156,8 +154,8 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 		// TODO Replace with int8_t, and remove vector casts
 		// TODO Replace with range
 		for (int i = 1; i < 8; i += 2) {
-			auto neighbour_pos = current->pos
-				+ vector<int8_t>(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
+			auto neighbour_pos =
+				current->pos + vi8(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
 			let traversable = neighbour_pos.x > 0 && neighbour_pos.y > 0
 				&& neighbour_pos.x < size && neighbour_pos.y < size
 				&& m_grid[vector<size_t>(neighbour_pos)].module;
@@ -186,13 +184,12 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 	return false;
 }
 
-auto mark::unit::modular::p_at(vector<int8_t> user_pos) noexcept
-	-> grid_element&
+auto mark::unit::modular::p_at(vi8 user_pos) noexcept -> grid_element&
 {
 	return m_grid[to_grid(user_pos)];
 }
 
-auto mark::unit::modular::p_at(vector<int8_t> user_pos) const noexcept
+auto mark::unit::modular::p_at(vi8 user_pos) const noexcept
 	-> const grid_element&
 {
 	return m_grid[to_grid(user_pos)];
@@ -254,42 +251,34 @@ void mark::unit::modular::update(update_context& context)
 }
 
 auto mark::unit::modular::neighbors_of(const module::base& module)
-	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>
+	-> std::vector<std::pair<ref<module::base>, unsigned>>
 {
 	return ::neighbors_of<module::base>(
-		*this,
-		vector<int8_t>(module.grid_pos()),
-		vector<int8_t>(module.size()));
+		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
 auto mark::unit::modular::neighbors_of(const module::base& module) const
-	-> std::vector<
-		std::pair<std::reference_wrapper<const module::base>, unsigned>>
+	-> std::vector<std::pair<cref<module::base>, unsigned>>
 {
 	return ::neighbors_of<const module::base>(
-		*this,
-		vector<int8_t>(module.grid_pos()),
-		vector<int8_t>(module.size()));
+		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
-auto mark::unit::modular::attach(
-	const vector<int>& pos_,
-	std::unique_ptr<interface::item>& item) -> std::error_code
+auto mark::unit::modular::attach(const vi32& pos_, interface::item_ptr& item)
+	-> std::error_code
 {
-	let module_pos = vector<int8_t>(pos_);
+	let module_pos = vi8(pos_);
 	if (!item || !can_attach(pos_, *item)) {
 		return error::code::bad_pos;
 	}
-	std::unique_ptr<module::base> module(
-		dynamic_cast<module::base*>(item.release()));
+	module::base_ptr module(dynamic_cast<module::base*>(item.release()));
 	return p_attach(pos_, module);
 }
 
-auto mark::unit::modular::p_attach(
-	const vector<int>& pos_,
-	std::unique_ptr<module::base>& module) -> std::error_code
+auto mark::unit::modular::p_attach(const vi32& pos_, module::base_ptr& module)
+	-> std::error_code
 {
-	let module_pos = vector<int8_t>(pos_);
+	let module_pos = vi8(pos_);
 	if (!module || !p_can_attach(*module, pos_)) {
 		return error::code::bad_pos;
 	}
@@ -300,22 +289,22 @@ auto mark::unit::modular::p_attach(
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
 	for (let i : range(module->size())) {
-		this->p_at(module_pos + vector<int8_t>(i)).module = module.get();
+		this->p_at(module_pos + vi8(i)).module = module.get();
 	}
 	if (module->reserved() == module::reserved_kind::back) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_at(vector<int8_t>(i)).reserved = true;
+			this->p_at(vi8(i)).reserved = true;
 		}
 	} else if (module->reserved() == module::reserved_kind::front) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { module_pos.x + static_cast<int>(module->size().x),
 				   module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module->size().y) })) {
-			this->p_at(vector<int8_t>(i)).reserved = true;
+			this->p_at(vi8(i)).reserved = true;
 		}
 	}
 	m_radius = std::max(
@@ -326,7 +315,7 @@ auto mark::unit::modular::p_attach(
 }
 
 auto mark::unit::modular::can_attach(
-	const vector<int>& pos_,
+	const vi32& pos_,
 	const interface::item& item) const -> bool
 {
 	let module = dynamic_cast<const module::base*>(&item);
@@ -336,21 +325,20 @@ auto mark::unit::modular::can_attach(
 	return p_can_attach(*module, pos_)
 		&& (m_modules.empty()
 			|| !::neighbors_of<const module::base>(
-					*this, vector<int8_t>(pos_), vector<int8_t>(module->size()))
+					*this, vi8(pos_), vi8(module->size()))
 					.empty());
 }
 
-auto mark::unit::modular::p_can_attach(
-	const module::base& module,
-	vector<int> pos_) const -> bool
+auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
+	const -> bool
 {
 	if (!(pos_.x >= -19 && pos_.x + static_cast<int>(module.size().x) < 19
 		  && pos_.y >= -19
 		  && pos_.y + static_cast<int>(module.size().y) < 19)) {
 		return false;
 	}
-	let module_pos = vector<int8_t>(pos_);
-	for (let i : range(vector<int8_t>(module.size()))) {
+	let module_pos = vi8(pos_);
+	for (let i : range(vi8(module.size()))) {
 		let[module_ptr, reserved] = this->p_at(module_pos + i);
 		if (module_ptr || reserved) {
 			return false;
@@ -361,21 +349,21 @@ auto mark::unit::modular::p_can_attach(
 		return false;
 	}
 	if (module.reserved() == module::reserved_kind::back) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			if (this->p_at(vector<int8_t>(i)).module) {
+			if (this->p_at(vi8(i)).module) {
 				return false;
 			}
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { module_pos.x + static_cast<int>(module.size().x),
 				   module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			if (this->p_at(vector<int8_t>(i)).module) {
+			if (this->p_at(vi8(i)).module) {
 				return false;
 			}
 		}
@@ -383,8 +371,7 @@ auto mark::unit::modular::p_can_attach(
 	return true;
 }
 
-auto mark::unit::modular::detach(const vector<int>& user_pos)
-	-> std::unique_ptr<interface::item>
+auto mark::unit::modular::detach(const vi32& user_pos) -> interface::item_ptr
 {
 
 	let module_ptr = this->module_at(user_pos);
@@ -395,8 +382,8 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 	if (!module.detachable()) {
 		return nullptr;
 	}
-	let module_pos = vector<int8_t>(module.grid_pos());
-	let module_size = vector<int8_t>(module.size());
+	let module_pos = vi8(module.grid_pos());
+	let module_size = vi8(module.size());
 	// remove module from the grid
 	let surface = range(module_pos, module_pos + module_size);
 	for (let grid_pos : surface) {
@@ -414,18 +401,18 @@ auto mark::unit::modular::detach(const vector<int>& user_pos)
 		return nullptr;
 	}
 	if (module.reserved() == module::reserved_kind::back) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { -static_cast<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			this->p_at(vector<int8_t>(i)).reserved = false;
+			this->p_at(vi8(i)).reserved = false;
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
-		for (let i : range<vector<int>>(
+		for (let i : range<vi32>(
 				 { module_pos.x + module_size.x, module_pos.y },
 				 { static_cast<int>(max_size / 2),
 				   module_pos.y + static_cast<int>(module.size().y) })) {
-			this->p_at(vector<int8_t>(i)).reserved = false;
+			this->p_at(vi8(i)).reserved = false;
 		}
 	}
 	this->unbind(module);
@@ -526,17 +513,17 @@ void mark::unit::modular::knockback(
 		return;
 	}
 	damaged.insert(this);
-	const auto new_pos = pos() + rotate(vector<double>(distance, 0.), angle);
+	const auto new_pos = pos() + rotate(vd(distance, 0.), angle);
 	let path = world().map().find_path(pos(), new_pos, radius());
 	if (!path.empty()) {
 		pos(path.front());
 	}
 }
 
-auto mark::unit::modular::collide(const segment_t& ray) -> std::optional<
-	std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
+auto mark::unit::modular::collide(const segment_t& ray)
+	-> std::optional<std::pair<ref<interface::damageable>, vd>>
 {
-	std::optional<vector<double>> min;
+	std::optional<vd> min;
 	double min_length = INFINITY;
 	interface::damageable* damageable = nullptr;
 	for (auto& module : m_modules) {
@@ -565,8 +552,8 @@ auto mark::unit::modular::collide(const segment_t& ray) -> std::optional<
 	return { { std::ref(*damageable), *min } };
 }
 
-auto mark::unit::modular::collide(vector<double> center, double radius)
-	-> std::vector<std::reference_wrapper<interface::damageable>>
+auto mark::unit::modular::collide(vd center, double radius)
+	-> std::vector<ref<interface::damageable>>
 {
 	std::unordered_set<interface::damageable*> out;
 	let shields = filter_modules<module::shield_generator>(m_modules);
@@ -588,14 +575,14 @@ auto mark::unit::modular::collide(vector<double> center, double radius)
 		}
 	outer_continue:;
 	}
-	std::vector<std::reference_wrapper<interface::damageable>> tmp;
+	std::vector<ref<interface::damageable>> tmp;
 	transform(out.cbegin(), out.cend(), back_inserter(tmp), [](let ptr) {
 		return std::ref(*ptr);
 	});
 	return tmp;
 }
 
-void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
+void mark::unit::modular::toggle_bind(int8_t command_id, vi32 user_pos)
 {
 	if (let module_ptr = this->module_at(user_pos)) {
 		auto& module = *module_ptr;
@@ -615,8 +602,7 @@ void mark::unit::modular::toggle_bind(int8_t command_id, vector<int> user_pos)
 	}
 }
 
-auto mark::unit::modular::binding(vector<int> user_pos) const
-	-> std::vector<int8_t>
+auto mark::unit::modular::binding(vi32 user_pos) const -> std::vector<int8_t>
 {
 	std::vector<int8_t> out;
 	if (let module = this->at(user_pos)) {
@@ -648,9 +634,9 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	, m_ai(node["ai"].as<bool>())
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 {
-	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
+	std::unordered_map<uint64_t, ref<module::base>> id_map;
 	for (let& module_node : node["modules"]) {
-		let module_pos = module_node["grid_pos"].as<vector<int>>();
+		let module_pos = module_node["grid_pos"].as<vi32>();
 		let id = module_node["id"].as<uint64_t>();
 		auto item = [&] {
 			let blueprint_node = module_node["blueprint"];
@@ -674,8 +660,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			}
 			return module::deserialize(rm, properties);
 		}();
-		std::unique_ptr<module::base> module(
-			dynamic_cast<module::base*>(item.release()));
+		module::base_ptr module(dynamic_cast<module::base*>(item.release()));
 		assert(module);
 		if (this->p_attach(module_pos, module) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
@@ -725,34 +710,33 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(const vector<int>& module_pos) noexcept
+auto mark::unit::modular::at(const vi32& module_pos) noexcept
 	-> interface::item*
 {
 	return module_at(module_pos);
 }
 
-auto mark::unit::modular::at(const vector<int>& module_pos) const noexcept
+auto mark::unit::modular::at(const vi32& module_pos) const noexcept
 	-> const interface::item*
 {
 	return module_at(module_pos);
 }
 
-auto mark::unit::modular::module_at(const vector<int>& pos) noexcept
-	-> module::base*
+auto mark::unit::modular::module_at(const vi32& pos) noexcept -> module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(vector<int8_t>(pos)).module;
+		return this->p_at(vi8(pos)).module;
 	}
 	return nullptr;
 }
 
-auto mark::unit::modular::module_at(const vector<int>& pos) const noexcept
+auto mark::unit::modular::module_at(const vi32& pos) const noexcept
 	-> const module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(vector<int8_t>(pos)).module;
+		return this->p_at(vi8(pos)).module;
 	}
 	return nullptr;
 }
@@ -765,23 +749,21 @@ auto mark::unit::modular::landed() const noexcept -> bool
 void mark::unit::modular::remove_dead(update_context& context)
 {
 	let first_dead_it = partition(
-		m_modules.begin(),
-		m_modules.end(),
-		[](const std::unique_ptr<module::base>& module) {
+		m_modules.begin(), m_modules.end(), [](const module::base_ptr& module) {
 			return !module->dead();
 		});
 	if (first_dead_it != m_modules.end()) {
 		for_each(
 			first_dead_it,
 			m_modules.end(),
-			[this, &context](std::unique_ptr<module::base>& module) {
+			[this, &context](module::base_ptr& module) {
 				module->on_death(context);
 				if (module.get() == m_core) {
 					m_core = nullptr;
 				}
 				this->unbind(*module);
-				let module_pos = vector<int8_t>(module->grid_pos());
-				let module_size = vector<int8_t>(module->size());
+				let module_pos = vi8(module->grid_pos());
+				let module_size = vi8(module->size());
 				for (let i : range(module_size)) {
 					this->p_at(module_pos + i).module = nullptr;
 				}
@@ -792,8 +774,8 @@ void mark::unit::modular::remove_dead(update_context& context)
 			});
 		for_each(first_detached_it, m_modules.end(), [this](let& module) {
 			this->unbind(*module);
-			let module_pos = vector<int8_t>(module->grid_pos());
-			let module_size = vector<int8_t>(module->size());
+			let module_pos = vi8(module->grid_pos());
+			let module_size = vi8(module->size());
 			for (let i : range(module_size)) {
 				this->p_at(module_pos + i).module = nullptr;
 			}
@@ -838,21 +820,18 @@ void mark::unit::modular::unbind(const module::base& module)
 	}
 }
 
-auto mark::unit::modular::containers()
-	-> std::vector<std::reference_wrapper<module::cargo>>
+auto mark::unit::modular::containers() -> std::vector<ref<module::cargo>>
 {
 	return filter_modules<module::cargo>(m_modules);
 }
 
-auto mark::unit::modular::containers() const
-	-> std::vector<std::reference_wrapper<const module::cargo>>
+auto mark::unit::modular::containers() const -> std::vector<cref<module::cargo>>
 {
 	return filter_modules<const module::cargo>(m_modules);
 }
 
-auto mark::unit::push(
-	modular& modular,
-	std::unique_ptr<interface::item>& module) -> std::error_code
+auto mark::unit::push(modular& modular, interface::item_ptr& module)
+	-> std::error_code
 {
 	for (auto& container : modular.containers()) {
 		if (container.get().push(module) == error::code::success) {

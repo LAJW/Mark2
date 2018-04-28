@@ -7,7 +7,7 @@ mark::resource::manager_impl::manager_impl()
 {}
 
 auto mark::resource::manager_impl::image(const std::string& filename)
-	-> std::shared_ptr<const resource::image>
+	-> resource::image_ptr
 {
 	auto& image_ptr = m_images[filename];
 	auto image = image_ptr.lock();
@@ -41,7 +41,7 @@ auto mark::resource::manager_impl::random_double(double min, double max)
 }
 
 auto mark::resource::manager_stub::image(const std::string&)
-	-> std::shared_ptr<const resource::image>
+	-> resource::image_ptr
 {
 	return std::make_shared<resource::image_stub>();
 }

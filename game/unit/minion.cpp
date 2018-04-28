@@ -1,8 +1,8 @@
-﻿#include <stdafx.h>
-#include "minion.h"
+﻿#include "minion.h"
 #include "projectile.h"
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -31,7 +31,7 @@ void mark::unit::minion::update(update_context& context)
 		let distance = target->pos() - pos();
 		if (length(distance) < 1000) {
 			let length = mark::length(distance);
-			auto direction2 = vector<double>(0, 0);
+			auto direction2 = vd(0, 0);
 			for (let& neighbour : neighbours) {
 				auto dist = (pos() - neighbour->pos());
 				auto len = mark::length(dist);
@@ -68,7 +68,7 @@ void mark::unit::minion::update(update_context& context)
 		m_model.render(pos(), 116.f, m_rotation, sf::Color::White));
 	update_context::bar_info bar;
 	bar.image = world().image_bar;
-	bar.pos = pos() + vector<double>(0, -72);
+	bar.pos = pos() + vd(0, -72);
 	bar.type = update_context::bar_kind::health;
 	bar.percentage = static_cast<float>(m_health) / 100.f;
 	context.render(bar);
@@ -88,8 +88,8 @@ auto mark::unit::minion::damage(const interface::damageable::info& attr) -> bool
 	return false;
 }
 
-auto mark::unit::minion::collide(const segment_t& ray) -> std::optional<
-	std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
+auto mark::unit::minion::collide(const segment_t& ray)
+	-> std::optional<std::pair<ref<interface::damageable>, vd>>
 {
 	if (let intersection = intersect(ray, pos(), this->radius())) {
 		return { { *this, *intersection } };
@@ -97,10 +97,10 @@ auto mark::unit::minion::collide(const segment_t& ray) -> std::optional<
 	return {};
 }
 
-auto mark::unit::minion::collide(vector<double> center, double radius)
-	-> std::vector<std::reference_wrapper<interface::damageable>>
+auto mark::unit::minion::collide(vd center, double radius)
+	-> std::vector<ref<interface::damageable>>
 {
-	std::vector<std::reference_wrapper<interface::damageable>> out;
+	std::vector<ref<interface::damageable>> out;
 	if (length(pos() - center) <= this->radius() + radius) {
 		return { *this };
 	}

@@ -26,7 +26,7 @@ mark::world::world(resource::manager& rm)
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
-		  m_map->map_to_world(vector<int>{ m_map->size() }))
+		  m_map->map_to_world(vi32{ m_map->size() }))
 	, m_camera(std::make_unique<mark::camera>())
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))
@@ -38,7 +38,7 @@ mark::world::world(resource::manager& rm)
 template <typename T>
 static auto find_pos(
 	const mark::map& map,
-	mark::vector<int> size,
+	mark::vi32 size,
 	double object_radius,
 	T strategy)
 {
@@ -46,25 +46,24 @@ static auto find_pos(
 	assert(size.x > 0);
 	assert(size.y > 0);
 	let center = size / 2;
-	return strategy(
-		[&](const vector<int>& point) -> std::optional<vector<double>> {
-			let pos = vector<double>(point - center) * map::tile_size;
-			if (map.traversable(pos, object_radius)) {
-				return pos;
-			}
-			return {};
-		});
+	return strategy([&](const vi32& point) -> std::optional<vd> {
+		let pos = vd(point - center) * map::tile_size;
+		if (map.traversable(pos, object_radius)) {
+			return pos;
+		}
+		return {};
+	});
 }
 
 // Find a position matching gate size in the top left corner
-static auto find_gate_pos(const mark::map& map, mark::vector<int> size)
-	-> std::optional<mark::vector<double>>
+static auto find_gate_pos(const mark::map& map, mark::vi32 size)
+	-> std::optional<mark::vd>
 {
 	return find_pos(
 		map,
 		size,
 		mark::unit::gate::radius,
-		[&](auto proc) -> std::optional<mark::vector<double>> {
+		[&](auto proc) -> std::optional<mark::vd> {
 			for (let point : mark::range(size)) {
 				if (let result = proc(point)) {
 					return *result;
@@ -75,14 +74,14 @@ static auto find_gate_pos(const mark::map& map, mark::vector<int> size)
 }
 
 // Find a position matching gate size in the bottom right corner
-static auto find_landing_pad_pos(const mark::map& map, mark::vector<int> size)
-	-> std::optional<mark::vector<double>>
+static auto find_landing_pad_pos(const mark::map& map, mark::vi32 size)
+	-> std::optional<mark::vd>
 {
 	return find_pos(
 		map,
 		size,
 		mark::unit::landing_pad::radius,
-		[&](auto proc) -> std::optional<mark::vector<double>> {
+		[&](auto proc) -> std::optional<mark::vd> {
 			for (int x = size.x - 1; x >= 0; --x) {
 				for (int y = size.y - 1; y >= 0; --y) {
 					if (let result = proc({ x, y })) {
@@ -103,7 +102,7 @@ mark::world::world(
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
-		  m_map->map_to_world(vector<int>{ m_map->size() }))
+		  m_map->map_to_world(vi32{ m_map->size() }))
 	, image_bar(resource_manager.image("bar.png"))
 	, image_font(resource_manager.image("font.png"))
 	, image_stun(resource_manager.image("stun.png"))
@@ -111,12 +110,12 @@ mark::world::world(
 	, m_stack(&stack)
 {
 	let constexpr spawn_ships = false;
-	let map_size = vector<int>(1000, 1000);
+	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
 			unit::deserialize(*this, stack.blueprints().at("ship")));
 	};
-	let spawn_gate = [&](vector<double> pos, bool inverted) {
+	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
 			unit::gate::info _;
 			_.world = this;
@@ -168,7 +167,7 @@ mark::world::world(
 	if (initial) {
 		auto vessel = spawn_ship();
 		vessel->ai(false);
-		vessel->command(command::move{ vector<double>() });
+		vessel->command(command::move{ vd() });
 		vessel->team(1);
 		vessel->pos({ 0., 0. });
 		m_camera->target(vessel);
@@ -182,14 +181,14 @@ mark::world::~world() = default;
 
 auto mark::world::map() const -> const mark::map& { return *m_map; }
 
-auto mark::world::camera() const -> vector<double> { return m_camera->pos(); }
+auto mark::world::camera() const -> vd { return m_camera->pos(); }
 
 auto mark::world::resource_manager() -> resource::manager&
 {
 	return m_resource_manager;
 }
 
-void mark::world::update(update_context& context, vector<double> screen_size)
+void mark::world::update(update_context& context, vd screen_size)
 {
 	if (context.dt > 0.1) {
 		context.dt = 0.1;
@@ -197,8 +196,8 @@ void mark::world::update(update_context& context, vector<double> screen_size)
 	m_camera->update(context.dt);
 	{
 		let camera = vmap(m_camera->pos(), std::round);
-		let offset = screen_size / 2.0
-			+ vector<double>(map::tile_size, map::tile_size) * 2.;
+		let offset =
+			screen_size / 2.0 + vd(map::tile_size, map::tile_size) * 2.;
 		m_map->update(camera - offset, camera + offset, context);
 	}
 
@@ -301,10 +300,10 @@ auto mark::world::collide(const segment_t& ray) -> collide_result
 	return { move(collisions), map_collision };
 }
 
-auto mark::world::collide(vector<double> center, double radius)
-	-> std::vector<std::reference_wrapper<interface::damageable>>
+auto mark::world::collide(vd center, double radius)
+	-> std::vector<ref<interface::damageable>>
 {
-	std::vector<std::reference_wrapper<interface::damageable>> out;
+	std::vector<ref<interface::damageable>> out;
 	for (auto& unit : this->find<unit::damageable>(center, radius)) {
 		let tmp = unit->collide(center, radius);
 		copy(begin(tmp), end(tmp), back_inserter(out));
@@ -333,7 +332,7 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 	if (unit_collisions.empty() && !terrain_collision) {
 		return {};
 	}
-	std::vector<vector<double>> collisions;
+	std::vector<vd> collisions;
 	while (!unit_collisions.empty()) {
 		let & [ damageable, pos ] = unit_collisions.front();
 		info.damage.pos = pos;
@@ -377,7 +376,7 @@ mark::world::world(
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
-		  m_map->map_to_world(vector<int>{ m_map->size() }))
+		  m_map->map_to_world(vi32{ m_map->size() }))
 	, m_camera(std::make_unique<mark::camera>(node["camera"]))
 	, image_bar(rm.image("bar.png"))
 	, image_font(rm.image("font.png"))

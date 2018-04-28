@@ -14,7 +14,7 @@
 #include <item/chaos_orb.h>
 
 auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
-	-> std::unique_ptr<interface::item>
+	-> interface::item_ptr
 {
 	let type = node["type"].as<std::string>();
 	if (type == module::battery::type_name) {

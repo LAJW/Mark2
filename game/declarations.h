@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 // Common forward declarations
 
 namespace sf {
@@ -6,6 +7,10 @@ class Color;
 }
 
 namespace mark {
+template <typename T>
+using ref = std::reference_wrapper<T>;
+template <typename T>
+using cref = ref<const T>;
 class map;
 class particle;
 struct path;
@@ -20,10 +25,12 @@ class container;
 class damageable;
 class has_bindings;
 class item;
+using item_ptr = std::unique_ptr<item>;
 class world_object;
 }; // namespace interface
 namespace module {
 class base;
+using base_ptr = std::unique_ptr<base>;
 class cargo;
 class core;
 struct modifiers;
@@ -36,5 +43,6 @@ class landing_pad;
 namespace resource {
 class manager;
 class image;
+using image_ptr = std::shared_ptr<const image>;
 } // namespace resource
 } // namespace mark

@@ -1,12 +1,12 @@
-﻿#include <stdafx.h>
-#include "action_bar.h"
+﻿#include "action_bar.h"
 #include <algorithm.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
 #include <resource_manager.h>
 #include <sprite.h>
-#include <update_context.h>
+#include <stdafx.h>
 #include <unit/landing_pad.h>
+#include <update_context.h>
 #include <world.h>
 
 mark::ui::action_bar::action_bar(resource::manager& rm)
@@ -19,8 +19,8 @@ void mark::ui::action_bar::update(
 	world& world,
 	update_context& context,
 	resource::manager& rm,
-	vector<double> resolution,
-	vector<double> mouse_pos_)
+	vd resolution,
+	vd mouse_pos_)
 {
 	let image_circle = rm.image("circle.png");
 	let image_ray = rm.image("ray.png");
@@ -63,10 +63,9 @@ void mark::ui::action_bar::update(
 			if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
 				for (let& module : binding.modules) {
 					let pos = module.get().grid_pos();
-					let module_pos = center
-						+ vector<double>(pos)
-							* static_cast<double>(module::size);
-					let module_size = vector<double>(module.get().size())
+					let module_pos =
+						center + vd(pos) * static_cast<double>(module::size);
+					let module_size = vd(module.get().size())
 						* static_cast<double>(module::size);
 					if (!(x <= mouse_pos_.x && mouse_pos_.x < x + 64.
 						  && y <= mouse_pos_.y && mouse_pos_.y < y + 64.)
@@ -76,18 +75,18 @@ void mark::ui::action_bar::update(
 							 && mouse_pos_.y < module_pos.y + module_size.y))
 						continue;
 					sprite circle_sprite;
-					let module_pos_ = module_pos + vector<double>(8, 8);
+					let module_pos_ = module_pos + vd(8, 8);
 					circle_sprite.pos = module_pos_;
 					circle_sprite.image = image_circle;
 					circle_sprite.frame = std::numeric_limits<size_t>::max();
 					circle_sprite.world = false;
 					circle_sprite.centred = false;
 					context.sprites[101].push_back(circle_sprite);
-					let line_end = vector<double>(x + 32, y + 32);
+					let line_end = vd(x + 32, y + 32);
 					path line;
 					line.world = false;
 					line.points.push_back(line_end);
-					line.points.push_back(module_pos + vector<double>(16, 16));
+					line.points.push_back(module_pos + vd(16, 16));
 					context.sprites[101].push_back(line);
 				}
 			}
@@ -109,7 +108,7 @@ void mark::ui::action_bar::update(
 				update_context::text_info text;
 				text.font = m_font;
 				text.layer = 101;
-				text.pos = vector<double>(x + 32.f, y + 8.f);
+				text.pos = vd(x + 32.f, y + 8.f);
 				text.box = { 300 - 14.f, 300 - 14.f };
 				text.size = 14.f;
 				text.text = os.str();
@@ -121,7 +120,7 @@ void mark::ui::action_bar::update(
 				update_context::text_info text;
 				text.font = m_font;
 				text.layer = 101;
-				text.pos = vector<double>(x + 32.f, y + 32.f);
+				text.pos = vd(x + 32.f, y + 32.f);
 				text.box = { 300 - 14.f, 300 - 14.f };
 				text.size = 14.f;
 				text.text = os.str();

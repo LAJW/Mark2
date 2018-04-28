@@ -11,18 +11,18 @@ public:
 	bucket(mark::world& world, const YAML::Node&);
 	struct info : unit::base::info
 	{
-		std::unique_ptr<interface::item> item;
+		interface::item_ptr item;
 		float rotation = 0.f;
 	};
 	bucket(info);
 	auto dead() const -> bool override;
-	auto release() -> std::unique_ptr<interface::item>;
-	void insert(std::unique_ptr<interface::item>);
+	auto release() -> interface::item_ptr;
+	void insert(interface::item_ptr);
 	void serialize(YAML::Emitter& out) const override;
 
 private:
 	void update(update_context& context) override;
-	std::unique_ptr<interface::item> m_item;
+	interface::item_ptr m_item;
 	float m_direction = NAN;
 	float m_rotation = 0;
 };

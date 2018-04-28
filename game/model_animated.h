@@ -11,16 +11,16 @@ namespace model {
 class animated
 {
 public:
-	animated(const std::shared_ptr<const resource::image>& image);
+	animated(const resource::image_ptr& image);
 	void update(double dt);
 	auto render(
-		vector<double> pos,
+		vd pos,
 		float size,
 		float rotation,
 		const sf::Color& color) const -> sprite;
 
 private:
-	std::shared_ptr<const resource::image> m_image;
+	resource::image_ptr m_image;
 	float m_state = 0.f;
 };
 } // namespace model

@@ -14,8 +14,8 @@ class space_bins final
 public:
 	space_bins(
 		vector<std::size_t> size,
-		vector<double> world_min,
-		vector<double> world_max)
+		vd world_min,
+		vd world_max)
 		: m_size{ size }
 		, m_voxels{ size.x * size.y, std::vector<std::shared_ptr<T>>() }
 		, m_world_min{ world_min }
@@ -46,19 +46,19 @@ private:
 
 	vector<std::size_t> m_size;
 	std::vector<std::vector<std::shared_ptr<T>>> m_voxels;
-	vector<double> m_world_min;
-	vector<double> m_world_max;
+	vd m_world_min;
+	vd m_world_max;
 };
 
 template <typename T>
-auto compute_index(const space_bins<T>& bins, vector<double> pos)
+auto compute_index(const space_bins<T>& bins, vd pos)
 {
 	let world_size = bins.world_max() - bins.world_min();
 	let world_pos = pos - bins.world_min();
 	let world_dim = bins.size();
 	return vector<std::size_t>{ max(
-		vector<double>{ 0.0, 0.0 },
-		vector<double>{ (world_pos.x / world_size.x) * world_dim.x,
+		vd{ 0.0, 0.0 },
+		vd{ (world_pos.x / world_size.x) * world_dim.x,
 						(world_pos.y / world_size.y) * world_dim.y }) };
 }
 
@@ -78,7 +78,7 @@ void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 template <typename unit_type = unit::base, typename T>
 auto check_proximity(
 	std::shared_ptr<unit::base> unit,
-	vector<double> pos,
+	vd pos,
 	double radius,
 	T pred) -> std::shared_ptr<unit_type>
 {
@@ -91,15 +91,15 @@ auto check_proximity(
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
-auto find(const space_bins<U>& bins, vector<double> pos, double radius, T pred)
+auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
 	std::vector<std::shared_ptr<unit_type>> ret;
 	for (let ind : range(
-			 compute_index(bins, pos - vector<double>{ radius, radius }),
+			 compute_index(bins, pos - vd{ radius, radius }),
 			 min(bins.size(),
 				 vector<std::size_t>{ 1, 1 }
 					 + compute_index(
-						   bins, pos + vector<double>{ radius, radius })))) {
+						   bins, pos + vd{ radius, radius })))) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				ret.emplace_back(ptr);
@@ -112,16 +112,16 @@ auto find(const space_bins<U>& bins, vector<double> pos, double radius, T pred)
 template <typename unit_type = unit::base, typename T, typename U>
 auto find_one(
 	const space_bins<U>& bins,
-	vector<double> pos,
+	vd pos,
 	double radius,
 	T pred) -> std::shared_ptr<unit_type>
 {
 	for (let ind : range(
-			 compute_index(bins, pos - vector<double>{ radius, radius }),
+			 compute_index(bins, pos - vd{ radius, radius }),
 			 min(bins.size(),
 				 vector<std::size_t>{ 1, 1 }
 					 + compute_index(
-						   bins, pos + vector<double>{ radius, radius })))) {
+						   bins, pos + vd{ radius, radius })))) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				return ptr;

@@ -7,11 +7,11 @@ namespace ui {
 struct event final
 {
 	// Mouse cursor position relative to the screen
-	vector<int> absolute_cursor;
+	vi32 absolute_cursor;
 	// Mouse cursor relative to the element top left corner
-	vector<int> cursor;
+	vi32 cursor;
 	// Mouse cursor relative to the world
-	vector<double> world_cursor;
+	vd world_cursor;
 };
 
 class callback_group

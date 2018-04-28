@@ -13,7 +13,7 @@ public:
 	struct info : base::info
 	{
 		// for mouse-guided missiles
-		std::shared_ptr<const vector<double>> guide;
+		std::shared_ptr<const vd> guide;
 		float rotation = NAN;
 		float phase = 0.f;
 		float lfo = 0.f;
@@ -42,12 +42,12 @@ private:
 	projectile(const projectile::info&, bool);
 	void update(update_context& context) override;
 
-	std::shared_ptr<const resource::image> m_image;
-	std::shared_ptr<const resource::image> m_im_tail;
-	std::shared_ptr<const resource::image> m_im_explosion;
+	resource::image_ptr m_image;
+	resource::image_ptr m_im_tail;
+	resource::image_ptr m_im_explosion;
 	std::unordered_set<interface::damageable*> m_damaged;
 	std::unordered_set<interface::damageable*> m_knocked;
-	std::shared_ptr<const vector<double>> m_guide;
+	std::shared_ptr<const vd> m_guide;
 	float m_physical;
 	float m_rotation;
 	lfo m_rotation_lfo;

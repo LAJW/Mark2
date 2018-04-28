@@ -5,7 +5,7 @@
 #include "stdafx.h"
 
 mark::model::animated::animated(
-	const std::shared_ptr<const resource::image>& image)
+	const resource::image_ptr& image)
 	: m_image(image)
 {}
 
@@ -17,7 +17,7 @@ void mark::model::animated::update(double dt)
 }
 
 auto mark::model::animated::render(
-	vector<double> pos,
+	vd pos,
 	float size,
 	float rotation,
 	const sf::Color& color) const -> mark::sprite

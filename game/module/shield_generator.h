@@ -14,9 +14,8 @@ public:
 	shield_generator(resource::manager&, const YAML::Node&);
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string override;
-	auto collide(const segment_t&) -> std::optional<std::pair<
-		std::reference_wrapper<interface::damageable>,
-		vector<double>>> override;
+	auto collide(const segment_t&)
+		-> std::optional<std::pair<ref<interface::damageable>, vd>> override;
 	auto shield() const noexcept -> float;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
@@ -33,7 +32,7 @@ private:
 	static constexpr let default_radius = 128.f;
 	static constexpr let default_shield_per_energy = 10.f;
 
-	const std::shared_ptr<const resource::image> m_im_generator;
+	const resource::image_ptr m_im_generator;
 	float m_max_shield = 1000.f;
 	float m_radius = default_radius;
 	float m_shield_per_energy = 10.f;

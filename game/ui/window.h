@@ -10,7 +10,7 @@ class window : public node
 public:
 	struct info : node::info
 	{
-		vector<int> pos;
+		vi32 pos;
 	};
 	window(const info& info);
 	void insert(std::unique_ptr<node> node);

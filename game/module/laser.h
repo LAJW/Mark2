@@ -26,12 +26,12 @@ private:
 	static void bind(property_manager& mgr, T& instance);
 	void render(
 		update_context& context,
-		std::vector<vector<double>> collisions,
+		std::vector<vd> collisions,
 		bool is_firing,
-		vector<double>) const;
+		vd) const;
 
 	model::animated m_model;
-	std::shared_ptr<const resource::image> m_im_ray;
+	resource::image_ptr m_im_ray;
 	targeting_system m_targeting_system;
 	float m_rotation = 0.f;
 	float m_angular_velocity = 90.f;

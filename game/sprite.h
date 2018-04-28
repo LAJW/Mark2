@@ -11,9 +11,9 @@ struct sprite final
 	// Display everything frame
 	static constexpr let all = std::numeric_limits<size_t>::max();
 	// Image of the sprite
-	std::shared_ptr<const resource::image> image;
+	resource::image_ptr image;
 	// position of the sprite in pixels/world coodinates
-	vector<double> pos;
+	vd pos;
 	// Size of the sprite in pixels/world coordinates
 	float size = 16.f;
 	// Tilt of the sprite in degrees
@@ -30,15 +30,15 @@ struct sprite final
 
 struct path final
 {
-	std::vector<vector<double>> points;
+	std::vector<vd> points;
 	sf::Color color = sf::Color::White;
 	bool world = true;
 };
 
 struct rectangle final
 {
-	vector<double> pos;
-	vector<double> size;
+	vd pos;
+	vd size;
 	sf::Color border_color = sf::Color::White;
 	sf::Color background_color = sf::Color::White;
 	bool world = true;

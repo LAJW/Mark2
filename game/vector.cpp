@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "vector.h"
 
-auto mark::distance(const float alpha, const vector<double> point) noexcept
+auto mark::distance(const float alpha, const vd point) noexcept
 	-> double
 {
 	let a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
@@ -9,40 +9,40 @@ auto mark::distance(const float alpha, const vector<double> point) noexcept
 }
 
 auto mark::get_line(
-	const vector<double> start,
-	const vector<double> end) noexcept -> std::variant<vector<double>, double>
+	const vd start,
+	const vd end) noexcept -> std::variant<vd, double>
 {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
-			return vector<double>(0, start.y);
+			return vd(0, start.y);
 		}
 		return start.x;
 	}
 	let a = (start.y - end.y) / (start.x - end.x);
 	let b = start.y - a * start.x;
-	return vector<double>(a, b);
+	return vd(a, b);
 }
 
 auto mark::intersect(
-	const std::variant<vector<double>, double> line1,
-	const std::variant<vector<double>, double> line2) noexcept
-	-> std::optional<vector<double>>
+	const std::variant<vd, double> line1,
+	const std::variant<vd, double> line2) noexcept
+	-> std::optional<vd>
 {
-	let intersect_with_X = [](vector<double> line, double x) {
+	let intersect_with_X = [](vd line, double x) {
 		let y = x * line.x + line.y;
-		return vector<double>{ x, y };
+		return vd{ x, y };
 	};
 	if (let x = std::get_if<double>(&line1)) {
-		if (let line = std::get_if<vector<double>>(&line2)) {
+		if (let line = std::get_if<vd>(&line2)) {
 			return intersect_with_X(*line, *x);
 		}
 		return {};
 	}
 	if (let x = std::get_if<double>(&line2)) {
-		return intersect_with_X(std::get<vector<double>>(line1), *x);
+		return intersect_with_X(std::get<vd>(line1), *x);
 	}
-	let l1 = std::get<vector<double>>(line1);
-	let l2 = std::get<vector<double>>(line2);
+	let l1 = std::get<vd>(line1);
+	let l2 = std::get<vd>(line2);
 	if (l1.x == l2.x) {
 		return {};
 	}
@@ -52,7 +52,7 @@ auto mark::intersect(
 }
 
 auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
-	-> std::optional<vector<double>>
+	-> std::optional<vd>
 {
 	let line1 = get_line(s1.first, s1.second);
 	let line2 = get_line(s2.first, s2.second);
@@ -84,15 +84,15 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 
 auto mark::intersect(
 	segment_t segment,
-	const vector<double>& center,
-	double radius) noexcept -> std::optional<vector<double>>
+	const vd& center,
+	double radius) noexcept -> std::optional<vd>
 {
 	let line = get_line(segment.first, segment.second);
 	let lx = std::min(segment.first.x, segment.second.x);
 	let ux = std::max(segment.first.x, segment.second.x);
 	let ly = std::min(segment.first.y, segment.second.y);
 	let uy = std::max(segment.first.y, segment.second.y);
-	if (let line_nv = std::get_if<vector<double>>(&line)) {
+	if (let line_nv = std::get_if<vd>(&line)) {
 		// everything but vertical line
 		let c = line_nv->x;
 		let d = line_nv->y;
@@ -116,7 +116,7 @@ auto mark::intersect(
 			let y1 = c * x1 + d;
 			let y2 = c * x2 + d;
 			return std::make_pair(
-				vector<double>(x1, y1), vector<double>(x2, y2));
+				vd(x1, y1), vd(x2, y2));
 		}();
 		const bool p1_in_range =
 			p1.x >= lx && p1.x <= ux && p1.y >= ly && p1.y <= uy;
@@ -163,7 +163,7 @@ auto mark::intersect(
 // Calculate new rotation for an entity based on angular velocity, lookat
 // direction, etc.
 auto mark::turn(
-	vector<double> new_direction,
+	vd new_direction,
 	float current_rotation,
 	float angular_velocity,
 	double dt) -> float

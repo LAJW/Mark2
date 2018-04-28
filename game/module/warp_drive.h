@@ -20,7 +20,7 @@ private:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
-	std::shared_ptr<const resource::image> m_image_base;
+	resource::image_ptr m_image_base;
 };
 } // namespace module
 } // namespace mark

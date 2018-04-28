@@ -7,14 +7,12 @@ class container
 {
 public:
 	[[nodiscard]] virtual std::error_code
-	attach(const vector<int>& pos, std::unique_ptr<interface::item>& item) = 0;
-	virtual auto
-	can_attach(const vector<int>& pos, const interface::item& item) const
+	attach(const vi32& pos, interface::item_ptr& item) = 0;
+	virtual auto can_attach(const vi32& pos, const interface::item& item) const
 		-> bool = 0;
-	virtual auto at(const vector<int>& pos) const -> const interface::item* = 0;
-	virtual auto at(const vector<int>& pos) -> interface::item* = 0;
-	virtual auto detach(const vector<int>& pos)
-		-> std::unique_ptr<interface::item> = 0;
+	virtual auto at(const vi32& pos) const -> const interface::item* = 0;
+	virtual auto at(const vi32& pos) -> interface::item* = 0;
+	virtual auto detach(const vi32& pos) -> interface::item_ptr = 0;
 
 protected:
 	~container() = default;

@@ -19,7 +19,7 @@ void mark::module::laser::update(update_context& context)
 		m_rotation =
 			turn(*target - pos, m_rotation, m_angular_velocity, context.dt);
 	}
-	let dir = rotate(vector<double>(1, 0), m_rotation + m_randomiser.get());
+	let dir = rotate(vd(1, 0), m_rotation + m_randomiser.get());
 	let is_firing = !m_stunned && m_targeting_system.can_shoot();
 	if (!is_firing) {
 		this->render(context, {}, is_firing, dir);
@@ -44,9 +44,9 @@ void mark::module::laser::update(update_context& context)
 
 void mark::module::laser::render(
 	update_context& context,
-	std::vector<vector<double>> collisions,
+	std::vector<vd> collisions,
 	bool is_firing,
-	const vector<double> dir) const
+	const vd dir) const
 {
 	let pos = this->pos();
 	let model_size = std::max(this->size().x, this->size().y) * module::size;

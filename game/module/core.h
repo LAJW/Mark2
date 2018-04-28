@@ -19,7 +19,7 @@ public:
 private:
 	void update(update_context& context) override;
 
-	std::shared_ptr<const resource::image> m_image;
+	resource::image_ptr m_image;
 };
 } // namespace module
 } // namespace mark

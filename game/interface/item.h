@@ -9,9 +9,8 @@ class item
 {
 public:
 	virtual ~item() = default;
-	virtual auto size() const -> vector<unsigned> = 0;
-	virtual auto thumbnail() const
-		-> std::shared_ptr<const resource::image> = 0;
+	virtual auto size() const -> vu32 = 0;
+	virtual auto thumbnail() const -> resource::image_ptr = 0;
 	struct use_on_result
 	{
 		std::error_code error;
@@ -34,7 +33,7 @@ public:
 	virtual auto describe() const -> std::string = 0;
 	// Stack modules on top of each other, return error if cannot stack
 	// Remove module from passed in unique_ptr on success
-	virtual void stack(std::unique_ptr<interface::item>& item) = 0;
+	virtual void stack(interface::item_ptr& item) = 0;
 	virtual bool can_stack(const interface::item& item) const = 0;
 };
 } // namespace interface

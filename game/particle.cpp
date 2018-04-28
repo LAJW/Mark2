@@ -58,7 +58,7 @@ void mark::particle::update(
 	}());
 	m_pos += [&] {
 		let direction = rotate(vector<float>(1.f, 0.f), m_direction);
-		return vector<double>(direction) * dt * static_cast<double>(m_velocity);
+		return vd(direction) * dt * static_cast<double>(m_velocity);
 	}();
 	m_cur_lifespan -= static_cast<float>(dt);
 }

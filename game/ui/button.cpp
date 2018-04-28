@@ -26,15 +26,12 @@ mark::ui::button::button(const info& info)
 	: button(info, validate(info))
 {}
 
-auto mark::ui::button::pos() const noexcept -> vector<int>
+auto mark::ui::button::pos() const noexcept -> vi32
 {
 	return m_pos + m_parent.pos();
 }
 
-auto mark::ui::button::size() const noexcept -> vector<int>
-{
-	return vector<int>(m_size);
-}
+auto mark::ui::button::size() const noexcept -> vi32 { return vi32(m_size); }
 
 void mark::ui::button::update(update_context& context)
 {
@@ -54,40 +51,36 @@ void mark::ui::button::render(update_context& context) const
 	path.world = false;
 	if (cur > size().y * 2 + size().x) {
 		path.points.push_back(
-			vector<double>(pos())
-			+ vector<double>(size().x - (cur - size().y * 2 - size().x), 0));
+			vd(pos()) + vd(size().x - (cur - size().y * 2 - size().x), 0));
 	}
 	if (cur > size().y + size().x) {
 		path.points.push_back(
-			vector<double>(pos())
-			+ vector<double>(
-				  size().x,
-				  std::max(0, size().y - (cur - size().y - size().x))));
+			vd(pos())
+			+ vd(size().x,
+				 std::max(0, size().y - (cur - size().y - size().x))));
 	}
 	if (cur > size().y) {
 		path.points.push_back(
-			vector<double>(pos())
-			+ vector<double>(std::min(size().x, cur - size().y), size().y));
+			vd(pos()) + vd(std::min(size().x, cur - size().y), size().y));
 	}
 	if (cur > 0) {
-		path.points.push_back(
-			vector<double>(pos()) + vector<double>(0, std::min(size().y, cur)));
-		path.points.push_back(vector<double>(pos()));
+		path.points.push_back(vd(pos()) + vd(0, std::min(size().y, cur)));
+		path.points.push_back(vd(pos()));
 	}
 	context.sprites[103].push_back(path);
 	if (m_image) {
 		sprite info;
 		info.image = m_image;
-		let pos = vector<double>(this->pos());
-		info.pos = pos - vector<double>(0, (m_size.x - m_size.y) / 2.);
+		let pos = vd(this->pos());
+		info.pos = pos - vd(0, (m_size.x - m_size.y) / 2.);
 		info.size = static_cast<float>(std::max(m_size.x, m_size.y));
 		info.world = false;
 		info.centred = false;
 		context.sprites[102].emplace_back(info);
 	} else {
 		rectangle info;
-		info.pos = vector<double>(this->pos());
-		info.size = vector<double>(m_size);
+		info.pos = vd(this->pos());
+		info.size = vd(m_size);
 		info.background_color = { 50, 50, 50, uint8_t(255. * m_opacity) };
 		context.sprites[102].emplace_back(info);
 	}
@@ -95,7 +88,7 @@ void mark::ui::button::render(update_context& context) const
 	if (!m_title.empty()) {
 		update_context::text_info text;
 		text.box = { 300., 50. };
-		text.pos = vector<double>(this->pos());
+		text.pos = vd(this->pos());
 		text.font = m_font;
 		text.text = m_title;
 		text.world = false;
@@ -110,7 +103,7 @@ void mark::ui::button::render(update_context& context) const
 bool mark::ui::button::click(const event& event)
 {
 	let top_left = this->pos();
-	let bottom_right = top_left + vector<int>(m_size);
+	let bottom_right = top_left + vi32(m_size);
 	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
 		return on_click.dispatch(event);
@@ -121,7 +114,7 @@ bool mark::ui::button::click(const event& event)
 bool mark::ui::button::hover(const event& event)
 {
 	let top_left = this->pos();
-	let bottom_right = top_left + vector<int>(m_size);
+	let bottom_right = top_left + vi32(m_size);
 	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
 		m_hovering = true;

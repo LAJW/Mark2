@@ -55,7 +55,7 @@ auto mark::unit::landing_pad::use(const std::shared_ptr<unit::modular>& ship)
 	m_ship = ship;
 	world().target(this->shared_from_this());
 	ship->command(command::move{ pos() });
-	ship->command(command::guide{ pos() + vector<double>(1, 0) });
+	ship->command(command::guide{ pos() + vd(1, 0) });
 	return error::code::success;
 }
 

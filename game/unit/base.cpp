@@ -27,7 +27,7 @@ mark::unit::base::base(mark::world& world, const YAML::Node& node)
 	: base([&] {
 		info info;
 		info.world = &world;
-		info.pos = node["pos"].as<vector<double>>();
+		info.pos = node["pos"].as<vd>();
 		info.team = node["team"].as<unsigned>(0);
 		return info;
 	}())
@@ -50,9 +50,9 @@ void mark::unit::base::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::unit::base::pos() const -> vector<double> { return m_pos; }
+auto mark::unit::base::pos() const -> vd { return m_pos; }
 
-void mark::unit::base::pos(const vector<double>& value) { m_pos = value; }
+void mark::unit::base::pos(const vd& value) { m_pos = value; }
 
 auto mark::unit::base::team() const -> size_t { return m_team; }
 

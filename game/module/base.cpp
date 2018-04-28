@@ -6,12 +6,12 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
 
 mark::module::base_ref::base_ref(const YAML::Node& node)
-	: m_grid_pos(node["grid_pos"].as<vector<int>>(vector<int>()))
+	: m_grid_pos(node["grid_pos"].as<vi32>(vi32()))
 {}
 
 void mark::module::base_ref::serialize(YAML::Emitter& out) const
@@ -35,9 +35,9 @@ auto mark::module::base_ref::parent() -> unit::modular&
 	return *m_parent;
 }
 
-auto mark::module::base_ref::grid_pos() const noexcept -> vector<int>
+auto mark::module::base_ref::grid_pos() const noexcept -> vi32
 {
-	return vector<int>(m_grid_pos);
+	return vi32(m_grid_pos);
 }
 
 constexpr let HEAT_TRANSFER_RATE = 15.f;
@@ -130,8 +130,8 @@ void mark::module::base::update(update_context& context)
 	}
 }
 
-auto mark::module::base::collide(const segment_t& ray) -> std::optional<
-	std::pair<std::reference_wrapper<interface::damageable>, vector<double>>>
+auto mark::module::base::collide(const segment_t& ray)
+	-> std::optional<std::pair<ref<interface::damageable>, vd>>
 {
 	let size = this->size();
 	// half width
@@ -146,7 +146,7 @@ auto mark::module::base::collide(const segment_t& ray) -> std::optional<
 		segment_t{ { hw, hh }, { hw, -hh } },   // right
 		segment_t{ { hw, -hh }, { -hw, -hh } }  // side
 	};
-	std::optional<vector<double>> min;
+	std::optional<vd> min;
 	double min_length = INFINITY;
 	for (let& raw : segments) {
 		let segment = std::make_pair(
@@ -168,7 +168,7 @@ auto mark::module::base::collide(const segment_t& ray) -> std::optional<
 }
 
 auto mark::module::base::neighbors()
-	-> std::vector<std::pair<std::reference_wrapper<module::base>, unsigned>>
+	-> std::vector<std::pair<ref<module::base>, unsigned>>
 {
 	return parent().neighbors_of(*this);
 }
@@ -230,11 +230,11 @@ auto mark::module::base::heat_color() const -> sf::Color
 	return { 255, intensity, intensity, 255 };
 }
 
-auto mark::module::base::pos() const -> vector<double>
+auto mark::module::base::pos() const -> vd
 {
 	let pos = (vector<float>(grid_pos()) + vector<float>(this->size()) / 2.f)
 		* static_cast<float>(module::size);
-	return parent().pos() + vector<double>(rotate(pos, parent().rotation()));
+	return parent().pos() + vd(rotate(pos, parent().rotation()));
 }
 
 auto mark::module::base::world() const -> const mark::world&
@@ -243,22 +243,21 @@ auto mark::module::base::world() const -> const mark::world&
 }
 
 auto mark::module::base::thumbnail() const
-	-> std::shared_ptr<const resource::image>
+	-> resource::image_ptr
 {
 	return m_thumbnail;
 }
 
-auto mark::module::base::size() const -> vector<unsigned> { return m_size; }
+auto mark::module::base::size() const -> vu32 { return m_size; }
 
 // Serialiser / Deserializer
 
-static auto size_to_image_file_name(const mark::vector<unsigned>& size)
-	-> std::string
+static auto size_to_image_file_name(const mark::vu32& size) -> std::string
 {
-	if (size == mark::vector<unsigned>{ 2, 2 }) {
+	if (size == mark::vu32{ 2, 2 }) {
 		return "shadow-2x2.png";
 	}
-	if (size == mark::vector<unsigned>{ 4, 2 }) {
+	if (size == mark::vu32{ 4, 2 }) {
 		return "shadow-4x2.png";
 	}
 	std::terminate();

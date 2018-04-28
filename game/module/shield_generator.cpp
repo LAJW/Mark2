@@ -5,8 +5,8 @@
 #include <sprite.h>
 #include <sstream>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
 
 template <typename prop_man, typename T>
@@ -92,7 +92,7 @@ void mark::module::shield_generator::render(update_context& context) const
 	context.render([&] {
 		update_context::bar_info _;
 		_.image = parent().world().image_bar;
-		_.pos = pos + vector<double>(0, -module_size);
+		_.pos = pos + vd(0, -module_size);
 		_.type = update_context::bar_kind::shield;
 		_.percentage = m_cur_shield / m_max_shield;
 		return _;
@@ -135,9 +135,7 @@ auto mark::module::shield_generator::describe() const -> std::string
 }
 
 auto mark::module::shield_generator::collide(const segment_t& ray)
-	-> std::optional<std::pair<
-		std::reference_wrapper<interface::damageable>,
-		vector<double>>>
+	-> std::optional<std::pair<ref<interface::damageable>, vd>>
 {
 	if (!this->active()) {
 		return module::base::collide(ray);

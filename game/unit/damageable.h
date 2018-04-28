@@ -9,11 +9,10 @@ class damageable
 	, public interface::damageable
 {
 public:
-	virtual auto collide(const segment_t&) -> std::optional<std::pair<
-		std::reference_wrapper<interface::damageable>,
-		vector<double>>> = 0;
-	virtual auto collide(vector<double> center, double radius)
-		-> std::vector<std::reference_wrapper<interface::damageable>> = 0;
+	virtual auto collide(const segment_t&)
+		-> std::optional<std::pair<ref<interface::damageable>, vd>> = 0;
+	virtual auto collide(vd center, double radius)
+		-> std::vector<ref<interface::damageable>> = 0;
 	virtual auto radius() const -> double = 0;
 
 protected:

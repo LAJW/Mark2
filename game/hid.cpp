@@ -50,8 +50,8 @@ const std::unordered_map<std::string, mark::hid::button> key_dict{
 
 auto make_make_command(int8_t id) -> mark::hid::make_command_type
 {
-	return [=](const mark::vector<int>&,
-			   const mark::vector<double>& mouse_pos,
+	return [=](const mark::vi32&,
+			   const mark::vd& mouse_pos,
 			   bool shift,
 			   bool release) -> mark::command::any {
 		if (shift) {
@@ -68,8 +68,8 @@ auto make_make_command(int8_t id) -> mark::hid::make_command_type
 }
 
 auto make_command_move(
-	const mark::vector<int>& screen_pos,
-	const mark::vector<double>& mouse_pos,
+	const mark::vi32& screen_pos,
+	const mark::vd& mouse_pos,
 	bool shift,
 	bool release) -> mark::command::any
 {
@@ -77,8 +77,8 @@ auto make_command_move(
 };
 
 auto make_command_guide(
-	const mark::vector<int>& screen_pos,
-	const mark::vector<double>& mouse_pos,
+	const mark::vi32& screen_pos,
+	const mark::vd& mouse_pos,
 	bool,
 	bool) -> mark::command::any
 {
@@ -86,8 +86,8 @@ auto make_command_guide(
 };
 
 auto make_command_use(
-	const mark::vector<int>&,
-	const mark::vector<double>&,
+	const mark::vi32&,
+	const mark::vd&,
 	bool,
 	bool release) -> mark::command::any
 {
@@ -143,8 +143,8 @@ void mark::hid::handle(const sf::Event& event)
 }
 
 auto mark::hid::commands(
-	const mark::vector<int>& screen_pos,
-	const mark::vector<double>& world_pos) -> std::vector<command::any>
+	const mark::vi32& screen_pos,
+	const mark::vd& world_pos) -> std::vector<command::any>
 {
 	std::vector<command::any> out;
 	for (let& button : m_pressed) {

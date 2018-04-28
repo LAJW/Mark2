@@ -31,7 +31,7 @@ public:
 private:
 	void update(update_context& context) override;
 
-	std::shared_ptr<const resource::image> m_image;
+	resource::image_ptr m_image;
 	std::weak_ptr<unit::modular> m_ship;
 };
 } // namespace unit

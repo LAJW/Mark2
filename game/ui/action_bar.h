@@ -11,13 +11,13 @@ public:
 		world& world,
 		update_context& context,
 		resource::manager& rm,
-		vector<double> resolution,
-		vector<double> mouse_pos_);
+		vd resolution,
+		vd mouse_pos_);
 
 private:
-	const std::shared_ptr<const resource::image> m_hotbar_bg;
-	const std::shared_ptr<const resource::image> m_hotbar_overlay;
-	const std::shared_ptr<const resource::image> m_font;
+	const resource::image_ptr m_hotbar_bg;
+	const resource::image_ptr m_hotbar_overlay;
+	const resource::image_ptr m_font;
 };
 } // namespace ui
 } // namespace mark

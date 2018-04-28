@@ -9,13 +9,13 @@ struct sprite;
 class renderer
 {
 public:
-	renderer(vector<unsigned> res);
+	renderer(vu32 res);
 
 	struct render_info
 	{
-		vector<double> camera;
-		vector<double> resolution;
-		std::vector<std::pair<vector<double>, sf::Color>> lights;
+		vd camera;
+		vd resolution;
+		std::vector<std::pair<vd, sf::Color>> lights;
 		std::map<int, std::vector<std::variant<sprite, path, rectangle>>>
 			sprites;
 		std::map<int, std::vector<sprite>> normals;

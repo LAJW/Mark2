@@ -16,13 +16,13 @@ public:
 		module::base& item) -> use_on_result;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
-	auto size() const -> vector<unsigned> override;
-	auto thumbnail() const -> std::shared_ptr<const resource::image> override;
-	void stack(std::unique_ptr<interface::item>& item) override;
+	auto size() const -> vu32 override;
+	auto thumbnail() const -> resource::image_ptr override;
+	void stack(interface::item_ptr& item) override;
 	auto can_stack(const interface::item& item) const -> bool override;
 
 private:
-	std::shared_ptr<const resource::image> m_thumbnail;
+	resource::image_ptr m_thumbnail;
 	size_t m_quantity = 1;
 };
 } // namespace item

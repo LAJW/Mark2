@@ -26,7 +26,7 @@ static auto acceleration(
 
 mark::unit::mobile::mobile(mark::world& world, const YAML::Node& node)
 	: damageable(world, node)
-	, m_moveto(node["moveto"].as<vector<double>>())
+	, m_moveto(node["moveto"].as<vd>())
 {}
 
 mark::unit::mobile::mobile(const info& info)
@@ -38,7 +38,7 @@ mark::unit::mobile::mobile(const info& info)
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
 	const bool random_can_pathfind) const
-	-> std::tuple<vector<double>, double, std::vector<vector<double>>, float>
+	-> std::tuple<vd, double, std::vector<vd>, float>
 {
 	let dt = info.dt;
 	let radius = this->radius();
@@ -105,11 +105,11 @@ auto mark::unit::mobile::update_movement_impl(
 			|| world().map().traversable(pos() + step, radius)) {
 			return pos() + step;
 		} else if (world().map().traversable(
-					   pos() + vector<double>(step.x, 0), radius)) {
-			return pos() + vector<double>(step.x, 0);
+					   pos() + vd(step.x, 0), radius)) {
+			return pos() + vd(step.x, 0);
 		} else if (world().map().traversable(
-					   pos() + vector<double>(0, step.y), radius)) {
-			return pos() + vector<double>(0, step.y);
+					   pos() + vd(0, step.y), radius)) {
+			return pos() + vd(0, step.y);
 		}
 		return pos();
 	}();

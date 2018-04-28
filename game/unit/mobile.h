@@ -14,7 +14,7 @@ protected:
 	mobile(mark::world& world, const YAML::Node&);
 	struct info : base::info
 	{
-		std::optional<vector<double>> moveto;
+		std::optional<vd> moveto;
 		double velocity = 0.0;
 	};
 	mobile(const info& info);
@@ -43,10 +43,10 @@ private:
 	//  - new path age
 	auto update_movement_impl(const update_movement_info&, bool random_can_pathfind)
 		const -> std::
-			tuple<vector<double>, double, std::vector<vector<double>>, float>;
+			tuple<vd, double, std::vector<vd>, float>;
 	double m_velocity = 0.0;
-	vector<double> m_moveto;
-	std::vector<vector<double>> m_path_cache;
+	vd m_moveto;
+	std::vector<vd> m_path_cache;
 	float m_path_age = 0.f;
 };
 } // namespace unit

@@ -9,9 +9,9 @@ namespace {
 // Render sprite using world coordinates
 void render(
 	const std::variant<mark::sprite, mark::path, mark::rectangle>& any,
-	const mark::vector<double>& camera,
+	const mark::vd& camera,
 	sf::RenderTexture& buffer,
-	const mark::vector<double>& resolution)
+	const mark::vd& resolution)
 {
 	using namespace mark;
 	if (let sprite = std::get_if<mark::sprite>(&any)) {
@@ -69,7 +69,7 @@ void render(
 
 } // anonymous namespace
 
-mark::renderer::renderer(vector<unsigned> res)
+mark::renderer::renderer(vu32 res)
 {
 	m_buffer = std::make_unique<sf::RenderTexture>();
 	m_buffer->create(res.x, res.y);
@@ -95,8 +95,8 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	let resolution = info.resolution;
 	let shadow_res = m_vbo->getSize().x;
 
-	if (vector<double>(m_buffer->getSize()) != resolution) {
-		let res = vector<unsigned>(resolution);
+	if (vd(m_buffer->getSize()) != resolution) {
+		let res = vu32(resolution);
 		m_buffer = std::make_unique<sf::RenderTexture>();
 		m_buffer->create(res.x, res.y);
 		m_buffer2 = std::make_unique<sf::RenderTexture>();

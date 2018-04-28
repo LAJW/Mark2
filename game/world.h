@@ -21,9 +21,9 @@ public:
 	world(world_stack& stack, resource::manager&, const YAML::Node&);
 	~world();
 	auto resource_manager() -> resource::manager&;
-	void update(update_context&, vector<double> screen_size);
+	void update(update_context&, vd screen_size);
 	auto map() const -> const map&;
-	auto camera() const -> vector<double>;
+	auto camera() const -> vd;
 
 	struct true_predicate
 	{
@@ -35,20 +35,16 @@ public:
 	};
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
-	auto find(
-		const vector<double>& pos,
-		const double radius,
-		T pred = true_predicate{}) const
+	auto
+	find(const vd& pos, const double radius, T pred = true_predicate{}) const
 		-> std::vector<std::shared_ptr<unit_type>>
 	{
 		return mark::find<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
-	auto find_one(
-		const vector<double>& pos,
-		const double radius,
-		T pred = true_predicate{}) const -> std::shared_ptr<unit_type>
+	auto find_one(const vd& pos, const double radius, T pred = true_predicate{})
+		const -> std::shared_ptr<unit_type>
 	{
 		return mark::find_one<unit_type>(m_space_bins, pos, radius, pred);
 	}
@@ -68,8 +64,9 @@ public:
 		size_t piercing = 1; // Number of objects to pierce
 		double aoe_radius = 0.f;
 	};
-	struct damage_result {
-		std::vector<vector<double>> collisions;
+	struct damage_result
+	{
+		std::vector<vd> collisions;
 		bool hit_terrain = false;
 		float reflected = 0.f;
 	};
@@ -81,24 +78,26 @@ public:
 	auto blueprints() const
 		-> const std::unordered_map<std::string, YAML::Node>&;
 
-	const std::shared_ptr<const resource::image> image_bar;
-	const std::shared_ptr<const resource::image> image_font;
-	const std::shared_ptr<const resource::image> image_stun;
+	const resource::image_ptr image_bar;
+	const resource::image_ptr image_font;
+	const resource::image_ptr image_stun;
 
 private:
-	struct collision_type {
-		std::reference_wrapper<interface::damageable> victim;
-		vector<double> pos;
+	struct collision_type
+	{
+		ref<interface::damageable> victim;
+		vd pos;
 	};
-	struct collide_result {
+	struct collide_result
+	{
 		std::deque<collision_type> unit_collisions;
 		std::optional<mark::collide_result> terrain_collision;
 	};
 	// Collide with units and terrain
 	// Returns all collisions in a line stopping at the first terrain collision
 	auto collide(const segment_t&) -> collide_result;
-	auto collide(vector<double> center, double radius)
-		-> std::vector<std::reference_wrapper<interface::damageable>>;
+	auto collide(vd center, double radius)
+		-> std::vector<ref<interface::damageable>>;
 	void update_spatial_partition();
 
 	resource::manager& m_resource_manager;

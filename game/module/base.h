@@ -24,8 +24,7 @@ struct modifiers
 	float mass = 1.f;
 };
 
-auto deserialize(resource::manager&, const YAML::Node&)
-	-> std::unique_ptr<interface::item>;
+auto deserialize(resource::manager&, const YAML::Node&) -> interface::item_ptr;
 
 enum class reserved_kind
 {
@@ -41,7 +40,7 @@ public:
 	friend unit::modular;
 	friend module::cargo;
 
-	auto grid_pos() const noexcept -> vector<int>;
+	auto grid_pos() const noexcept -> vi32;
 	auto parent() const -> const unit::modular&;
 
 protected:
@@ -73,15 +72,15 @@ public:
 	virtual ~base();
 
 	// Module's position in the world
-	auto pos() const -> vector<double> override;
+	auto pos() const -> vd override;
 
 	auto world() const -> const mark::world& override;
 
 	// Module's image in the inventory
-	auto thumbnail() const -> std::shared_ptr<const resource::image>;
+	auto thumbnail() const -> resource::image_ptr;
 
 	// Size in grid units
-	auto size() const -> vector<unsigned>;
+	auto size() const -> vu32;
 
 	// Describes whether the module is dead or not
 	virtual auto dead() const -> bool;
@@ -92,9 +91,8 @@ public:
 	virtual void command(const command::any&);
 
 	// Find collision point, return pointer to damaged module
-	virtual auto collide(const segment_t&) -> std::optional<std::pair<
-		std::reference_wrapper<interface::damageable>,
-		vector<double>>>;
+	virtual auto collide(const segment_t&)
+		-> std::optional<std::pair<ref<interface::damageable>, vd>>;
 
 	// UI text describing module's properties
 	virtual auto describe() const -> std::string = 0;
@@ -106,8 +104,7 @@ public:
 	virtual auto energy_ratio() const -> float { return 0.f; }
 
 	// Neighbour modules
-	auto neighbors() -> std::vector<
-		std::pair<std::reference_wrapper<module::base>, unsigned>>;
+	auto neighbors() -> std::vector<std::pair<ref<module::base>, unsigned>>;
 
 	// Default damage handling
 	auto damage(const interface::damageable::info& attr) -> bool override;
@@ -145,7 +142,7 @@ public:
 		resource::manager& resource_manager) -> std::error_code;
 
 	// No-op - modules are not stackable
-	void stack(std::unique_ptr<interface::item>&) override final {}
+	void stack(interface::item_ptr&) override final {}
 
 	auto can_stack(const interface::item&) const -> bool override final
 	{
@@ -174,9 +171,9 @@ protected:
 	float m_cur_heat = 0.f;
 
 private:
-	std::shared_ptr<const resource::image> m_thumbnail;
-	std::shared_ptr<const resource::image> m_im_shadow;
-	vector<unsigned> m_size = { 2, 2 };
+	resource::image_ptr m_thumbnail;
+	resource::image_ptr m_im_shadow;
+	vu32 m_size = { 2, 2 };
 	float m_stun_lfo = 0.f;
 	std::string m_blueprint_id;
 };

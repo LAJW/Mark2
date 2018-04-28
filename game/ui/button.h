@@ -12,15 +12,15 @@ public:
 	struct info : node::info
 	{
 		// Resource manager
-		std::shared_ptr<const resource::image> image = nullptr;
+		resource::image_ptr image = nullptr;
 		// Parent window
 		const window* parent = nullptr;
 		// Position of top left corner relative to the parent element
-		vector<int> pos;
+		vi32 pos;
 		// Size of the button
-		vector<unsigned> size;
+		vu32 size;
 		std::string title;
-		std::shared_ptr<const resource::image> font = nullptr;
+		resource::image_ptr font = nullptr;
 	};
 
 	button(const info&);
@@ -32,8 +32,8 @@ public:
 	bool hover(const event&) override;
 	callback_group on_hover;
 
-	auto pos() const noexcept -> vector<int> override;
-	auto size() const noexcept -> vector<int> override;
+	auto pos() const noexcept -> vi32 override;
+	auto size() const noexcept -> vi32 override;
 
 private:
 	button(const info&, bool);
@@ -41,9 +41,9 @@ private:
 
 	const window& m_parent;
 	// Size of the button
-	const vector<unsigned> m_size;
-	const std::shared_ptr<const resource::image> m_image;
-	const std::shared_ptr<const resource::image> m_font;
+	const vu32 m_size;
+	const resource::image_ptr m_image;
+	const resource::image_ptr m_font;
 	std::string m_title;
 	double m_opacity = .0;
 	bool m_hovering = false;

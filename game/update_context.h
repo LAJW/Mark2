@@ -10,7 +10,7 @@ struct update_context
 	double dt;
 	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
 	std::map<int, std::vector<sprite>> normals;
-	std::vector<std::pair<vector<double>, sf::Color>> lights;
+	std::vector<std::pair<vd, sf::Color>> lights;
 	std::vector<std::shared_ptr<unit::base>> units;
 	std::vector<particle> particles;
 	enum class bar_kind
@@ -21,9 +21,9 @@ struct update_context
 	};
 	struct bar_info
 	{
-		std::shared_ptr<const resource::image> image;
+		resource::image_ptr image;
 		bar_kind type;
-		vector<double> pos;
+		vd pos;
 		float percentage;
 	};
 	void render(const bar_info& info);
@@ -47,8 +47,8 @@ struct update_context
 	}
 	struct spray_info
 	{
-		std::shared_ptr<const resource::image> image;
-		vector<double> pos;
+		resource::image_ptr image;
+		vd pos;
 		float min_velocity = NAN;
 		float max_velocity = NAN;
 		float min_lifespan = NAN;
@@ -70,9 +70,9 @@ struct update_context
 	struct text_info
 	{
 		int layer = 0;
-		std::shared_ptr<const resource::image> font;
-		vector<double> pos;
-		vector<double> box;
+		resource::image_ptr font;
+		vd pos;
+		vd box;
 		float size = 14.f;
 		sf::Color color = sf::Color::White;
 		std::string text;

@@ -45,18 +45,14 @@ void mark::item::chaos_orb::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::item::chaos_orb::size() const -> vector<unsigned>
-{
-	return { 2, 2 };
-}
+auto mark::item::chaos_orb::size() const -> vu32 { return { 2, 2 }; }
 
-auto mark::item::chaos_orb::thumbnail() const
-	-> std::shared_ptr<const resource::image>
+auto mark::item::chaos_orb::thumbnail() const -> resource::image_ptr
 {
 	return m_thumbnail;
 }
 
-void mark::item::chaos_orb::stack(std::unique_ptr<interface::item>& item)
+void mark::item::chaos_orb::stack(interface::item_ptr& item)
 {
 	if (let other = dynamic_cast<chaos_orb*>(item.get())) {
 		m_quantity += other->m_quantity;

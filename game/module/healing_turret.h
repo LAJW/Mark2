@@ -27,8 +27,8 @@ private:
 	static void bind(property_manager& mgr, T& instance);
 
 	model::animated m_model;
-	std::shared_ptr<const resource::image> m_im_ray;
-	std::optional<vector<int>> m_target;
+	resource::image_ptr m_im_ray;
+	std::optional<vi32> m_target;
 };
 } // namespace module
 } // namespace mark

@@ -25,7 +25,7 @@ void mark::module::flamethrower::update(update_context& context)
 	let half_cone = m_cone_of_fire / 2.f;
 	for (let cur_angle : mark::range(-half_cone, half_cone + 1.f)) {
 		let absolute_angle = cur_angle + parent().rotation();
-		let offset = rotate(vector<double>(m_range, 0.), absolute_angle);
+		let offset = rotate(vd(m_range, 0.), absolute_angle);
 		let collision = parent().world().damage([&] {
 			world::damage_info _;
 			_.context = &context;

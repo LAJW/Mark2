@@ -16,7 +16,7 @@ public:
 		// here
 		std::unordered_set<damageable*>* damaged = nullptr;
 		std::unordered_set<damageable*>* knocked = nullptr;
-		vector<double> pos;
+		vd pos;
 		float physical = 0.f;
 		float energy = 0.f;
 		float critical_chance = 0.1f;

@@ -5,32 +5,32 @@ namespace mark {
 namespace command {
 struct move
 {
-	vector<double> to;
+	vd to;
 	bool release;
 	bool shift;
-	vector<int> screen_pos;
+	vi32 screen_pos;
 };
 struct guide
 {
-	vector<double> pos;
-	vector<int> screen_pos;
+	vd pos;
+	vi32 screen_pos;
 };
 struct use
 {};
 struct queue
 {
 	int8_t id;
-	vector<double> pos;
+	vd pos;
 };
 struct activate
 {
 	int8_t id;
-	vector<double> pos;
+	vd pos;
 };
 struct release
 {
 	int8_t id;
-	vector<double> pos;
+	vd pos;
 };
 struct cancel
 {};

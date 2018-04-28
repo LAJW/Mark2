@@ -26,7 +26,7 @@ protected:
 private:
 	virtual void update(update_context& context) = 0;
 	virtual void on_death(update_context&){ /* no-op */ };
-	std::reference_wrapper<mark::world> m_world;
+	ref<mark::world> m_world;
 };
 
 class base
@@ -42,15 +42,15 @@ public:
 	virtual void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
-	auto pos() const -> vector<double> override final;
-	void pos(const vector<double>&);
+	auto pos() const -> vd override final;
+	void pos(const vd&);
 	auto team() const -> size_t final override;
 	void team(size_t);
 
 	struct info
 	{
 		mark::world* world = nullptr;
-		vector<double> pos;
+		vd pos;
 		size_t team = 0;
 	};
 
@@ -59,7 +59,7 @@ protected:
 	base(mark::world& world, const YAML::Node&);
 
 private:
-	vector<double> m_pos;
+	vd m_pos;
 	size_t m_team;
 };
 } // namespace unit

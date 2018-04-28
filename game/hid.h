@@ -16,11 +16,11 @@ public:
 	// Generate list of commands, flush hid buffers. Mouse pos for commands,
 	// relative to the world
 	auto
-	commands(const vector<int>& screen_pos, const vector<double>& world_pos)
+	commands(const vi32& screen_pos, const vd& world_pos)
 		-> std::vector<command::any>;
 	using make_command_type = std::function<command::any(
-		const mark::vector<int>& screen_pos,
-		const mark::vector<double>& mouse_pos,
+		const mark::vi32& screen_pos,
+		const mark::vd& mouse_pos,
 		bool shift,
 		bool release)>;
 

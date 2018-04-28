@@ -24,8 +24,8 @@ public:
 
 private:
 	void update(update_context& context) override;
-	std::shared_ptr<const resource::image> m_im_base;
-	std::shared_ptr<const resource::image> m_im_enclosure;
+	resource::image_ptr m_im_base;
+	resource::image_ptr m_im_enclosure;
 	mark::model::animated m_rotor;
 	// If set to true, gate leads to the previous world
 	bool m_inverted;

@@ -15,7 +15,7 @@ static auto in_range(const module::base& a, const module::base& b, double range)
 
 static auto neighbor_at_pos_in_range(
 	const module::base& root,
-	vector<int> pos,
+	vi32 pos,
 	double range)
 {
 	let module = root.parent().module_at(pos);
@@ -27,10 +27,10 @@ static auto neighbor_at_pos_in_range(
 static auto neighbors_in_radius(const module::base& root, double radius)
 {
 	std::unordered_set<gsl::not_null<const module::base*>> neighbors;
-	let center = root.grid_pos() + vector<int>(root.size()) / 2;
+	let center = root.grid_pos() + vi32(root.size()) / 2;
 	let bound = static_cast<int>(std::ceil(radius / 16.));
 	for (let offset :
-		 range<vector<int>>({ -bound, -bound }, { bound + 1, bound + 1 })) {
+		 range<vi32>({ -bound, -bound }, { bound + 1, bound + 1 })) {
 		let module = neighbor_at_pos_in_range(root, center + offset, radius);
 		if (module) {
 			neighbors.insert(module);

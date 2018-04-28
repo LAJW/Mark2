@@ -17,23 +17,19 @@ public:
 		mode_stack& stack,
 		world_stack& world_stack);
 	~ui();
-	void update(
-		update_context& context,
-		vector<double> resolution,
-		vector<double> mouse_pos_);
+	void update(update_context& context, vd resolution, vd mouse_pos_);
 	[[nodiscard]] auto command(world& world, const command::any& command)
 		-> bool;
-	bool click(vector<int> screen_pos);
-	bool hover(vector<int> screen_pos);
+	bool click(vi32 screen_pos);
+	bool hover(vi32 screen_pos);
 	void show_ship_editor(unit::modular&);
 	void hide_ship_editor();
-	void tooltip(vector<int> pos, const std::string& text);
-	void tooltip(update_context&, const std::string& text, vector<double> pos);
-	void
-	world_tooltip(update_context&, const std::string& text, vector<double> pos);
+	void tooltip(vi32 pos, const std::string& text);
+	void tooltip(update_context&, const std::string& text, vd pos);
+	void world_tooltip(update_context&, const std::string& text, vd pos);
 
-	std::unique_ptr<interface::item> grabbed;
-	vector<int> grabbed_prev_pos;
+	interface::item_ptr grabbed;
+	vi32 grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
 	std::vector<int8_t> grabbed_bind;
 	// Release module held by UI
@@ -41,25 +37,25 @@ public:
 
 private:
 	auto command(world& world, const command::move& move) -> bool;
-	void drop(world& world, vector<double> relative);
-	void drag(world& world, vector<double> relative, bool shift);
+	void drop(world& world, vd relative);
+	void drag(world& world, vd relative, bool shift);
 	void container_ui(
 		update_context& context,
-		vector<double> resolution,
+		vd resolution,
 		const unit::landing_pad& landing_pad,
 		const unit::modular& ship);
 
 	action_bar m_action_bar;
 
 	std::string m_tooltip_text;
-	vector<double> m_tooltip_pso;
+	vd m_tooltip_pso;
 
-	const std::shared_ptr<const resource::image> m_font;
-	const std::shared_ptr<const resource::image> m_tooltip_bg;
-	const std::shared_ptr<const resource::image> m_grid_bg;
+	const resource::image_ptr m_font;
+	const resource::image_ptr m_tooltip_bg;
+	const resource::image_ptr m_grid_bg;
 
 	// Used to detect container change
-	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
+	std::vector<ref<mark::module::cargo>> m_containers;
 
 	std::vector<std::unique_ptr<window>> m_windows;
 

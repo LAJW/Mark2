@@ -10,7 +10,7 @@ class manager
 {
 public:
 	virtual auto image(const std::string& filename)
-		-> std::shared_ptr<const resource::image> = 0;
+		-> resource::image_ptr = 0;
 	template <typename T>
 	T random(T min, T max)
 	{
@@ -41,7 +41,7 @@ class manager_impl final : public manager
 public:
 	manager_impl();
 	auto image(const std::string& filename)
-		-> std::shared_ptr<const resource::image> override;
+		-> resource::image_ptr override;
 
 protected:
 	auto random_signed(int64_t min, int64_t max) -> int64_t override;
@@ -59,7 +59,7 @@ class manager_stub final : public manager
 {
 public:
 	auto image(const std::string& filename)
-		-> std::shared_ptr<const resource::image> override;
+		-> resource::image_ptr override;
 
 protected:
 	auto random_signed(int64_t min, int64_t max) -> int64_t override;

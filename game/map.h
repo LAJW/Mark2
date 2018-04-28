@@ -13,19 +13,13 @@ public:
 
 	map(resource::manager&, const YAML::Node&);
 
-	auto traversable(const vector<double>& pos, double radius) const -> bool;
-	auto traversable(const vector<int>& i_pos, const size_t radius) const
-		-> bool;
+	auto traversable(const vd& pos, double radius) const -> bool;
+	auto traversable(const vi32& i_pos, const size_t radius) const -> bool;
 
-	void update(
-		vector<double> top_left,
-		vector<double> bottom_right,
-		update_context& context);
+	void update(vd top_left, vd bottom_right, update_context& context);
 
-	auto find_path(
-		const vector<double>& start,
-		const vector<double>& end,
-		double radius = 0.0) const -> std::vector<vector<double>>;
+	auto find_path(const vd& start, const vd& end, double radius = 0.0) const
+		-> std::vector<vd>;
 
 	// Can find be called in this update (limit find count per frame)
 	auto can_find() const -> bool;
@@ -37,11 +31,11 @@ public:
 	// Not a part of the public interface
 	struct Node
 	{
-		vector<int> pos;
+		vi32 pos;
 		int f = 0; // distance from starting + distance from ending (h)
 		const Node* parent = nullptr;
 	};
-	auto map_to_world(const vector<int>&) const noexcept -> vector<double>;
+	auto map_to_world(const vi32&) const noexcept -> vd;
 
 	auto size() const noexcept -> const vector<size_t>&;
 
@@ -61,25 +55,24 @@ private:
 		std::array<bool, 20> traversable;
 		unsigned variant = 0;
 	};
-	auto p_traversable(const vector<int>& i_pos, const size_t radius) const
-		-> bool;
+	auto p_traversable(const vi32& i_pos, const size_t radius) const -> bool;
 
 	static std::string serialize_terrain_kind(terrain_kind);
 	static enum terrain_kind deserialize_terrain_kind(const std::string&);
 
 	map(resource::manager&, const vector<size_t>& size);
 
-	auto get(const vector<int>& pos) const noexcept -> terrain_kind;
-	auto get_variant(const vector<int>& pos) const noexcept -> unsigned;
-	void set(const vector<int>& pos, terrain_kind) noexcept;
-	auto world_to_map(const vector<double>&) const noexcept -> vector<int>;
-	auto collide_with_block_at(vector<double> pos, segment_t segment) const
-		noexcept -> std::optional<collide_result>;
+	auto get(const vi32& pos) const noexcept -> terrain_kind;
+	auto get_variant(const vi32& pos) const noexcept -> unsigned;
+	void set(const vi32& pos, terrain_kind) noexcept;
+	auto world_to_map(const vd&) const noexcept -> vi32;
+	auto collide_with_block_at(vd pos, segment_t segment) const noexcept
+		-> std::optional<collide_result>;
 	void calculate_traversable();
 
 	static constexpr size_t map_size = 1000;
 	vector2d<terrain> m_terrain;
-	std::shared_ptr<const resource::image> m_tileset;
+	resource::image_ptr m_tileset;
 	mutable unsigned m_find_count = 0;
 };
 } // namespace mark

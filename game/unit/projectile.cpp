@@ -45,7 +45,7 @@ void mark::unit::projectile::update(update_context& context)
 	double dt = context.dt;
 	m_rotation_lfo.update(dt);
 	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
-	let step = rotate(vector<double>(1, 0), rotation) * m_velocity * dt;
+	let step = rotate(vd(1, 0), rotation) * m_velocity * dt;
 	let turn_speed = 500.f;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
@@ -87,7 +87,7 @@ void mark::unit::projectile::update(update_context& context)
 		if (terrain_hit) {
 			m_rotation = reflected_angle;
 			pos(pos() - collisions.back()
-				+ rotate(vector<double>(5., 0.), reflected_angle));
+				+ rotate(vd(5., 0.), reflected_angle));
 		}
 	}
 	if (!collisions.empty() && terrain_hit) {

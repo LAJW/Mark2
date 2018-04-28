@@ -7,10 +7,10 @@
 #include <world.h>
 
 auto target(
-	const mark::vector<double>& turret_pos,
+	const mark::vd& turret_pos,
 	const std::
-		pair<std::weak_ptr<const mark::unit::base>, mark::vector<double>>& pair)
-	-> std::optional<mark::vector<double>>
+		pair<std::weak_ptr<const mark::unit::base>, mark::vd>& pair)
+	-> std::optional<mark::vd>
 {
 	using namespace mark;
 	let & [ unit_wk, offset ] = pair;
@@ -75,7 +75,7 @@ auto mark::targeting_system::can_shoot() const -> bool
 	return !std::get<queue_type>(m_target).empty();
 }
 
-auto mark::targeting_system::target() const -> std::optional<vector<double>>
+auto mark::targeting_system::target() const -> std::optional<vd>
 {
 	if (let queue = std::get_if<queue_type>(&m_target)) {
 		if (queue->empty()) {
@@ -91,14 +91,14 @@ auto mark::targeting_system::ai() const -> bool
 	return std::holds_alternative<queue_type>(m_target);
 }
 
-void mark::targeting_system::target(vector<double> pos)
+void mark::targeting_system::target(vd pos)
 {
 	if (let pair = std::get_if<target_type>(&m_target)) {
 		pair->second = pos;
 	}
 }
 
-void mark::targeting_system::queue(vector<double> pos, bool)
+void mark::targeting_system::queue(vd pos, bool)
 {
 	auto unit = m_parent.world().find_one<unit::damageable>(
 		pos, 100.f, [this](const unit::base& unit) {

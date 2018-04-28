@@ -37,12 +37,11 @@ private:
 	auto targeting_system() -> mark::targeting_system&;
 
 	std::unique_ptr<mark::targeting_system> m_targeting_system;
-	std::shared_ptr<const resource::image> m_image;
-	std::shared_ptr<const resource::image> m_im_orb;
+	resource::image_ptr m_image;
+	resource::image_ptr m_im_orb;
 	size_t m_image_variant;
 	adsr m_adsr;
-	std::shared_ptr<vector<double>> m_shared_target =
-		std::make_shared<vector<double>>();
+	std::shared_ptr<vd> m_shared_target = std::make_shared<vd>();
 
 	float m_cur_cooldown = 0;
 	float m_rate_of_fire = 1.f;

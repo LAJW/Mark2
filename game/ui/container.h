@@ -21,11 +21,11 @@ public:
 	void update(update_context&) override;
 	bool click(const event& event) override;
 	auto cargo() const -> const module::cargo&;
-	auto size() const -> vector<int> override;
+	auto size() const -> vi32 override;
 
 private:
-	void attach(vector<int> pos, interface::item&);
-	std::shared_ptr<const resource::image> m_cargo_bg;
+	void attach(vi32 pos, interface::item&);
+	resource::image_ptr m_cargo_bg;
 	ui& m_ui;
 	module::cargo& m_container;
 };

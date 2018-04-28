@@ -6,9 +6,14 @@ namespace mark {
 template <typename T>
 using vector = sf::Vector2<T>;
 
+using vi32 = vector<int32_t>;
+using vi8 = vector<int8_t>;
+using vu32 = vector<uint32_t>;
+using vd = vector<double>;
+
 struct collide_result
 {
-	vector<double> pos;
+	vd pos;
 	float reflected_angle = 0.f;
 };
 
@@ -79,41 +84,33 @@ inline auto vmap(const vector<T> vector, T (*proc)(T))
 {
 	return mark::vector<T>(proc(vector.x), proc(vector.y));
 }
-inline auto round(const vector<double> in) noexcept
-{
-	return vector<int>(vmap(in, std::round));
-}
-inline auto floor(const vector<double> in) noexcept
-{
-	return vector<int>(vmap(in, std::floor));
-}
+inline auto round(const vd in) noexcept { return vi32(vmap(in, std::round)); }
+inline auto floor(const vd in) noexcept { return vi32(vmap(in, std::floor)); }
 // distance between point and a line: tan(alpha) + 0
-auto distance(float alpha, vector<double> point) noexcept -> double;
+auto distance(float alpha, vd point) noexcept -> double;
 
 // Given 2 points, return [ a,b ] from y = ax + b
 // If vertical line, only double is returned
-auto get_line(vector<double> start, vector<double> end) noexcept
-	-> std::variant<vector<double>, double>;
+auto get_line(vd start, vd end) noexcept -> std::variant<vd, double>;
 
 // given 2 lines, find intersection point
 auto intersect(
-	std::variant<vector<double>, double> line1,
-	std::variant<vector<double>, double> line2) noexcept
-	-> std::optional<vector<double>>;
+	std::variant<vd, double> line1,
+	std::variant<vd, double> line2) noexcept -> std::optional<vd>;
 
 // given 2 segments, find intersecting point
-using segment_t = std::pair<vector<double>, vector<double>>;
+using segment_t = std::pair<vd, vd>;
 auto intersect(const segment_t&, const segment_t&) noexcept
-	-> std::optional<vector<double>>;
+	-> std::optional<vd>;
 
 // given segment and a circle, get nearerst intersection
-auto intersect(segment_t, const vector<double>& center, double radius) noexcept
-	-> std::optional<vector<double>>;
+auto intersect(segment_t, const vd& center, double radius) noexcept
+	-> std::optional<vd>;
 
 // Calculate new rotation for an entity based on angular velocity, lookat
 // direction, etc.
 auto turn(
-	vector<double> new_direction,
+	vd new_direction,
 	float current_rotation,
 	float angular_velocity,
 	double dt) -> float;

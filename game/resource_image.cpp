@@ -9,7 +9,7 @@ mark::resource::image_impl::image_impl(std::string filename)
 	m_texture->loadFromFile("resource/texture/" + filename);
 }
 
-auto mark::resource::image_impl::size() const noexcept -> vector<unsigned>
+auto mark::resource::image_impl::size() const noexcept -> vu32
 {
 	return m_texture->getSize();
 }
@@ -24,7 +24,7 @@ auto mark::resource::image_impl::texture() const noexcept -> const sf::Texture&
 	return *m_texture;
 }
 
-auto mark::resource::image_stub::size() const noexcept -> vector<unsigned>
+auto mark::resource::image_stub::size() const noexcept -> vu32
 {
 	return { 64, 64 };
 }

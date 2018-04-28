@@ -105,8 +105,7 @@ void mark::module::turret::render(update_context& context) const
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_image;
-		_.pos =
-			pos - rotate(vector<double>(m_adsr.get() - 32.0, 0.0), m_rotation);
+		_.pos = pos - rotate(vd(m_adsr.get() - 32.0, 0.0), m_rotation);
 		_.size = 32.f;
 		_.rotation = m_rotation;
 		_.color = heat_color;
@@ -126,7 +125,7 @@ void mark::module::turret::render(update_context& context) const
 	let cooldown = 1.f / m_rate_of_fire;
 	if (m_is_chargeable && m_cur_cooldown < cooldown) {
 		let charge = 1.f - m_cur_cooldown / cooldown;
-		let fx_pos = pos + rotate(vector<double>(64., 0), m_rotation);
+		let fx_pos = pos + rotate(vd(64., 0), m_rotation);
 		context.sprites[3].emplace_back([&] {
 			sprite _;
 			_.image = m_im_orb;
@@ -139,8 +138,8 @@ void mark::module::turret::render(update_context& context) const
 			let direction = context.random(-180.f, 180.f);
 			mark::particle::info _;
 			_.pos = fx_pos
-				+ rotate(vector<double>(64, 0), direction)
-					* static_cast<double>(charge) * context.random(.5, 1.);
+				+ rotate(vd(64, 0), direction) * static_cast<double>(charge)
+					* context.random(.5, 1.);
 			_.direction = direction;
 			_.velocity = -charge * 64.f;
 			_.image = m_im_orb;
