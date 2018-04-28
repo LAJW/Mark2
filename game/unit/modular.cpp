@@ -504,7 +504,7 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr)
 }
 
 void mark::unit::modular::knockback(
-	std::unordered_set<interface::damageable*>& damaged,
+	std::unordered_set<gsl::not_null<interface::damageable*>>& damaged,
 	float angle,
 	double distance)
 {

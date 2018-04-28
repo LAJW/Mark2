@@ -14,8 +14,8 @@ public:
 		// to ignore damaged objects. Cannot be null upon invoking
 		// damage(). idamageable upon taking damage should store itself
 		// here
-		std::unordered_set<damageable*>* damaged = nullptr;
-		std::unordered_set<damageable*>* knocked = nullptr;
+		std::unordered_set<gsl::not_null<damageable*>>* damaged = nullptr;
+		std::unordered_set<gsl::not_null<damageable*>>* knocked = nullptr;
 		vd pos;
 		float physical = 0.f;
 		float energy = 0.f;

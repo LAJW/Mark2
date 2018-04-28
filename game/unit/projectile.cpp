@@ -193,7 +193,7 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const
 
 	out << Key << "damaged" << Value << BeginSeq;
 	for (let& damaged : m_damaged) {
-		out << reinterpret_cast<uint64_t>(damaged);
+		out << reinterpret_cast<uint64_t>(damaged.get());
 	}
 	out << EndSeq;
 

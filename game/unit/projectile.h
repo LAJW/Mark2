@@ -45,8 +45,8 @@ private:
 	resource::image_ptr m_image;
 	resource::image_ptr m_im_tail;
 	resource::image_ptr m_im_explosion;
-	std::unordered_set<interface::damageable*> m_damaged;
-	std::unordered_set<interface::damageable*> m_knocked;
+	std::unordered_set<gsl::not_null<interface::damageable*>> m_damaged;
+	std::unordered_set<gsl::not_null<interface::damageable*>> m_knocked;
 	std::shared_ptr<const vd> m_guide;
 	float m_physical;
 	float m_rotation;

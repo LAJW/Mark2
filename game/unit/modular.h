@@ -50,7 +50,7 @@ public:
 	auto containers() const -> std::vector<cref<module::cargo>>;
 	auto damage(const interface::damageable::info&) -> bool override;
 	void knockback(
-		std::unordered_set<interface::damageable*>& knocked,
+		std::unordered_set<gsl::not_null<interface::damageable*>>& knocked,
 		float angle,
 		double distance);
 	auto collide(const segment_t&)
