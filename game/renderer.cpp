@@ -1,73 +1,94 @@
 ﻿#include "stdafx.h"
+
 #include "renderer.h"
 #include "resource_image.h"
 #include "sprite.h"
 #include "update_context.h"
 
-namespace {
+namespace mark {
 
 // Render sprite using world coordinates
-void render(
-	const std::variant<mark::sprite, mark::path, mark::rectangle>& any,
-	const mark::vd& camera,
+static void render(
 	sf::RenderTexture& buffer,
-	const mark::vd& resolution)
+	const sprite& sprite,
+	const vd& camera,
+	const vd& resolution)
 {
-	using namespace mark;
+	Expects(sprite.image);
+	sf::Sprite tmp;
+	let texture_size = static_cast<float>(sprite.image->size().y);
+	let scale = sprite.size / texture_size;
+	tmp.setTexture(sprite.image->texture());
+	if (sprite.frame != sprite::all) {
+		tmp.setTextureRect(
+			{ static_cast<int>(texture_size) * gsl::narrow<int>(sprite.frame),
+			  0,
+			  static_cast<int>(texture_size),
+			  static_cast<int>(texture_size) });
+		tmp.scale(scale, scale);
+	}
+	if (sprite.centred) {
+		tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
+	}
+	tmp.rotate(sprite.rotation);
+	tmp.setColor(sprite.color);
+	let offset =
+		sprite.world ? sprite.pos - camera + resolution / 2. : sprite.pos;
+	tmp.move(vector<float>(offset));
+	buffer.draw(tmp);
+}
+
+static void
+render(sf::RenderTexture& buffer, const path& path, const vd& camera)
+{
+	std::vector<sf::Vertex> points;
+	if (path.points.size() <= 1) {
+		return;
+	}
+	if (path.world) {
+		for (size_t i = 0; i < path.points.size() - 1; ++i) {
+			let cur = path.points[i];
+			let next = path.points[i + 1];
+			points.push_back(sf::Vertex(vector<float>(cur - camera)));
+			points.push_back(sf::Vertex(vector<float>(next - camera)));
+		}
+	} else {
+		for (size_t i = 0; i < path.points.size() - 1; ++i) {
+			let cur = path.points[i];
+			let next = path.points[i + 1];
+			points.push_back(sf::Vertex(vector<float>(cur)));
+			points.push_back(sf::Vertex(vector<float>(next)));
+		}
+	}
+	buffer.draw(points.data(), points.size(), sf::Lines);
+}
+
+static void render(sf::RenderTexture& buffer, const rectangle& rect)
+{
+	sf::RectangleShape rectangle;
+	rectangle.setPosition(sf::Vector2f(rect.pos));
+	rectangle.setSize(sf::Vector2f(rect.size));
+	rectangle.setFillColor(rect.background_color);
+	rectangle.setOutlineColor(rect.border_color);
+	buffer.draw(rectangle);
+}
+
+static void render(
+	sf::RenderTexture& buffer,
+	const std::variant<sprite, path, rectangle>& any,
+	const vd& camera,
+	const vd& resolution)
+{
 	if (let sprite = std::get_if<mark::sprite>(&any)) {
-		sf::Sprite tmp;
-		let texture_size = static_cast<float>(sprite->image->size().y);
-		let scale = sprite->size / texture_size;
-		tmp.setTexture(sprite->image->texture());
-		if (sprite->frame != mark::sprite::all) {
-			tmp.setTextureRect({ static_cast<int>(texture_size)
-									 * static_cast<int>(sprite->frame),
-								 0,
-								 static_cast<int>(texture_size),
-								 static_cast<int>(texture_size) });
-			tmp.scale(scale, scale);
-		}
-		if (sprite->centred) {
-			tmp.setOrigin(texture_size / 2.f, texture_size / 2.f);
-		}
-		tmp.rotate(sprite->rotation);
-		tmp.setColor(sprite->color);
-		let offset = sprite->world ? sprite->pos - camera + resolution / 2.
-								   : sprite->pos;
-		tmp.move(vector<float>(offset));
-		buffer.draw(tmp);
+		render(buffer, *sprite, camera, resolution);
 	} else if (let path = std::get_if<mark::path>(&any)) {
-		std::vector<sf::Vertex> points;
-		if (path->points.size() <= 1) {
-			return;
-		}
-		if (path->world) {
-			for (size_t i = 0; i < path->points.size() - 1; ++i) {
-				let cur = path->points[i];
-				let next = path->points[i + 1];
-				points.push_back(sf::Vertex(vector<float>(cur - camera)));
-				points.push_back(sf::Vertex(vector<float>(next - camera)));
-			}
-		} else {
-			for (size_t i = 0; i < path->points.size() - 1; ++i) {
-				let cur = path->points[i];
-				let next = path->points[i + 1];
-				points.push_back(sf::Vertex(vector<float>(cur)));
-				points.push_back(sf::Vertex(vector<float>(next)));
-			}
-		}
-		buffer.draw(points.data(), points.size(), sf::Lines);
-	} else if (let rect = std::get_if<mark::rectangle>(&any)) {
-		sf::RectangleShape rectangle;
-		rectangle.setPosition(sf::Vector2f(rect->pos));
-		rectangle.setSize(sf::Vector2f(rect->size));
-		rectangle.setFillColor(rect->background_color);
-		rectangle.setOutlineColor(rect->border_color);
-		buffer.draw(rectangle);
+		render(buffer, *path, camera);
+	} else if (let rect = std::get_if<rectangle>(&any)) {
+		render(buffer, *rect);
 	}
 }
 
-} // anonymous namespace
+} // namespace mark
 
 mark::renderer::renderer(vu32 res)
 {
@@ -139,21 +160,21 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	for (let& layer : info.sprites) {
 		if (layer.first < 0) {
 			for (let& sprites : layer.second) {
-				::render(sprites, camera, *m_occlusion_map, resolution);
+				mark::render(*m_occlusion_map, sprites, camera, resolution);
 			}
 		} else if (layer.first < 100) {
 			for (let& sprite : layer.second) {
-				::render(sprite, camera, *m_buffer, resolution);
+				mark::render(*m_buffer, sprite, camera, resolution);
 			}
 		} else {
 			for (let& sprite : layer.second) {
-				::render(sprite, camera, *m_ui_layer, resolution);
+				mark::render(*m_ui_layer, sprite, camera, resolution);
 			}
 		}
 	}
 	for (let& layer : info.normals) {
 		for (let& sprite : layer.second) {
-			::render(sprite, camera, *m_normal_map, resolution);
+			mark::render(*m_normal_map, sprite, camera, resolution);
 		}
 	}
 
@@ -175,7 +196,6 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	shadows.setScale(
 		{ static_cast<float>(resolution.x) / static_cast<float>(shadow_res),
 		  static_cast<float>(resolution.y / 1.f) });
-	;
 	if (!lights_pos.empty()) {
 		m_shadows_shader.setUniformArray(
 			"lights_pos", lights_pos.data(), lights_count);
