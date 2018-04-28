@@ -17,13 +17,13 @@ public:
 
 	cargo(resource::manager&, const YAML::Node&);
 
-	[[nodiscard]] auto attach(const vi32& pos, interface::item_ptr& item)
+	[[nodiscard]] auto attach(vi32 pos, interface::item_ptr& item)
 		-> std::error_code override;
-	auto can_attach(const vi32& pos, const interface::item& item) const
+	auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool override;
-	auto at(const vi32& pos) -> interface::item* override;
-	auto at(const vi32& pos) const -> const interface::item* override;
-	auto detach(const vi32& pos) -> interface::item_ptr override;
+	auto at(vi32 pos) -> interface::item* override;
+	auto at(vi32 pos) const -> const interface::item* override;
+	auto detach(vi32 pos) -> interface::item_ptr override;
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(update_context& context) override;

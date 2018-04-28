@@ -35,16 +35,15 @@ public:
 	};
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
-	auto
-	find(const vd& pos, const double radius, T pred = true_predicate{}) const
+	auto find(vd pos, const double radius, T pred = true_predicate{}) const
 		-> std::vector<std::shared_ptr<unit_type>>
 	{
 		return mark::find<unit_type>(m_space_bins, pos, radius, pred);
 	}
 
 	template <typename unit_type = unit::base, typename T = true_predicate>
-	auto find_one(const vd& pos, const double radius, T pred = true_predicate{})
-		const -> std::shared_ptr<unit_type>
+	auto find_one(vd pos, const double radius, T pred = true_predicate{}) const
+		-> std::shared_ptr<unit_type>
 	{
 		return mark::find_one<unit_type>(m_space_bins, pos, radius, pred);
 	}

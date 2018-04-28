@@ -1,5 +1,5 @@
-﻿#include "stdafx.h"
-#include "hid.h"
+﻿#include "hid.h"
+#include "stdafx.h"
 
 namespace {
 const std::unordered_map<std::string, mark::hid::button> key_dict{
@@ -85,11 +85,8 @@ auto make_command_guide(
 	return mark::command::guide{ mouse_pos, screen_pos };
 };
 
-auto make_command_use(
-	const mark::vi32&,
-	const mark::vd&,
-	bool,
-	bool release) -> mark::command::any
+auto make_command_use(const mark::vi32&, const mark::vd&, bool, bool release)
+	-> mark::command::any
 {
 	if (release) {
 		return std::monostate();
@@ -142,9 +139,8 @@ void mark::hid::handle(const sf::Event& event)
 	}
 }
 
-auto mark::hid::commands(
-	const mark::vi32& screen_pos,
-	const mark::vd& world_pos) -> std::vector<command::any>
+auto mark::hid::commands(mark::vi32 screen_pos, mark::vd world_pos)
+	-> std::vector<command::any>
 {
 	std::vector<command::any> out;
 	for (let& button : m_pressed) {

@@ -46,7 +46,7 @@ static auto find_pos(
 	assert(size.x > 0);
 	assert(size.y > 0);
 	let center = size / 2;
-	return strategy([&](const vi32& point) -> std::optional<vd> {
+	return strategy([&](vi32 point) -> std::optional<vd> {
 		let pos = vd(point - center) * map::tile_size;
 		if (map.traversable(pos, object_radius)) {
 			return pos;

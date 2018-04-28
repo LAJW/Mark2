@@ -17,7 +17,7 @@ public:
 	virtual bool hover(const event&) = 0;
 	// get absolute pos
 	virtual auto pos() const noexcept -> vi32 { return m_pos; }
-	void pos(const vi32& pos) { m_pos = pos; }
+	void pos(vi32 pos) { m_pos = pos; }
 	virtual auto size() const -> vi32 { return { 0, 0 }; }
 	auto relative() const noexcept -> bool { return m_relative; }
 

@@ -1,5 +1,5 @@
-﻿#include <stdafx.h>
-#include "base.h"
+﻿#include "base.h"
+#include <stdafx.h>
 
 auto mark::unit::base_ref::world() noexcept -> mark::world&
 {
@@ -52,7 +52,7 @@ void mark::unit::base::serialize(YAML::Emitter& out) const
 
 auto mark::unit::base::pos() const -> vd { return m_pos; }
 
-void mark::unit::base::pos(const vd& value) { m_pos = value; }
+void mark::unit::base::pos(vd value) { m_pos = value; }
 
 auto mark::unit::base::team() const -> size_t { return m_team; }
 

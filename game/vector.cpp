@@ -1,16 +1,15 @@
 ﻿#include "stdafx.h"
+
 #include "vector.h"
 
-auto mark::distance(const float alpha, const vd point) noexcept
-	-> double
+auto mark::distance(const float alpha, const vd point) noexcept -> double
 {
 	let a = std::tan(alpha / 180.f * static_cast<float>(M_PI));
 	return std::abs(a * point.x + point.y) / std::sqrt(a * a + 1);
 }
 
-auto mark::get_line(
-	const vd start,
-	const vd end) noexcept -> std::variant<vd, double>
+auto mark::get_line(const vd start, const vd end) noexcept
+	-> std::variant<vd, double>
 {
 	if (start.x == end.x) {
 		if (start.y == end.y) {
@@ -25,8 +24,7 @@ auto mark::get_line(
 
 auto mark::intersect(
 	const std::variant<vd, double> line1,
-	const std::variant<vd, double> line2) noexcept
-	-> std::optional<vd>
+	const std::variant<vd, double> line2) noexcept -> std::optional<vd>
 {
 	let intersect_with_X = [](vd line, double x) {
 		let y = x * line.x + line.y;
@@ -82,10 +80,8 @@ auto mark::intersect(const segment_t& s1, const segment_t& s2) noexcept
 	return {};
 }
 
-auto mark::intersect(
-	segment_t segment,
-	const vd& center,
-	double radius) noexcept -> std::optional<vd>
+auto mark::intersect(segment_t segment, vd center, double radius) noexcept
+	-> std::optional<vd>
 {
 	let line = get_line(segment.first, segment.second);
 	let lx = std::min(segment.first.x, segment.second.x);
@@ -115,8 +111,7 @@ auto mark::intersect(
 			let x2 = (-B - delta) / (2.0 * A);
 			let y1 = c * x1 + d;
 			let y2 = c * x2 + d;
-			return std::make_pair(
-				vd(x1, y1), vd(x2, y2));
+			return std::make_pair(vd(x1, y1), vd(x2, y2));
 		}();
 		const bool p1_in_range =
 			p1.x >= lx && p1.x <= ux && p1.y >= ly && p1.y <= uy;

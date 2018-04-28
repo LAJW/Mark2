@@ -43,7 +43,7 @@ public:
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
 	auto pos() const -> vd override final;
-	void pos(const vd&);
+	void pos(vd);
 	auto team() const -> size_t final override;
 	void team(size_t);
 

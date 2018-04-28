@@ -29,15 +29,15 @@ public:
 	modular(info info);
 	~modular();
 	void command(const command::any& command) override;
-	[[nodiscard]] auto attach(const vi32& pos, interface::item_ptr& item)
+	[[nodiscard]] auto attach(vi32 pos, interface::item_ptr& item)
 		-> std::error_code override;
-	auto can_attach(const vi32& pos, const interface::item& item) const
+	auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool override;
-	auto at(const vi32& pos) noexcept -> interface::item* override;
-	auto at(const vi32& pos) const noexcept -> const interface::item* override;
-	auto module_at(const vi32& pos) noexcept -> module::base*;
-	auto module_at(const vi32& pos) const noexcept -> const module::base*;
-	auto detach(const vi32& pos) -> interface::item_ptr override;
+	auto at(vi32 pos) noexcept -> interface::item* override;
+	auto at(vi32 pos) const noexcept -> const interface::item* override;
+	auto module_at(vi32 pos) noexcept -> module::base*;
+	auto module_at(vi32 pos) const noexcept -> const module::base*;
+	auto detach(vi32 pos) -> interface::item_ptr override;
 
 	auto neighbors_of(const module::base&)
 		-> std::vector<std::pair<ref<module::base>, unsigned>>;
@@ -77,8 +77,7 @@ private:
 	void on_death(update_context& context) override;
 
 	// Attach without checking structure of the ship
-	[[nodiscard]] auto
-	p_attach(const vi32& pos, module::base_ptr& module)
+	[[nodiscard]] auto p_attach(vi32 pos, module::base_ptr& module)
 		-> std::error_code;
 	// Check whether module can be attached without checking structure of the
 	// ship

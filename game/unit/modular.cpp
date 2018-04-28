@@ -264,7 +264,7 @@ auto mark::unit::modular::neighbors_of(const module::base& module) const
 		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
-auto mark::unit::modular::attach(const vi32& pos_, interface::item_ptr& item)
+auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr& item)
 	-> std::error_code
 {
 	let module_pos = vi8(pos_);
@@ -275,7 +275,7 @@ auto mark::unit::modular::attach(const vi32& pos_, interface::item_ptr& item)
 	return p_attach(pos_, module);
 }
 
-auto mark::unit::modular::p_attach(const vi32& pos_, module::base_ptr& module)
+auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr& module)
 	-> std::error_code
 {
 	let module_pos = vi8(pos_);
@@ -314,9 +314,8 @@ auto mark::unit::modular::p_attach(const vi32& pos_, module::base_ptr& module)
 	return error::code::success;
 }
 
-auto mark::unit::modular::can_attach(
-	const vi32& pos_,
-	const interface::item& item) const -> bool
+auto mark::unit::modular::can_attach(vi32 pos_, const interface::item& item)
+	const -> bool
 {
 	let module = dynamic_cast<const module::base*>(&item);
 	if (!module) {
@@ -371,7 +370,7 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	return true;
 }
 
-auto mark::unit::modular::detach(const vi32& user_pos) -> interface::item_ptr
+auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 {
 
 	let module_ptr = this->module_at(user_pos);
@@ -710,19 +709,18 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(const vi32& module_pos) noexcept
-	-> interface::item*
+auto mark::unit::modular::at(vi32 module_pos) noexcept -> interface::item*
 {
 	return module_at(module_pos);
 }
 
-auto mark::unit::modular::at(const vi32& module_pos) const noexcept
+auto mark::unit::modular::at(vi32 module_pos) const noexcept
 	-> const interface::item*
 {
 	return module_at(module_pos);
 }
 
-auto mark::unit::modular::module_at(const vi32& pos) noexcept -> module::base*
+auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
@@ -731,7 +729,7 @@ auto mark::unit::modular::module_at(const vi32& pos) noexcept -> module::base*
 	return nullptr;
 }
 
-auto mark::unit::modular::module_at(const vi32& pos) const noexcept
+auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	-> const module::base*
 {
 	let hs = static_cast<int8_t>(max_size / 2);

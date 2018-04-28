@@ -55,7 +55,7 @@ mark::map mark::map::make_square(resource::manager& resource_manager)
 
 // Map functionality
 
-auto mark::map::world_to_map(const vd& pos) const noexcept -> vi32
+auto mark::map::world_to_map(vd pos) const noexcept -> vi32
 {
 	return round(pos / map::tile_size) + vi32(this->size() / size_t(2));
 }
@@ -72,27 +72,26 @@ void mark::map::calculate_traversable()
 	}
 }
 
-auto mark::map::map_to_world(const vi32& pos) const noexcept -> vd
+auto mark::map::map_to_world(vi32 pos) const noexcept -> vd
 {
 	let center = vi32(this->size() / size_t(2));
 	return vd(pos - center) * map::tile_size;
 }
 
-auto mark::map::traversable(const vd& pos, const double radius_) const -> bool
+auto mark::map::traversable(vd pos, const double radius_) const -> bool
 {
 	let radius = size_t(std::ceil(radius_ / map::tile_size));
 	return this->traversable(this->world_to_map(pos), radius);
 }
 
-auto mark::map::traversable(const vi32& pos, const size_t radius) const -> bool
+auto mark::map::traversable(vi32 pos, const size_t radius) const -> bool
 {
 	return pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y && radius < 20
 		&& m_terrain[vector<size_t>(pos)].traversable[radius];
 }
 
-auto mark::map::p_traversable(const vi32& pos, const size_t uradius) const
-	-> bool
+auto mark::map::p_traversable(vi32 pos, const size_t uradius) const -> bool
 {
 	if (uradius <= 1) {
 		let tile = this->get(pos);
@@ -197,7 +196,7 @@ auto mark::map::size() const noexcept -> const vector<size_t>&
 	return m_terrain.size();
 }
 
-auto mark::map::get(const vi32& pos) const noexcept -> terrain_kind
+auto mark::map::get(vi32 pos) const noexcept -> terrain_kind
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -206,7 +205,7 @@ auto mark::map::get(const vi32& pos) const noexcept -> terrain_kind
 	return terrain_kind::null;
 }
 
-auto mark::map::get_variant(const vi32& pos) const noexcept -> unsigned
+auto mark::map::get_variant(vi32 pos) const noexcept -> unsigned
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -215,7 +214,7 @@ auto mark::map::get_variant(const vi32& pos) const noexcept -> unsigned
 	return 0;
 }
 
-void mark::map::set(const vi32& pos, terrain_kind type) noexcept
+void mark::map::set(vi32 pos, terrain_kind type) noexcept
 {
 	if (pos.x >= 0 && pos.x < (int)size().x && pos.y >= 0
 		&& pos.y < (int)size().y) {
@@ -516,10 +515,8 @@ static auto find_path(
 	return find_path(map, end, radius, move(open), move(closed));
 }
 
-auto mark::map::find_path(
-	const vd& world_start,
-	const vd& world_end,
-	const double world_radius) const -> std::vector<vd>
+auto mark::map::find_path(vd world_start, vd world_end, double world_radius)
+	const -> std::vector<vd>
 {
 	if (straight_exists(*this, world_start, world_end, world_radius)) {
 		return { world_end };

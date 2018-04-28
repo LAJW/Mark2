@@ -104,7 +104,7 @@ auto intersect(const segment_t&, const segment_t&) noexcept
 	-> std::optional<vd>;
 
 // given segment and a circle, get nearerst intersection
-auto intersect(segment_t, const vd& center, double radius) noexcept
+auto intersect(segment_t, vd center, double radius) noexcept
 	-> std::optional<vd>;
 
 // Calculate new rotation for an entity based on angular velocity, lookat

@@ -118,7 +118,7 @@ auto overlaps(
 }
 } // namespace
 
-auto mark::module::cargo::attach(const vi32& pos, interface::item_ptr& item)
+auto mark::module::cargo::attach(vi32 pos, interface::item_ptr& item)
 	-> std::error_code
 {
 	{
@@ -146,9 +146,8 @@ auto mark::module::cargo::attach(const vi32& pos, interface::item_ptr& item)
 	return error::code::success;
 }
 
-auto mark::module::cargo::can_attach(
-	const vi32& pos,
-	const interface::item& item) const -> bool
+auto mark::module::cargo::can_attach(vi32 pos, const interface::item& item)
+	const -> bool
 {
 	// Check if fits inside the container
 	let cargo_size = vector<size_t>(16, m_items.size() / 16);
@@ -174,13 +173,13 @@ auto mark::module::cargo::can_attach(
 	return true;
 }
 
-auto mark::module::cargo::at(const vi32& pos) -> interface::item*
+auto mark::module::cargo::at(vi32 pos) -> interface::item*
 {
 	return const_cast<interface::item*>(
 		static_cast<const module::cargo*>(this)->at(pos));
 }
 
-auto mark::module::cargo::at(const vi32& i_pos) const -> const interface::item*
+auto mark::module::cargo::at(vi32 i_pos) const -> const interface::item*
 {
 	if (i_pos.x < 0 || i_pos.y < 0) {
 		return nullptr;
@@ -199,7 +198,7 @@ auto mark::module::cargo::at(const vi32& i_pos) const -> const interface::item*
 	return nullptr;
 }
 
-auto mark::module::cargo::detach(const vi32& pos) -> interface::item_ptr
+auto mark::module::cargo::detach(vi32 pos) -> interface::item_ptr
 {
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
