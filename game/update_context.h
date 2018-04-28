@@ -11,7 +11,7 @@ struct update_context
 	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
 	std::map<int, std::vector<sprite>> normals;
 	std::vector<std::pair<vd, sf::Color>> lights;
-	std::vector<shared_ptr<unit::base>> units;
+	std::vector<not_null<shared_ptr<unit::base>>> units;
 	std::vector<particle> particles;
 	enum class bar_kind
 	{
