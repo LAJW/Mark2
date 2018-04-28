@@ -65,7 +65,7 @@ void mark::module::cargo::update(update_context& context)
 	let pos = this->pos();
 	let light_offset = rotate(vd(24.f, 8.f), parent_rotation());
 	let light_strength =
-		static_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
+		gsl::narrow_cast<uint8_t>(255.f * (m_lfo.get() + 1.f) / 2.f);
 	context.sprites[2].emplace_back([&] {
 		sprite _;
 		_.image = m_im_body;
@@ -124,18 +124,18 @@ auto mark::module::cargo::attach(vi32 pos, interface::item_ptr& item)
 	{
 		let incoming_pos = vu32(pos);
 		let incoming_border = incoming_pos + item->size();
-		for (let pair : enumerate(m_items)) {
-			if (let& cur_item = pair.second) {
-				let i = static_cast<unsigned>(pair.first);
-				let item_pos = vu32(i % 16, i / 16);
-				let item_border = item_pos + cur_item->size();
-				if (overlaps(
-						{ incoming_pos, incoming_border },
-						{ item_pos, item_border })
-					&& cur_item->can_stack(*item)) {
-					cur_item->stack(item);
-					return error::code::stacked;
-				}
+		for (let[index, cur_item] : enumerate(m_items)) {
+			if (!cur_item)
+				continue;
+			let i = gsl::narrow<unsigned>(index);
+			let item_pos = vu32(i % 16, i / 16);
+			let item_border = item_pos + cur_item->size();
+			if (overlaps(
+					{ incoming_pos, incoming_border },
+					{ item_pos, item_border })
+				&& cur_item->can_stack(*item)) {
+				cur_item->stack(item);
+				return error::code::stacked;
 			}
 		}
 	}
@@ -160,7 +160,7 @@ auto mark::module::cargo::can_attach(vi32 pos, const interface::item& item)
 	let incoming_border = incoming_pos + item.size();
 	for (let pair : enumerate(m_items)) {
 		if (let& cur_item = pair.second) {
-			let i = static_cast<unsigned>(pair.first);
+			let i = gsl::narrow<unsigned>(pair.first);
 			let item_pos = vu32(i % 16, i / 16);
 			let item_border = item_pos + cur_item->size();
 			if (overlaps(
@@ -203,15 +203,15 @@ auto mark::module::cargo::detach(vi32 pos) -> interface::item_ptr
 	if (pos.x < 0 && pos.y < 0) {
 		return nullptr;
 	}
-	for (let pair : enumerate(m_items)) {
-		let i = static_cast<int>(pair.first);
-		let item_pos = modulo_vector<int>(i, 16);
-		if (auto& item = pair.second) {
-			let border = item_pos + vi32(item->size());
-			if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
-				&& pos.y < border.y) {
-				return move(item);
-			}
+	for (auto [index, item] : enumerate(m_items)) {
+		if (!item) {
+			continue;
+		}
+		let item_pos = modulo_vector<int>(gsl::narrow<int>(index), 16);
+		let border = item_pos + vi32(item->size());
+		if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
+			&& pos.y < border.y) {
+			return move(item);
 		}
 	}
 	return nullptr;
@@ -219,8 +219,7 @@ auto mark::module::cargo::detach(vi32 pos) -> interface::item_ptr
 
 auto mark::module::cargo::interior_size() const -> vi32
 {
-	auto size_v = static_cast<int>(m_items.size());
-	return vi32(16, size_v / 16);
+	return { 16, gsl::narrow<int>(m_items.size()) / 16 };
 }
 
 auto mark::module::cargo::detachable() const -> bool
@@ -259,7 +258,7 @@ void mark::module::cargo::on_death(update_context& context)
 
 auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 {
-	for (let i : range(static_cast<int>(m_items.size()))) {
+	for (let i : range(gsl::narrow<int>(m_items.size()))) {
 		let drop_pos = modulo_vector<int>(i, 16);
 		let result = this->attach(drop_pos, item);
 		if (result == error::code::success

@@ -97,7 +97,7 @@ auto mark::map::p_traversable(vi32 pos, const size_t uradius) const -> bool
 		let tile = this->get(pos);
 		return tile != terrain_kind::null && tile != terrain_kind::wall;
 	}
-	let radius = static_cast<int>(uradius);
+	let radius = gsl::narrow<int>(uradius);
 	let offset = vi32(radius, radius);
 	let range = mark::range(-offset, offset);
 	return std::all_of(range.begin(), range.end(), [&](let offset) {

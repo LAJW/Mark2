@@ -23,10 +23,11 @@ namespace {
 
 // Map from modular coordinates (relative to center) to grid coordinates
 // (relative to top left corner)
-auto to_grid(vi8 pos) -> vector<size_t>
+auto to_grid(vi8 pos8) -> vector<size_t>
 {
-	let hs = static_cast<int8_t>(mark::unit::modular::max_size / 2);
-	return { static_cast<size_t>(hs + pos.x), static_cast<size_t>(hs + pos.y) };
+	let pos = vector<size_t>(pos8);
+	let hs = mark::unit::modular::max_size / 2;
+	return { hs + pos.x, hs + pos.y };
 }
 
 struct Node
@@ -132,7 +133,7 @@ std::vector<mark::command::any> mark::unit::modular::update_ai() const
 auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 	-> bool
 {
-	let size = static_cast<int8_t>(m_grid.size().x);
+	let size = gsl::narrow<int8_t>(m_grid.size().x);
 	let hs = int8_t(size / 2);
 	let start = vi8(module.grid_pos()) + vi8(hs, hs);
 	let end = vi8(size, size) / int8_t(2);
@@ -155,7 +156,7 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 		// TODO Replace with range
 		for (int i = 1; i < 8; i += 2) {
 			auto neighbour_pos =
-				current->pos + vi8(i % 3 - 1, static_cast<int8_t>(i / 3 - 1));
+				current->pos + vi8(i % 3 - 1, gsl::narrow<int8_t>(i / 3 - 1));
 			let traversable = neighbour_pos.x > 0 && neighbour_pos.y > 0
 				&& neighbour_pos.x < size && neighbour_pos.y < size
 				&& m_grid[vector<size_t>(neighbour_pos)].module;
@@ -293,17 +294,17 @@ auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr& module)
 	}
 	if (module->reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
-				 { -static_cast<int>(max_size / 2), module_pos.y },
+				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
-				   module_pos.y + static_cast<int>(module->size().y) })) {
+				   module_pos.y + gsl::narrow<int>(module->size().y) })) {
 			this->p_at(vi8(i)).reserved = true;
 		}
 	} else if (module->reserved() == module::reserved_kind::front) {
 		for (let i : range<vi32>(
-				 { module_pos.x + static_cast<int>(module->size().x),
+				 { module_pos.x + gsl::narrow<int>(module->size().x),
 				   module_pos.y },
-				 { static_cast<int>(max_size / 2),
-				   module_pos.y + static_cast<int>(module->size().y) })) {
+				 { gsl::narrow<int>(max_size / 2),
+				   module_pos.y + gsl::narrow<int>(module->size().y) })) {
 			this->p_at(vi8(i)).reserved = true;
 		}
 	}
@@ -331,9 +332,9 @@ auto mark::unit::modular::can_attach(vi32 pos_, const interface::item& item)
 auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	const -> bool
 {
-	if (!(pos_.x >= -19 && pos_.x + static_cast<int>(module.size().x) < 19
+	if (!(pos_.x >= -19 && pos_.x + gsl::narrow<int>(module.size().x) < 19
 		  && pos_.y >= -19
-		  && pos_.y + static_cast<int>(module.size().y) < 19)) {
+		  && pos_.y + gsl::narrow<int>(module.size().y) < 19)) {
 		return false;
 	}
 	let module_pos = vi8(pos_);
@@ -349,19 +350,19 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	}
 	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
-				 { -static_cast<int>(max_size / 2), module_pos.y },
+				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
-				   module_pos.y + static_cast<int>(module.size().y) })) {
+				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			if (this->p_at(vi8(i)).module) {
 				return false;
 			}
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vi32>(
-				 { module_pos.x + static_cast<int>(module.size().x),
+				 { module_pos.x + gsl::narrow<int>(module.size().x),
 				   module_pos.y },
-				 { static_cast<int>(max_size / 2),
-				   module_pos.y + static_cast<int>(module.size().y) })) {
+				 { gsl::narrow<int>(max_size / 2),
+				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			if (this->p_at(vi8(i)).module) {
 				return false;
 			}
@@ -401,16 +402,16 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 	}
 	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
-				 { -static_cast<int>(max_size / 2), module_pos.y },
+				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
-				   module_pos.y + static_cast<int>(module.size().y) })) {
+				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			this->p_at(vi8(i)).reserved = false;
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vi32>(
 				 { module_pos.x + module_size.x, module_pos.y },
-				 { static_cast<int>(max_size / 2),
-				   module_pos.y + static_cast<int>(module.size().y) })) {
+				 { gsl::narrow<int>(max_size / 2),
+				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			this->p_at(vi8(i)).reserved = false;
 		}
 	}
@@ -667,7 +668,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 		id_map.insert({ id, *m_modules.back() });
 	}
 	for (let& binding_node : node["bindings"]) {
-		let key = static_cast<int8_t>(binding_node["key"].as<int>());
+		let key = gsl::narrow<int8_t>(binding_node["key"].as<int>());
 		let module_id = binding_node["module_id"].as<uint64_t>();
 		m_bindings.insert({ key, id_map.at(module_id) });
 	}
@@ -698,7 +699,7 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const
 
 	for (let& pair : m_bindings) {
 		out << BeginMap;
-		out << Key << "key" << Value << static_cast<int>(pair.first);
+		out << Key << "key" << Value << gsl::narrow<int>(pair.first);
 		out << Key << "module_id"
 			<< reinterpret_cast<size_t>(&pair.second.get());
 		out << EndMap;
@@ -722,7 +723,7 @@ auto mark::unit::modular::at(vi32 module_pos) const noexcept
 
 auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
 {
-	let hs = static_cast<int8_t>(max_size / 2);
+	let hs = gsl::narrow<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
 		return this->p_at(vi8(pos)).module;
 	}
@@ -732,7 +733,7 @@ auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
 auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	-> const module::base*
 {
-	let hs = static_cast<int8_t>(max_size / 2);
+	let hs = gsl::narrow<int8_t>(max_size / 2);
 	if (pos.x >= -hs && pos.y < hs) {
 		return this->p_at(vi8(pos)).module;
 	}
