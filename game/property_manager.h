@@ -108,7 +108,7 @@ private:
 		-> std::error_code;
 
 	resource::manager& m_rm;
-	std::unordered_map<std::string, std::unique_ptr<iproperty>> m_properties;
+	std::unordered_map<std::string, unique_ptr<iproperty>> m_properties;
 };
 
 class property_serializer final

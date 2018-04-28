@@ -139,7 +139,7 @@ auto mark::unit::modular::p_connected_to_core(const module::base& module) const
 	let end = vi8(size, size) / int8_t(2);
 	std::vector<Node> open = { Node{
 		start, static_cast<int>(length(end - start)), nullptr } };
-	std::vector<std::unique_ptr<Node>> closed;
+	std::vector<unique_ptr<Node>> closed;
 
 	while (!open.empty()) {
 		auto min_it = min_element(open.begin(), open.end());
@@ -505,7 +505,7 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr)
 }
 
 void mark::unit::modular::knockback(
-	std::unordered_set<gsl::not_null<interface::damageable*>>& damaged,
+	std::unordered_set<not_null<interface::damageable*>>& damaged,
 	float angle,
 	double distance)
 {

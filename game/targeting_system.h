@@ -32,7 +32,7 @@ private:
 	// dumb fire
 	using target_type = std::pair<bool, vd>;
 	using queue_type =
-		std::deque<std::pair<std::weak_ptr<const unit::base>, vd>>;
+		std::deque<std::pair<weak_ptr<const unit::base>, vd>>;
 	std::variant<target_type, queue_type> m_target;
 	interface::world_object& m_parent;
 };

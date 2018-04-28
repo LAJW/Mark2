@@ -57,7 +57,7 @@ private:
 	// Used to detect container change
 	std::vector<ref<mark::module::cargo>> m_containers;
 
-	std::vector<std::unique_ptr<window>> m_windows;
+	std::vector<unique_ptr<window>> m_windows;
 
 	// Used to detect stack state change
 	mode m_mode = mode::world;

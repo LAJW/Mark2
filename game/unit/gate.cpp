@@ -41,7 +41,7 @@ void mark::unit::gate::update(update_context& context)
 	context.sprites[10].emplace_back(enclosure_info);
 }
 
-auto mark::unit::gate::use(const std::shared_ptr<unit::modular>&)
+auto mark::unit::gate::use(const shared_ptr<unit::modular>&)
 	-> std::error_code
 {
 	if (m_inverted) {

@@ -50,7 +50,7 @@ public:
 	auto containers() const -> std::vector<cref<module::cargo>>;
 	auto damage(const interface::damageable::info&) -> bool override;
 	void knockback(
-		std::unordered_set<gsl::not_null<interface::damageable*>>& knocked,
+		std::unordered_set<not_null<interface::damageable*>>& knocked,
 		float angle,
 		double distance);
 	auto collide(const segment_t&)
@@ -102,7 +102,7 @@ private:
 
 	std::vector<module::base_ptr> m_modules;
 	array2d<grid_element, max_size, max_size> m_grid;
-	std::unique_ptr<mark::targeting_system> m_targeting_system;
+	unique_ptr<mark::targeting_system> m_targeting_system;
 	module::core* m_core = nullptr;
 	float m_rotation = 0.f;
 	bool m_ai = false;

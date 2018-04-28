@@ -8,7 +8,7 @@
 #include <module/base.h>
 
 auto mark::unit::deserialize(world& world, const YAML::Node& node)
-	-> std::shared_ptr<unit::base>
+	-> shared_ptr<unit::base>
 {
 
 	let type = node["type"].as<std::string>();

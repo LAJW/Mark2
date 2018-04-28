@@ -7,7 +7,7 @@ namespace unit {
 class activable : public base
 {
 public:
-	[[nodiscard]] virtual auto use(const std::shared_ptr<unit::modular>& by)
+	[[nodiscard]] virtual auto use(const shared_ptr<unit::modular>& by)
 		-> std::error_code = 0;
 
 protected:

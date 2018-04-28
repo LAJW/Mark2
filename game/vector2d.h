@@ -7,7 +7,7 @@ class vector2d final
 {
 private:
 	using data_type = std::vector<T>;
-	std::unique_ptr<data_type> m_data;
+	unique_ptr<data_type> m_data;
 	vector<size_t> m_size;
 
 	template <typename U>

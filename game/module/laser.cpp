@@ -25,7 +25,7 @@ void mark::module::laser::update(update_context& context)
 		this->render(context, {}, is_firing, dir);
 		return;
 	}
-	std::unordered_set<gsl::not_null<interface::damageable*>> damaged;
+	std::unordered_set<not_null<interface::damageable*>> damaged;
 	auto damage_result = parent().world().damage([&] {
 		world::damage_info _;
 		_.context = &context;

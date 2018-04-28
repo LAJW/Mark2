@@ -65,7 +65,7 @@ void mark::module::turret::update(update_context& context)
 auto mark::module::turret::make_projectile(
 	update_context& context,
 	mark::world& world,
-	size_t index) const -> std::shared_ptr<unit::projectile>
+	size_t index) const -> shared_ptr<unit::projectile>
 {
 	unit::projectile::info _;
 	_.world = &world;

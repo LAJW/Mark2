@@ -146,7 +146,7 @@ mark::world::world(
 			|| !this->find(pos, ship_radius * 4.).empty()) {
 			continue;
 		}
-		let enemy = [&]() -> std::shared_ptr<unit::base> {
+		let enemy = [&]() -> shared_ptr<unit::base> {
 			if (spawn_ships) {
 				let unit = spawn_ship();
 				unit->pos(pos);
@@ -253,22 +253,22 @@ void mark::world::command(const mark::command::any& command)
 	}
 }
 
-void mark::world::target(const std::shared_ptr<unit::base>& target)
+void mark::world::target(const shared_ptr<unit::base>& target)
 {
 	m_camera->target(target);
 }
 
-auto mark::world::target() -> std::shared_ptr<unit::base>
+auto mark::world::target() -> shared_ptr<unit::base>
 {
 	return m_camera->target();
 }
 
-auto mark::world::target() const -> std::shared_ptr<const unit::base>
+auto mark::world::target() const -> shared_ptr<const unit::base>
 {
 	return m_camera->target();
 }
 
-void mark::world::attach(gsl::not_null<std::shared_ptr<mark::unit::base>> unit)
+void mark::world::attach(not_null<shared_ptr<mark::unit::base>> unit)
 {
 	if (std::find(m_units.cbegin(), m_units.cend(), unit) == m_units.cend()) {
 		m_units.push_back(unit.get());
@@ -313,7 +313,7 @@ auto mark::world::collide(vd center, double radius)
 
 void mark::world::update_spatial_partition()
 {
-	std::vector<std::shared_ptr<unit::base>> non_projectiles;
+	std::vector<shared_ptr<unit::base>> non_projectiles;
 	non_projectiles.reserve(m_units.size());
 	std::copy_if(
 		begin(m_units),
@@ -383,7 +383,7 @@ mark::world::world(
 	, image_stun(rm.image("stun.png"))
 	, m_stack(&stack)
 {
-	std::unordered_map<uint64_t, std::weak_ptr<unit::base>> unit_map;
+	std::unordered_map<uint64_t, weak_ptr<unit::base>> unit_map;
 	let camera_target_id = node["camera"]["target_id"].as<uint64_t>();
 	for (let& unit_node : node["units"]) {
 		m_units.push_back(unit::deserialize(*this, unit_node));

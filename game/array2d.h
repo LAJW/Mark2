@@ -7,7 +7,7 @@ class array2d final
 {
 private:
 	using data_type = std::array<T, size_x * size_y>;
-	std::unique_ptr<data_type> m_data;
+	unique_ptr<data_type> m_data;
 
 	template <typename U>
 	static auto at(U& self, const vector<size_t>& pos)

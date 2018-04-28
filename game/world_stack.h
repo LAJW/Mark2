@@ -20,7 +20,7 @@ public:
 private:
 	struct world_data
 	{
-		std::unique_ptr<mark::world> world;
+		unique_ptr<mark::world> world;
 		vd target_pos;
 	};
 	std::vector<world_data> m_worlds;

@@ -13,7 +13,7 @@ public:
 	struct info : base::info
 	{
 		// for mouse-guided missiles
-		std::shared_ptr<const vd> guide;
+		shared_ptr<const vd> guide;
 		float rotation = NAN;
 		float phase = 0.f;
 		float lfo = 0.f;
@@ -35,7 +35,7 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	void resolve_ref(
 		const YAML::Node&,
-		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units)
+		const std::unordered_map<uint64_t, weak_ptr<unit::base>>& units)
 		override;
 
 private:
@@ -45,9 +45,9 @@ private:
 	resource::image_ptr m_image;
 	resource::image_ptr m_im_tail;
 	resource::image_ptr m_im_explosion;
-	std::unordered_set<gsl::not_null<interface::damageable*>> m_damaged;
-	std::unordered_set<gsl::not_null<interface::damageable*>> m_knocked;
-	std::shared_ptr<const vd> m_guide;
+	std::unordered_set<not_null<interface::damageable*>> m_damaged;
+	std::unordered_set<not_null<interface::damageable*>> m_knocked;
+	shared_ptr<const vd> m_guide;
 	float m_physical;
 	float m_rotation;
 	lfo m_rotation_lfo;

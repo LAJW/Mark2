@@ -49,7 +49,7 @@ void mark::unit::landing_pad::update(mark::update_context& context)
 	context.sprites[0].emplace_back(info);
 }
 
-auto mark::unit::landing_pad::use(const std::shared_ptr<unit::modular>& ship)
+auto mark::unit::landing_pad::use(const shared_ptr<unit::modular>& ship)
 	-> std::error_code
 {
 	m_ship = ship;
@@ -71,7 +71,7 @@ void mark::unit::landing_pad::command(const mark::command::any& any)
 
 void mark::unit::landing_pad::resolve_ref(
 	const YAML::Node& node,
-	const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units)
+	const std::unordered_map<uint64_t, weak_ptr<unit::base>>& units)
 {
 	if (node["ship_id"]) {
 		let ship_id = node["ship_id"].as<uint64_t>();
@@ -87,13 +87,13 @@ auto mark::unit::landing_pad::bindings() const -> unit::modular::bindings_t
 	return ship->bindings();
 }
 
-auto mark::unit::landing_pad::ship() -> std::shared_ptr<unit::modular>
+auto mark::unit::landing_pad::ship() -> shared_ptr<unit::modular>
 {
 	return m_ship.lock();
 }
 
 auto mark::unit::landing_pad::ship() const
-	-> std::shared_ptr<const unit::modular>
+	-> shared_ptr<const unit::modular>
 {
 	return m_ship.lock();
 }

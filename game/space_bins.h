@@ -12,7 +12,7 @@ template <typename T>
 class space_bins final
 {
 private:
-	using element_type = gsl::not_null<std::shared_ptr<T>>;
+	using element_type = not_null<shared_ptr<T>>;
 
 public:
 	space_bins(vector<std::size_t> size, vd world_min, vd world_max)
@@ -76,10 +76,10 @@ void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 
 template <typename unit_type = unit::base, typename T>
 auto check_proximity(
-	gsl::not_null<std::shared_ptr<unit::base>> unit,
+	not_null<shared_ptr<unit::base>> unit,
 	vd pos,
 	double radius,
-	T pred) -> std::shared_ptr<unit_type>
+	T pred) -> shared_ptr<unit_type>
 {
 	if (length(unit->pos() - pos) < radius && pred(*unit)) {
 		if (let derived = std::dynamic_pointer_cast<unit_type>(unit.get())) {
@@ -92,7 +92,7 @@ auto check_proximity(
 template <typename unit_type = unit::base, typename T, typename U>
 auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
-	std::vector<gsl::not_null<std::shared_ptr<unit_type>>> ret;
+	std::vector<not_null<shared_ptr<unit_type>>> ret;
 	for (let ind : range(
 			 compute_index(bins, pos - vd{ radius, radius }),
 			 min(bins.size(),
@@ -109,7 +109,7 @@ auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 
 template <typename unit_type = unit::base, typename T, typename U>
 auto find_one(const space_bins<U>& bins, vd pos, double radius, T pred)
-	-> std::shared_ptr<unit_type>
+	-> shared_ptr<unit_type>
 {
 	for (let ind : range(
 			 compute_index(bins, pos - vd{ radius, radius }),

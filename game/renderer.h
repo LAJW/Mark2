@@ -23,12 +23,12 @@ public:
 	sf::Sprite render(const render_info& info);
 
 private:
-	std::unique_ptr<sf::RenderTexture> m_buffer;
-	std::unique_ptr<sf::RenderTexture> m_buffer2;
-	std::unique_ptr<sf::RenderTexture> m_occlusion_map;
-	std::unique_ptr<sf::RenderTexture> m_normal_map;
-	std::unique_ptr<sf::RenderTexture> m_ui_layer;
-	std::unique_ptr<sf::RenderTexture> m_vbo;
+	unique_ptr<sf::RenderTexture> m_buffer;
+	unique_ptr<sf::RenderTexture> m_buffer2;
+	unique_ptr<sf::RenderTexture> m_occlusion_map;
+	unique_ptr<sf::RenderTexture> m_normal_map;
+	unique_ptr<sf::RenderTexture> m_ui_layer;
+	unique_ptr<sf::RenderTexture> m_vbo;
 	sf::Shader m_occlusion_shader;
 	sf::Shader m_shadows_shader;
 	sf::Shader m_bump_mapping;

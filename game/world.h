@@ -48,11 +48,11 @@ public:
 
 	void command(const command::any& command);
 	// set target for commmands
-	void target(const std::shared_ptr<unit::base>& target);
+	void target(const shared_ptr<unit::base>& target);
 	// get target for commands
-	auto target() -> std::shared_ptr<unit::base>;
-	auto target() const -> std::shared_ptr<const unit::base>;
-	void attach(gsl::not_null<std::shared_ptr<mark::unit::base>> unit);
+	auto target() -> shared_ptr<unit::base>;
+	auto target() const -> shared_ptr<const unit::base>;
+	void attach(not_null<shared_ptr<mark::unit::base>> unit);
 	struct damage_info
 	{
 		interface::damageable::info damage;
@@ -98,10 +98,10 @@ private:
 	void update_spatial_partition();
 
 	resource::manager& m_resource_manager;
-	std::unique_ptr<mark::map> m_map;
-	std::vector<gsl::not_null<std::shared_ptr<unit::base>>> m_units;
+	unique_ptr<mark::map> m_map;
+	std::vector<not_null<shared_ptr<unit::base>>> m_units;
 	space_bins<unit::base> m_space_bins;
-	std::unique_ptr<mark::camera> m_camera;
+	unique_ptr<mark::camera> m_camera;
 	std::vector<particle> m_particles;
 	world_stack* m_stack = nullptr;
 };

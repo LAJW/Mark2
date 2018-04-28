@@ -8,8 +8,7 @@
 
 auto target(
 	const mark::vd& turret_pos,
-	const std::
-		pair<std::weak_ptr<const mark::unit::base>, mark::vd>& pair)
+	const std::pair<std::weak_ptr<const mark::unit::base>, mark::vd>& pair)
 	-> std::optional<mark::vd>
 {
 	using namespace mark;
@@ -33,7 +32,7 @@ void mark::targeting_system::update(update_context& context)
 {
 	let pos = m_parent.pos();
 	if (let queue = std::get_if<queue_type>(&m_target)) {
-		auto unit = [&] () -> std::shared_ptr<unit::damageable> {
+		auto unit = [&]() -> shared_ptr<unit::damageable> {
 			auto closest = m_parent.world().find<unit::damageable>(
 				pos, 500.0, [&](let& unit) {
 					return !unit.dead() && unit.team() != m_parent.team();
@@ -51,7 +50,7 @@ void mark::targeting_system::update(update_context& context)
 				return m_parent.world().find_one<unit::damageable>(
 					pos, 1000.0, [&](let& unit) {
 						return !unit.dead() && unit.team() != m_parent.team()
-						&& context.random(0, 3) == 0;
+							&& context.random(0, 3) == 0;
 					});
 			}
 			return nullptr;

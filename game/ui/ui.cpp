@@ -217,7 +217,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 }
 
 namespace mark {
-static auto ship(mark::world& world) -> std::shared_ptr<unit::modular>
+static auto ship(mark::world& world) -> shared_ptr<unit::modular>
 {
 	let target = world.target();
 	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);

@@ -49,7 +49,7 @@ protected:
 	auto random_double(double min, double max) -> double override;
 
 private:
-	std::unordered_map<std::string, std::weak_ptr<const resource::image>>
+	std::unordered_map<std::string, weak_ptr<const resource::image>>
 		m_images;
 	std::random_device m_rd;
 	std::mt19937_64 m_gen;

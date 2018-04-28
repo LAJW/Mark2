@@ -9,7 +9,7 @@ namespace mark {
 namespace unit {
 
 auto deserialize(world& world, const YAML::Node& node)
-	-> std::shared_ptr<unit::base>;
+	-> shared_ptr<unit::base>;
 
 // Part of the unit modifiable by world and nothing else
 class base_ref : public interface::world_object
@@ -41,7 +41,7 @@ public:
 	// Resolve references after deserializing
 	virtual void resolve_ref(
 		const YAML::Node&,
-		const std::unordered_map<uint64_t, std::weak_ptr<unit::base>>& units);
+		const std::unordered_map<uint64_t, weak_ptr<unit::base>>& units);
 	auto pos() const -> vd override final;
 	void pos(vd);
 	auto team() const -> size_t final override;

@@ -28,7 +28,7 @@ private:
 	void render(update_context& context) const;
 	auto
 	make_projectile(update_context& context, mark::world&, size_t index) const
-		-> std::shared_ptr<unit::projectile>;
+		-> shared_ptr<unit::projectile>;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 	// Get targeting system
@@ -36,12 +36,12 @@ private:
 	// Returns this module's targeting system if turret is not stationary
 	auto targeting_system() -> mark::targeting_system&;
 
-	std::unique_ptr<mark::targeting_system> m_targeting_system;
+	unique_ptr<mark::targeting_system> m_targeting_system;
 	resource::image_ptr m_image;
 	resource::image_ptr m_im_orb;
 	size_t m_image_variant;
 	adsr m_adsr;
-	std::shared_ptr<vd> m_shared_target = std::make_shared<vd>();
+	shared_ptr<vd> m_shared_target = std::make_shared<vd>();
 
 	float m_cur_cooldown = 0;
 	float m_rate_of_fire = 1.f;

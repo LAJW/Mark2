@@ -18,7 +18,7 @@ public:
 	gate(const info&);
 	gate(mark::world& world, const YAML::Node&);
 	auto dead() const -> bool override { return false; };
-	[[nodiscard]] auto use(const std::shared_ptr<unit::modular>& by)
+	[[nodiscard]] auto use(const shared_ptr<unit::modular>& by)
 		-> std::error_code override;
 	void serialize(YAML::Emitter&) const override;
 

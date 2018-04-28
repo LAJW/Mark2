@@ -7,14 +7,14 @@ mark::camera::camera(const YAML::Node& node)
 	: m_pos(node["pos"].as<vd>())
 {}
 
-void mark::camera::target(std::shared_ptr<unit::base> target)
+void mark::camera::target(shared_ptr<unit::base> target)
 {
 	m_target = target;
 }
 
-auto mark::camera::target() -> std::shared_ptr<unit::base> { return m_target; }
+auto mark::camera::target() -> shared_ptr<unit::base> { return m_target; }
 
-auto mark::camera::target() const -> std::shared_ptr<const unit::base>
+auto mark::camera::target() const -> shared_ptr<const unit::base>
 {
 	return m_target;
 }

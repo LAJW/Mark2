@@ -11,6 +11,14 @@ template <typename T>
 using ref = std::reference_wrapper<T>;
 template <typename T>
 using cref = ref<const T>;
+template <typename T>
+using not_null = gsl::not_null<T>;
+template <typename T>
+using shared_ptr = std::shared_ptr<T>;
+template <typename T>
+using unique_ptr = std::unique_ptr<T>;
+template <typename T>
+using weak_ptr = std::weak_ptr<T>;
 class map;
 class particle;
 struct path;
@@ -25,12 +33,12 @@ class container;
 class damageable;
 class has_bindings;
 class item;
-using item_ptr = std::unique_ptr<item>;
+using item_ptr = unique_ptr<item>;
 class world_object;
 }; // namespace interface
 namespace module {
 class base;
-using base_ptr = std::unique_ptr<base>;
+using base_ptr = unique_ptr<base>;
 class cargo;
 class core;
 struct modifiers;
@@ -43,6 +51,6 @@ class landing_pad;
 namespace resource {
 class manager;
 class image;
-using image_ptr = std::shared_ptr<const image>;
+using image_ptr = shared_ptr<const image>;
 } // namespace resource
 } // namespace mark

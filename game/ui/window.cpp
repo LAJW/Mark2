@@ -8,7 +8,7 @@ mark::ui::window::window(const info& info)
 	pos(info.pos);
 }
 
-void mark::ui::window::insert(std::unique_ptr<node> node)
+void mark::ui::window::insert(unique_ptr<node> node)
 {
 	m_nodes.push_back(move(node));
 }
@@ -66,13 +66,13 @@ void mark::ui::window::update(update_context& context)
 	}
 }
 
-auto mark::ui::window::children() -> std::list<std::unique_ptr<node>>&
+auto mark::ui::window::children() -> std::list<unique_ptr<node>>&
 {
 	return m_nodes;
 }
 
 auto mark::ui::window::children() const
-	-> const std::list<std::unique_ptr<node>>&
+	-> const std::list<unique_ptr<node>>&
 {
 	return m_nodes;
 }

@@ -26,7 +26,7 @@ static auto neighbor_at_pos_in_range(
 
 static auto neighbors_in_radius(const module::base& root, double radius)
 {
-	std::unordered_set<gsl::not_null<const module::base*>> neighbors;
+	std::unordered_set<not_null<const module::base*>> neighbors;
 	let center = root.grid_pos() + vi32(root.size()) / 2;
 	let bound = static_cast<int>(std::ceil(radius / 16.));
 	for (let offset :

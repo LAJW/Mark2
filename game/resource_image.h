@@ -24,7 +24,7 @@ public:
 
 private:
 	std::string m_filename;
-	std::unique_ptr<sf::Texture> m_texture;
+	unique_ptr<sf::Texture> m_texture;
 };
 
 class image_stub final : public image
