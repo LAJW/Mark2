@@ -10,6 +10,7 @@ mark::ui::window::window(const info& info)
 
 void mark::ui::window::insert(unique_ptr<node> node)
 {
+	node->m_parent = this;
 	m_nodes.push_back(move(node));
 }
 
@@ -18,7 +19,7 @@ void mark::ui::window::remove(node& to_remove)
 	let it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
 		return node.get() == &to_remove;
 	});
-	drop(m_nodes, it);
+	drop(m_nodes, it)->m_parent = nullptr;
 }
 
 bool mark::ui::window::click(const event& event)

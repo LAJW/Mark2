@@ -13,8 +13,6 @@ public:
 	{
 		// Resource manager
 		resource::image_ptr image = nullptr;
-		// Parent window
-		const window* parent = nullptr;
 		// Position of top left corner relative to the parent element
 		vi32 pos;
 		// Size of the button
@@ -39,7 +37,6 @@ private:
 	button(const info&, bool);
 	void render(update_context&) const;
 
-	const window& m_parent;
 	// Size of the button
 	const vu32 m_size;
 	const resource::image_ptr m_image;

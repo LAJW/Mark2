@@ -30,7 +30,6 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 	auto play_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
-		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Solitary Traveller";
 		_.relative = true;
@@ -44,7 +43,6 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 	auto quit_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
-		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Abandon Expedition";
 		_.relative = true;
@@ -70,7 +68,6 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	auto play_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
-		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "Yes";
 		_.relative = true;
@@ -84,7 +81,6 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	auto cancel_button = std::make_unique<button>([&] {
 		button::info _;
 		_.size = { 250, 50 };
-		_.parent = menu.get();
 		_.font = rm.image("font.png");
 		_.title = "No";
 		_.relative = true;

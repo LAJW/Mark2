@@ -5,15 +5,8 @@
 #include <stdafx.h>
 #include <update_context.h>
 
-static bool validate(const mark::ui::button::info& info) noexcept
-{
-	Expects(info.parent);
-	return true;
-}
-
-mark::ui::button::button(const info& info, bool)
+mark::ui::button::button(const info& info)
 	: node(info)
-	, m_parent(*info.parent)
 	, m_size(info.size)
 	, m_image(info.image)
 	, m_font(info.font)
@@ -22,13 +15,9 @@ mark::ui::button::button(const info& info, bool)
 	m_pos = info.pos;
 }
 
-mark::ui::button::button(const info& info)
-	: button(info, validate(info))
-{}
-
 auto mark::ui::button::pos() const noexcept -> vi32
 {
-	return m_pos + m_parent.pos();
+	return m_pos + parent().pos();
 }
 
 auto mark::ui::button::size() const noexcept -> vi32 { return vi32(m_size); }

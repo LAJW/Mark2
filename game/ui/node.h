@@ -4,7 +4,29 @@
 namespace mark {
 namespace ui {
 struct event;
-class node
+class window;
+
+class node_ref
+{
+protected:
+	friend window;
+	node_ref() = default;
+	~node_ref() = default;
+	const window& parent() const
+	{
+		Expects(m_parent);
+		return *m_parent;
+	}
+	window& parent()
+	{
+		Expects(m_parent);
+		return *m_parent;
+	}
+private:
+	window* m_parent = nullptr;
+};
+
+class node : public node_ref
 {
 public:
 	struct info
@@ -25,6 +47,7 @@ protected:
 	node(const info& info)
 		: m_relative(info.relative)
 	{}
+
 	vi32 m_pos;
 
 private:

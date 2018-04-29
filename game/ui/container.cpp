@@ -77,7 +77,6 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	let button_pos = pos * 16;
 	auto button_ptr = std::make_unique<mark::ui::button>([&] {
 		mark::ui::button::info _;
-		_.parent = this;
 		_.size = item.size() * 16U;
 		_.pos = button_pos;
 		_.image = item.thumbnail();
