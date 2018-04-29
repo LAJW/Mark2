@@ -21,6 +21,8 @@
 using namespace mark;
 namespace {
 
+let constexpr knockback_duration = .15;
+
 // Map from modular coordinates (relative to center) to grid coordinates
 // (relative to top left corner)
 auto to_grid(vi8 pos8) -> vector<size_t>
@@ -222,6 +224,39 @@ auto mark::unit::modular::modifiers() const -> module::modifiers
 	return mods;
 }
 
+namespace mark {
+// Given velocity and path (path starts at "current" location, so it's whatever
+// pathfinder returns with "pos" added to the front) return remaining path
+// starting at new pos (pos reached after ascending the path in time limited by
+// delta time)
+static auto advance_path(std::vector<vd> path, double velocity, double dt)
+	-> std::vector<vd>
+{
+	double remaining_distance = velocity * dt;
+	size_t final_i = 0;
+	vd final_delta;
+	for (let[i, cur] : enumerate(path)) {
+		if (i == 0) {
+			continue;
+		}
+		let prev = path[i - 1];
+		let cur_length = length(cur - prev);
+		final_delta = normalize(cur - prev) * remaining_distance;
+		final_i = i - 1;
+		remaining_distance -= cur_length;
+		if (remaining_distance <= 0.) {
+			break;
+		}
+	}
+	if (remaining_distance < 0.) {
+		path.erase(path.begin(), path.begin() + final_i);
+		path.front() += final_delta;
+		return path;
+	}
+	return { path.back() };
+}
+} // namespace mark
+
 void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
@@ -230,14 +265,23 @@ void mark::unit::modular::update(update_context& context)
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up();
 	}
-	this->update_movement([&] {
-		update_movement_info _;
-		_.ai = m_ai;
-		_.max_velocity = m_ai ? 64.0 : 320.0 + modifiers.velocity;
-		_.acceleration = modifiers.mass > 1.f ? 5000.f / modifiers.mass : 500.f;
-		_.dt = context.dt;
-		return _;
-	}());
+	if (m_knockback_path.size() > 1 && m_initial_knockback_path_length >= 0.) {
+		let velocity = m_initial_knockback_path_length / knockback_duration;
+		m_knockback_path =
+			advance_path(move(m_knockback_path), velocity, context.dt);
+		pos(m_knockback_path.front());
+	} else {
+		m_initial_knockback_path_length = 0.; // Unlock knockback retrigger
+		this->update_movement([&] {
+			update_movement_info _;
+			_.ai = m_ai;
+			_.max_velocity = m_ai ? 64.0 : 320.0 + modifiers.velocity;
+			_.acceleration =
+				modifiers.mass > 1.f ? 5000.f / modifiers.mass : 500.f;
+			_.dt = context.dt;
+			return _;
+		}());
+	}
 	if (m_lookat != pos()) {
 		let turn_speed = m_ai ? 32.f : 128.f;
 		let target = m_targeting_system->target();
@@ -504,20 +548,38 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr)
 	return false;
 }
 
+namespace mark {
+static auto path_length(const std::vector<vd>& path)
+{
+	double path_length = 0.0;
+	for (let[i, cur] : enumerate(path)) {
+		if (i > 0) {
+			let prev = path[i - 1];
+			let cur_length = length(prev - cur);
+			path_length += cur_length;
+		}
+	}
+	Ensures(path_length >= 0.);
+	return path_length;
+}
+} // namespace mark
+
 void mark::unit::modular::knockback(
-	std::unordered_set<not_null<interface::damageable*>>& damaged,
+	std::unordered_set<not_null<interface::damageable*>>& knocked,
 	float angle,
 	double distance)
 {
-	if (distance <= 0. || damaged.count(this)) {
+	if (distance <= m_initial_knockback_path_length
+		|| !knocked.insert(this).second) {
 		return;
 	}
-	damaged.insert(this);
 	const auto new_pos = pos() + rotate(vd(distance, 0.), angle);
-	let path = world().map().find_path(pos(), new_pos, radius());
-	if (!path.empty()) {
-		pos(path.front());
+	auto path = world().map().find_path(pos(), new_pos, this->radius());
+	if (path.size() == 1) {
+		path = { pos(), path.back() };
 	}
+	m_initial_knockback_path_length = path_length(path);
+	m_knockback_path = move(path);
 }
 
 auto mark::unit::modular::collide(const segment_t& ray)

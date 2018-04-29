@@ -111,6 +111,8 @@ private:
 	std::unordered_multimap<int8_t, ref<module::base>> m_bindings;
 	double m_velocity = 0;
 	double m_radius = 0.;
+	std::vector<vd> m_knockback_path;
+	double m_initial_knockback_path_length;
 };
 
 // Drop module into the modular's containers if possible

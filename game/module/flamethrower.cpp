@@ -22,6 +22,7 @@ void mark::module::flamethrower::update(update_context& context)
 	}
 	let pos = this->pos();
 	std::unordered_set<not_null<interface::damageable*>> damaged;
+	std::unordered_set<not_null<interface::damageable*>> knocked;
 	let half_cone = m_cone_of_fire / 2.f;
 	for (let cur_angle : mark::range(-half_cone, half_cone + 1.f)) {
 		let absolute_angle = cur_angle + parent().rotation();
@@ -35,6 +36,8 @@ void mark::module::flamethrower::update(update_context& context)
 			_.damage.damaged = &damaged;
 			_.damage.physical = m_dps * static_cast<float>(context.dt);
 			_.damage.team = parent().team();
+			_.damage.knocked = &knocked;
+			_.damage.knockback = 10.;
 			return _;
 		}());
 	}
