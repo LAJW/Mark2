@@ -85,21 +85,24 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		return _;
 	}());
 	auto& button = *button_ptr;
-	button.on_click.insert([pos, this, &button](const event&) {
+	button.on_click.insert([pos, this, &button](const event& event) {
 		if (m_ui.grabbed) {
+			// TODO: Propagate error/notify user that object cannot be put here
 			(void)m_container.attach(pos, m_ui.grabbed);
 			return true;
 		}
 		let actual_pos = m_container.pos_at(pos);
 		if (actual_pos) {
-			m_ui.grabbed_prev_pos = *actual_pos;
-			m_ui.grabbed = m_container.detach(pos);
-			Expects(m_ui.grabbed);
-			m_ui.grabbed_prev_parent = &m_container;
-			// TODO: We've removed pos from the item, we need to obtain old item
-			// position in some other way, or not remove the item at all
-			// m_ui.grabbed_prev_pos = m_ui.grabbed->grid_pos();
-			m_ui.grabbed_bind.clear();
+			if (event.shift) {
+				// TODO: Put into the "recycler"
+				(void)m_container.detach(pos);
+			} else {
+				m_ui.grabbed_bind.clear();
+				m_ui.grabbed_prev_pos = *actual_pos;
+				m_ui.grabbed_prev_parent = &m_container;
+				m_ui.grabbed = m_container.detach(pos);
+				Expects(m_ui.grabbed);
+			}
 		}
 		// Don't call anything after this. This call destroys "this" lambda.
 		this->remove(button);

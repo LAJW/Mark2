@@ -20,7 +20,7 @@ public:
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	[[nodiscard]] auto command(world& world, const command::any& command)
 		-> bool;
-	bool click(vi32 screen_pos);
+	bool click(vi32 screen_pos, bool shift);
 	bool hover(vi32 screen_pos);
 	void show_ship_editor(unit::modular&);
 	void hide_ship_editor();

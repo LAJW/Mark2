@@ -187,11 +187,12 @@ void mark::ui::ui::update(
 	}
 }
 
-bool mark::ui::ui::click(vi32 screen_pos)
+bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 {
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
+	event.shift = shift;
 	for (let& window : m_windows) {
 		let handled = window->click(event);
 		if (handled) {
@@ -206,6 +207,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
+	event.shift = false;
 	for (let& window : m_windows) {
 		let handled = window->hover(event);
 		if (handled) {
@@ -237,7 +239,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 	if (this->m_stack.paused()) {
 		if (auto move = std::get_if<command::move>(&any)) {
 			if (!move->release) {
-				return this->click(move->screen_pos);
+				return this->click(move->screen_pos, move->shift);
 			}
 			return false;
 		}
@@ -269,7 +271,7 @@ auto mark::ui::ui::command(world& world, const mark::command::move& move)
 	if (move.release) {
 		return false;
 	}
-	if (this->click(move.screen_pos)) {
+	if (this->click(move.screen_pos, move.shift)) {
 		return true;
 	}
 	if (!ship(world)) {

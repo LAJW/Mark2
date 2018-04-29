@@ -12,6 +12,8 @@ struct event final
 	vi32 cursor;
 	// Mouse cursor relative to the world
 	vd world_cursor;
+	// Was shift key pressed
+	bool shift;
 };
 
 class callback_group
