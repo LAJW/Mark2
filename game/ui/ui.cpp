@@ -318,11 +318,13 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	let pick_pos = floor(relative);
 	let ship = mark::ship(world);
 	grabbed_bind = ship->binding(pick_pos);
-	let module = ship->module_at(pick_pos);
-	if (!module) {
+	let pos = ship->pos_at(pick_pos);
+	if (!pos) {
 		return;
 	}
-	grabbed_prev_pos = module->grid_pos();
+	grabbed_prev_pos = *pos;
+	let module = ship->module_at(pick_pos);
+	Expects(module);
 	if (!shift) {
 		if (grabbed = ship->detach(pick_pos)) {
 			grabbed_prev_parent = ship.get();

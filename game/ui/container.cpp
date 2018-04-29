@@ -90,8 +90,11 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			(void)m_container.attach(pos, m_ui.grabbed);
 			return true;
 		}
-		m_ui.grabbed = m_container.detach(pos);
-		if (m_ui.grabbed) {
+		let actual_pos = m_container.pos_at(pos);
+		if (actual_pos) {
+			m_ui.grabbed_prev_pos = *actual_pos;
+			m_ui.grabbed = m_container.detach(pos);
+			Expects(m_ui.grabbed);
 			m_ui.grabbed_prev_parent = &m_container;
 			// TODO: We've removed pos from the item, we need to obtain old item
 			// position in some other way, or not remove the item at all
