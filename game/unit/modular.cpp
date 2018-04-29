@@ -721,6 +721,14 @@ auto mark::unit::modular::at(vi32 module_pos) const noexcept
 	return module_at(module_pos);
 }
 
+auto mark::unit::modular::pos_at(vi32 pos) const noexcept -> std::optional<vi32>
+{
+	if (let module = module_at(pos)) {
+		return module->grid_pos();
+	}
+	return {};
+}
+
 auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
 {
 	let hs = gsl::narrow<int8_t>(max_size / 2);

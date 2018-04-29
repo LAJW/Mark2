@@ -181,38 +181,37 @@ auto mark::module::cargo::at(vi32 pos) -> interface::item*
 
 auto mark::module::cargo::at(vi32 i_pos) const -> const interface::item*
 {
-	if (i_pos.x < 0 || i_pos.y < 0) {
-		return nullptr;
-	}
-	let pos = vu32(i_pos);
-	for (let pair : enumerate(m_items)) {
-		let item_pos = modulo_vector<size_t>(pair.first, 16LLU);
-		if (let& slot = pair.second) {
-			let border = item_pos + vector<size_t>(slot->size());
-			if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
-				&& pos.y < border.y) {
-				return slot.get();
-			}
-		}
+	if (let pos = this->pos_at(i_pos)) {
+		return m_items[pos->x + pos->y * 16].get();
 	}
 	return nullptr;
 }
 
-auto mark::module::cargo::detach(vi32 pos) -> interface::item_ptr
+auto mark::module::cargo::pos_at(vi32 i_pos) const noexcept
+	-> std::optional<vi32>
 {
-	if (pos.x < 0 && pos.y < 0) {
-		return nullptr;
+	if (i_pos.x < 0 || i_pos.y < 0) {
+		return {};
 	}
-	for (auto [index, item] : enumerate(m_items)) {
-		if (!item) {
+	let pos = vu32(i_pos);
+	for (let & [ i, slot ] : enumerate(m_items)) {
+		if (!slot) {
 			continue;
 		}
-		let item_pos = modulo_vector<int>(gsl::narrow<int>(index), 16);
-		let border = item_pos + vi32(item->size());
+		let item_pos = modulo_vector<uint32_t>(gsl::narrow<int32_t>(i), 16LU);
+		let border = item_pos + slot->size();
 		if (pos.x >= item_pos.x && pos.x < border.x && pos.y >= item_pos.y
 			&& pos.y < border.y) {
-			return move(item);
+			return vi32(item_pos);
 		}
+	}
+	return {};
+}
+
+auto mark::module::cargo::detach(vi32 i_pos) -> interface::item_ptr
+{
+	if (let pos = this->pos_at(i_pos)) {
+		return move(m_items[pos->x + pos->y * 16]);
 	}
 	return nullptr;
 }

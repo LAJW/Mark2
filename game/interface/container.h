@@ -12,6 +12,8 @@ public:
 		-> bool = 0;
 	virtual auto at(vi32 pos) const -> const interface::item* = 0;
 	virtual auto at(vi32 pos) -> interface::item* = 0;
+	// Position at which the item is attached (the top left corner of an item)
+	virtual auto pos_at(vi32 pos) const noexcept -> std::optional<vi32> = 0;
 	virtual auto detach(vi32 pos) -> interface::item_ptr = 0;
 
 protected:
