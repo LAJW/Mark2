@@ -1,8 +1,8 @@
-﻿#include <stdafx.h>
-#include "mobile.h"
+﻿#include "mobile.h"
 #include <algorithm.h>
 #include <map.h>
 #include <resource_manager.h>
+#include <stdafx.h>
 #include <world.h>
 
 // Calculate acceleration, given current velocity and distance to target
@@ -37,12 +37,12 @@ mark::unit::mobile::mobile(const info& info)
 
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
-	const bool random_can_pathfind) const
+	const bool random_can_pathfind)
 	-> std::tuple<vd, double, std::vector<vd>, float>
 {
 	let dt = info.dt;
 	let radius = this->radius();
-	let[step, velocity, path_cache, path_age] = [&] {
+	auto[step, velocity, path_cache, path_age] = [&] {
 		let distance = length(m_moveto - pos());
 		if (distance > m_velocity * dt) {
 			let new_velocity = [&] {
@@ -82,33 +82,45 @@ auto mark::unit::mobile::update_movement_impl(
 			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
 	}();
-	let should_stop = [&, step = step] {
-		if (info.ai) {
-			let allies = world().find<mobile>(pos(), radius, [this](let& unit) {
-				return unit.team() == this->team();
-			});
-			for (let& ally : allies) {
-				if (length(pos() + step - ally->pos())
-					< length(pos() - ally->pos())) {
-					return true;
-				}
+	let step_len = length(step);
+	if (info.ai) {
+		let allies =
+			world().find<mobile>(pos(), radius * 3., [this](let& unit) {
+			return unit.team() == this->team() && &unit != this;
+		});
+		for (let& ally : allies) {
+			if (length(pos() + step - ally->pos()) < radius + ally->radius()) {
+				let diff = ally->pos() - pos();
+				let d = length(diff);
+				let dir = normalize(diff);
+				let ortho = rotate(dir, 90.f);
+				let R12 = radius + ally->radius();
+				let d_comp = dir * (d - R12);
+				let ortho_dir = ortho * (ortho.x * step.x + ortho.y * step.y);
+				let ortho_comp = normalize(ortho_dir) * (step_len - (d - R12));
+				step = d_comp + ortho_comp;
 			}
 		}
-		return false;
-	}();
+		step = normalize(step) * step_len;
+		for (let& ally : allies) {
+			if (length(pos() + step - ally->pos()) < radius + ally->radius() - 10.) {
+				step = { };
+			}
+		}
+		m_prev_step = step;
+		if (length(m_prev_step + step) < 30. * dt) {
+			step = { };
+		}
+	}
 	// If current position is not traversable, go to the nearest traversable,
 	// as pointed by map.find_path, even if next position is not traversable
 	let new_pos = [&, step = step] {
-		if (should_stop)
-			return pos();
 		if (!world().map().traversable(pos(), radius)
 			|| world().map().traversable(pos() + step, radius)) {
 			return pos() + step;
-		} else if (world().map().traversable(
-					   pos() + vd(step.x, 0), radius)) {
+		} else if (world().map().traversable(pos() + vd(step.x, 0), radius)) {
 			return pos() + vd(step.x, 0);
-		} else if (world().map().traversable(
-					   pos() + vd(0, step.y), radius)) {
+		} else if (world().map().traversable(pos() + vd(0, step.y), radius)) {
 			return pos() + vd(0, step.y);
 		}
 		return pos();

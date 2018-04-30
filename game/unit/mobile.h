@@ -42,12 +42,13 @@ private:
 	//  - new path
 	//  - new path age
 	auto update_movement_impl(const update_movement_info&, bool random_can_pathfind)
-		const -> std::
+		-> std::
 			tuple<vd, double, std::vector<vd>, float>;
 	double m_velocity = 0.0;
 	vd m_moveto;
 	std::vector<vd> m_path_cache;
 	float m_path_age = 0.f;
+	vd m_prev_step;
 };
 } // namespace unit
 } // namespace mark
