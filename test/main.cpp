@@ -88,10 +88,10 @@ TEST_CASE("Generic battery test")
 	REQUIRE(battery.dead() == false);
 	REQUIRE(battery.passive() == true);
 	REQUIRE(battery.detachable() == true);
-	let neighbours = battery.neighbours();
-	REQUIRE(neighbours.size() == 1);
-	REQUIRE(&neighbours[0].first.get() == env.modular->at({ -1, -1 }));
-	REQUIRE(neighbours[0].second == 2);
+	let neighbors = battery.neighbors();
+	REQUIRE(neighbors.size() == 1);
+	REQUIRE(&neighbors[0].first.get() == env.modular->at({ -1, -1 }));
+	REQUIRE(neighbors[0].second == 2);
 	REQUIRE(env.battery.energy_ratio() == Approx(0.f));
 }
 
