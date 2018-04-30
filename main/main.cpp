@@ -6,9 +6,9 @@
 #include "resource_manager.h"
 #include "sprite.h"
 #include "stdafx.h"
-#include "update_context.h"
 #include "ui/ui.h"
 #include "unit/modular.h"
+#include "update_context.h"
 #include "world.h"
 #include "world_stack.h"
 #include <SFML/Graphics.hpp>
@@ -25,11 +25,12 @@ constexpr let blueprints_path = "blueprints";
 
 #ifdef WIN32
 
-extern "C" {
-// Enable dedicated graphics for NVIDIA
-__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
-// Enable dedicated graphics for AMD Radeon
-__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+extern "C"
+{
+	// Enable dedicated graphics for NVIDIA
+	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+	// Enable dedicated graphics for AMD Radeon
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
 #endif
@@ -50,19 +51,22 @@ void save_world(const mark::world& world, std::string filename)
 	state << out.c_str();
 }
 
-struct on_event_info {
+struct on_event_info
+{
 	sf::Event event;
 	mark::vector<double> window_res;
 	mark::vector<double> mouse_pos;
 };
 
-struct on_update_info {
+struct on_update_info
+{
 	double dt;
 	mark::vector<double> window_res;
 	mark::vector<double> mouse_pos;
 };
 
-struct event_loop_info {
+struct event_loop_info
+{
 	std::string window_title;
 	mark::vector<unsigned> res;
 	std::function<void(on_event_info)> on_event;
@@ -75,7 +79,7 @@ void event_loop(event_loop_info& info)
 	assert(info.on_event);
 	assert(info.on_update);
 	assert(info.stack);
-	sf::RenderWindow window({info.res.x, info.res.y}, info.window_title);
+	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
 	mark::renderer renderer(info.res);
 	let& on_update = info.on_update;
 	let& on_event = info.on_event;
@@ -83,29 +87,27 @@ void event_loop(event_loop_info& info)
 	auto last = std::chrono::system_clock::now();
 	while (window.isOpen()) {
 		let now = std::chrono::system_clock::now();
-		let dt = static_cast<double>(
-					 std::chrono::duration_cast<std::chrono::microseconds>(
-						 now - last)
-						 .count()) /
-			1000000.0;
+		let delta_time =
+			std::chrono::duration_cast<std::chrono::microseconds>(now - last);
+		let dt = static_cast<double>(delta_time.count()) / 1000000.0;
 
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Resized) {
 				let width = static_cast<float>(event.size.width);
 				let height = static_cast<float>(event.size.height);
-				window.setView(sf::View({0.f, 0.f, width, height}));
+				window.setView(sf::View({ 0.f, 0.f, width, height }));
 			}
 			if (event.type == sf::Event::Closed) {
 				window.close();
-			}
-			else {
-				on_event_info info;
-				info.mouse_pos =
-					mark::vector<double>(sf::Mouse::getPosition(window));
-				info.window_res = mark::vector<double>(window.getSize());
-				info.event = event;
-				on_event(info);
+			} else {
+				on_event([&] {
+					on_event_info _;
+					_.mouse_pos = mark::vd(sf::Mouse::getPosition(window));
+					_.window_res = mark::vd(window.getSize());
+					_.event = event;
+					return _;
+				}());
 			}
 		}
 		if (info.stack->get().empty()) {
@@ -115,13 +117,20 @@ void event_loop(event_loop_info& info)
 
 		if (dt >= 1.0 / 60.0) {
 			last = now;
-
-			on_update_info info;
-			info.dt = dt;
-			info.mouse_pos =
-				mark::vector<double>(sf::Mouse::getPosition(window));
-			info.window_res = mark::vector<double>(window.getSize());
-			window.draw(renderer.render(on_update(info)));
+			on_event([&] {
+				on_event_info _;
+				_.mouse_pos = mark::vd(sf::Mouse::getPosition(window));
+				_.window_res = mark::vd(window.getSize());
+				_.event.type = sf::Event::MouseMoved;
+				return _;
+			}());
+			window.draw(renderer.render(on_update([&] {
+				on_update_info _;
+				_.dt = dt;
+				_.mouse_pos = mark::vd(sf::Mouse::getPosition(window));
+				_.window_res = mark::vd(window.getSize());
+				return _;
+			}())));
 			window.display();
 		}
 	}
@@ -156,7 +165,7 @@ void mark::main(std::vector<std::string> args)
 	event_loop_info event_loop_info;
 	event_loop_info.window_title = window_title;
 	event_loop_info.stack = &stack;
-	event_loop_info.res = {1920, 1080};
+	event_loop_info.res = { 1920, 1080 };
 	event_loop_info.on_event = [&](const on_event_info& info) {
 		hid.handle(info.event);
 		auto& world = world_stack.world();
@@ -193,10 +202,9 @@ void mark::main(std::vector<std::string> args)
 int main(const int argc, const char* argv[])
 {
 	try {
-		mark::main({argv, argv + argc});
+		mark::main({ argv, argv + argc });
 		return 0;
-	}
-	catch (std::exception& error) {
+	} catch (std::exception& error) {
 		std::cout << "ERROR: " << error.what() << std::endl;
 		std::cin.get();
 		return 1;
