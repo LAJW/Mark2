@@ -1,8 +1,10 @@
 ﻿#include "projectile.h"
 #include "modular.h"
+#include <module/base.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <unit/damageable.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -39,6 +41,31 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_physical(args.physical)
 	, m_knockback(args.knockback)
 {}
+
+namespace mark {
+static auto dot_product(vd a, vd b) { return a.x * b.x + a.y * b.y; }
+static auto reflect(vd dir, vd normal)
+{
+	let n = normalize(normal);
+	return dir - 2 * dot_product(dir, n) * n;
+}
+
+static auto
+reflect(const interface::damageable& damageable, vd collision, float rotation)
+{
+	let center = [&] {
+		if (let module = dynamic_cast<const module::base*>(&damageable)) {
+			return module->pos();
+		}
+		let unit = dynamic_cast<const unit::damageable*>(&damageable);
+		Expects(unit);
+		return unit->pos();
+	}();
+	let dir = rotate(vd(1, 0), rotation);
+	let normal = center - collision;
+	return atan(reflect(dir, normal));
+}
+} // namespace mark
 
 void mark::unit::projectile::update(update_context& context)
 {
@@ -88,6 +115,10 @@ void mark::unit::projectile::update(update_context& context)
 			m_rotation = reflected_angle;
 			pos(pos() - collisions.back()
 				+ rotate(vd(5., 0.), reflected_angle));
+		} else if (!m_damaged.empty() && !collisions.empty()) {
+			// TODO: This doesn't work with more than 1 reflected target
+			let &damaged = *m_damaged.begin()->get();
+			m_rotation = reflect(damaged, collisions.back(), m_rotation);
 		}
 	}
 	if (!collisions.empty() && terrain_hit) {
