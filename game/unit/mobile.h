@@ -41,9 +41,10 @@ private:
 	//  - new velocity
 	//  - new path
 	//  - new path age
-	auto update_movement_impl(const update_movement_info&, bool random_can_pathfind)
-		-> std::
-			tuple<vd, double, std::vector<vd>, float>;
+	auto update_movement_impl(
+		const update_movement_info&,
+		bool random_can_pathfind) const
+		-> std::tuple<vd, double, std::vector<vd>, float>;
 	double m_velocity = 0.0;
 	vd m_moveto;
 	std::vector<vd> m_path_cache;

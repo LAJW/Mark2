@@ -37,12 +37,12 @@ mark::unit::mobile::mobile(const info& info)
 
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
-	const bool random_can_pathfind)
+	const bool random_can_pathfind) const
 	-> std::tuple<vd, double, std::vector<vd>, float>
 {
 	let dt = info.dt;
 	let radius = this->radius();
-	auto[step, velocity, path_cache, path_age] = [&] {
+	auto [step, velocity, path_cache, path_age] = [&] {
 		let distance = length(m_moveto - pos());
 		if (distance > m_velocity * dt) {
 			let new_velocity = [&] {
@@ -82,34 +82,55 @@ auto mark::unit::mobile::update_movement_impl(
 			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
 	}();
-	let step_len = length(step);
 	if (info.ai) {
-		let allies =
-			world().find<mobile>(pos(), radius * 3., [this](let& unit) {
-			return unit.team() == this->team() && &unit != this;
-		});
-		for (let& ally : allies) {
-			if (length(pos() + step - ally->pos()) < radius + ally->radius()) {
+		let step_len = length(step);
+		let colliding_allies =
+			world().find<mobile>(pos(), radius * 3., [&](let& unit) {
+				// TODO: Space bins don't respect the radius of the point they
+				// store. Checking radius should be done there, not here.
+				return unit.team() == this->team() && &unit != this
+					&& length(pos() - unit.pos()) < radius + unit.radius();
+			});
+		// TODO: This is doesn't depend on step, so we should do it at the start
+		// of this function.
+		if (!colliding_allies.empty()) {
+			let least_resistance_direction =
+				accumulate(colliding_allies, vd(), [&](vd sum, let& ally) {
+					let overlap =
+						radius + ally->radius() - length(ally->pos() - pos());
+					let direction = normalize(ally->pos() - pos());
+					return sum + direction * overlap;
+				});
+			step = -normalize(least_resistance_direction) * step_len;
+		} else {
+			let future_colliding_allies =
+				world().find<mobile>(pos(), radius * 3., [&](let& unit) {
+					return unit.team() == this->team() && &unit != this
+						&& length(pos() + step - unit.pos())
+						< radius + unit.radius();
+				});
+			if (!future_colliding_allies.empty()) {
+				let& ally = future_colliding_allies.front();
 				let diff = ally->pos() - pos();
 				let d = length(diff);
 				let dir = normalize(diff);
 				let ortho = rotate(dir, 90.f);
-				let R12 = radius + ally->radius();
-				let d_comp = dir * (d - R12);
+				let R1n2 = radius + ally->radius();
+				let d_comp = dir * (d - R1n2);
 				let ortho_dir = ortho * (ortho.x * step.x + ortho.y * step.y);
-				let ortho_comp = normalize(ortho_dir) * (step_len - (d - R12));
+				let ortho_comp = normalize(ortho_dir) * (step_len - (d - R1n2));
 				step = d_comp + ortho_comp;
 			}
-		}
-		step = normalize(step) * step_len;
-		for (let& ally : allies) {
-			if (length(pos() + step - ally->pos()) < radius + ally->radius() - 10.) {
-				step = { };
+			step = normalize(step) * step_len;
+			let collides_after_step =
+				any_of(future_colliding_allies, [&](let& ally) {
+					return length(pos() + step - ally->pos())
+						< radius + ally->radius() - 10.;
+				});
+			if (collides_after_step) {
+				step = {};
+				velocity = 0.;
 			}
-		}
-		m_prev_step = step;
-		if (length(m_prev_step + step) < 30. * dt) {
-			step = { };
 		}
 	}
 	// If current position is not traversable, go to the nearest traversable,
@@ -118,11 +139,14 @@ auto mark::unit::mobile::update_movement_impl(
 		if (!world().map().traversable(pos(), radius)
 			|| world().map().traversable(pos() + step, radius)) {
 			return pos() + step;
-		} else if (world().map().traversable(pos() + vd(step.x, 0), radius)) {
+		}
+		if (world().map().traversable(pos() + vd(step.x, 0), radius)) {
 			return pos() + vd(step.x, 0);
-		} else if (world().map().traversable(pos() + vd(0, step.y), radius)) {
+		}
+		if (world().map().traversable(pos() + vd(0, step.y), radius)) {
 			return pos() + vd(0, step.y);
 		}
+		velocity = 0.;
 		return pos();
 	}();
 	return { new_pos, velocity, path_cache, path_age };
