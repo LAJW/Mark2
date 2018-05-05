@@ -234,6 +234,15 @@ auto any_of(const container_t& container, pred_t pred)
 	return std::any_of(begin, end, std::move(pred));
 }
 
+template <typename container_t, typename initial_t, typename pred_t>
+initial_t
+accumulate(const container_t& container, initial_t initial, pred_t pred)
+{
+	let begin = std::begin(container);
+	let end = std::end(container);
+	return std::accumulate(begin, end, std::move(initial), std::move(pred));
+}
+
 template <typename container_t, typename out_t, typename pred_t>
 auto transform(const container_t& container, out_t out, pred_t pred)
 {
