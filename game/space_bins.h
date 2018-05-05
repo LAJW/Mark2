@@ -81,9 +81,11 @@ auto check_proximity(
 	double radius,
 	T pred) -> shared_ptr<unit_type>
 {
-	if (length(unit->pos() - pos) < radius && pred(*unit)) {
+	if (length(unit->pos() - pos) < radius) {
 		if (let derived = std::dynamic_pointer_cast<unit_type>(unit.get())) {
-			return derived;
+			if (pred(*derived)) {
+				return derived;
+			}
 		}
 	}
 	return nullptr;
