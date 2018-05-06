@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm.h>
+#include <algorithm/filter.h>
 
 namespace mark {
 
@@ -86,7 +87,7 @@ void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 	});
 }
 
-template <typename unit_type = unit::base, typename T>
+template <typename unit_type = unit::base>
 auto cast_and_check_proximity(
 	not_null<shared_ptr<unit::base>> unit,
 	vd pos,
@@ -104,21 +105,14 @@ auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
 	std::unordered_set<not_null<shared_ptr<unit_type>>> set;
 	for (let ind : range_for(bins, pos, radius)) {
-		for (let& unit : bins.at(ind)) {
-			if (let ptr = cast_and_check_proximity<unit_type>(
-					unit, pos, radius, pred)) {
-				set.insert(ptr);
+		for (auto unit : bins.at(ind)) {
+			if (auto ptr = cast_and_check_proximity<unit_type>(
+					move(unit), pos, radius)) {
+				set.insert(move(ptr));
 			}
 		}
 	}
-	std::vector<decltype(ret)::value_type> out;
-	out.reserve(set);
-	copy_if(
-		make_move_iterator(set.begin()),
-		make_move_iterator(set.end()),
-		back_inserter(out),
-		[&](let& unit) { return pred(*unit); });
-	return out;
+	return filter(move(set), [&](let& unit) { return pred(*unit);  });
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
@@ -126,9 +120,9 @@ auto find_one(const space_bins<U>& bins, vd pos, double radius, T pred)
 	-> shared_ptr<unit_type>
 {
 	for (let ind : range_for(bins, pos, radius)) {
-		for (let& unit : bins.at(ind)) {
+		for (auto unit : bins.at(ind)) {
 			if (let ptr = cast_and_check_proximity<unit_type>(
-					unit, pos, radius)) {
+					move(unit), pos, radius)) {
 				if (pred(*ptr)) {
 					return ptr;
 				}
