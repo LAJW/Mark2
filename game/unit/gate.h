@@ -9,7 +9,7 @@ class gate final : public activable
 {
 public:
 	static constexpr const char* type_name = "gate";
-	static constexpr let radius = 300.0;
+	static constexpr let size = 256.;
 
 	struct info : base::info
 	{
@@ -21,6 +21,7 @@ public:
 	[[nodiscard]] auto use(const shared_ptr<unit::modular>& by)
 		-> std::error_code override;
 	void serialize(YAML::Emitter&) const override;
+	auto radius() const -> double override { return size / 2.; }
 
 private:
 	void update(update_context& context) override;

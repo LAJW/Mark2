@@ -11,7 +11,7 @@ class landing_pad final
 {
 public:
 	static constexpr const char* type_name = "unit_landing_pad";
-	static constexpr let radius = 300.0;
+	static constexpr const double size = 320.;
 
 	landing_pad(mark::world& world, const YAML::Node&);
 	landing_pad(const info&);
@@ -27,6 +27,7 @@ public:
 	auto bindings() const -> interface::has_bindings::bindings_t override;
 	auto ship() -> shared_ptr<unit::modular>;
 	auto ship() const -> shared_ptr<const unit::modular>;
+	auto radius() const -> double override { return size / 2.; };
 
 private:
 	void update(update_context& context) override;

@@ -62,7 +62,7 @@ static auto find_gate_pos(const mark::map& map, mark::vi32 size)
 	return find_pos(
 		map,
 		size,
-		mark::unit::gate::radius,
+		mark::unit::gate::size / 2.,
 		[&](auto proc) -> std::optional<mark::vd> {
 			for (let point : mark::range(size)) {
 				if (let result = proc(point)) {
@@ -80,7 +80,7 @@ static auto find_landing_pad_pos(const mark::map& map, mark::vi32 size)
 	return find_pos(
 		map,
 		size,
-		mark::unit::landing_pad::radius,
+		mark::unit::landing_pad::size / 2,
 		[&](auto proc) -> std::optional<mark::vd> {
 			for (int x = size.x - 1; x >= 0; --x) {
 				for (int y = size.y - 1; y >= 0; --y) {

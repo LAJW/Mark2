@@ -13,7 +13,6 @@ public:
 		-> std::optional<std::pair<ref<interface::damageable>, vd>> = 0;
 	virtual auto collide(vd center, double radius)
 		-> std::vector<ref<interface::damageable>> = 0;
-	virtual auto radius() const -> double = 0;
 
 protected:
 	template <typename... Args>

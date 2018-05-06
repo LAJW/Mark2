@@ -1,14 +1,12 @@
-﻿#include <stdafx.h>
-#include "gate.h"
+﻿#include "gate.h"
 #include "modular.h"
 #include <command.h>
 #include <model_animated.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 #include <world.h>
-
-constexpr let UNIT_GATE_SIZE = 256.f;
 
 mark::unit::gate::gate(const info& info)
 	: activable(info)
@@ -25,24 +23,23 @@ void mark::unit::gate::update(update_context& context)
 	sprite info;
 	info.image = m_im_base;
 	info.pos = pos();
-	info.size = UNIT_GATE_SIZE;
+	info.size = size;
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
 
 	m_rotor.update(context.dt);
-	context.sprites[10].emplace_back(
-		m_rotor.render(pos(), UNIT_GATE_SIZE, angle, sf::Color::White));
+	context.sprites[10].emplace_back(m_rotor.render(
+		pos(), gsl::narrow_cast<float>(size), angle, sf::Color::White));
 
 	sprite enclosure_info;
 	enclosure_info.image = m_im_enclosure;
 	enclosure_info.pos = pos();
-	enclosure_info.size = UNIT_GATE_SIZE;
+	enclosure_info.size = size;
 	enclosure_info.rotation = angle;
 	context.sprites[10].emplace_back(enclosure_info);
 }
 
-auto mark::unit::gate::use(const shared_ptr<unit::modular>&)
-	-> std::error_code
+auto mark::unit::gate::use(const shared_ptr<unit::modular>&) -> std::error_code
 {
 	if (m_inverted) {
 		world().prev();

@@ -19,6 +19,7 @@ public:
 	auto release() -> interface::item_ptr;
 	void insert(interface::item_ptr);
 	void serialize(YAML::Emitter& out) const override;
+	auto radius() const -> double override;
 
 private:
 	void update(update_context& context) override;

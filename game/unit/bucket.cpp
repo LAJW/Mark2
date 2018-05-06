@@ -26,11 +26,10 @@ mark::unit::bucket::bucket(info info)
 
 void mark::unit::bucket::update(update_context& context)
 {
-	if (this->dead()) { // dead bucket
+	if (this->dead()) {
 		return;
 	}
-	let size = static_cast<float>(std::max(m_item->size().y, m_item->size().x))
-		* module::size;
+	let size = this->radius() * 2.;
 	let nearby_buckets = world().find<unit::bucket>(
 		pos(), size, [this](const unit::base& unit) { return &unit != this; });
 	if (!nearby_buckets.empty()) {
@@ -45,7 +44,7 @@ void mark::unit::bucket::update(update_context& context)
 		if (diff == vd(0, 0)) {
 			m_direction = context.random<float>(-180.f, 180.f);
 		} else {
-			m_direction = static_cast<float>(atan(diff));
+			m_direction = gsl::narrow_cast<float>(atan(diff));
 		}
 		let ds = rotate(vd(30.0 * context.dt, 0), m_direction);
 		if (world().map().traversable(pos() + ds, size)) {
@@ -57,7 +56,7 @@ void mark::unit::bucket::update(update_context& context)
 		_.image = m_item->thumbnail();
 		_.pos = pos();
 		_.rotation = m_rotation;
-		_.size = size;
+		_.size = gsl::narrow_cast<float>(size);
 		return _;
 	}());
 }
@@ -91,4 +90,10 @@ void mark::unit::bucket::serialize(YAML::Emitter& out) const
 	out << Key << "rotation" << Value << m_rotation;
 
 	out << EndMap;
+}
+
+auto mark::unit::bucket::radius() const -> double
+{
+	return static_cast<float>(std::max(m_item->size().y, m_item->size().x))
+		* module::size / 2.;
 }

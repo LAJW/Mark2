@@ -42,6 +42,7 @@ public:
 	virtual void resolve_ref(
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, weak_ptr<unit::base>>& units);
+	virtual auto radius() const -> double = 0;
 	auto pos() const -> vd override final;
 	void pos(vd);
 	auto team() const -> size_t final override;

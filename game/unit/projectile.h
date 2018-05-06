@@ -37,6 +37,7 @@ public:
 		const YAML::Node&,
 		const std::unordered_map<uint64_t, weak_ptr<unit::base>>& units)
 		override;
+	auto radius() const -> double override { return 10.f; }
 
 private:
 	projectile(const projectile::info&, bool);

@@ -11,8 +11,6 @@
 #include <update_context.h>
 #include <world.h>
 
-constexpr let LANDING_PAD_SIZE = 320.f;
-
 mark::unit::landing_pad::landing_pad(const info& info)
 	: activable(info)
 	, m_image(info.world->resource_manager().image("landing-pad.png"))
@@ -44,7 +42,7 @@ void mark::unit::landing_pad::update(mark::update_context& context)
 	sprite info;
 	info.image = m_image;
 	info.pos = pos();
-	info.size = LANDING_PAD_SIZE;
+	info.size = size;
 	info.rotation = 0.f;
 	context.sprites[0].emplace_back(info);
 }
