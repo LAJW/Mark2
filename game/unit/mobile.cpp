@@ -86,13 +86,73 @@ auto mark::unit::mobile::calculate_path(bool random_can_pathfind, double dt)
 	return { path, age };
 }
 
+auto mark::unit::mobile::avoid_present_neighbor_collisions(
+	double step_len) const -> std::optional<vd>
+{
+	let radius = this->radius();
+	let colliding_allies = world().find<mobile>(pos(), radius, [&](let& unit) {
+		return unit.team() == this->team() && &unit != this;
+	});
+	// TODO: This doesn't depend on step, so we should do it at the start
+	// of update_movement_impl function.
+	if (!colliding_allies.empty()) {
+		let least_resistance_direction =
+			accumulate(colliding_allies, vd(), [&](vd sum, let& ally) {
+				let overlap =
+					radius + ally->radius() - length(ally->pos() - pos());
+				let direction = normalize(ally->pos() - pos());
+				return sum + direction * overlap;
+			});
+		return -normalize(least_resistance_direction) * step_len;
+	}
+	return {};
+}
+
+auto mark::unit::mobile::avoid_future_neighbor_collisions(vd step) const -> vd
+{
+	let step_len = length(step);
+	let radius = this->radius();
+	let future_colliding_allies =
+		world().find<mobile>(pos() + step, radius, [&](let& unit) {
+			return unit.team() == this->team() && &unit != this;
+		});
+	if (!future_colliding_allies.empty()) {
+		let& ally = future_colliding_allies.front();
+		let diff = ally->pos() - pos();
+		let d = length(diff);
+		let dir = normalize(diff);
+		let ortho = rotate(dir, 90.f);
+		let R1n2 = radius + ally->radius();
+		let d_comp = dir * (d - R1n2);
+		let ortho_dir = ortho * (ortho.x * step.x + ortho.y * step.y);
+		let ortho_comp = normalize(ortho_dir) * (step_len - (d - R1n2));
+		step = d_comp + ortho_comp;
+	}
+	step = normalize(step) * step_len;
+	let collides_after_step = any_of(future_colliding_allies, [&](let& ally) {
+		return length(pos() + step - ally->pos())
+			< radius + ally->radius() - 10.;
+	});
+	if (collides_after_step) {
+		return {};
+	}
+	return step;
+}
+
+auto mark::unit::mobile::avoid_neighbor_collisions(vd step) const -> vd
+{
+	if (let next_step = avoid_present_neighbor_collisions(length(step))) {
+		return *next_step;
+	}
+	return avoid_future_neighbor_collisions(step);
+}
+
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
 	const bool random_can_pathfind) const
 	-> std::tuple<vd, double, std::vector<vd>, float>
 {
 	let dt = info.dt;
-	let radius = this->radius();
 	auto [step, velocity, path_cache, path_age] = [&] {
 		let distance = length(m_moveto - pos());
 		let next_step_reaches_target = distance <= m_velocity * dt;
@@ -110,54 +170,12 @@ auto mark::unit::mobile::update_movement_impl(
 		return std::make_tuple(step, velocity, path_cache, path_age);
 	}();
 	if (info.ai) {
-		let step_len = length(step);
-		let colliding_allies =
-			world().find<mobile>(pos(), radius, [&](let& unit) {
-				return unit.team() == this->team() && &unit != this;
-			});
-		// TODO: This is doesn't depend on step, so we should do it at the start
-		// of this function.
-		if (!colliding_allies.empty()) {
-			let least_resistance_direction =
-				accumulate(colliding_allies, vd(), [&](vd sum, let& ally) {
-					let overlap =
-						radius + ally->radius() - length(ally->pos() - pos());
-					let direction = normalize(ally->pos() - pos());
-					return sum + direction * overlap;
-				});
-			step = -normalize(least_resistance_direction) * step_len;
-		} else {
-			let future_colliding_allies =
-				world().find<mobile>(pos() + step, radius, [&](let& unit) {
-					return unit.team() == this->team() && &unit != this;
-				});
-			if (!future_colliding_allies.empty()) {
-				let& ally = future_colliding_allies.front();
-				let diff = ally->pos() - pos();
-				let d = length(diff);
-				let dir = normalize(diff);
-				let ortho = rotate(dir, 90.f);
-				let R1n2 = radius + ally->radius();
-				let d_comp = dir * (d - R1n2);
-				let ortho_dir = ortho * (ortho.x * step.x + ortho.y * step.y);
-				let ortho_comp = normalize(ortho_dir) * (step_len - (d - R1n2));
-				step = d_comp + ortho_comp;
-			}
-			step = normalize(step) * step_len;
-			let collides_after_step =
-				any_of(future_colliding_allies, [&](let& ally) {
-					return length(pos() + step - ally->pos())
-						< radius + ally->radius() - 10.;
-				});
-			if (collides_after_step) {
-				step = {};
-				velocity = 0.;
-			}
-		}
+		step = this->avoid_neighbor_collisions(step);
 	}
 	// If current position is not traversable, go to the nearest traversable,
 	// as pointed by map.find_path, even if next position is not traversable
 	let new_pos = [&, step = step] {
+		let radius = this->radius();
 		if (!world().map().traversable(pos(), radius)
 			|| world().map().traversable(pos() + step, radius)) {
 			return pos() + step;
