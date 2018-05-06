@@ -87,31 +87,38 @@ void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 }
 
 template <typename unit_type = unit::base, typename T>
-auto check_proximity(
+auto cast_and_check_proximity(
 	not_null<shared_ptr<unit::base>> unit,
 	vd pos,
-	double radius,
-	T pred) -> shared_ptr<unit_type>
+	double radius) -> shared_ptr<unit_type>
 {
 	if (length(unit->pos() - pos) >= radius + unit->radius()) {
 		return nullptr;
 	}
 	let derived = std::dynamic_pointer_cast<unit_type>(unit.get());
-	return (derived && pred(*derived)) ? derived : nullptr;
+	return derived ? derived : nullptr;
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
 auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
-	std::unordered_set<not_null<shared_ptr<unit_type>>> ret;
+	std::unordered_set<not_null<shared_ptr<unit_type>>> set;
 	for (let ind : range_for(bins, pos, radius)) {
 		for (let& unit : bins.at(ind)) {
-			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
-				ret.insert(ptr);
+			if (let ptr = cast_and_check_proximity<unit_type>(
+					unit, pos, radius, pred)) {
+				set.insert(ptr);
 			}
 		}
 	}
-	return std::vector<decltype(ret)::value_type>{ ret.begin(), ret.end() };
+	std::vector<decltype(ret)::value_type> out;
+	out.reserve(set);
+	copy_if(
+		make_move_iterator(set.begin()),
+		make_move_iterator(set.end()),
+		back_inserter(out),
+		[&](let& unit) { return pred(*unit); });
+	return out;
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
@@ -120,8 +127,11 @@ auto find_one(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
 	for (let ind : range_for(bins, pos, radius)) {
 		for (let& unit : bins.at(ind)) {
-			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
-				return ptr;
+			if (let ptr = cast_and_check_proximity<unit_type>(
+					unit, pos, radius)) {
+				if (pred(*ptr)) {
+					return ptr;
+				}
 			}
 		}
 	}
