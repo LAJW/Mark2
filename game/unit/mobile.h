@@ -46,10 +46,11 @@ private:
 		bool random_can_pathfind) const
 		-> std::tuple<vd, double, std::vector<vd>, float>;
 
-	auto avoid_neighbor_collisions(vd step) const -> vd;
 	auto avoid_present_neighbor_collisions(double step_len) const
 		-> std::optional<vd>;
 	auto avoid_future_neighbor_collisions(vd step) const -> vd;
+	auto avoid_bumping_into_terrain(vd step) const
+		-> std::optional<vd>;
 
 	auto can_calculate_path(bool random_can_pathfind) const -> bool;
 	auto calculate_path(bool random_can_pathfind, double dt) const

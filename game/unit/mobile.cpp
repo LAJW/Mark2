@@ -52,14 +52,13 @@ static auto calculate_velocity(
 		: std::min(max_velocity, cur_velocity + acceleration * dt);
 }
 
-auto mark::unit::mobile::can_calculate_path(bool random_can_pathfind) const
-	-> bool
+auto mark::unit::mobile::can_calculate_path(bool can_pathfind) const -> bool
 {
 	let is_player_controlled = team() == 1;
 	if (is_player_controlled) {
 		return true;
 	}
-	if (!random_can_pathfind) {
+	if (!can_pathfind) {
 		return false;
 	}
 	if (m_path_age <= 0.f) {
@@ -70,11 +69,11 @@ auto mark::unit::mobile::can_calculate_path(bool random_can_pathfind) const
 	return target_has_moved;
 }
 
-auto mark::unit::mobile::calculate_path(bool random_can_pathfind, double dt)
-	const -> std::pair<std::vector<vd>, float>
+auto mark::unit::mobile::calculate_path(bool can_pathfind, double dt) const
+	-> std::pair<std::vector<vd>, float>
 {
 	auto [path, age] = [&]() -> std::pair<std::vector<vd>, float> {
-		if (this->can_calculate_path(random_can_pathfind)) {
+		if (this->can_calculate_path(can_pathfind)) {
 			let radius = this->radius();
 			return { world().map().find_path(pos(), m_moveto, radius), 1.f };
 		}
@@ -93,19 +92,16 @@ auto mark::unit::mobile::avoid_present_neighbor_collisions(
 	let colliding_allies = world().find<mobile>(pos(), radius, [&](let& unit) {
 		return unit.team() == this->team() && &unit != this;
 	});
-	// TODO: This doesn't depend on step, so we should do it at the start
-	// of update_movement_impl function.
-	if (!colliding_allies.empty()) {
-		let least_resistance_direction =
-			accumulate(colliding_allies, vd(), [&](vd sum, let& ally) {
-				let overlap =
-					radius + ally->radius() - length(ally->pos() - pos());
-				let direction = normalize(ally->pos() - pos());
-				return sum + direction * overlap;
-			});
-		return -normalize(least_resistance_direction) * step_len;
+	if (colliding_allies.empty()) {
+		return {};
 	}
-	return {};
+	let least_resistance_direction =
+		accumulate(colliding_allies, vd(), [&](vd sum, let& ally) {
+			let overlap = radius + ally->radius() - length(ally->pos() - pos());
+			let direction = normalize(ally->pos() - pos());
+			return sum + direction * overlap;
+		});
+	return -normalize(least_resistance_direction) * step_len;
 }
 
 auto mark::unit::mobile::avoid_future_neighbor_collisions(vd step) const -> vd
@@ -126,9 +122,8 @@ auto mark::unit::mobile::avoid_future_neighbor_collisions(vd step) const -> vd
 		let d_comp = dir * (d - R1n2);
 		let ortho_dir = ortho * (ortho.x * step.x + ortho.y * step.y);
 		let ortho_comp = normalize(ortho_dir) * (step_len - (d - R1n2));
-		step = d_comp + ortho_comp;
+		step = normalize(d_comp + ortho_comp) * step_len;
 	}
-	step = normalize(step) * step_len;
 	let collides_after_step = any_of(future_colliding_allies, [&](let& ally) {
 		return length(pos() + step - ally->pos())
 			< radius + ally->radius() - 10.;
@@ -139,64 +134,70 @@ auto mark::unit::mobile::avoid_future_neighbor_collisions(vd step) const -> vd
 	return step;
 }
 
-auto mark::unit::mobile::avoid_neighbor_collisions(vd step) const -> vd
+auto mark::unit::mobile::avoid_bumping_into_terrain(vd step) const
+	-> std::optional<vd>
 {
-	if (let next_step = avoid_present_neighbor_collisions(length(step))) {
-		return *next_step;
+	let radius = this->radius();
+	if (!world().map().traversable(pos(), radius)
+		|| world().map().traversable(pos() + step, radius)) {
+		return step;
 	}
-	return avoid_future_neighbor_collisions(step);
+	if (world().map().traversable(pos() + vd(step.x, 0), radius)) {
+		return vd(step.x, 0);
+	}
+	if (world().map().traversable(pos() + vd(0, step.y), radius)) {
+		return vd(0, step.y);
+	}
+	return std::nullopt;
 }
 
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
-	const bool random_can_pathfind) const
+	const bool can_pathfind) const
 	-> std::tuple<vd, double, std::vector<vd>, float>
 {
 	let dt = info.dt;
-	auto [step, velocity, path_cache, path_age] = [&] {
-		let distance = length(m_moveto - pos());
-		let next_step_reaches_target = distance <= m_velocity * dt;
-		if (next_step_reaches_target) {
-			let step = m_moveto - pos();
-			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
+	let distance = length(m_moveto - pos());
+	let next_step_reaches_target = distance <= m_velocity * dt;
+	let velocity = next_step_reaches_target
+		? 0.
+		: calculate_velocity(
+			  distance, info.max_velocity, m_velocity, info.acceleration, dt);
+	let allied_collisions_enabled = info.ai;
+	if (allied_collisions_enabled) {
+		if (let step = avoid_present_neighbor_collisions(velocity * dt)) {
+			if (let maybe_step = avoid_bumping_into_terrain(*step)) {
+				return {
+					pos() + *maybe_step, velocity, m_path_cache, m_path_age
+				};
+			}
+			return { pos(), 0., m_path_cache, m_path_age };
 		}
-		let velocity = calculate_velocity(
-			distance, info.max_velocity, m_velocity, info.acceleration, dt);
-		let[path_cache, path_age] =
-			this->calculate_path(random_can_pathfind, dt);
+	}
+	auto [step, path_cache, path_age] = [&] {
+		if (next_step_reaches_target) {
+			return std::make_tuple(m_moveto - pos(), m_path_cache, m_path_age);
+		}
+		let[path_cache, path_age] = this->calculate_path(can_pathfind, dt);
 		let dir = path_cache.empty() ? normalize(m_moveto - pos())
 									 : normalize(path_cache.back() - pos());
 		let step = dir * velocity * dt;
-		return std::make_tuple(step, velocity, path_cache, path_age);
+		return std::make_tuple(step, path_cache, path_age);
 	}();
-	if (info.ai) {
-		step = this->avoid_neighbor_collisions(step);
+	if (allied_collisions_enabled) {
+		step = this->avoid_future_neighbor_collisions(step);
 	}
-	// If current position is not traversable, go to the nearest traversable,
-	// as pointed by map.find_path, even if next position is not traversable
-	let new_pos = [&, step = step] {
-		let radius = this->radius();
-		if (!world().map().traversable(pos(), radius)
-			|| world().map().traversable(pos() + step, radius)) {
-			return pos() + step;
-		}
-		if (world().map().traversable(pos() + vd(step.x, 0), radius)) {
-			return pos() + vd(step.x, 0);
-		}
-		if (world().map().traversable(pos() + vd(0, step.y), radius)) {
-			return pos() + vd(0, step.y);
-		}
-		velocity = 0.;
-		return pos();
-	}();
-	return { new_pos, velocity, path_cache, path_age };
+	if (let maybe_step = avoid_bumping_into_terrain(step)) {
+		return { pos() + *maybe_step, velocity, path_cache, path_age };
+	}
+	return { pos(), 0., path_cache, path_age };
 }
 
 void mark::unit::mobile::update_movement(const update_movement_info& info)
 {
-	let random_can_pathfind = world().resource_manager().random(0, 2);
+	let can_pathfind = world().resource_manager().random(0, 2);
 	auto [pos, velocity, path, path_age] =
-		this->update_movement_impl(info, random_can_pathfind);
+		this->update_movement_impl(info, can_pathfind);
 	m_path_cache = std::move(path);
 	m_path_age = path_age;
 	this->pos(pos);
