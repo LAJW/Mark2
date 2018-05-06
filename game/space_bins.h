@@ -107,12 +107,11 @@ auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 	for (let ind : range_for(bins, pos, radius)) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
-				ret.emplace_back(ptr);
+				ret.insert(ptr);
 			}
 		}
 	}
-	return std::vector<not_null<shared_ptr<unit_type>>>{ ret.begin(),
-														 ret.end() };
+	return std::vector<decltype(ret)::value_type>{ ret.begin(), ret.end() };
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
