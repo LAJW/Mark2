@@ -112,11 +112,8 @@ auto mark::unit::mobile::update_movement_impl(
 	if (info.ai) {
 		let step_len = length(step);
 		let colliding_allies =
-			world().find<mobile>(pos(), radius * 3., [&](let& unit) {
-				// TODO: Space bins don't respect the radius of the point they
-				// store. Checking radius should be done there, not here.
-				return unit.team() == this->team() && &unit != this
-					&& length(pos() - unit.pos()) < radius + unit.radius();
+			world().find<mobile>(pos(), radius, [&](let& unit) {
+				return unit.team() == this->team() && &unit != this;
 			});
 		// TODO: This is doesn't depend on step, so we should do it at the start
 		// of this function.
@@ -131,10 +128,8 @@ auto mark::unit::mobile::update_movement_impl(
 			step = -normalize(least_resistance_direction) * step_len;
 		} else {
 			let future_colliding_allies =
-				world().find<mobile>(pos(), radius * 3., [&](let& unit) {
-					return unit.team() == this->team() && &unit != this
-						&& length(pos() + step - unit.pos())
-						< radius + unit.radius();
+				world().find<mobile>(pos() + step, radius, [&](let& unit) {
+					return unit.team() == this->team() && &unit != this;
 				});
 			if (!future_colliding_allies.empty()) {
 				let& ally = future_colliding_allies.front();

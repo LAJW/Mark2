@@ -61,6 +61,16 @@ auto compute_index(const space_bins<T>& bins, vd pos)
 			(world_pos.y / world_size.y) * world_dim.y }) };
 }
 
+template <typename U>
+auto range_for(const space_bins<U>& bins, vd pos, double radius)
+{
+	let top_left = compute_index(bins, pos - vd{ radius, radius });
+	let unbound_bottom_right = vector<std::size_t>{ 1, 1 }
+		+ compute_index(bins, pos + vd{ radius, radius });
+	let bottom_right = min(bins.size(), unbound_bottom_right);
+	return mark::range(top_left, bottom_right);
+}
+
 template <typename It, typename T>
 void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 {
@@ -70,7 +80,9 @@ void divide_space(It first_unit, It last_unit, space_bins<T>& bins)
 	}
 
 	std::for_each(first_unit, last_unit, [&bins](let& unit) {
-		bins.at(compute_index(bins, unit->pos())).emplace_back(unit);
+		for (let ind : range_for(bins, unit->pos(), unit->radius())) {
+			bins.at(ind).emplace_back(unit);
+		}
 	});
 }
 
@@ -81,43 +93,33 @@ auto check_proximity(
 	double radius,
 	T pred) -> shared_ptr<unit_type>
 {
-	if (length(unit->pos() - pos) < radius) {
-		if (let derived = std::dynamic_pointer_cast<unit_type>(unit.get())) {
-			if (pred(*derived)) {
-				return derived;
-			}
-		}
+	if (length(unit->pos() - pos) >= radius + unit->radius()) {
+		return nullptr;
 	}
-	return nullptr;
+	let derived = std::dynamic_pointer_cast<unit_type>(unit.get());
+	return (derived && pred(*derived)) ? derived : nullptr;
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
 auto find(const space_bins<U>& bins, vd pos, double radius, T pred)
 {
-	std::vector<not_null<shared_ptr<unit_type>>> ret;
-	for (let ind : range(
-			 compute_index(bins, pos - vd{ radius, radius }),
-			 min(bins.size(),
-				 vector<std::size_t>{ 1, 1 }
-					 + compute_index(bins, pos + vd{ radius, radius })))) {
+	std::unordered_set<not_null<shared_ptr<unit_type>>> ret;
+	for (let ind : range_for(bins, pos, radius)) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				ret.emplace_back(ptr);
 			}
 		}
 	}
-	return ret;
+	return std::vector<not_null<shared_ptr<unit_type>>>{ ret.begin(),
+														 ret.end() };
 }
 
 template <typename unit_type = unit::base, typename T, typename U>
 auto find_one(const space_bins<U>& bins, vd pos, double radius, T pred)
 	-> shared_ptr<unit_type>
 {
-	for (let ind : range(
-			 compute_index(bins, pos - vd{ radius, radius }),
-			 min(bins.size(),
-				 vector<std::size_t>{ 1, 1 }
-					 + compute_index(bins, pos + vd{ radius, radius })))) {
+	for (let ind : range_for(bins, pos, radius)) {
 		for (let& unit : bins.at(ind)) {
 			if (let ptr = check_proximity<unit_type>(unit, pos, radius, pred)) {
 				return ptr;
