@@ -107,18 +107,30 @@ void mark::unit::projectile::update(update_context& context)
 	info.damage.knockback = m_knockback;
 
 	let[collisions, terrain_hit, reflected_angle] = world().damage(info);
-	if (collisions.size() >= m_piercing) {
+	let reflective_hit =
+		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
+			return damageable->reflective();
+		});
+	if (collisions.size() >= m_piercing && !reflective_hit) {
 		m_dead = true;
 	} else {
-		m_piercing -= collisions.size();
+		if (!reflective_hit) {
+			m_piercing -= collisions.size();
+		} else {
+			team(team() ? 0 : 1);
+		}
 		if (terrain_hit) {
 			m_rotation = reflected_angle;
 			pos(pos() - collisions.back()
 				+ rotate(vd(5., 0.), reflected_angle));
 		} else if (!m_damaged.empty() && !collisions.empty()) {
 			// TODO: This doesn't work with more than 1 reflected target
-			let &damaged = *m_damaged.begin()->get();
+			let& damaged = *m_damaged.begin()->get();
 			m_rotation = reflect(damaged, collisions.back(), m_rotation);
+		}
+		if (reflective_hit) {
+			m_damaged.clear();
+			m_guide = nullptr;
 		}
 	}
 	if (!collisions.empty() && terrain_hit) {

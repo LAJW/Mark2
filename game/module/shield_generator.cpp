@@ -21,6 +21,7 @@ void mark::module::shield_generator::bind(
 	MARK_BIND(shield_per_energy);
 	MARK_BIND(broken);
 	MARK_BIND(reboot_level);
+	MARK_BIND(reflective);
 }
 
 auto mark::module::shield_generator::active() const -> bool
@@ -162,4 +163,9 @@ void mark::module::shield_generator::command(const command::any& any)
 	if (std::holds_alternative<command::queue>(any)) {
 		m_on = !m_on;
 	}
+}
+
+auto mark::module::shield_generator::reflective() const -> bool
+{
+	return m_reflective && m_cur_shield >= 0.f;
 }

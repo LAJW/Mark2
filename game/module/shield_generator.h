@@ -20,6 +20,7 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 	void command(const command::any& any) override;
+	auto reflective() const -> bool;
 
 private:
 	void update(update_context& context) override;
@@ -48,6 +49,7 @@ private:
 	// recharging to go back online
 	bool m_broken = false;
 	bool m_on = true;
+	bool m_reflective = false;
 };
 } // namespace module
 } // namespace mark
