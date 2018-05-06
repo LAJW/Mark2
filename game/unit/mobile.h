@@ -45,6 +45,11 @@ private:
 		const update_movement_info&,
 		bool random_can_pathfind) const
 		-> std::tuple<vd, double, std::vector<vd>, float>;
+
+	auto can_calculate_path(bool random_can_pathfind) const -> bool;
+	auto calculate_path(bool random_can_pathfind, double dt) const
+		-> std::pair<std::vector<vd>, float>;
+
 	double m_velocity = 0.0;
 	vd m_moveto;
 	std::vector<vd> m_path_cache;

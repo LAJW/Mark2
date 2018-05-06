@@ -35,6 +35,57 @@ mark::unit::mobile::mobile(const info& info)
 	, m_moveto(info.moveto ? *info.moveto : info.pos)
 {}
 
+static auto calculate_velocity(
+	double distance,
+	double max_velocity,
+	double cur_velocity,
+	double max_acceleration,
+	double dt)
+{
+	auto acceleration =
+		::acceleration(distance, cur_velocity, max_acceleration);
+	if (max_velocity <= cur_velocity) {
+		acceleration = std::abs(acceleration) * -1.0;
+	}
+	return acceleration <= 0.
+		? std::max(0., cur_velocity + acceleration * dt)
+		: std::min(max_velocity, cur_velocity + acceleration * dt);
+}
+
+auto mark::unit::mobile::can_calculate_path(bool random_can_pathfind) const
+	-> bool
+{
+	let is_player_controlled = team() == 1;
+	if (is_player_controlled) {
+		return true;
+	}
+	if (!random_can_pathfind) {
+		return false;
+	}
+	if (m_path_age <= 0.f) {
+		return true;
+	}
+	let target_has_moved = !m_path_cache.empty()
+		&& length(m_path_cache.front() - m_moveto) < this->radius();
+	return target_has_moved;
+}
+
+auto mark::unit::mobile::calculate_path(bool random_can_pathfind, double dt)
+	const -> std::pair<std::vector<vd>, float>
+{
+	auto [path, age] = [&]() -> std::pair<std::vector<vd>, float> {
+		if (this->can_calculate_path(random_can_pathfind)) {
+			let radius = this->radius();
+			return { world().map().find_path(pos(), m_moveto, radius), 1.f };
+		}
+		return { m_path_cache, m_path_age - static_cast<float>(dt) };
+	}();
+	while (!path.empty() && length(path.back() - pos()) <= map::tile_size) {
+		path.pop_back();
+	}
+	return { path, age };
+}
+
 auto mark::unit::mobile::update_movement_impl(
 	const update_movement_info& info,
 	const bool random_can_pathfind) const
@@ -44,43 +95,19 @@ auto mark::unit::mobile::update_movement_impl(
 	let radius = this->radius();
 	auto [step, velocity, path_cache, path_age] = [&] {
 		let distance = length(m_moveto - pos());
-		if (distance > m_velocity * dt) {
-			let new_velocity = [&] {
-				auto acceleration =
-					::acceleration(distance, m_velocity, info.acceleration);
-				if (info.max_velocity <= m_velocity) {
-					acceleration = std::abs(acceleration) * -1.0;
-				}
-				return acceleration <= 0.
-					? std::max(0., m_velocity + acceleration * dt)
-					: std::min(
-						  info.max_velocity, m_velocity + acceleration * dt);
-			}();
-			auto [path_cache, path_age] = [&] {
-				if (team() != 1
-					&& (m_path_age <= 0.f
-						|| (!m_path_cache.empty()
-							&& length(m_path_cache.front() - m_moveto)
-								< radius))
-					&& world().map().can_find() && random_can_pathfind) {
-					return std::make_pair(
-						world().map().find_path(pos(), m_moveto, radius), 1.f);
-				}
-				return std::make_pair(
-					m_path_cache, m_path_age - static_cast<float>(dt));
-			}();
-			while (!path_cache.empty()
-				   && length(path_cache.back() - pos()) <= map::tile_size) {
-				path_cache.pop_back();
-			}
-			let dir = path_cache.empty() ? normalize(m_moveto - pos())
-										 : normalize(path_cache.back() - pos());
-			let step = dir * new_velocity * dt;
-			return std::make_tuple(step, new_velocity, path_cache, path_age);
-		} else {
+		let next_step_reaches_target = distance <= m_velocity * dt;
+		if (next_step_reaches_target) {
 			let step = m_moveto - pos();
 			return std::make_tuple(step, 0.0, m_path_cache, m_path_age);
 		}
+		let velocity = calculate_velocity(
+			distance, info.max_velocity, m_velocity, info.acceleration, dt);
+		let[path_cache, path_age] =
+			this->calculate_path(random_can_pathfind, dt);
+		let dir = path_cache.empty() ? normalize(m_moveto - pos())
+									 : normalize(path_cache.back() - pos());
+		let step = dir * velocity * dt;
+		return std::make_tuple(step, velocity, path_cache, path_age);
 	}();
 	if (info.ai) {
 		let step_len = length(step);
