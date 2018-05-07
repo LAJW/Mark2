@@ -136,8 +136,23 @@ void mark::unit::projectile::update(update_context& context)
 	if (!collisions.empty() && terrain_hit) {
 		pos(collisions.back());
 	}
-	let is_heavy_damage = m_physical > 100;
-	if (is_heavy_damage && !collisions.empty()) {
+	render([&, &collisions = collisions] {
+		render_info _;
+		_.context = &context;
+		_.collisions = collisions;
+		_.step = step;
+		_.is_heavy_damage = m_physical > 100;
+		return _;
+	}());
+}
+
+void mark::unit::projectile::render(const render_info& info) const
+{
+	Expects(info.context);
+	auto& context = *info.context;
+	let is_heavy_damage = info.is_heavy_damage;
+	let& collisions = info.collisions;
+	if (info.is_heavy_damage && !info.collisions.empty()) {
 		context.crit = true;
 	}
 	for (let collision : collisions) {
@@ -161,7 +176,7 @@ void mark::unit::projectile::update(update_context& context)
 		spray.lifespan(0.3f);
 		spray.diameter(8.f);
 		spray.count = 4;
-		spray.step = mark::length(step);
+		spray.step = mark::length(info.step);
 		spray.direction = m_rotation + 180.f;
 		spray.cone = 30.f;
 		spray.color = { 175, 175, 175, 75 };
@@ -176,7 +191,7 @@ void mark::unit::projectile::update(update_context& context)
 		spray.lifespan(0.15f);
 		spray.diameter(8.f);
 		spray.count = 4;
-		spray.step = mark::length(step);
+		spray.step = mark::length(info.step);
 		spray.direction = m_rotation + 180.f;
 		spray.cone = 30.f;
 		context.render(spray);
@@ -184,7 +199,7 @@ void mark::unit::projectile::update(update_context& context)
 	{
 		sprite args;
 		args.image = m_im_tail;
-		args.pos = pos() - step;
+		args.pos = pos() - info.step;
 		args.size = 32.f;
 		args.color = sf::Color(255, 200, 150, 255);
 		context.sprites[0].emplace_back(args);

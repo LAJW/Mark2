@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include <lfo.h>
 #include <stdafx.h>
 #include <unit/base.h>
-#include <lfo.h>
 
 namespace mark {
 namespace unit {
@@ -42,6 +42,14 @@ public:
 private:
 	projectile(const projectile::info&, bool);
 	void update(update_context& context) override;
+	struct render_info
+	{
+		update_context* context = nullptr;
+		vd step;
+		std::vector<vd> collisions;
+		bool is_heavy_damage;
+	};
+	void render(const render_info& info) const;
 
 	resource::image_ptr m_image;
 	resource::image_ptr m_im_tail;
