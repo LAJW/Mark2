@@ -2,6 +2,7 @@
 #include <lfo.h>
 #include <stdafx.h>
 #include <unit/base.h>
+#include <optional.h>
 
 namespace mark {
 namespace unit {
@@ -44,7 +45,7 @@ private:
 	void update(update_context& context) override;
 	struct render_info
 	{
-		update_context* context = nullptr;
+		optional<update_context&> context;
 		vd step;
 		std::vector<vd> collisions;
 		bool is_heavy_damage;

@@ -118,7 +118,7 @@ mark::world::world(
 	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
 			unit::gate::info _;
-			_.world = this;
+			_.world = *this;
 			_.pos = pos;
 			_.inverted = inverted;
 			return _;
@@ -131,7 +131,7 @@ mark::world::world(
 		let landing_pad_spawn_point = find_landing_pad_pos(map(), map_size);
 		assert(gate_spawn_point.has_value());
 		unit::gate::info _;
-		_.world = this;
+		_.world = *this;
 		_.pos = *landing_pad_spawn_point;
 		return _;
 	}()));
@@ -156,7 +156,7 @@ mark::world::world(
 			return std::make_shared<unit::minion>([&] {
 				unit::minion::info _;
 				_.pos = pos;
-				_.world = this;
+				_.world = *this;
 				return _;
 			}());
 		}();

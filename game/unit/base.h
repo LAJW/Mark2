@@ -4,6 +4,7 @@
 #include "interface/world_object.h"
 #include "property.h"
 #include "stdafx.h"
+#include <optional.h>
 
 namespace mark {
 namespace unit {
@@ -50,7 +51,7 @@ public:
 
 	struct info
 	{
-		mark::world* world = nullptr;
+		optional<mark::world&> world;
 		vd pos;
 		size_t team = 0;
 	};

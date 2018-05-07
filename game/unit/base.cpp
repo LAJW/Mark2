@@ -26,7 +26,7 @@ mark::unit::base::base(const info& info)
 mark::unit::base::base(mark::world& world, const YAML::Node& node)
 	: base([&] {
 		info info;
-		info.world = &world;
+		info.world = world;
 		info.pos = node["pos"].as<vd>();
 		info.team = node["team"].as<unsigned>(0);
 		return info;

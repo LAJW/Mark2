@@ -68,7 +68,7 @@ auto mark::module::turret::make_projectile(
 	size_t index) const -> shared_ptr<unit::projectile>
 {
 	unit::projectile::info _;
-	_.world = &world;
+	_.world = world;
 	_.guide = m_guided ? m_shared_target : nullptr;
 	_.pos = pos();
 	let heat_angle =

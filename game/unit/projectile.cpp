@@ -11,7 +11,6 @@
 namespace {
 static auto validate(const mark::unit::projectile::info& args)
 {
-	Expects(args.world != nullptr);
 	Expects(!std::isnan(args.rotation));
 	Expects(!std::isnan(args.velocity));
 	Expects(args.seek_radius >= 0.f);
@@ -138,7 +137,7 @@ void mark::unit::projectile::update(update_context& context)
 	}
 	render([&, &collisions = collisions] {
 		render_info _;
-		_.context = &context;
+		_.context = context;
 		_.collisions = collisions;
 		_.step = step;
 		_.is_heavy_damage = m_physical > 100;
@@ -148,7 +147,6 @@ void mark::unit::projectile::update(update_context& context)
 
 void mark::unit::projectile::render(const render_info& info) const
 {
-	Expects(info.context);
 	auto& context = *info.context;
 	let is_heavy_damage = info.is_heavy_damage;
 	let& collisions = info.collisions;

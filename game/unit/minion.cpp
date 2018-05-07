@@ -53,7 +53,7 @@ void mark::unit::minion::update(update_context& context)
 				turn(normalize(distance), m_rotation, angular_velocity, dt);
 			if (m_gun_cooldown.trigger()) {
 				unit::projectile::info attr;
-				attr.world = &world();
+				attr.world = world();
 				attr.pos = pos();
 				attr.rotation = m_rotation;
 				attr.velocity = 500.f;

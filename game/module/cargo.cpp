@@ -246,7 +246,7 @@ void mark::module::cargo::on_death(update_context& context)
 		if (item) {
 			context.units.push_back(std::make_shared<unit::bucket>([&] {
 				unit::bucket::info info;
-				info.world = &world();
+				info.world = world();
 				info.pos = pos();
 				info.item = std::move(item);
 				return info;

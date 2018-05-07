@@ -528,7 +528,7 @@ void mark::unit::modular::on_death(update_context& context)
 		}
 		context.units.emplace_back(std::make_shared<unit::bucket>([&] {
 			unit::bucket::info info;
-			info.world = &this->world();
+			info.world = this->world();
 			info.pos = module->pos();
 			info.rotation = rotation();
 			info.item = move(module);
@@ -855,7 +855,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			back_inserter(context.units),
 			[this](auto module) {
 				unit::bucket::info info;
-				info.world = &this->world();
+				info.world = this->world();
 				info.pos = this->pos();
 				info.item = move(module);
 				return std::make_shared<unit::bucket>(std::move(info));
