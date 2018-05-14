@@ -47,9 +47,7 @@ static auto calculate_velocity(
 	if (max_velocity <= cur_velocity) {
 		acceleration = std::abs(acceleration) * -1.0;
 	}
-	return acceleration <= 0.
-		? std::max(0., cur_velocity + acceleration * dt)
-		: std::min(max_velocity, cur_velocity + acceleration * dt);
+	return std::clamp(cur_velocity + acceleration * dt, 0., max_velocity);
 }
 
 auto mark::unit::mobile::can_calculate_path(bool can_pathfind) const -> bool
