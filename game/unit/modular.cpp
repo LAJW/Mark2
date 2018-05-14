@@ -465,9 +465,7 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 	});
 	m_radius = 0.;
 	for (let& cur_module : m_modules) {
-		m_radius = std::max(
-			m_radius, length(cur_module->pos() - this->pos())
-			/* + length(module->size()) * static_cast<double>(module::size) / 2. */);
+		m_radius = std::max(m_radius, length(cur_module->pos() - this->pos()));
 	}
 	return move(drop(m_modules, module_it));
 }
