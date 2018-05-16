@@ -91,7 +91,9 @@ private:
 	void update_modules(update_context& context);
 	// Generate a list of commands for self
 	std::vector<command::any> update_ai() const;
-	auto p_connected_to_core(const module::base&) const -> bool;
+	auto p_connected_to_core(
+		const module::base&,
+		std::pair<vi8, vi8> area_to_ignore) const -> bool;
 
 	struct grid_element
 	{

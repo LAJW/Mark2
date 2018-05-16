@@ -132,35 +132,41 @@ std::vector<mark::command::any> mark::unit::modular::update_ai() const
 	return { command::guide{ enemy->pos() }, command::move{ target_pos } };
 }
 
-auto mark::unit::modular::p_connected_to_core(const module::base& module) const
-	-> bool
+static auto in_area(vi8 point, std::pair<vi8, vi8> area)
+{
+	return point.x >= area.first.x && point.x < area.first.x + area.second.x
+		&& point.y >= area.first.y && point.y < area.first.y + area.second.y;
+}
+
+auto mark::unit::modular::p_connected_to_core(
+	const module::base& module,
+	std::pair<vi8, vi8> area_to_ignore) const -> bool
 {
 	let size = gsl::narrow<int8_t>(m_grid.size().x);
-	let hs = int8_t(size / 2);
+	let hs = gsl::narrow<int8_t>(size / 2);
 	let start = vi8(module.grid_pos()) + vi8(hs, hs);
 	let end = vi8(size, size) / int8_t(2);
 	std::vector<Node> open = { Node{
 		start, static_cast<int>(length(end - start)), nullptr } };
 	std::vector<unique_ptr<Node>> closed;
-
 	while (!open.empty()) {
 		auto min_it = min_element(open.begin(), open.end());
 		closed.push_back(std::make_unique<Node>(*min_it));
 		auto& current = closed.back();
-		// TODO replace with the last element and pop back, instead of erase
-		open.erase(min_it);
-
+		(void)drop(open, min_it);
 		if (current->pos == end) {
 			return true;
 		}
-
 		// TODO Replace with int8_t, and remove vector casts
 		// TODO Replace with range
 		for (int i = 1; i < 8; i += 2) {
 			auto neighbour_pos =
 				current->pos + vi8(i % 3 - 1, gsl::narrow<int8_t>(i / 3 - 1));
-			let traversable = neighbour_pos.x > 0 && neighbour_pos.y > 0
-				&& neighbour_pos.x < size && neighbour_pos.y < size
+			auto neighbour_relative_pos =
+				neighbour_pos - vi8(size / 2, size / 2);
+			let traversable =
+				in_area(neighbour_pos, { { 0, 0 }, { size, size } })
+				&& !in_area(neighbour_relative_pos, area_to_ignore)
 				&& m_grid[vector<size_t>(neighbour_pos)].module;
 			let isClosed = closed.end()
 				!= find_if(closed.cbegin(),
@@ -428,21 +434,16 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 	}
 	let module_pos = vi8(module.grid_pos());
 	let module_size = vi8(module.size());
-	// remove module from the grid
-	let surface = range(module_pos, module_pos + module_size);
-	for (let grid_pos : surface) {
-		this->p_at(grid_pos).module = nullptr;
-	}
-	let neighbors = this->neighbors_of(module);
-	let disconnected =
-		find_if(neighbors.begin(), neighbors.end(), [this](let& neighbour) {
-			return !this->p_connected_to_core(neighbour.first.get());
+	let links_neighbor_to_core =
+		any_of(this->neighbors_of(module), [&](let& neighbor) {
+			return !this->p_connected_to_core(
+				neighbor.first.get(), { module_pos, module_size });
 		});
-	if (disconnected != neighbors.end()) {
-		for (let grid_pos : surface) {
-			this->p_at(grid_pos).module = module_ptr;
-		}
+	if (links_neighbor_to_core) {
 		return nullptr;
+	}
+	for (let grid_pos : range(module_pos, module_pos + module_size)) {
+		this->p_at(grid_pos).module = nullptr;
 	}
 	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
@@ -837,7 +838,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			});
 		let first_detached_it =
 			partition(m_modules.begin(), first_dead_it, [this](let& module) {
-				return this->p_connected_to_core(*module);
+				return this->p_connected_to_core(*module, {});
 			});
 		for_each(first_detached_it, m_modules.end(), [this](let& module) {
 			this->unbind(*module);
