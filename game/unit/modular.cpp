@@ -423,25 +423,11 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 
 auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 {
-
-	let module_ptr = this->module_at(user_pos);
-	if (!module_ptr) {
+	if (!can_detach(user_pos))
 		return nullptr;
-	}
-	auto& module = *module_ptr;
-	if (!module.detachable()) {
-		return nullptr;
-	}
+	let &module = *this->module_at(user_pos);
 	let module_pos = vi8(module.grid_pos());
 	let module_size = vi8(module.size());
-	let links_neighbor_to_core =
-		any_of(this->neighbors_of(module), [&](let& neighbor) {
-			return !this->p_connected_to_core(
-				neighbor.first.get(), { module_pos, module_size });
-		});
-	if (links_neighbor_to_core) {
-		return nullptr;
-	}
 	for (let grid_pos : range(module_pos, module_pos + module_size)) {
 		this->p_at(grid_pos).module = nullptr;
 	}
@@ -461,14 +447,30 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 		}
 	}
 	this->unbind(module);
-	let module_it = find_if(m_modules.begin(), m_modules.end(), [=](let& ptr) {
-		return ptr.get() == module_ptr;
+	let module_it = find_if(m_modules.begin(), m_modules.end(), [&](let& ptr) {
+		return ptr.get() == &module;
 	});
 	m_radius = 0.;
 	for (let& cur_module : m_modules) {
 		m_radius = std::max(m_radius, length(cur_module->pos() - this->pos()));
 	}
 	return move(drop(m_modules, module_it));
+}
+
+auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
+{
+	let module = this->module_at(user_pos);
+	if (!module) {
+		return false;
+	}
+	if (!module->detachable()) {
+		return false;
+	}
+	return all_of(this->neighbors_of(*module), [&](let& neighbor) {
+		return this->p_connected_to_core(
+			neighbor.first.get(),
+			{ vi8(module->grid_pos()), vi8(module->size()) });
+	});
 }
 
 namespace {

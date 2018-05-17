@@ -39,6 +39,7 @@ public:
 	auto module_at(vi32 pos) noexcept -> module::base*;
 	auto module_at(vi32 pos) const noexcept -> const module::base*;
 	auto detach(vi32 pos) -> interface::item_ptr override;
+	auto can_detach(vi32 pos) const noexcept -> bool;
 
 	auto neighbors_of(const module::base&)
 		-> std::vector<std::pair<ref<module::base>, unsigned>>;
