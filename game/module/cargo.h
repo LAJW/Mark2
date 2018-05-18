@@ -25,6 +25,7 @@ public:
 	auto at(vi32 pos) const -> const interface::item* override;
 	auto pos_at(vi32 pos) const noexcept -> std::optional<vi32>;
 	auto detach(vi32 pos) -> interface::item_ptr override;
+	auto can_detach(vi32 pos) const noexcept -> bool;
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void on_death(update_context& context) override;

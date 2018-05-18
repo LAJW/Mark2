@@ -216,6 +216,14 @@ auto mark::module::cargo::detach(vi32 i_pos) -> interface::item_ptr
 	return nullptr;
 }
 
+auto mark::module::cargo::can_detach(vi32 i_pos) const noexcept -> bool
+{
+	if (let pos = this->pos_at(i_pos)) {
+		return m_items[pos->x + pos->y * 16] != nullptr;
+	}
+	return nullptr;
+}
+
 auto mark::module::cargo::interior_size() const -> vi32
 {
 	return { 16, gsl::narrow<int>(m_items.size()) / 16 };
