@@ -315,7 +315,7 @@ auto mark::unit::modular::neighbors_of(const module::base& module) const
 		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
-auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr& item)
+auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr&& item)
 	-> std::error_code
 {
 	let module_pos = vi8(pos_);
@@ -372,11 +372,18 @@ auto mark::unit::modular::can_attach(vi32 pos_, const interface::item& item)
 	if (!module) {
 		return false;
 	}
-	return p_can_attach(*module, pos_)
-		&& (m_modules.empty()
-			|| !::neighbors_of<const module::base>(
-					*this, vi8(pos_), vi8(module->size()))
-					.empty());
+	if (!p_can_attach(*module, pos_)) {
+		return false;
+	}
+	if (m_modules.empty()) {
+		return true;
+	}
+	let neighbors = ::neighbors_of<const module::base>(
+		*this, vi8(pos_), vi8(module->size()));
+	if (neighbors.size() > 1) {
+		return true;
+	}
+	return !neighbors.empty() && &neighbors.front().first.get() != module;
 }
 
 auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
@@ -390,7 +397,7 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	let module_pos = vi8(pos_);
 	for (let i : range(vi8(module.size()))) {
 		let[module_ptr, reserved] = this->p_at(module_pos + i);
-		if (module_ptr || reserved) {
+		if ((module_ptr && module_ptr != &module) || reserved) {
 			return false;
 		}
 	}
@@ -425,7 +432,7 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 {
 	if (!can_detach(user_pos))
 		return nullptr;
-	let &module = *this->module_at(user_pos);
+	let& module = *this->module_at(user_pos);
 	let module_pos = vi8(module.grid_pos());
 	let module_size = vi8(module.size());
 	for (let grid_pos : range(module_pos, module_pos + module_size)) {

@@ -114,10 +114,7 @@ mark::ui::ui::ui(
 
 mark::ui::ui::~ui() = default;
 
-void mark::ui::ui::update(
-	update_context& context,
-	vd resolution,
-	vd mouse_pos_)
+void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
 	auto& world = m_world_stack.world();
 	if (!m_stack.get().empty()) {
@@ -294,10 +291,13 @@ void mark::ui::ui::drop(world& world, vd relative)
 	let ship = mark::ship(world);
 	// module's top-left corner
 	let drop_pos = module_pos - vi32(grabbed->size()) / 2;
-	if (ship->attach(drop_pos, grabbed) == error::code::success) {
+	if (ship->can_attach(drop_pos, *grabbed)) {
+		Expects(!ship->attach(
+			drop_pos, grabbed_prev_parent->detach(grabbed_prev_pos)));
 		for (let& bind : this->grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
 		}
+		grabbed = nullptr;
 		grabbed_bind.clear();
 		return;
 	}
@@ -305,7 +305,7 @@ void mark::ui::ui::drop(world& world, vd relative)
 		let[error, consumed] =
 			grabbed->use_on(m_rm, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
-			grabbed.reset();
+			grabbed_prev_parent->detach(grabbed_prev_pos);
 		}
 	}
 }
@@ -324,8 +324,10 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	let module = ship->module_at(pick_pos);
 	Expects(module);
 	if (!shift) {
-		if (grabbed = ship->detach(pick_pos)) {
+		if (ship->can_detach(pick_pos)) {
+			grabbed = ship->module_at(pick_pos);
 			grabbed_prev_parent = ship.get();
+			grabbed_prev_pos = pick_pos;
 		}
 		return;
 	}
@@ -336,7 +338,7 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (error::code::success != push(*ship, detached)) {
 		// It should be possible to reattach a module, if it was already
 		// attached
-		Expects(!ship->attach(grabbed_prev_pos, detached));
+		Expects(!ship->attach(grabbed_prev_pos, move(detached)));
 	}
 }
 
@@ -422,18 +424,7 @@ static std::vector<bool> make_available_map(
 	return available;
 }
 
-void mark::ui::ui::release()
-{
-	if (grabbed && grabbed_prev_parent) {
-		Expects(!grabbed_prev_parent->attach(grabbed_prev_pos, grabbed));
-		if (let ship = dynamic_cast<unit::modular*>(grabbed_prev_parent)) {
-			for (let& bind : this->grabbed_bind) {
-				ship->toggle_bind(bind, grabbed_prev_pos);
-			}
-		}
-		grabbed_bind.clear();
-	}
-}
+void mark::ui::ui::release() {}
 
 void mark::ui::ui::container_ui(
 	update_context& context,
@@ -476,8 +467,8 @@ void mark::ui::ui::container_ui(
 			context.sprites[100].emplace_back([&] {
 				sprite _;
 				_.image = grabbed->thumbnail();
-				_.pos = vd(module_pos) * double(module::size)
-					+ landing_pad.pos();
+				_.pos =
+					vd(module_pos) * double(module::size) + landing_pad.pos();
 				_.size = size;
 				_.color = color;
 				return _;
@@ -505,10 +496,10 @@ void mark::ui::ui::container_ui(
 			let module = ship.module_at(pick_pos);
 			if (module) {
 				let description = module->describe();
-				let module_size = vd(module->size())
-					* static_cast<double>(module::size);
-				let tooltip_pos = module->pos()
-					+ vd(module_size.x, -module_size.y) / 2.0;
+				let module_size =
+					vd(module->size()) * static_cast<double>(module::size);
+				let tooltip_pos =
+					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
 
 				this->world_tooltip(context, description, tooltip_pos);
 			}

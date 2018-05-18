@@ -118,7 +118,7 @@ auto overlaps(
 }
 } // namespace
 
-auto mark::module::cargo::attach(vi32 pos, interface::item_ptr& item)
+auto mark::module::cargo::attach(vi32 pos, interface::item_ptr&& item)
 	-> std::error_code
 {
 	{
@@ -267,7 +267,7 @@ auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 {
 	for (let i : range(gsl::narrow<int>(m_items.size()))) {
 		let drop_pos = modulo_vector<int>(i, 16);
-		let result = this->attach(drop_pos, item);
+		let result = this->attach(drop_pos, move(item));
 		if (result == error::code::success
 			|| result == error::code::stacked && !item) {
 			return error::code::success;

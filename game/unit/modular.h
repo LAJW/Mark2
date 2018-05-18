@@ -29,7 +29,7 @@ public:
 	modular(info info);
 	~modular();
 	void command(const command::any& command) override;
-	[[nodiscard]] auto attach(vi32 pos, interface::item_ptr& item)
+	[[nodiscard]] auto attach(vi32 pos, interface::item_ptr&& item)
 		-> std::error_code override;
 	auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool override;

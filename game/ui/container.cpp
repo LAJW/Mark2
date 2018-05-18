@@ -53,10 +53,14 @@ bool mark::ui::container::click(const event& event)
 	const vi32 module_size(module.size());
 	const vd relative_pos(event.cursor - this->pos());
 	let pos = round(relative_pos / 16.) - module_size / 2;
-	let result = m_container.attach(pos, m_ui.grabbed);
+	if (!m_container.can_attach(pos, *m_ui.grabbed)) {
+		return false;
+	}
+	let result = m_container.attach(
+		pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
 	if (result == error::code::success || result == error::code::stacked) {
 		this->attach(pos, module);
-		return true;
+		m_ui.grabbed = nullptr;
 	}
 	return false;
 }
@@ -87,7 +91,8 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	button.on_click.insert([pos, this, &button](const event& event) {
 		if (m_ui.grabbed) {
 			// TODO: Propagate error/notify user that object cannot be put here
-			(void)m_container.attach(pos, m_ui.grabbed);
+			(void)m_container.attach(
+				pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
 			return true;
 		}
 		let actual_pos = m_container.pos_at(pos);
@@ -99,7 +104,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				m_ui.grabbed_bind.clear();
 				m_ui.grabbed_prev_pos = *actual_pos;
 				m_ui.grabbed_prev_parent = &m_container;
-				m_ui.grabbed = m_container.detach(pos);
+				m_ui.grabbed = m_container.at(pos);
 				Expects(m_ui.grabbed);
 			}
 		}

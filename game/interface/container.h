@@ -7,7 +7,7 @@ class container
 {
 public:
 	[[nodiscard]] virtual std::error_code
-	attach(vi32 pos, interface::item_ptr& item) = 0;
+	attach(vi32 pos, interface::item_ptr&& item) = 0;
 	virtual auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool = 0;
 	virtual auto at(vi32 pos) const -> const interface::item* = 0;
