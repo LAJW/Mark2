@@ -292,13 +292,13 @@ void mark::ui::ui::drop(world& world, vd relative)
 	// module's top-left corner
 	let drop_pos = module_pos - vi32(grabbed->size()) / 2;
 	if (ship->can_attach(drop_pos, *grabbed)) {
+		let grabbed_bind = ship->binding(grabbed_prev_pos);
 		Expects(!ship->attach(
 			drop_pos, grabbed_prev_parent->detach(grabbed_prev_pos)));
-		for (let& bind : this->grabbed_bind) {
+		for (let& bind : grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
 		}
 		grabbed = nullptr;
-		grabbed_bind.clear();
 		return;
 	}
 	if (let module = ship->module_at(drop_pos)) {
@@ -315,7 +315,6 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	Expects(!grabbed);
 	let pick_pos = floor(relative);
 	let ship = mark::ship(world);
-	grabbed_bind = ship->binding(pick_pos);
 	let pos = ship->pos_at(pick_pos);
 	if (!pos) {
 		return;

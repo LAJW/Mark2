@@ -101,7 +101,6 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				// TODO: Put into the "recycler"
 				(void)m_container.detach(pos);
 			} else {
-				m_ui.grabbed_bind.clear();
 				m_ui.grabbed_prev_pos = *actual_pos;
 				m_ui.grabbed_prev_parent = &m_container;
 				m_ui.grabbed = m_container.at(pos);
