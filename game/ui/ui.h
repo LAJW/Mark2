@@ -32,8 +32,6 @@ public:
 	vi32 grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
 	std::vector<int8_t> grabbed_bind;
-	// Release module held by UI
-	void release();
 
 private:
 	auto command(world& world, const command::move& move) -> bool;

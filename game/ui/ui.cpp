@@ -243,7 +243,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 			return false;
 		}
 		if (grabbed) {
-			this->release();
+			grabbed = nullptr;
 			return true;
 		}
 		let relative =
@@ -423,8 +423,6 @@ static std::vector<bool> make_available_map(
 	}
 	return available;
 }
-
-void mark::ui::ui::release() {}
 
 void mark::ui::ui::container_ui(
 	update_context& context,

@@ -195,7 +195,6 @@ void mark::main(std::vector<std::string> args)
 		return render_info;
 	};
 	event_loop(event_loop_info);
-	ui.release();
 	save_world(world_stack.world(), save_path);
 }
 
