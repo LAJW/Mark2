@@ -243,7 +243,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 			return false;
 		}
 		if (grabbed()) {
-			grabbed_prev_parent = nullptr;
+			m_grabbed_parent = nullptr;
 			return true;
 		}
 		let relative =
@@ -292,20 +292,20 @@ void mark::ui::ui::drop(world& world, vd relative)
 	// module's top-left corner
 	let drop_pos = module_pos - vi32(grabbed()->size()) / 2;
 	if (ship->can_attach(drop_pos, *grabbed())) {
-		let grabbed_bind = ship->binding(grabbed_prev_pos);
-		Expects(!ship->attach(
-			drop_pos, grabbed_prev_parent->detach(grabbed_prev_pos)));
+		let grabbed_bind = ship->binding(m_grabbed_pos);
+		Expects(
+			!ship->attach(drop_pos, m_grabbed_parent->detach(m_grabbed_pos)));
 		for (let& bind : grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
 		}
-		grabbed_prev_parent = nullptr;
+		m_grabbed_parent = nullptr;
 		return;
 	}
 	if (let module = ship->module_at(drop_pos)) {
 		let[error, consumed] =
 			grabbed()->use_on(m_rm, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
-			grabbed_prev_parent->detach(grabbed_prev_pos);
+			m_grabbed_parent->detach(m_grabbed_pos);
 		}
 	}
 }
@@ -319,13 +319,13 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (!pos) {
 		return;
 	}
-	grabbed_prev_pos = *pos;
+	m_grabbed_pos = *pos;
 	let module = ship->module_at(pick_pos);
 	Expects(module);
 	if (!shift) {
 		if (ship->can_detach(pick_pos)) {
-			grabbed_prev_parent = ship.get();
-			grabbed_prev_pos = pick_pos;
+			m_grabbed_parent = ship.get();
+			m_grabbed_pos = pick_pos;
 		}
 		return;
 	}
@@ -336,7 +336,7 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (error::code::success != push(*ship, detached)) {
 		// It should be possible to reattach a module, if it was already
 		// attached
-		Expects(!ship->attach(grabbed_prev_pos, move(detached)));
+		Expects(!ship->attach(m_grabbed_pos, move(detached)));
 	}
 }
 
@@ -515,6 +515,5 @@ void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 
 auto mark::ui::ui::grabbed() const noexcept -> interface::item*
 {
-	return grabbed_prev_parent ? grabbed_prev_parent->at(grabbed_prev_pos)
-							   : nullptr;
+	return m_grabbed_parent ? m_grabbed_parent->at(m_grabbed_pos) : nullptr;
 }

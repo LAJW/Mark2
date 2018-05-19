@@ -58,10 +58,10 @@ bool mark::ui::container::click(const event& event)
 		return false;
 	}
 	let result = m_container.attach(
-		pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
+		pos, m_ui.m_grabbed_parent->detach(m_ui.m_grabbed_pos));
 	if (result == error::code::success || result == error::code::stacked) {
 		this->attach(pos, module);
-		m_ui.grabbed_prev_parent = nullptr;
+		m_ui.m_grabbed_parent = nullptr;
 	}
 	return false;
 }
@@ -93,7 +93,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		if (m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
 			(void)m_container.attach(
-				pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
+				pos, m_ui.m_grabbed_parent->detach(m_ui.m_grabbed_pos));
 			return true;
 		}
 		let actual_pos = m_container.pos_at(pos);
@@ -102,8 +102,8 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				// TODO: Put into the "recycler"
 				(void)m_container.detach(pos);
 			} else {
-				m_ui.grabbed_prev_pos = *actual_pos;
-				m_ui.grabbed_prev_parent = &m_container;
+				m_ui.m_grabbed_pos = *actual_pos;
+				m_ui.m_grabbed_parent = &m_container;
 				Expects(m_ui.grabbed());
 			}
 		}

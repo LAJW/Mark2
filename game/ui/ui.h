@@ -29,8 +29,8 @@ public:
 	void world_tooltip(update_context&, const std::string& text, vd pos);
 	auto grabbed() const noexcept -> interface::item*;
 
-	vi32 grabbed_prev_pos;
-	interface::container* grabbed_prev_parent = nullptr;
+	vi32 m_grabbed_pos;
+	interface::container* m_grabbed_parent = nullptr;
 
 private:
 	auto command(world& world, const command::move& move) -> bool;
