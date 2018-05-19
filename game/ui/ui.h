@@ -27,8 +27,8 @@ public:
 	void tooltip(vi32 pos, const std::string& text);
 	void tooltip(update_context&, const std::string& text, vd pos);
 	void world_tooltip(update_context&, const std::string& text, vd pos);
+	auto grabbed() const noexcept -> interface::item*;
 
-	interface::item* grabbed = nullptr;
 	vi32 grabbed_prev_pos;
 	interface::container* grabbed_prev_parent = nullptr;
 

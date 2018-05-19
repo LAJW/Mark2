@@ -242,8 +242,8 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 		if (!ship) {
 			return false;
 		}
-		if (grabbed) {
-			grabbed = nullptr;
+		if (grabbed()) {
+			grabbed_prev_parent = nullptr;
 			return true;
 		}
 		let relative =
@@ -276,7 +276,7 @@ auto mark::ui::ui::command(world& world, const mark::command::move& move)
 		return true;
 	}
 	// ship drag&drop
-	if (this->grabbed) {
+	if (this->grabbed()) {
 		this->drop(world, relative);
 	} else {
 		this->drag(world, relative, move.shift);
@@ -286,24 +286,24 @@ auto mark::ui::ui::command(world& world, const mark::command::move& move)
 
 void mark::ui::ui::drop(world& world, vd relative)
 {
-	Expects(grabbed);
+	Expects(grabbed());
 	let module_pos = round(relative);
 	let ship = mark::ship(world);
 	// module's top-left corner
-	let drop_pos = module_pos - vi32(grabbed->size()) / 2;
-	if (ship->can_attach(drop_pos, *grabbed)) {
+	let drop_pos = module_pos - vi32(grabbed()->size()) / 2;
+	if (ship->can_attach(drop_pos, *grabbed())) {
 		let grabbed_bind = ship->binding(grabbed_prev_pos);
 		Expects(!ship->attach(
 			drop_pos, grabbed_prev_parent->detach(grabbed_prev_pos)));
 		for (let& bind : grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
 		}
-		grabbed = nullptr;
+		grabbed_prev_parent = nullptr;
 		return;
 	}
 	if (let module = ship->module_at(drop_pos)) {
 		let[error, consumed] =
-			grabbed->use_on(m_rm, world.blueprints(), *module);
+			grabbed()->use_on(m_rm, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
 			grabbed_prev_parent->detach(grabbed_prev_pos);
 		}
@@ -312,7 +312,7 @@ void mark::ui::ui::drop(world& world, vd relative)
 
 void mark::ui::ui::drag(world& world, vd relative, bool shift)
 {
-	Expects(!grabbed);
+	Expects(!grabbed());
 	let pick_pos = floor(relative);
 	let ship = mark::ship(world);
 	let pos = ship->pos_at(pick_pos);
@@ -324,7 +324,6 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	Expects(module);
 	if (!shift) {
 		if (ship->can_detach(pick_pos)) {
-			grabbed = ship->module_at(pick_pos);
 			grabbed_prev_parent = ship.get();
 			grabbed_prev_pos = pick_pos;
 		}
@@ -435,8 +434,8 @@ void mark::ui::ui::container_ui(
 		{ grid_size / 2, grid_size / 2 });
 	let relative = (mouse_pos - landing_pad.pos()) / double(module::size);
 	let module_pos = round(relative);
-	if (grabbed) {
-		let available = make_available_map(*grabbed, ship);
+	if (grabbed()) {
+		let available = make_available_map(*grabbed(), ship);
 		for (let offset : surface) {
 			if (available
 					[offset.x + grid_size / 2
@@ -455,15 +454,15 @@ void mark::ui::ui::container_ui(
 		}
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			let size = static_cast<float>(
-						   std::max(grabbed->size().x, grabbed->size().y))
+						   std::max(grabbed()->size().x, grabbed()->size().y))
 				* module::size;
 			let drop_pos = module_pos
-				- vi32(grabbed->size()) / 2; // module's top-left corner
-			let color = ship.can_attach(drop_pos, *grabbed) ? sf::Color::Green
-															: sf::Color::Red;
+				- vi32(grabbed()->size()) / 2; // module's top-left corner
+			let color = ship.can_attach(drop_pos, *grabbed()) ? sf::Color::Green
+															  : sf::Color::Red;
 			context.sprites[100].emplace_back([&] {
 				sprite _;
-				_.image = grabbed->thumbnail();
+				_.image = grabbed()->thumbnail();
 				_.pos =
 					vd(module_pos) * double(module::size) + landing_pad.pos();
 				_.size = size;
@@ -472,11 +471,11 @@ void mark::ui::ui::container_ui(
 			}());
 		} else {
 			let size = static_cast<float>(
-						   std::max(grabbed->size().x, grabbed->size().y))
+						   std::max(grabbed()->size().x, grabbed()->size().y))
 				* module::size;
 			context.sprites[100].emplace_back([&] {
 				sprite _;
-				_.image = grabbed->thumbnail();
+				_.image = grabbed()->thumbnail();
 				_.pos = mouse_pos;
 				_.size = size;
 				return _;
@@ -486,7 +485,7 @@ void mark::ui::ui::container_ui(
 
 	// Display tooltips
 	let pick_pos = floor(relative);
-	if (!grabbed) {
+	if (!grabbed()) {
 		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
 			// ship
 
@@ -512,4 +511,10 @@ void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 {
 	m_tooltip_text = str;
 	m_tooltip_pso = vd(pos);
+}
+
+auto mark::ui::ui::grabbed() const noexcept -> interface::item*
+{
+	return grabbed_prev_parent ? grabbed_prev_parent->at(grabbed_prev_pos)
+							   : nullptr;
 }

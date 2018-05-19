@@ -46,21 +46,22 @@ bool mark::ui::container::click(const event& event)
 	if (let handled = this->window::click(event)) {
 		return true;
 	}
-	if (!m_ui.grabbed) {
+	let grabbed = m_ui.grabbed();
+	if (!grabbed) {
 		return false;
 	}
-	auto& module = *m_ui.grabbed;
+	auto& module = *grabbed;
 	const vi32 module_size(module.size());
 	const vd relative_pos(event.cursor - this->pos());
 	let pos = round(relative_pos / 16.) - module_size / 2;
-	if (!m_container.can_attach(pos, *m_ui.grabbed)) {
+	if (!m_container.can_attach(pos, module)) {
 		return false;
 	}
 	let result = m_container.attach(
 		pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
 	if (result == error::code::success || result == error::code::stacked) {
 		this->attach(pos, module);
-		m_ui.grabbed = nullptr;
+		m_ui.grabbed_prev_parent = nullptr;
 	}
 	return false;
 }
@@ -89,7 +90,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	}());
 	auto& button = *button_ptr;
 	button.on_click.insert([pos, this, &button](const event& event) {
-		if (m_ui.grabbed) {
+		if (m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
 			(void)m_container.attach(
 				pos, m_ui.grabbed_prev_parent->detach(m_ui.grabbed_prev_pos));
@@ -103,8 +104,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			} else {
 				m_ui.grabbed_prev_pos = *actual_pos;
 				m_ui.grabbed_prev_parent = &m_container;
-				m_ui.grabbed = m_container.at(pos);
-				Expects(m_ui.grabbed);
+				Expects(m_ui.grabbed());
 			}
 		}
 		// Don't call anything after this. This call destroys "this" lambda.
