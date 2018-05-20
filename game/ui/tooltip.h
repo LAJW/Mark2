@@ -1,4 +1,5 @@
 #pragma once
+#include <adsr.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -16,6 +17,7 @@ public:
 	void set(vd pos, const std::string& text);
 
 private:
+	void set(vd pos, const std::string& text, bool screen_space);
 	/// Render a tooltip in screen coordinates
 	void render(update_context&) const;
 
@@ -24,6 +26,8 @@ private:
 	const resource::image_ptr m_font;
 	const resource::image_ptr m_background;
 	bool m_world = false;
+	adsr m_adsr;
+	adsr m_load;
 };
 
 } // namespace ui

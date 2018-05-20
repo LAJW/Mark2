@@ -1,33 +1,44 @@
 #include "tooltip.h"
-#include <update_context.h>
 #include <sprite.h>
+#include <update_context.h>
 
 let constexpr tooltip_layer = 110ull;
 let constexpr tooltip_size = 300.f;
 let constexpr tooltip_margin = 7.f;
 let constexpr font_size = 14.f;
 
-void mark::ui::tooltip::set(vi32 pos, const std::string& str)
+void mark::ui::tooltip::set(vd pos, const std::string& str, bool screen_space)
 {
+	if (m_text != str) {
+		m_load.trigger();
+	}
 	m_text = str;
-	m_pos = vd(pos);
-	m_world = false;
+	m_pos = pos;
+	m_world = !screen_space;
+	m_adsr.trigger();
 }
 
 void mark::ui::tooltip::set(vd pos, const std::string& str)
 {
-	m_text = str;
-	m_pos = pos;
-	m_world = true;
+	this->set(pos, str, false);
+}
+
+void mark::ui::tooltip::set(vi32 pos, const std::string& str)
+{
+	this->set(vd(pos), str, true);
 }
 
 mark::ui::tooltip::tooltip(resource::manager& rm) noexcept
 	: m_font(rm.image("font.png"))
 	, m_background(rm.image("white.png"))
+	, m_adsr(0, 1, 0, .5f)
+	, m_load(0, 1, 0, .15f)
 {}
 
 void mark::ui::tooltip::update(update_context& context) noexcept
 {
+	m_adsr.update(context.dt);
+	m_load.update(context.dt);
 	if (m_text.empty()) {
 		return;
 	}
@@ -36,6 +47,7 @@ void mark::ui::tooltip::update(update_context& context) noexcept
 
 void mark::ui::tooltip::render(update_context& context) const
 {
+	let opacity = static_cast<uint8_t>(m_adsr.get() * 255.0);
 	context.sprites[tooltip_layer].emplace_back([&] {
 		sprite _;
 		_.image = m_background;
@@ -43,7 +55,7 @@ void mark::ui::tooltip::render(update_context& context) const
 		_.size = tooltip_size;
 		_.world = m_world;
 		_.centred = false;
-		_.color = { 50, 50, 50, 200 };
+		_.color = { 50, 50, 50, opacity };
 		return _;
 	}());
 
@@ -55,7 +67,10 @@ void mark::ui::tooltip::render(update_context& context) const
 		_.box = { tooltip_size - tooltip_margin * 2.f,
 				  tooltip_size - tooltip_margin * 2.f };
 		_.size = font_size;
-		_.text = m_text;
+		_.color = { 255, 255, 255, opacity };
+		let cur_len = static_cast<size_t>(
+			(1. - m_load.get()) * static_cast<double>(m_text.length()));
+		_.text = m_text.substr(0, cur_len);
 		_.world = m_world;
 		_.centred = false;
 		return _;

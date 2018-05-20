@@ -200,7 +200,6 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 			return true;
 		}
 	}
-	m_tooltip.set(vd{}, "");
 	return false;
 }
 
