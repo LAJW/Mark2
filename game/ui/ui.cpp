@@ -513,3 +513,13 @@ auto mark::ui::ui::grabbed() noexcept -> interface::item*
 {
 	return !m_grabbed.empty() ? &item(m_grabbed) : nullptr;
 }
+
+void mark::ui::ui::drag(interface::container& container, vi32 pos) noexcept
+{
+	m_grabbed = { container, pos };
+}
+
+auto mark::ui::ui::drop() noexcept -> interface::item_ptr
+{
+	return detach(m_grabbed);
+}

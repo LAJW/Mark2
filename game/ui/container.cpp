@@ -57,7 +57,7 @@ bool mark::ui::container::click(const event& event)
 	if (!m_container.can_attach(pos, module)) {
 		return false;
 	}
-	let result = m_container.attach(pos, detach(m_ui.m_grabbed));
+	let result = m_container.attach(pos, m_ui.drop());
 	Expects(result == error::code::success || result == error::code::stacked);
 	this->attach(pos, module);
 	return false;
@@ -89,7 +89,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	button.on_click.insert([pos, this, &button](const event& event) {
 		if (m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
-			(void)m_container.attach(pos, detach(m_ui.m_grabbed));
+			(void)m_container.attach(pos, m_ui.drop());
 			return true;
 		}
 		let actual_pos = m_container.pos_at(pos);
@@ -98,7 +98,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				// TODO: Put into the "recycler"
 				(void)m_container.detach(pos);
 			} else {
-				m_ui.m_grabbed = { m_container, *actual_pos };
+				m_ui.drag(m_container, *actual_pos);
 			}
 		}
 		// Don't call anything after this. This call destroys "this" lambda.

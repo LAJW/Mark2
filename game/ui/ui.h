@@ -28,9 +28,12 @@ public:
 	void tooltip(vi32 pos, const std::string& text);
 	void tooltip(update_context&, const std::string& text, vd pos);
 	void world_tooltip(update_context&, const std::string& text, vd pos);
+	// Get a grabbed item
 	auto grabbed() noexcept -> interface::item*;
-
-	slot m_grabbed;
+	// Grab an item
+	void drag(interface::container&, vi32 pos) noexcept;
+	// Drop grabbed item
+	auto drop() noexcept -> interface::item_ptr;
 
 private:
 	auto command(world& world, const command::move& move) -> bool;
@@ -62,6 +65,8 @@ private:
 	resource::manager& m_rm;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
+
+	slot m_grabbed;
 };
 } // namespace ui
 } // namespace mark
