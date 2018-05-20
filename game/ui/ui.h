@@ -13,31 +13,37 @@ class window;
 class ui final
 {
 public:
-	explicit ui(
-		resource::manager& rm,
-		mode_stack& stack,
-		world_stack& world_stack);
+	ui(resource::manager& rm, mode_stack& stack, world_stack& world_stack);
+	/// Default destructor defined in the source file for enabling PIMPL
 	~ui();
+	/// Update UI state, render frames, etc.
 	void update(update_context& context, vd resolution, vd mouse_pos_);
+	/// Handle all events
 	[[nodiscard]] auto command(world& world, const command::any& command)
 		-> bool;
-	bool click(vi32 screen_pos, bool shift);
-	bool hover(vi32 screen_pos);
-	void show_ship_editor(unit::modular&);
-	void hide_ship_editor();
+	/// Show tooltip at a specified position with supplied text
 	void tooltip(vi32 pos, const std::string& text);
-	void tooltip(update_context&, const std::string& text, vd pos);
-	void world_tooltip(update_context&, const std::string& text, vd pos);
-	// Get a grabbed item
+	/// Get a grabbed item
 	auto grabbed() noexcept -> interface::item*;
-	// Grab an item
+	/// Grab an item
 	void drag(interface::container&, vi32 pos) noexcept;
-	// Drop grabbed item
+	/// Drop grabbed item
 	auto drop() noexcept -> interface::item_ptr;
 
 private:
+	/// Handler for the click event
+	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
+	/// Handler for the mouse over event
+	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
+	/// Render a tooltip in screen coordinates
+	void tooltip(update_context&, const std::string& text, vd pos);
+	/// Render a tooltip in world coordinates
+	void world_tooltip(update_context&, const std::string& text, vd pos);
+	/// Process the move command
 	auto command(world& world, const command::move& move) -> bool;
+	/// Process the "drag" user command
 	void drop(world& world, vd relative);
+	/// Process the "drop" user command
 	void drag(world& world, vd relative, bool shift);
 	void container_ui(
 		update_context& context,

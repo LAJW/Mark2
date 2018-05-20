@@ -499,10 +499,6 @@ void mark::ui::ui::container_ui(
 	}
 }
 
-void mark::ui::ui::show_ship_editor(unit::modular&) {}
-
-void mark::ui::ui::hide_ship_editor() {}
-
 void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 {
 	m_tooltip_text = str;
