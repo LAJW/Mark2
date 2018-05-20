@@ -203,6 +203,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		}
 	} else {
 		m_windows[1]->children().clear();
+		m_grabbed = {};
+		m_recycler_queue.clear();
 	}
 	m_tooltip.update(context);
 	for (let & [ i, slot ] : enumerate(m_recycler_queue)) {
