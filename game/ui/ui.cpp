@@ -105,6 +105,40 @@ mark::ui::ui::ui(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
 	m_windows.push_back(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
+	m_windows.push_back(
+		std::make_unique<mark::ui::window>(mark::ui::window::info()));
+	auto recycle_button = std::make_unique<button>([&] {
+		button::info _;
+		_.font = rm.image("font.png");
+		_.pos = { 500, 500 };
+		_.relative = false;
+		_.size = { 150, 50 };
+		_.title = "recycle";
+		return _;
+	}());
+	recycle_button->on_click.insert([&](let&) {
+		for (auto& slot : m_recycler_queue) {
+			// TODO: Turn into a shard
+			(void)detach(slot);
+		}
+		m_recycler_queue.clear();
+		return true;
+	});
+	m_windows.back()->insert(move(recycle_button));
+	auto cancel_recycle_button = std::make_unique<button>([&] {
+		button::info _;
+		_.font = rm.image("font.png");
+		_.pos = { 650, 500 };
+		_.relative = false;
+		_.size = { 150, 50 };
+		_.title = "Cancel Recycling";
+		return _;
+	}());
+	cancel_recycle_button->on_click.insert([&](let&) {
+		m_recycler_queue.clear();
+		return true;
+	});
+	m_windows.back()->insert(move(cancel_recycle_button));
 }
 
 mark::ui::ui::~ui() = default;
@@ -139,7 +173,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		if (let ship = landing_pad->ship()) {
 			this->container_ui(context, mouse_pos, *landing_pad, *ship);
 			let containers = ship->containers();
-			auto& window = m_windows.back();
+			auto& window = m_windows[1];
 			let[removed, added] =
 				diff(window->children(), containers, [](let& a, let& b) {
 					let& container =
@@ -168,9 +202,23 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			}
 		}
 	} else {
-		m_windows.back()->children().clear();
+		m_windows[1]->children().clear();
 	}
 	m_tooltip.update(context);
+	for (let & [ i, slot ] : enumerate(m_recycler_queue)) {
+		context.sprites[100].emplace_back([&] {
+			let constexpr item_size = 4 * module::size;
+			let& item = mark::item(slot);
+			let item_pos_x = static_cast<double>(i) * 1.5 * item_size;
+			sprite _;
+			_.image = item.thumbnail();
+			_.pos = { resolution.x - item_size, item_pos_x };
+			_.size = item_size;
+			_.centred = false;
+			_.world = false;
+			return _;
+		}());
+	}
 }
 
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
@@ -450,4 +498,13 @@ void mark::ui::ui::drag(interface::container& container, vi32 pos) noexcept
 auto mark::ui::ui::drop() noexcept -> interface::item_ptr
 {
 	return detach(m_grabbed);
+}
+
+void mark::ui::ui::recycle(interface::container& container, vi32 pos) noexcept
+{
+	if (all_of(m_recycler_queue, [&](let& slot) {
+			return slot != mark::slot{ container, pos };
+		})) {
+		m_recycler_queue.emplace_back(container, pos);
+	}
 }

@@ -30,6 +30,7 @@ public:
 	void drag(interface::container&, vi32 pos) noexcept;
 	/// Drop grabbed item
 	auto drop() noexcept -> interface::item_ptr;
+	void recycle(interface::container&, vi32 pos) noexcept;
 
 private:
 	/// Handler for the click event
@@ -54,6 +55,7 @@ private:
 
 	// Used to detect container change
 	std::vector<ref<mark::module::cargo>> m_containers;
+	std::vector<slot> m_recycler_queue;
 
 	std::vector<unique_ptr<window>> m_windows;
 

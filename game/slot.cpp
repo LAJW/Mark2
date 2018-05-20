@@ -54,3 +54,18 @@ auto mark::detach(mark::slot& slot) noexcept -> interface::item_ptr
 	return item;
 }
 
+bool mark::operator==(const mark::slot& a, const mark::slot& b) noexcept
+{
+	if (a.empty() && b.empty()) {
+		return true;
+	}
+	if (a.empty() ^ b.empty()) {
+		return false;
+	}
+	return &a.container() == &b.container() && a.pos() == b.pos();
+}
+
+bool mark::operator!=(const mark::slot& a, const mark::slot& b) noexcept
+{
+	return !(a == b);
+}

@@ -95,8 +95,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		let actual_pos = m_container.pos_at(pos);
 		if (actual_pos) {
 			if (event.shift) {
-				// TODO: Put into the "recycler"
-				(void)m_container.detach(pos);
+				m_ui.recycle(m_container, *actual_pos);
 			} else {
 				m_ui.drag(m_container, *actual_pos);
 			}

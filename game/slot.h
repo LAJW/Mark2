@@ -19,6 +19,8 @@ private:
 	vi32 m_pos;
 };
 
+bool operator==(const slot&, const slot&) noexcept;
+bool operator!=(const slot&, const slot&) noexcept;
 auto item(slot&) noexcept -> interface::item&;
 auto item(const slot&) noexcept -> const interface::item&;
 auto can_detach(const slot&) noexcept -> bool;
