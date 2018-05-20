@@ -54,7 +54,7 @@ private:
 	action_bar m_action_bar;
 
 	std::string m_tooltip_text;
-	vd m_tooltip_pso;
+	vd m_tooltip_pos;
 
 	const resource::image_ptr m_font;
 	const resource::image_ptr m_tooltip_bg;

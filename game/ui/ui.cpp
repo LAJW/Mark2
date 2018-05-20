@@ -176,7 +176,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		m_windows.back()->children().clear();
 	}
 	if (!m_tooltip_text.empty()) {
-		this->tooltip(context, m_tooltip_text, m_tooltip_pso);
+		this->tooltip(context, m_tooltip_text, m_tooltip_pos);
 	}
 }
 
@@ -502,7 +502,7 @@ void mark::ui::ui::container_ui(
 void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 {
 	m_tooltip_text = str;
-	m_tooltip_pso = vd(pos);
+	m_tooltip_pos = vd(pos);
 }
 
 auto mark::ui::ui::grabbed() noexcept -> interface::item*
