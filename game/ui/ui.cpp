@@ -14,10 +14,6 @@
 #include <world.h>
 #include <world_stack.h>
 
-constexpr let tooltip_size = 300.f;
-constexpr let tooltip_margin = 7.f;
-constexpr let font_size = 14.f;
-
 static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 {
 	using namespace mark;
@@ -101,10 +97,9 @@ mark::ui::ui::ui(
 	: m_world_stack(world_stack)
 	, m_stack(stack)
 	, m_action_bar(rm)
-	, m_font(rm.image("font.png"))
-	, m_tooltip_bg(rm.image("white.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
+	, m_tooltip(rm)
 {
 	m_windows.push_back(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
@@ -175,9 +170,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	} else {
 		m_windows.back()->children().clear();
 	}
-	if (!m_tooltip_text.empty()) {
-		this->tooltip(context, m_tooltip_text, m_tooltip_pos);
-	}
+	m_tooltip.update(context);
 }
 
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
@@ -207,7 +200,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 			return true;
 		}
 	}
-	m_tooltip_text = "";
+	m_tooltip.set(vd{}, "");
 	return false;
 }
 
@@ -336,64 +329,6 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	}
 }
 
-let constexpr tooltip_layer = 110ull;
-
-void mark::ui::ui::tooltip(
-	update_context& context,
-	const std::string& text,
-	vd screen_pos)
-{
-	context.sprites[tooltip_layer].emplace_back([&] {
-		sprite _;
-		_.image = m_tooltip_bg;
-		_.pos = screen_pos;
-		_.size = tooltip_size;
-		_.world = false;
-		_.centred = false;
-		_.color = { 50, 50, 50, 200 };
-		return _;
-	}());
-
-	context.render([&] {
-		update_context::text_info _;
-		_.font = m_font;
-		_.layer = tooltip_layer;
-		_.pos = screen_pos + vd(tooltip_margin, tooltip_margin);
-		_.box = { tooltip_size - tooltip_margin * 2.f,
-				  tooltip_size - tooltip_margin * 2.f };
-		_.size = font_size;
-		_.text = text;
-		return _;
-	}());
-}
-
-void mark::ui::ui::world_tooltip(
-	update_context& context,
-	const std::string& text,
-	vd pos)
-{
-	context.sprites[tooltip_layer].emplace_back([&] {
-		sprite _;
-		_.image = m_tooltip_bg;
-		_.pos = pos + vd(150, 150), _.size = tooltip_size;
-		_.color = { 50, 50, 50, 200 };
-		return _;
-	}());
-	context.render([&] {
-		update_context::text_info _;
-		_.font = m_font;
-		_.layer = 100;
-		_.pos = pos + vd(tooltip_margin, tooltip_margin);
-		_.box = { tooltip_size - tooltip_margin,
-				  tooltip_size - tooltip_margin };
-		_.size = font_size;
-		_.text = text;
-		_.world = true;
-		_.centred = true;
-		return _;
-	}());
-}
-
 static std::vector<bool> make_available_map(
 	const mark::interface::item& item,
 	const mark::unit::modular& ship)
@@ -492,17 +427,15 @@ void mark::ui::ui::container_ui(
 					vd(module->size()) * static_cast<double>(module::size);
 				let tooltip_pos =
 					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-
-				this->world_tooltip(context, description, tooltip_pos);
+				m_tooltip.set(tooltip_pos, description);
 			}
 		}
 	}
 }
 
-void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
+void mark::ui::ui::tooltip(vi32 pos, const std::string& str)
 {
-	m_tooltip_text = str;
-	m_tooltip_pos = vd(pos);
+	m_tooltip.set(pos, str);
 }
 
 auto mark::ui::ui::grabbed() noexcept -> interface::item*

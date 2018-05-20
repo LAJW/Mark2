@@ -5,6 +5,7 @@
 #include <stdafx.h>
 #include <ui/action_bar.h>
 #include <ui/event.h>
+#include <ui/tooltip.h>
 
 namespace mark {
 namespace ui {
@@ -35,10 +36,6 @@ private:
 	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
 	/// Handler for the mouse over event
 	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
-	/// Render a tooltip in screen coordinates
-	void tooltip(update_context&, const std::string& text, vd pos);
-	/// Render a tooltip in world coordinates
-	void world_tooltip(update_context&, const std::string& text, vd pos);
 	/// Process the move command
 	auto command(world& world, const command::move& move) -> bool;
 	/// Process the "drag" user command
@@ -53,11 +50,6 @@ private:
 
 	action_bar m_action_bar;
 
-	std::string m_tooltip_text;
-	vd m_tooltip_pos;
-
-	const resource::image_ptr m_font;
-	const resource::image_ptr m_tooltip_bg;
 	const resource::image_ptr m_grid_bg;
 
 	// Used to detect container change
@@ -67,6 +59,7 @@ private:
 
 	// Used to detect stack state change
 	mode m_mode = mode::world;
+	mark::ui::tooltip m_tooltip;
 
 	resource::manager& m_rm;
 	mode_stack& m_stack;
