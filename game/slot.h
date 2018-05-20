@@ -10,7 +10,7 @@ public:
 	slot() = default;
 	slot(interface::container& container, vi32 pos) noexcept;
 	auto empty() const noexcept -> bool;
-	auto container() noexcept -> interface::container& ;
+	auto container() noexcept -> interface::container&;
 	auto container() const noexcept -> const interface::container&;
 	auto pos() const noexcept -> vi32;
 
@@ -19,9 +19,9 @@ private:
 	vi32 m_pos;
 };
 
-auto item(slot&) noexcept -> interface::item& ;
+auto item(slot&) noexcept -> interface::item&;
 auto item(const slot&) noexcept -> const interface::item&;
 auto can_detach(const slot&) noexcept -> bool;
 auto detach(slot&) noexcept -> interface::item_ptr;
 
-}
+} // namespace mark
