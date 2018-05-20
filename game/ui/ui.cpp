@@ -243,7 +243,7 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 			return false;
 		}
 		if (grabbed()) {
-			m_grabbed_parent = nullptr;
+			m_grabbed = {};
 			return true;
 		}
 		let relative =
@@ -292,20 +292,18 @@ void mark::ui::ui::drop(world& world, vd relative)
 	// module's top-left corner
 	let drop_pos = module_pos - vi32(grabbed()->size()) / 2;
 	if (ship->can_attach(drop_pos, *grabbed())) {
-		let grabbed_bind = ship->binding(m_grabbed_pos);
-		Expects(
-			!ship->attach(drop_pos, m_grabbed_parent->detach(m_grabbed_pos)));
+		let grabbed_bind = ship->binding(m_grabbed.pos());
+		Expects(!ship->attach(drop_pos, detach(m_grabbed)));
 		for (let& bind : grabbed_bind) {
 			ship->toggle_bind(bind, drop_pos);
 		}
-		m_grabbed_parent = nullptr;
 		return;
 	}
 	if (let module = ship->module_at(drop_pos)) {
 		let[error, consumed] =
 			grabbed()->use_on(m_rm, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
-			m_grabbed_parent->detach(m_grabbed_pos);
+			detach(m_grabbed);
 		}
 	}
 }
@@ -319,13 +317,11 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (!pos) {
 		return;
 	}
-	m_grabbed_pos = *pos;
 	let module = ship->module_at(pick_pos);
 	Expects(module);
 	if (!shift) {
 		if (ship->can_detach(pick_pos)) {
-			m_grabbed_parent = ship.get();
-			m_grabbed_pos = pick_pos;
+			m_grabbed = { *ship, pick_pos };
 		}
 		return;
 	}
@@ -336,7 +332,7 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (error::code::success != push(*ship, detached)) {
 		// It should be possible to reattach a module, if it was already
 		// attached
-		Expects(!ship->attach(m_grabbed_pos, move(detached)));
+		Expects(!ship->attach(pick_pos, move(detached)));
 	}
 }
 
@@ -513,7 +509,7 @@ void mark::ui::ui::tooltip(mark::vi32 pos, const std::string& str)
 	m_tooltip_pso = vd(pos);
 }
 
-auto mark::ui::ui::grabbed() const noexcept -> interface::item*
+auto mark::ui::ui::grabbed() noexcept -> interface::item*
 {
-	return m_grabbed_parent ? m_grabbed_parent->at(m_grabbed_pos) : nullptr;
+	return !m_grabbed.empty() ? &item(m_grabbed) : nullptr;
 }
