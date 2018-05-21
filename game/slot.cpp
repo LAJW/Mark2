@@ -32,12 +32,12 @@ auto mark::slot::pos() const noexcept -> vi32
 	return m_pos;
 }
 
-auto mark::item(mark::slot& slot) noexcept -> interface::item&
+auto mark::item_of(mark::slot& slot) noexcept -> interface::item&
 {
 	return *slot.container().at(slot.pos());
 }
 
-auto mark::item(const mark::slot& slot) noexcept -> const interface::item&
+auto mark::item_of(const mark::slot& slot) noexcept -> const interface::item&
 {
 	return *slot.container().at(slot.pos());
 }

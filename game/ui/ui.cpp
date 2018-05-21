@@ -4,6 +4,7 @@
 #include "window.h"
 #include <algorithm.h>
 #include <interface/has_bindings.h>
+#include <item/shard.h>
 #include <module/cargo.h>
 #include <resource_manager.h>
 #include <sprite.h>
@@ -105,40 +106,6 @@ mark::ui::ui::ui(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
 	m_windows.push_back(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
-	m_windows.push_back(
-		std::make_unique<mark::ui::window>(mark::ui::window::info()));
-	auto recycle_button = std::make_unique<button>([&] {
-		button::info _;
-		_.font = rm.image("font.png");
-		_.pos = { 500, 500 };
-		_.relative = false;
-		_.size = { 150, 50 };
-		_.title = "recycle";
-		return _;
-	}());
-	recycle_button->on_click.insert([&](let&) {
-		for (auto& slot : m_recycler_queue) {
-			// TODO: Turn into a shard
-			(void)detach(slot);
-		}
-		m_recycler_queue.clear();
-		return true;
-	});
-	m_windows.back()->insert(move(recycle_button));
-	auto cancel_recycle_button = std::make_unique<button>([&] {
-		button::info _;
-		_.font = rm.image("font.png");
-		_.pos = { 650, 500 };
-		_.relative = false;
-		_.size = { 150, 50 };
-		_.title = "Cancel Recycling";
-		return _;
-	}());
-	cancel_recycle_button->on_click.insert([&](let&) {
-		m_recycler_queue.clear();
-		return true;
-	});
-	m_windows.back()->insert(move(cancel_recycle_button));
 }
 
 mark::ui::ui::~ui() = default;
@@ -171,6 +138,52 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	if (auto landing_pad =
 			std::dynamic_pointer_cast<unit::landing_pad>(world.target())) {
 		if (let ship = landing_pad->ship()) {
+			if (m_windows.size() == 2) {
+				m_windows.push_back(std::make_unique<mark::ui::window>(
+					mark::ui::window::info()));
+				auto recycle_button = std::make_unique<button>([&] {
+					button::info _;
+					_.font = m_rm.image("font.png");
+					_.pos = { 500, 500 };
+					_.relative = false;
+					_.size = { 150, 50 };
+					_.title = "recycle";
+					return _;
+				}());
+				recycle_button->on_click.insert([&](let&) {
+					for (auto& slot : m_recycler_queue) {
+						// TODO: Turn into a shard
+						(void)detach(slot);
+						if (let landing_pad =
+								std::dynamic_pointer_cast<unit::landing_pad>(
+									world.target())) {
+							if (let ship = landing_pad->ship()) {
+								// TODO: can_push
+								(void)push(
+									*ship, std::make_unique<item::shard>(m_rm));
+							}
+						}
+					}
+					m_recycler_queue.clear();
+					return true;
+				});
+				m_windows.back()->insert(move(recycle_button));
+				auto cancel_recycle_button = std::make_unique<button>([&] {
+					button::info _;
+					_.font = m_rm.image("font.png");
+					_.pos = { 650, 500 };
+					_.relative = false;
+					_.size = { 150, 50 };
+					_.title = "Cancel Recycling";
+					return _;
+				}());
+				cancel_recycle_button->on_click.insert([&](let&) {
+					m_recycler_queue.clear();
+					return true;
+				});
+				m_windows.back()->insert(move(cancel_recycle_button));
+			}
+
 			this->container_ui(context, mouse_pos, *landing_pad, *ship);
 			let containers = ship->containers();
 			auto& window = m_windows[1];
@@ -203,6 +216,9 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		}
 	} else {
 		m_windows[1]->children().clear();
+		if (m_windows.size() == 3) {
+			m_windows.pop_back(); // Clear the UI
+		}
 		m_grabbed = {};
 		m_recycler_queue.clear();
 	}
@@ -210,7 +226,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	for (let & [ i, slot ] : enumerate(m_recycler_queue)) {
 		context.sprites[100].emplace_back([&] {
 			let constexpr item_size = 4 * module::size;
-			let& item = mark::item(slot);
+			let& item = item_of(slot);
 			let item_pos_x = static_cast<double>(i) * 1.5 * item_size;
 			sprite _;
 			_.image = item.thumbnail();
@@ -371,7 +387,7 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (!detached) {
 		return;
 	}
-	if (error::code::success != push(*ship, detached)) {
+	if (error::code::success != push(*ship, move(detached))) {
 		// It should be possible to reattach a module, if it was already
 		// attached
 		Expects(!ship->attach(pick_pos, move(detached)));
@@ -489,7 +505,7 @@ void mark::ui::ui::tooltip(vi32 pos, const std::string& str)
 
 auto mark::ui::ui::grabbed() noexcept -> interface::item*
 {
-	return !m_grabbed.empty() ? &item(m_grabbed) : nullptr;
+	return !m_grabbed.empty() ? &item_of(m_grabbed) : nullptr;
 }
 
 void mark::ui::ui::drag(interface::container& container, vi32 pos) noexcept

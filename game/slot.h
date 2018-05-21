@@ -21,8 +21,8 @@ private:
 
 bool operator==(const slot&, const slot&) noexcept;
 bool operator!=(const slot&, const slot&) noexcept;
-auto item(slot&) noexcept -> interface::item&;
-auto item(const slot&) noexcept -> const interface::item&;
+auto item_of(slot&) noexcept -> interface::item&;
+auto item_of(const slot&) noexcept -> const interface::item&;
 auto can_detach(const slot&) noexcept -> bool;
 auto detach(slot&) noexcept -> interface::item_ptr;
 
