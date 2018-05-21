@@ -1,5 +1,5 @@
-﻿#include "stdafx.h"
-#include "exception.h"
+﻿#include "exception.h"
+#include <stdafx.h>
 
 class custom_category_t : public std::error_category
 {
@@ -16,7 +16,7 @@ public:
 		case code::occupied:
 			return "Space occupied";
 		}
-		assert(false);
+		Expects(false);
 		return "UNREACHABLE";
 	}
 } custom_category;
