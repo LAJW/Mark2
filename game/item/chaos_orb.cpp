@@ -16,7 +16,7 @@ auto mark::item::chaos_orb::use_on(
 	const std::unordered_map<std::string, YAML::Node>& blueprints,
 	module::base& item) -> use_on_result
 {
-	assert(m_quantity != 0);
+	Expects(m_quantity != 0);
 	let error = item.randomise(blueprints, rm);
 	if (error == error::code::success) {
 		--m_quantity;
