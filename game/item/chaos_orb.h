@@ -13,7 +13,7 @@ public:
 	auto use_on(
 		resource::manager& rm,
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
-		module::base& item) -> use_on_result;
+		module::base& item) -> use_on_result override;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
 	auto size() const -> vu32 override;
