@@ -7,7 +7,7 @@ namespace item {
 class shard : public interface::item
 {
 public:
-	static constexpr const char* type_name = "item_chaos_orb";
+	static constexpr const char* type_name = "item_shard";
 
 	shard(resource::manager& rm, const YAML::Node& node = {});
 	auto describe() const -> std::string override;
