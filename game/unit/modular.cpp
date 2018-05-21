@@ -323,10 +323,10 @@ auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr&& item)
 		return error::code::bad_pos;
 	}
 	module::base_ptr module(dynamic_cast<module::base*>(item.release()));
-	return p_attach(pos_, module);
+	return p_attach(pos_, move(module));
 }
 
-auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr& module)
+auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr&& module)
 	-> std::error_code
 {
 	let module_pos = vi8(pos_);
@@ -708,7 +708,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 	for (let& module_node : node["modules"]) {
 		let module_pos = module_node["grid_pos"].as<vi32>();
 		let id = module_node["id"].as<uint64_t>();
-		auto item = [&] {
+		auto module = [&] {
 			let blueprint_node = module_node["blueprint"];
 			auto& rm = world.resource_manager();
 			if (!blueprint_node) {
@@ -730,9 +730,9 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			}
 			return module::deserialize(rm, properties);
 		}();
-		module::base_ptr module(dynamic_cast<module::base*>(item.release()));
-		assert(module);
-		if (this->p_attach(module_pos, module) != error::code::success) {
+		// TODO: Propagate an error
+		Expects(module);
+		if (this->p_attach(module_pos, move(module)) != error::code::success) {
 			throw exception("BAD_MODULE_POS");
 		}
 		id_map.insert({ id, *m_modules.back() });

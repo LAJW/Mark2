@@ -11,11 +11,9 @@
 #include "turret.h"
 #include "warp_drive.h"
 #include <exception.h>
-#include <item/chaos_orb.h>
-#include <item/shard.h>
 
 auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
-	-> interface::item_ptr
+	-> module::base_ptr
 {
 	let type = node["type"].as<std::string>();
 	if (type == module::battery::type_name) {
@@ -51,11 +49,5 @@ auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
 	if (type == module::warp_drive::type_name) {
 		return std::make_unique<module::warp_drive>(rm, node);
 	}
-	if (type == item::chaos_orb::type_name) {
-		return std::make_unique<item::chaos_orb>(rm, node);
-	}
-	if (type == item::shard::type_name) {
-		return std::make_unique<item::shard>(rm, node);
-	}
-	throw exception("UNKNOWN_MODULE");
+	return nullptr;
 }

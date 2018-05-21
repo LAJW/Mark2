@@ -24,7 +24,7 @@ struct modifiers
 	float mass = 1.f;
 };
 
-auto deserialize(resource::manager&, const YAML::Node&) -> interface::item_ptr;
+auto deserialize(resource::manager&, const YAML::Node&) -> module::base_ptr;
 
 enum class reserved_kind
 {

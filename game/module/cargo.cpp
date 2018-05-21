@@ -8,6 +8,7 @@
 #include <unit/bucket.h>
 #include <update_context.h>
 #include <world.h>
+#include <deserialize.h>
 
 // Serialize / Deserialize
 
@@ -28,7 +29,7 @@ mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
 {
 	for (let& slot_node : node["contents"]) {
 		let slot = slot_node["slot"].as<size_t>();
-		m_items[slot] = module::deserialize(rm, slot_node["item"]);
+		m_items[slot] = deserialize(rm, slot_node["item"]);
 	}
 }
 

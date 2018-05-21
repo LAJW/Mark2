@@ -79,7 +79,7 @@ private:
 	void on_death(update_context& context) override;
 
 	// Attach without checking structure of the ship
-	[[nodiscard]] auto p_attach(vi32 pos, module::base_ptr& module)
+	[[nodiscard]] auto p_attach(vi32 pos, module::base_ptr&& module)
 		-> std::error_code;
 	// Check whether module can be attached without checking structure of the
 	// ship
