@@ -119,7 +119,7 @@ private:
 };
 
 // Drop module into the modular's containers if possible
-[[nodiscard]] auto push(modular& modular, interface::item_ptr&)
+[[nodiscard]] auto push(modular& modular, interface::item_ptr&&)
 	-> std::error_code;
 ;
 } // namespace unit

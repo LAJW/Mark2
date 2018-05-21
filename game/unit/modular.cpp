@@ -878,7 +878,7 @@ void mark::unit::modular::pick_up()
 		pos(), 150.f, [](let& unit) { return !unit.dead(); });
 	for (auto& bucket : buckets) {
 		auto module = bucket->release();
-		if (push(*this, module) != error::code::success) {
+		if (push(*this, move(module)) != error::code::success) {
 			bucket->insert(move(module));
 		}
 	}
@@ -907,7 +907,7 @@ auto mark::unit::modular::containers() const -> std::vector<cref<module::cargo>>
 	return filter_modules<const module::cargo>(m_modules);
 }
 
-auto mark::unit::push(modular& modular, interface::item_ptr& module)
+auto mark::unit::push(modular& modular, interface::item_ptr&& module)
 	-> std::error_code
 {
 	for (auto& container : modular.containers()) {

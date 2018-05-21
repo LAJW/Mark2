@@ -34,11 +34,11 @@ struct module_env
 		: world(rm)
 		, modular([&] {
 			mark::unit::modular::info info;
-			info.world = &world;
+			info.world = world;
 			auto modular = std::make_shared<mark::unit::modular>(info);
 			std::unique_ptr<mark::interface::item> core =
 				std::make_unique<mark::module::core>(rm, YAML::Node());
-			modular->attach({ -1, -1 }, move(core));
+			Expects(!modular->attach({ -1, -1 }, move(core)));
 			world.attach(modular);
 			return modular;
 		}())
