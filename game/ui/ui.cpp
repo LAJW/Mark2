@@ -133,6 +133,19 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		window->update(context);
 	}
 	let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
+	// Display Mark Modular Logo
+	if (m_mode == mode::main_menu) {
+		context.sprites[100].push_back([&] {
+			sprite _;
+			_.centred = false;
+			_.world = false;
+			_.size = 256.f;
+			_.pos = { 700., 300. };
+			_.frame = std::numeric_limits<size_t>::max();
+			_.image = m_rm.image("mark-modular.png");
+			return _;
+		}());
+	}
 
 	// Display landing pad UI
 	if (auto landing_pad =
