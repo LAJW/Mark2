@@ -15,6 +15,11 @@ mark::ui::action_bar::action_bar(resource::manager& rm)
 	, m_hotbar_overlay(rm.image("hotbar-overlay.png"))
 {}
 
+let icon_size = 64.;
+let icon_margin = 7.;
+let left_margin = 66.;
+let bar_height = 128.;
+
 void mark::ui::action_bar::update(
 	world& world,
 	update_context& context,
@@ -25,38 +30,38 @@ void mark::ui::action_bar::update(
 	let image_circle = rm.image("circle.png");
 	let image_ray = rm.image("ray.png");
 	let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
-	// Display Hotbar
-	{
-		sprite bg_sprite;
-		bg_sprite.image = m_hotbar_bg;
-		bg_sprite.pos.x = resolution.x / 2. - 23. - 64. * 5.5;
-		bg_sprite.pos.y = resolution.y - 85;
-		bg_sprite.frame = std::numeric_limits<size_t>::max();
-		bg_sprite.world = false;
-		bg_sprite.centred = false;
-		context.sprites[100].emplace_back(bg_sprite);
-	}
-	{
-		sprite bg_sprite;
-		bg_sprite.image = m_hotbar_overlay;
-		bg_sprite.pos.x = resolution.x / 2. - 64. * 5.5;
-		bg_sprite.pos.y = resolution.y - 64;
-		bg_sprite.frame = std::numeric_limits<size_t>::max();
-		bg_sprite.world = false;
-		bg_sprite.centred = false;
-		context.sprites[102].emplace_back(bg_sprite);
-	}
+	let action_bar_x =
+		resolution.x / 2. - (icon_size + icon_margin) * 5.5 - left_margin;
+	let action_bar_y = resolution.y - bar_height;
+	let action_bar_pos = vd(action_bar_x, action_bar_y);
+	context.sprites[100].emplace_back([&] {
+		sprite _;
+		_.image = m_hotbar_bg;
+		_.pos = action_bar_pos;
+		_.frame = std::numeric_limits<size_t>::max();
+		_.world = false;
+		_.centred = false;
+		return _;
+	}());
+	context.sprites[102].emplace_back([&] {
+		sprite _;
+		_.image = m_hotbar_overlay;
+		_.pos = action_bar_pos;
+		_.frame = std::numeric_limits<size_t>::max();
+		_.world = false;
+		_.centred = false;
+		return _;
+	}());
 
 	if (let unit = std::dynamic_pointer_cast<const interface::has_bindings>(
 			world.target())) {
-		let icon_size = 64.0;
 		let bindings = unit->bindings();
 		for (let& pair : mark::enumerate(bindings)) {
 			let & [ i, binding ] = pair;
 			let di = static_cast<double>(i);
-			let x = resolution.x / 2. - 64. * 5.5 + 64.0 * i;
-			let y = resolution.y - 64;
-			;
+			let x = resolution.x / 2. - (icon_size + icon_margin) * 5.5
+				+ (icon_size + icon_margin) * i;
+			let y = resolution.y - (icon_size + icon_margin);
 
 			// Highlight bindings
 			let center = resolution / 2.0;
@@ -87,7 +92,7 @@ void mark::ui::action_bar::update(
 					line.world = false;
 					line.points.push_back(line_end);
 					line.points.push_back(module_pos + vd(16, 16));
-					context.sprites[101].push_back(line);
+					context.sprites[103].push_back(line);
 				}
 			}
 
