@@ -22,10 +22,12 @@ public:
 	bool click(const event& event) override;
 	auto cargo() const -> const module::cargo&;
 	auto size() const -> vi32 override;
+	auto pos() const noexcept->vi32;
 
 private:
 	void attach(vi32 pos, interface::item&);
 	resource::image_ptr m_cargo_bg;
+	resource::image_ptr m_header;
 	ui& m_ui;
 	module::cargo& m_container;
 };

@@ -67,15 +67,25 @@ void mark::ui::window::update(update_context& context)
 	}
 }
 
-auto mark::ui::window::children() -> std::list<unique_ptr<node>>&
+void mark::ui::window::insert(
+	std::list<unique_ptr<node>>::const_iterator before,
+	unique_ptr<node> node)
 {
-	return m_nodes;
+	node->m_parent = this;
+	m_nodes.insert(before, move(node));
 }
 
-auto mark::ui::window::children() const
-	-> const std::list<unique_ptr<node>>&
+void mark::ui::window::erase(
+	std::list<std::unique_ptr<mark::ui::node>>::const_iterator which)
+{
+	m_nodes.erase(which);
+}
+
+auto mark::ui::window::children() const -> const std::list<unique_ptr<node>>&
 {
 	return m_nodes;
 }
 
 void mark::ui::window::visibility(bool value) noexcept { m_visible = value; }
+
+void mark::ui::window::clear() noexcept { m_nodes.clear(); }

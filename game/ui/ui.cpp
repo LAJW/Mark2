@@ -200,6 +200,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			this->container_ui(context, mouse_pos, *landing_pad, *ship);
 			let containers = ship->containers();
 			auto& window = m_windows[1];
+			window->pos({ 50, 50 });
 			let[removed, added] =
 				diff(window->children(), containers, [](let& a, let& b) {
 					let& container =
@@ -211,7 +212,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 						&& container.children().size() == item_count;
 				});
 			for (let& it : removed) {
-				window->children().erase(it);
+				window->erase(it);
 			}
 			for (let& pair : added) {
 				auto& [it, container] = pair;
@@ -224,11 +225,11 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 						_.relative = true;
 						return _;
 					}());
-				window->children().insert(it, move(container_window));
+				window->insert(it, move(container_window));
 			}
 		}
 	} else {
-		m_windows[1]->children().clear();
+		m_windows[1]->clear();
 		if (m_windows.size() == 3) {
 			m_windows.pop_back(); // Clear the UI
 		}
