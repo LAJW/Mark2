@@ -13,7 +13,6 @@
 #include <functional>
 #include <memory>
 #include <numeric>
-#include <optional>
 #include <random>
 #include <string>
 #include <unordered_map>
@@ -21,6 +20,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <optional.h>
 #include <gsl/gsl>
 
 #include "declarations.h"
