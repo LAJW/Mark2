@@ -22,8 +22,10 @@ public:
 	/// Handle all events
 	[[nodiscard]] auto command(world& world, const command::any& command)
 		-> bool;
-	/// Show tooltip at a specified position with supplied text
+	/// Show tooltip at a specified screen position with supplied text
 	void tooltip(vi32 pos, const std::string& text);
+	/// Show tooltip at a specified world position with supplied text
+	void tooltip(vd pos, const std::string& text);
 	/// Get a grabbed item
 	auto grabbed() noexcept -> interface::item*;
 	/// Grab an item
@@ -31,6 +33,8 @@ public:
 	/// Drop grabbed item
 	auto drop() noexcept -> interface::item_ptr;
 	void recycle(interface::container&, vi32 pos) noexcept;
+	/// Returns a modular, if a modular is present in the landing pad
+	auto landed_modular() noexcept -> mark::unit::modular*;
 
 private:
 	/// Handler for the click event
@@ -46,8 +50,7 @@ private:
 	void container_ui(
 		update_context& context,
 		vd resolution,
-		const unit::landing_pad& landing_pad,
-		const unit::modular& ship);
+		const unit::modular& modular);
 
 	action_bar m_action_bar;
 

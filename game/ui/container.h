@@ -13,9 +13,9 @@ class container final : public window
 public:
 	struct info : window::info
 	{
-		resource::manager* rm = nullptr;
-		module::cargo* container = nullptr;
-		mark::ui::ui* ui = nullptr;
+		optional<resource::manager&> rm;
+		optional<module::cargo&> container;
+		optional<mark::ui::ui&> ui;
 	};
 	container(const info& info);
 	void update(update_context&) override;
@@ -28,6 +28,7 @@ private:
 	void attach(vi32 pos, interface::item&);
 	resource::image_ptr m_cargo_bg;
 	resource::image_ptr m_header;
+	resource::image_ptr m_font;
 	ui& m_ui;
 	module::cargo& m_container;
 };

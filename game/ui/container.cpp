@@ -10,12 +10,14 @@
 #include <update_context.h>
 
 let constexpr label_height = 32;
+
 mark::ui::container::container(const info& info)
 	: window(info)
 	, m_ui(*info.ui)
 	, m_container(*info.container)
 	, m_cargo_bg(info.rm->image("inventory-grid.png"))
 	, m_header(info.rm->image("inventory-header.png"))
+	, m_font(info.rm->image("font.png"))
 {
 	auto& container = *info.container;
 	let interior_size = container.interior_size();
@@ -37,6 +39,18 @@ void mark::ui::container::update(update_context& context)
 		_.frame = std::numeric_limits<size_t>::max();
 		_.world = false;
 		_.centred = false;
+		return _;
+	}());
+	context.render([&] {
+		update_context::text_info _;
+		_.box = vd(256, 32);
+		_.pos = vd(pos());
+		_.layer = 100;
+		_.centred = false;
+		_.world = false;
+		_.font = m_font;
+		_.text = "Container"; // TODO: Pull from the container
+		_.color = sf::Color::Cyan;
 		return _;
 	}());
 	for (let i : range(vi32(16, 4))) {
@@ -83,8 +97,9 @@ auto mark::ui::container::cargo() const -> const module::cargo&
 
 auto mark::ui::container::size() const -> vi32
 {
-	return vi32(m_container.interior_size())
-		* static_cast<int>(mark::module::size) + label_height;
+	let content_size = vi32(m_container.interior_size())
+		* static_cast<int>(mark::module::size);
+	return { content_size.x, content_size.y + label_height };
 }
 
 void mark::ui::container::attach(vi32 pos, interface::item& item)
@@ -114,7 +129,8 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			}
 		}
 		// Don't call anything after this. This call destroys "this" lambda.
-		this->remove(button);
+		// Button doesn't need deletion, as we're only removing it on swap
+		// this->remove(button);
 		return true;
 	});
 	let length = static_cast<int>(item.size().x) * 16;
