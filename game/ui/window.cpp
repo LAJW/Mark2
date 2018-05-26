@@ -60,7 +60,7 @@ void mark::ui::window::update(update_context& context)
 		if (node->relative()) {
 			node->pos({ 0, top });
 			node->update(context);
-			top += node->size().y + 10;
+			top += node->size().y;
 		} else {
 			node->update(context);
 		}
