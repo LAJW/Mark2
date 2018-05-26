@@ -20,7 +20,6 @@ mark::unit::base::base(const info& info)
 	, m_pos(info.pos)
 	, m_team(info.team)
 {
-	assert(info.world);
 }
 
 mark::unit::base::base(mark::world& world, const YAML::Node& node)
