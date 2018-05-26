@@ -11,17 +11,17 @@ mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
 	: unit::base(world, node)
 	, m_item(module::deserialize(world.resource_manager(), node["module"]))
 	, m_rotation(node["rotation"].as<float>(m_rotation))
-{}
+{
+}
 
 mark::unit::bucket::bucket(info info)
 	: unit::base(info)
 	, m_item(move(info.item))
 	, m_rotation(info.rotation)
 {
+	Expects(m_item);
 	let module = dynamic_cast<const module::base*>(m_item.get());
-	if (!module || module->dead()) {
-		throw std::runtime_error("DEAD_MODULE_IN_BUCKET");
-	}
+	Expects(!module || !module->dead());
 }
 
 void mark::unit::bucket::update(update_context& context)
@@ -94,6 +94,9 @@ void mark::unit::bucket::serialize(YAML::Emitter& out) const
 
 auto mark::unit::bucket::radius() const -> double
 {
+	if (!m_item) {
+		return 0.;
+	}
 	return static_cast<float>(std::max(m_item->size().y, m_item->size().x))
 		* module::size / 2.;
 }
