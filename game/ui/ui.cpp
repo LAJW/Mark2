@@ -6,8 +6,9 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <ui/vector_button.h>
+#include <ui/chunky_button.h>
 #include <ui/inventory.h>
+#include <ui/vector_button.h>
 #include <ui/window.h>
 #include <unit/landing_pad.h>
 #include <unit/modular.h>
@@ -24,11 +25,12 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	auto play_button = std::make_unique<vector_button>([&] {
-		vector_button::info _;
+	auto play_button = std::make_unique<chunky_button>([&] {
+		chunky_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
-		_.title = "Solitary Traveller";
+		_.background = rm.image("chunky-blue-button.png");
+		_.text = "Solitary Traveller";
 		_.relative = true;
 		return _;
 	}());
@@ -37,11 +39,12 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		return true;
 	});
 	menu->insert(move(play_button));
-	auto quit_button = std::make_unique<vector_button>([&] {
-		vector_button::info _;
+	auto quit_button = std::make_unique<chunky_button>([&] {
+		chunky_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
-		_.title = "Abandon Expedition";
+		_.background = rm.image("chunky-red-button.png");
+		_.text = "Abandon Expedition";
 		_.relative = true;
 		return _;
 	}());
@@ -59,14 +62,15 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	using namespace ui;
 	auto menu = std::make_unique<window>([&] {
 		window::info _;
-		_.pos = { 300, 300 };
+		_.pos = { 250, 300 };
 		return _;
 	}());
-	auto play_button = std::make_unique<vector_button>([&] {
-		vector_button::info _;
+	auto play_button = std::make_unique<chunky_button>([&] {
+		chunky_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
-		_.title = "Yes";
+		_.background = rm.image("chunky-red-button.png");
+		_.text = "Yes";
 		_.relative = true;
 		return _;
 	}());
@@ -75,11 +79,12 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		return true;
 	});
 	menu->insert(move(play_button));
-	auto cancel_button = std::make_unique<vector_button>([&] {
-		vector_button::info _;
+	auto cancel_button = std::make_unique<chunky_button>([&] {
+		chunky_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
-		_.title = "No";
+		_.background = rm.image("chunky-blue-button.png");
+		_.text = "No";
 		_.relative = true;
 		return _;
 	}());
@@ -158,15 +163,16 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				_.pos = { 50, 50 };
 				return _;
 			}()));
-			m_windows.push_back(std::make_unique<mark::ui::window>(
-				mark::ui::window::info()));
-			auto recycle_button = std::make_unique<vector_button>([&] {
-				vector_button::info _;
+			m_windows.push_back(
+				std::make_unique<mark::ui::window>(mark::ui::window::info()));
+			auto recycle_button = std::make_unique<chunky_button>([&] {
+				chunky_button::info _;
 				_.font = m_rm.image("font.png");
-				_.pos = { 500, 500 };
+				_.background = m_rm.image("chunky-blue-button.png");
+				_.pos = { 50, 775 };
 				_.relative = false;
-				_.size = { 150, 50 };
-				_.title = "recycle";
+				_.size = { 130, 50 };
+				_.text = "Recycle";
 				return _;
 			}());
 			recycle_button->on_click.insert([&](let&) {
@@ -174,21 +180,22 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					// TODO: Turn into a shard
 					(void)detach(slot);
 					if (let modular = this->landed_modular()) {
-							(void)push(
-								*modular, std::make_unique<item::shard>(m_rm));
+						(void)push(
+							*modular, std::make_unique<item::shard>(m_rm));
 					}
 				}
 				m_recycler_queue.clear();
 				return true;
 			});
 			m_windows.back()->insert(move(recycle_button));
-			auto cancel_recycle_button = std::make_unique<vector_button>([&] {
-				vector_button::info _;
+			auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
+				chunky_button::info _;
 				_.font = m_rm.image("font.png");
-				_.pos = { 650, 500 };
+				_.background = m_rm.image("chunky-red-button.png");
+				_.pos = { 180, 775 };
 				_.relative = false;
-				_.size = { 150, 50 };
-				_.title = "Cancel Recycling";
+				_.size = { 130, 50 };
+				_.text = "Cancel";
 				return _;
 			}());
 			cancel_recycle_button->on_click.insert([&](let&) {
@@ -231,9 +238,7 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	return any_of(m_windows, [&] (let &window) {
-		return window->click(event);
-	});
+	return any_of(m_windows, [&](let& window) { return window->click(event); });
 }
 
 bool mark::ui::ui::hover(vi32 screen_pos)
@@ -242,9 +247,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = false;
-	return any_of(m_windows, [&] (let &window) {
-		return window->hover(event);
-	});
+	return any_of(m_windows, [&](let& window) { return window->hover(event); });
 }
 
 namespace mark {
@@ -416,8 +419,7 @@ void mark::ui::ui::container_ui(
 				context.sprites[1].push_back([&] {
 					sprite _;
 					_.image = m_grid_bg;
-					_.pos = modular.pos()
-						+ vd(offset) * double(module::size)
+					_.pos = modular.pos() + vd(offset) * double(module::size)
 						+ vd(module::size, module::size) / 2.;
 					_.size = module::size;
 					_.color = { 0, 255, 255, 255 };
@@ -431,13 +433,13 @@ void mark::ui::ui::container_ui(
 				* module::size;
 			let drop_pos = module_pos
 				- vi32(grabbed()->size()) / 2; // module's top-left corner
-			let color = modular.can_attach(drop_pos, *grabbed()) ? sf::Color::Green
-															  : sf::Color::Red;
+			let color = modular.can_attach(drop_pos, *grabbed())
+				? sf::Color::Green
+				: sf::Color::Red;
 			context.sprites[100].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
-				_.pos =
-					vd(module_pos) * double(module::size) + modular.pos();
+				_.pos = vd(module_pos) * double(module::size) + modular.pos();
 				_.size = size;
 				_.color = color;
 				return _;
