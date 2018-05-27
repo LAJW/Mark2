@@ -6,7 +6,7 @@
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <ui/button.h>
+#include <ui/vector_button.h>
 #include <ui/inventory.h>
 #include <ui/window.h>
 #include <unit/landing_pad.h>
@@ -24,8 +24,8 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	auto play_button = std::make_unique<button>([&] {
-		button::info _;
+	auto play_button = std::make_unique<vector_button>([&] {
+		vector_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
 		_.title = "Solitary Traveller";
@@ -37,8 +37,8 @@ static auto make_main_menu(mark::resource::manager& rm, mark::mode_stack& stack)
 		return true;
 	});
 	menu->insert(move(play_button));
-	auto quit_button = std::make_unique<button>([&] {
-		button::info _;
+	auto quit_button = std::make_unique<vector_button>([&] {
+		vector_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
 		_.title = "Abandon Expedition";
@@ -62,8 +62,8 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	auto play_button = std::make_unique<button>([&] {
-		button::info _;
+	auto play_button = std::make_unique<vector_button>([&] {
+		vector_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
 		_.title = "Yes";
@@ -75,8 +75,8 @@ static auto make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		return true;
 	});
 	menu->insert(move(play_button));
-	auto cancel_button = std::make_unique<button>([&] {
-		button::info _;
+	auto cancel_button = std::make_unique<vector_button>([&] {
+		vector_button::info _;
 		_.size = { 250, 50 };
 		_.font = rm.image("font.png");
 		_.title = "No";
@@ -160,8 +160,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			}()));
 			m_windows.push_back(std::make_unique<mark::ui::window>(
 				mark::ui::window::info()));
-			auto recycle_button = std::make_unique<button>([&] {
-				button::info _;
+			auto recycle_button = std::make_unique<vector_button>([&] {
+				vector_button::info _;
 				_.font = m_rm.image("font.png");
 				_.pos = { 500, 500 };
 				_.relative = false;
@@ -182,8 +182,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				return true;
 			});
 			m_windows.back()->insert(move(recycle_button));
-			auto cancel_recycle_button = std::make_unique<button>([&] {
-				button::info _;
+			auto cancel_recycle_button = std::make_unique<vector_button>([&] {
+				vector_button::info _;
 				_.font = m_rm.image("font.png");
 				_.pos = { 650, 500 };
 				_.relative = false;

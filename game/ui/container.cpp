@@ -1,12 +1,12 @@
 ﻿#include "container.h"
-#include "button.h"
-#include "event.h"
-#include "ui.h"
 #include <algorithm.h>
 #include <module/cargo.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/event.h>
+#include <ui/item_button.h>
+#include <ui/ui.h>
 #include <update_context.h>
 
 let constexpr label_height = 32;
@@ -105,11 +105,11 @@ auto mark::ui::container::size() const -> vi32
 void mark::ui::container::attach(vi32 pos, interface::item& item)
 {
 	let button_pos = pos * 16 + vi32(0, 32);
-	auto button_ptr = std::make_unique<mark::ui::button>([&] {
-		mark::ui::button::info _;
+	auto button_ptr = std::make_unique<mark::ui::item_button>([&] {
+		mark::ui::item_button::info _;
 		_.size = item.size() * 16U;
 		_.pos = button_pos;
-		_.image = item.thumbnail();
+		_.thumbnail = item.thumbnail();
 		_.relative = false;
 		return _;
 	}());
