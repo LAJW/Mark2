@@ -60,8 +60,7 @@ mark::ui::recycler::recycler(const info& info)
 void mark::ui::recycler::update(update_context& context)
 {
 	this->chunky_window::update(context);
-	for (let i : range(m_queue.size())) {
-		let& slot = m_queue[i];
+	for (let& [i, slot] : enumerate(m_queue)) {
 		let slot_pos = vi32(i);
 		if (slot.empty()) {
 			continue;
@@ -91,8 +90,7 @@ void mark::ui::recycler::recycle(
 		})) {
 		array2d<bool, 16, 32> reserved;
 		reserved.fill(false);
-		for (let i : range(m_queue.size())) {
-			auto& slot = m_queue[i];
+		for (let& [i, slot] : enumerate(m_queue)) {
 			if (!slot.empty()) {
 				let item_size = item_of(slot).size();
 				for (let j : range(i, i + vector<size_t>(item_size))) {
@@ -100,8 +98,8 @@ void mark::ui::recycler::recycle(
 				}
 			}
 		}
-		for (let i : range(m_queue.size())) {
-			auto& slot = m_queue[i];
+		for (let pair : enumerate(m_queue)) {
+			auto&[i, slot] = pair;
 			let item_size = item_of(mark::slot(container, pos)).size();
 			if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
 					return pos.x < m_queue.size().x && pos.y < m_queue.size().y
