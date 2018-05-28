@@ -78,7 +78,7 @@ public:
 };
 
 // Container Enumerator
-template <typename T>
+template <typename T, typename = void>
 class enumerator final
 {
 private:

@@ -1,7 +1,9 @@
 #pragma once
+#include <algorithm.h>
 #include <stdafx.h>
 
 namespace mark {
+
 template <typename T, size_t size_x, size_t size_y>
 class array2d final
 {
@@ -18,6 +20,10 @@ private:
 	}
 
 public:
+	static constexpr const bool is_2d_container = true;
+	using value_type = T;
+	using size_type = vector<size_t>;
+
 	array2d()
 		: m_data(std::make_unique<data_type>())
 	{}
@@ -27,7 +33,87 @@ public:
 		return at(*this, pos).get();
 	}
 	auto data() const -> const data_type& { return *m_data; }
-	auto size() const -> vector<size_t> { return { size_x, size_y }; }
+	auto size() const -> size_type { return { size_x, size_y }; }
 	void fill(const T& t) { m_data->fill(t); }
 };
+
+/// 2D Array Enumerator use by calling `enumerate(instanceOfArray2d)`
+/// Behaves just like a regular array enumerator, only the index is a 2D vector
+template <typename T>
+class enumerator<T, std::enable_if_t<T::is_2d_container>> final
+{
+private:
+	template <typename value_type>
+	class iterator_impl final
+	{
+	public:
+		using iterator_category = std::bidirectional_iterator_tag;
+		typedef value_type value_type;
+		using iterator_t = typename range_t<typename T::size_type>::iterator;
+
+		iterator_impl(T& container, iterator_t it) noexcept
+			: m_it(it)
+			, m_container(container)
+		{}
+		auto& operator++() noexcept
+		{
+			++m_it;
+			return *this;
+		}
+		auto& operator--() noexcept
+		{
+			--m_it;
+			return *this;
+		}
+		auto operator*() const noexcept -> value_type
+		{
+			return { *m_it, m_container[*m_it] };
+		}
+		auto operator==(const iterator_impl& other) const noexcept
+		{
+			return &m_container == &other.m_container && m_it == other.m_it;
+		}
+		auto operator!=(const iterator_impl& other) const noexcept
+		{
+			return !(*this == other);
+		}
+
+	private:
+		T& m_container;
+		iterator_t m_it;
+	};
+
+public:
+	using iterator = iterator_impl<
+		std::pair<typename T::size_type, typename T::value_type&>>;
+
+	using const_iterator = iterator_impl<
+		std::pair<typename T::size_type, typename const T::value_type&>>;
+
+	enumerator(T& container)
+		: m_container(container)
+		, m_range(m_container.size())
+	{}
+
+	auto begin() noexcept -> iterator
+	{
+		return { m_container, m_range.begin() };
+	}
+	auto begin() const noexcept { return this->cbegin(); }
+	auto cbegin() const noexcept -> const_iterator
+	{
+		return { m_container, m_range.begin() };
+	}
+	auto end() noexcept -> iterator { return { m_container, m_range.end() }; }
+	auto end() const noexcept { return this->cend(); }
+	auto cend() const noexcept -> const_iterator
+	{
+		return { m_container, m_range.end() };
+	}
+
+private:
+	T& m_container;
+	range_t<typename T::size_type> m_range;
+};
+
 } // namespace mark
