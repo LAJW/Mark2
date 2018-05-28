@@ -26,11 +26,14 @@ mark::ui::recycler::recycler(const info& info)
 		return _;
 	}());
 	recycle_button->on_click.insert([&](let&) {
-		for (auto& slot : m_queue) {
-			(void)detach(slot);
-			(void)push(m_modular, std::make_unique<item::shard>(rm));
+		for (let& pos : range(m_queue.size())) {
+			auto& slot = m_queue[pos];
+			if (!slot.empty()) {
+				(void)detach(slot);
+				(void)push(m_modular, std::make_unique<item::shard>(rm));
+			}
+			slot = {};
 		}
-		m_queue.clear();
 		return true;
 	});
 	this->insert(move(recycle_button));
@@ -45,7 +48,10 @@ mark::ui::recycler::recycler(const info& info)
 		return _;
 	}());
 	cancel_recycle_button->on_click.insert([&](let&) {
-		m_queue.clear();
+		for (let& pos : range(m_queue.size())) {
+			auto& slot = m_queue[pos];
+			slot = {};
+		}
 		return true;
 	});
 	this->insert(move(cancel_recycle_button));
@@ -54,17 +60,21 @@ mark::ui::recycler::recycler(const info& info)
 void mark::ui::recycler::update(update_context& context)
 {
 	this->chunky_window::update(context);
-	// TODO: Pull the actual resolution
-	vi32 resolution = { 1920, 1080 };
-	for (let & [ i, slot ] : enumerate(m_queue)) {
+	for (let i : range(m_queue.size())) {
+		let& slot = m_queue[i];
+		let slot_pos = vi32(i);
+		if (slot.empty()) {
+			continue;
+		}
 		context.sprites[100].emplace_back([&] {
-			let constexpr item_size = 4 * module::size;
-			let& item = item_of(slot);
-			let item_pos_x = static_cast<double>(i) * 1.5 * item_size;
 			sprite _;
+			let& item = item_of(slot);
 			_.image = item.thumbnail();
-			_.pos = { resolution.x - item_size, item_pos_x };
-			_.size = item_size;
+			_.pos =
+				vd(this->pos()
+				   + (slot_pos - vi32(0, ((item.size().x - item.size().y) / 2)))
+					   * static_cast<int>(module::size));
+			_.size = std::max(item.size().x, item.size().y) * module::size;
 			_.centred = false;
 			_.world = false;
 			return _;
@@ -76,9 +86,30 @@ void mark::ui::recycler::recycle(
 	interface::container& container,
 	vi32 pos) noexcept
 {
-	if (all_of(m_queue, [&](let& slot) {
+	if (all_of(m_queue.data(), [&](let& slot) {
 			return slot != mark::slot{ container, pos };
 		})) {
-		m_queue.emplace_back(container, pos);
+		array2d<bool, 16, 32> reserved;
+		reserved.fill(false);
+		for (let i : range(m_queue.size())) {
+			auto& slot = m_queue[i];
+			if (!slot.empty()) {
+				let item_size = item_of(slot).size();
+				for (let j : range(i, i + vector<size_t>(item_size))) {
+					reserved[j] = true;
+				}
+			}
+		}
+		for (let i : range(m_queue.size())) {
+			auto& slot = m_queue[i];
+			let item_size = item_of(mark::slot(container, pos)).size();
+			if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
+					return pos.x < m_queue.size().x && pos.y < m_queue.size().y
+						&& !reserved[pos];
+				})) {
+				slot = { container, pos };
+				break;
+			}
+		}
 	}
 }

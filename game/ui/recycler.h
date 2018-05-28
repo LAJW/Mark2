@@ -1,6 +1,7 @@
 #pragma once
 #include <slot.h>
 #include <ui/chunky_window.h>
+#include <array2d.h>
 
 namespace mark {
 namespace ui {
@@ -16,7 +17,7 @@ public:
 	void recycle(interface::container& container, vi32 pos) noexcept;
 
 private:
-	std::vector<mark::slot> m_queue;
+	array2d<mark::slot, 16, 32> m_queue;
 	mark::unit::modular& m_modular;
 };
 } // namespace ui

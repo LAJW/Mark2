@@ -9,6 +9,7 @@ class slot final
 public:
 	slot() = default;
 	slot(interface::container& container, vi32 pos) noexcept;
+	slot& operator=(const slot&) = default;
 	auto empty() const noexcept -> bool;
 	auto container() noexcept -> interface::container&;
 	auto container() const noexcept -> const interface::container&;
