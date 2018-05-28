@@ -39,6 +39,7 @@ static auto offset_and_frame_of(mark::vi32 i) -> std::pair<mark::vi32, int>
 void mark::ui::chunky_window::update(update_context& context)
 {
 	this->render(context);
+	this->window::update(context);
 }
 
 void mark::ui::chunky_window::render(update_context& context) const noexcept

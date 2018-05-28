@@ -58,7 +58,6 @@ private:
 
 	// Used to detect container change
 	std::vector<ref<mark::module::cargo>> m_containers;
-	std::vector<slot> m_recycler_queue;
 
 	std::vector<unique_ptr<window>> m_windows;
 

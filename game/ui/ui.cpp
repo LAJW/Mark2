@@ -8,6 +8,7 @@
 #include <stdafx.h>
 #include <ui/chunky_button.h>
 #include <ui/inventory.h>
+#include <ui/recycler.h>
 #include <ui/vector_button.h>
 #include <ui/window.h>
 #include <unit/landing_pad.h>
@@ -156,7 +157,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	if (const auto modular = this->landed_modular()) {
 		if (m_windows.size() == 2) {
 			m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
-				mark::ui::inventory::info _;
+				inventory::info _;
 				_.modular = *modular;
 				_.rm = m_rm;
 				_.ui = *this;
@@ -164,44 +165,13 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				return _;
 			}()));
 			m_windows.push_back(
-				std::make_unique<mark::ui::window>(mark::ui::window::info()));
-			auto recycle_button = std::make_unique<chunky_button>([&] {
-				chunky_button::info _;
-				_.font = m_rm.image("font.png");
-				_.background = m_rm.image("chunky-blue-button.png");
-				_.pos = { 50, 775 };
-				_.relative = false;
-				_.size = { 130, 50 };
-				_.text = "Recycle";
-				return _;
-			}());
-			recycle_button->on_click.insert([&](let&) {
-				for (auto& slot : m_recycler_queue) {
-					(void)detach(slot);
-					if (let modular = this->landed_modular()) {
-						(void)push(
-							*modular, std::make_unique<item::shard>(m_rm));
-					}
-				}
-				m_recycler_queue.clear();
-				return true;
-			});
-			m_windows.back()->insert(move(recycle_button));
-			auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
-				chunky_button::info _;
-				_.font = m_rm.image("font.png");
-				_.background = m_rm.image("chunky-red-button.png");
-				_.pos = { 180, 775 };
-				_.relative = false;
-				_.size = { 130, 50 };
-				_.text = "Cancel";
-				return _;
-			}());
-			cancel_recycle_button->on_click.insert([&](let&) {
-				m_recycler_queue.clear();
-				return true;
-			});
-			m_windows.back()->insert(move(cancel_recycle_button));
+				std::make_unique<mark::ui::recycler>([&, modular = modular] {
+					recycler::info _;
+					_.modular = *modular;
+					_.rm = m_rm;
+					_.pos = { 1920 - 50 - 300, 50 };
+					return _;
+				}()));
 		}
 
 		this->container_ui(context, mouse_pos, *modular);
@@ -212,23 +182,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			m_windows.pop_back(); // Clear inventory UI
 		}
 		m_grabbed = {};
-		m_recycler_queue.clear();
 	}
 	m_tooltip.update(context);
-	for (let & [ i, slot ] : enumerate(m_recycler_queue)) {
-		context.sprites[100].emplace_back([&] {
-			let constexpr item_size = 4 * module::size;
-			let& item = item_of(slot);
-			let item_pos_x = static_cast<double>(i) * 1.5 * item_size;
-			sprite _;
-			_.image = item.thumbnail();
-			_.pos = { resolution.x - item_size, item_pos_x };
-			_.size = item_size;
-			_.centred = false;
-			_.world = false;
-			return _;
-		}());
-	}
 }
 
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
@@ -498,10 +453,9 @@ auto mark::ui::ui::drop() noexcept -> interface::item_ptr
 
 void mark::ui::ui::recycle(interface::container& container, vi32 pos) noexcept
 {
-	if (all_of(m_recycler_queue, [&](let& slot) {
-			return slot != mark::slot{ container, pos };
-		})) {
-		m_recycler_queue.emplace_back(container, pos);
+	if (m_windows.size() == 4) {
+		auto& recycler = dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+		recycler.recycle(container, pos);
 	}
 }
 
