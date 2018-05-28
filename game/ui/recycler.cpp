@@ -6,6 +6,7 @@
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/chunky_button.h>
+#include <ui/item_button.h>
 #include <ui/ui.h>
 #include <unit/modular.h>
 #include <update_context.h>
@@ -34,6 +35,10 @@ mark::ui::recycler::recycler(const info& info)
 			}
 			slot = {};
 		}
+		while (next(this->children().begin(), 2) != this->children().end()) {
+			let child = next(this->children().begin(), 2);
+			this->remove(**child);
+		}
 		return true;
 	});
 	this->insert(move(recycle_button));
@@ -52,6 +57,10 @@ mark::ui::recycler::recycler(const info& info)
 			auto& slot = m_queue[pos];
 			slot = {};
 		}
+		while (next(this->children().begin(), 2) != this->children().end()) {
+			let child = next(this->children().begin(), 2);
+			this->remove(**child);
+		}
 		return true;
 	});
 	this->insert(move(cancel_recycle_button));
@@ -60,25 +69,6 @@ mark::ui::recycler::recycler(const info& info)
 void mark::ui::recycler::update(update_context& context)
 {
 	this->chunky_window::update(context);
-	for (let& [i, slot] : enumerate(m_queue)) {
-		let slot_pos = vi32(i);
-		if (slot.empty()) {
-			continue;
-		}
-		context.sprites[100].emplace_back([&] {
-			sprite _;
-			let& item = item_of(slot);
-			_.image = item.thumbnail();
-			_.pos =
-				vd(this->pos()
-				   + (slot_pos - vi32(0, ((item.size().x - item.size().y) / 2)))
-					   * static_cast<int>(module::size));
-			_.size = std::max(item.size().x, item.size().y) * module::size;
-			_.centred = false;
-			_.world = false;
-			return _;
-		}());
-	}
 }
 
 void mark::ui::recycler::recycle(
@@ -90,7 +80,7 @@ void mark::ui::recycler::recycle(
 		})) {
 		array2d<bool, 16, 32> reserved;
 		reserved.fill(false);
-		for (let& [i, slot] : enumerate(m_queue)) {
+		for (let & [ i, slot ] : enumerate(m_queue)) {
 			if (!slot.empty()) {
 				let item_size = item_of(slot).size();
 				for (let j : range(i, i + vector<size_t>(item_size))) {
@@ -99,12 +89,32 @@ void mark::ui::recycler::recycle(
 			}
 		}
 		for (let pair : enumerate(m_queue)) {
-			auto&[i, slot] = pair;
-			let item_size = item_of(mark::slot(container, pos)).size();
+			auto& [i, slot] = pair;
+			let& item = item_of(mark::slot(container, pos));
+			let item_size = item.size();
 			if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
 					return pos.x < m_queue.size().x && pos.y < m_queue.size().y
 						&& !reserved[pos];
 				})) {
+				auto button = std::make_unique<item_button>(
+					[&, item_size = item_size, i = i] {
+						item_button::info _;
+						_.pos =
+							vi32(i * static_cast<size_t>(mark::module::size));
+						_.size = item_size
+							* static_cast<unsigned>(mark::module::size);
+						_.thumbnail = item.thumbnail();
+						return _;
+					}());
+				auto& button_ref = *button;
+				button->on_click.insert([&](const event&) {
+					slot = {};
+					// Don't do anything after this as call to this function
+					// destroys all contents of the lambda we're in
+					this->remove(button_ref);
+					return false;
+				});
+				this->insert(move(button));
 				slot = { container, pos };
 				break;
 			}
