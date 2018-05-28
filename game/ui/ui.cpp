@@ -177,7 +177,6 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			}());
 			recycle_button->on_click.insert([&](let&) {
 				for (auto& slot : m_recycler_queue) {
-					// TODO: Turn into a shard
 					(void)detach(slot);
 					if (let modular = this->landed_modular()) {
 						(void)push(
