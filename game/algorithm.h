@@ -17,10 +17,12 @@ template <typename T, typename = void>
 class range_t
 {
 public:
-	class iterator
-		: public std::iterator<std::bidirectional_iterator_tag, T, void>
+	class iterator final
 	{
 	public:
+		using iterator_category = std::bidirectional_iterator_tag;
+		using value_type = T;
+
 		iterator(const range_t<T>& area, T i)
 			: m_area(area)
 			, m_i(i)
@@ -82,12 +84,11 @@ class enumerator final
 private:
 	template <typename value_t, typename iterator_t>
 	class iterator_impl final
-		: public std::iterator<
-			  std::forward_iterator_tag,
-			  std::pair<typename T::size_type, value_t&>,
-			  void>
 	{
 	public:
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = std::pair<typename T::size_type, value_t&>;
+
 		iterator_impl(iterator_t it, typename T::size_type i) noexcept
 			: m_it(it)
 			, m_i(i)
@@ -161,10 +162,12 @@ template <typename T>
 class range_t<T, std::enable_if_t<std::is_arithmetic_v<T>>>
 {
 public:
-	class iterator
-		: public std::iterator<std::bidirectional_iterator_tag, T, void>
+	class iterator final
 	{
 	public:
+		using iterator_category = std::bidirectional_iterator_tag;
+		using value_type = T;
+
 		iterator(T value)
 			: m_value(value)
 		{}
