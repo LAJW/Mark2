@@ -5,12 +5,14 @@
 
 namespace mark {
 namespace ui {
+class tooltip;
 class recycler : public chunky_window
 {
 public:
 	struct info : chunky_window::info
 	{
 		optional<mark::unit::modular&> modular;
+		optional<tooltip&> tooltip;
 	};
 	recycler(const info&);
 	void update(update_context&) override;
@@ -18,6 +20,7 @@ public:
 
 private:
 	array2d<mark::slot, 16, 32> m_queue;
+	tooltip& m_tooltip;
 	mark::unit::modular& m_modular;
 };
 } // namespace ui

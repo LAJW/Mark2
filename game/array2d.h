@@ -16,7 +16,7 @@ private:
 	{
 		Expects(pos.x < size_x);
 		Expects(pos.y < size_y);
-		return std::ref((*self.m_data)[pos.x % size_x + pos.y * size_y]);
+		return std::ref((*self.m_data)[pos.x % size_y + pos.y * size_x]);
 	}
 
 public:
@@ -46,10 +46,13 @@ private:
 	template <typename value_type>
 	class iterator_impl final
 	{
+		using iterator_t = typename range_t<typename T::size_type>::iterator;
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		typedef value_type value_type;
-		using iterator_t = typename range_t<typename T::size_type>::iterator;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using difference_type = void;
 
 		iterator_impl(T& container, iterator_t it) noexcept
 			: m_it(it)

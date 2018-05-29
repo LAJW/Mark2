@@ -22,6 +22,9 @@ public:
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = T;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using difference_type = void;
 
 		iterator(const range_t<T>& area, T i)
 			: m_area(area)
@@ -88,6 +91,9 @@ private:
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = std::pair<typename T::size_type, value_t&>;
+		using reference = value_type&;
+		using pointer = value_type*;
+		using difference_type = void;
 
 		iterator_impl(iterator_t it, typename T::size_type i) noexcept
 			: m_it(it)
@@ -167,6 +173,9 @@ public:
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = T;
+		using reference = T&;
+		using pointer = T*;
+		using difference_type = void;
 
 		iterator(T value)
 			: m_value(value)

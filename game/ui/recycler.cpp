@@ -7,6 +7,7 @@
 #include <stdafx.h>
 #include <ui/chunky_button.h>
 #include <ui/item_button.h>
+#include <ui/tooltip.h>
 #include <ui/ui.h>
 #include <unit/modular.h>
 #include <update_context.h>
@@ -14,6 +15,7 @@
 mark::ui::recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_modular(*info.modular)
+	, m_tooltip(*info.tooltip)
 {
 	auto& rm = *info.rm;
 	auto recycle_button = std::make_unique<chunky_button>([&] {
@@ -106,13 +108,18 @@ void mark::ui::recycler::recycle(
 						_.thumbnail = item.thumbnail();
 						return _;
 					}());
-				auto& button_ref = *button;
+				// auto& button_ref = *button;
 				button->on_click.insert([&](const event&) {
 					slot = {};
 					// Don't do anything after this as call to this function
 					// destroys all contents of the lambda we're in
-					this->remove(button_ref);
+					// Can't do this during iteration
+					// this->remove(button_ref);
 					return false;
+				});
+				button->on_hover.insert([&, i = i](const event&) {
+					m_tooltip.set(vi32(i) - vi32{ 300, 0 }, item.describe());
+					return true;
 				});
 				this->insert(move(button));
 				slot = { container, pos };

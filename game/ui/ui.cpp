@@ -88,6 +88,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					recycler::info _;
 					_.modular = *modular;
 					_.rm = m_rm;
+					_.tooltip = m_tooltip;
 					_.pos = { 1920 - 50 - 300, 50 };
 					return _;
 				}()));
