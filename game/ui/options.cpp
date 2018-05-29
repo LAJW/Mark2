@@ -1,13 +1,13 @@
-#include "main_menu.h"
+#include "options.h"
 #include <mode_stack.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/chunky_button.h>
-#include <ui/label.h>
 #include <ui/window.h>
+#include <ui/label.h>
 
-auto mark::ui::make_main_menu(
+auto mark::ui::make_options(
 	mark::resource::manager& rm,
 	mark::mode_stack& stack) -> unique_ptr<window>
 {
@@ -23,7 +23,7 @@ auto mark::ui::make_main_menu(
 		_.pos = { 0, -100 };
 		_.size = { 600, 300 };
 		_.font = rm.image("font.png");
-		_.text = "Main Menu";
+		_.text = "Options";
 		_.font_size = 46;
 		return _;
 	}()));
@@ -32,10 +32,9 @@ auto mark::ui::make_main_menu(
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
 		_.background = rm.image("chunky-blue-button.png");
-		_.text = "Solitary Traveller";
+		_.text = "Video [dummy]";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			stack.push(mode::world);
 			return true;
 		};
 		return _;
@@ -45,10 +44,21 @@ auto mark::ui::make_main_menu(
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
 		_.background = rm.image("chunky-blue-button.png");
-		_.text = "Configuration of preferences";
+		_.text = "Sound [dummy]";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			stack.push(mode::options);
+			return true;
+		};
+		return _;
+	}()));
+	menu->insert(std::make_unique<chunky_button>([&] {
+		chunky_button::info _;
+		_.size = { 300, 50 };
+		_.font = rm.image("font.png");
+		_.background = rm.image("chunky-blue-button.png");
+		_.text = "Controls [dummy]";
+		_.relative = true;
+		_.on_click = [&](let&) {
 			return true;
 		};
 		return _;
@@ -58,10 +68,10 @@ auto mark::ui::make_main_menu(
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
 		_.background = rm.image("chunky-red-button.png");
-		_.text = "Abandon Expedition";
+		_.text = "Cancel";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			stack.push(mode::prompt);
+			stack.pop();
 			return true;
 		};
 		return _;

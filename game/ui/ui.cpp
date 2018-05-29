@@ -7,6 +7,7 @@
 #include <stdafx.h>
 #include <ui/inventory.h>
 #include <ui/main_menu.h>
+#include <ui/options.h>
 #include <ui/prompt.h>
 #include <ui/recycler.h>
 #include <ui/window.h>
@@ -49,17 +50,48 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					mark::ui::window::info());
 			} else if (m_mode == mode::prompt) {
 				m_windows.front() = make_prompt(m_rm, m_stack);
+			} else if (m_mode == mode::options) {
+				m_windows.front() = make_options(m_rm, m_stack);
 			}
 		}
 	}
-	m_action_bar.update(world, context, m_rm, resolution, mouse_pos_);
-	let image_circle = m_rm.image("circle.png");
-	for (let& window : m_windows) {
-		window->update(context);
+	if (m_stack.get().back() == mode::world) {
+		m_action_bar.update(world, context, m_rm, resolution, mouse_pos_);
+		let image_circle = m_rm.image("circle.png");
+		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
+		// Display landing pad UI
+		if (const auto modular = this->landed_modular()) {
+			if (m_windows.size() == 2) {
+				m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
+					inventory::info _;
+					_.modular = *modular;
+					_.rm = m_rm;
+					_.ui = *this;
+					_.pos = { 50, 50 };
+					return _;
+				}()));
+				m_windows.push_back(std::make_unique<mark::ui::recycler>(
+					[&, modular = modular] {
+						recycler::info _;
+						_.modular = *modular;
+						_.rm = m_rm;
+						_.tooltip = m_tooltip;
+						_.pos = { 1920 - 50 - 300, 50 };
+						return _;
+					}()));
+			}
+
+			this->container_ui(context, mouse_pos, *modular);
+		} else {
+			m_windows[1]->clear();
+			if (m_windows.size() == 4) {
+				m_windows.pop_back(); // Clear recycler UI
+				m_windows.pop_back(); // Clear inventory UI
+			}
+			m_grabbed = {};
+		}
 	}
-	let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
-	// Display Mark Modular Logo
-	if (m_mode == mode::main_menu) {
+	if (m_stack.get().back() == mode::main_menu) {
 		context.sprites[100].push_back([&] {
 			sprite _;
 			_.centred = false;
@@ -71,37 +103,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			return _;
 		}());
 	}
-
-	// Display landing pad UI
-	if (const auto modular = this->landed_modular()) {
-		if (m_windows.size() == 2) {
-			m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
-				inventory::info _;
-				_.modular = *modular;
-				_.rm = m_rm;
-				_.ui = *this;
-				_.pos = { 50, 50 };
-				return _;
-			}()));
-			m_windows.push_back(
-				std::make_unique<mark::ui::recycler>([&, modular = modular] {
-					recycler::info _;
-					_.modular = *modular;
-					_.rm = m_rm;
-					_.tooltip = m_tooltip;
-					_.pos = { 1920 - 50 - 300, 50 };
-					return _;
-				}()));
-		}
-
-		this->container_ui(context, mouse_pos, *modular);
-	} else {
-		m_windows[1]->clear();
-		if (m_windows.size() == 4) {
-			m_windows.pop_back(); // Clear recycler UI
-			m_windows.pop_back(); // Clear inventory UI
-		}
-		m_grabbed = {};
+	for (let& window : m_windows) {
+		window->update(context);
 	}
 	m_tooltip.update(context);
 }

@@ -1,7 +1,8 @@
 #include "prompt.h"
-#include <resource_manager.h>
 #include <mode_stack.h>
+#include <resource_manager.h>
 #include <ui/chunky_button.h>
+#include <ui/label.h>
 #include <ui/window.h>
 
 auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
@@ -11,9 +12,18 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	using namespace ui;
 	auto menu = std::make_unique<window>([&] {
 		window::info _;
-		_.pos = { 250, 300 };
+		_.pos = { 300, 300 };
 		return _;
 	}());
+	menu->insert(std::make_unique<label>([&] {
+		label::info _;
+		_.pos = { 0, -100 };
+		_.size = { 600, 300 };
+		_.font = rm.image("font.png");
+		_.text = "Quit to Desktop";
+		_.font_size = 46;
+		return _;
+	}()));
 	auto play_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 250, 50 };
@@ -21,12 +31,12 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-red-button.png");
 		_.text = "Yes";
 		_.relative = true;
+		_.on_click = [&](let&) {
+			stack.clear();
+			return true;
+		};
 		return _;
 	}());
-	play_button->on_click.insert([&](let&) {
-		stack.clear();
-		return true;
-	});
 	menu->insert(move(play_button));
 	auto cancel_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
@@ -35,12 +45,12 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "No";
 		_.relative = true;
+		_.on_click = [&](let&) {
+			stack.pop();
+			return true;
+		};
 		return _;
 	}());
-	cancel_button->on_click.insert([&](let&) {
-		stack.pop();
-		return true;
-	});
 	menu->insert(std::move(cancel_button));
 	return menu;
 }
