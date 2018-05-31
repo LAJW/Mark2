@@ -108,13 +108,12 @@ void mark::ui::recycler::recycle(
 						_.thumbnail = item.thumbnail();
 						return _;
 					}());
-				// auto& button_ref = *button;
+				auto& button_ref = *button;
 				button->on_click.insert([&](const event&) {
 					slot = {};
 					// Don't do anything after this as call to this function
 					// destroys all contents of the lambda we're in
-					// Can't do this during iteration
-					// this->remove(button_ref);
+					this->remove(button_ref);
 					return false;
 				});
 				button->on_hover.insert([&, i = i](const event&) {

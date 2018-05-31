@@ -27,13 +27,15 @@ bool mark::ui::window::click(const event& event)
 	if (!m_visible) {
 		return false;
 	}
+	// Creating a copy of the node list, so that nodes can be deleted in the
+	// middle of iteration without invalidating invariants
+	std::vector<ref<ui::node>> nodes;
 	for (let& node : m_nodes) {
-		let handled = node->click(event);
-		if (handled) {
-			return true;
-		}
+		nodes.push_back(*node);
 	}
-	return false;
+	return any_of(nodes, [&] (let& node) {
+		return node.get().click(event);
+	});
 }
 
 bool mark::ui::window::hover(const event& event)
