@@ -1,5 +1,6 @@
 ﻿#include "map.h"
-#include "algorithm.h"
+#include <algorithm/range.h>
+#include <algorithm.h> // TODO: min_element_v
 #include "base64.h"
 #include "exception.h"
 #include "resource_manager.h"

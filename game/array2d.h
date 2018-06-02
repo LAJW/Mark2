@@ -1,5 +1,6 @@
 #pragma once
-#include <algorithm.h>
+#include <algorithm/range.h>
+#include <algorithm/enumerate.h>
 #include <stdafx.h>
 
 namespace mark {

@@ -1,4 +1,5 @@
 ﻿#include "projectile.h"
+#include <algorithm.h>
 #include "modular.h"
 #include <module/base.h>
 #include <resource_manager.h>

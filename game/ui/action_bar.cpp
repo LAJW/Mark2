@@ -1,5 +1,5 @@
 ﻿#include "action_bar.h"
-#include <algorithm.h>
+#include <algorithm/enumerate.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
 #include <resource_manager.h>

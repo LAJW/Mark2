@@ -1,4 +1,5 @@
 #include "inventory.h"
+#include <algorithm/diff.h>
 #include <algorithm.h>
 #include <module/cargo.h>
 #include <sprite.h>

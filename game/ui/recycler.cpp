@@ -1,4 +1,5 @@
 #include "recycler.h"
+#include <algorithm.h>
 #include <algorithm/has_one.h>
 #include <item/shard.h>
 #include <module/base.h>

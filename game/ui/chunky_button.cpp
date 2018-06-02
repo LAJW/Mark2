@@ -1,5 +1,5 @@
 #include "chunky_button.h"
-#include <algorithm.h>
+#include <algorithm/range.h>
 #include <sprite.h>
 #include <update_context.h>
 

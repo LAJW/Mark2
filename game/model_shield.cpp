@@ -3,7 +3,7 @@
 #include "sprite.h"
 #include "stdafx.h"
 #include "update_context.h"
-#include <algorithm.h>
+#include <algorithm/range.h>
 #include <particle.h>
 
 mark::model::shield::shield(resource::manager& rm, float radius)

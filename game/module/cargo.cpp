@@ -1,6 +1,7 @@
 ﻿#include "cargo.h"
 #include "stdafx.h"
-#include <algorithm.h>
+#include <algorithm/range.h>
+#include <algorithm/enumerate.h>
 #include <exception.h>
 #include <resource_manager.h>
 #include <sprite.h>
