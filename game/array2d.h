@@ -37,6 +37,21 @@ public:
 	void fill(const T& t) { m_data->fill(t); }
 };
 
+template <typename T, bool = false>
+struct add_const_if final
+{
+	using type = T;
+};
+
+template <typename T>
+struct add_const_if<T, true> final
+{
+	using type = std::add_const_t<T>;
+};
+
+template <typename T, bool cond>
+using add_const_if_t = typename add_const_if<T, cond>::type;
+
 /// 2D Array Enumerator use by calling `enumerate(instanceOfArray2d)`
 /// Behaves just like a regular array enumerator, only the index is a 2D vector
 template <typename T>
@@ -47,6 +62,7 @@ private:
 	class iterator_impl final
 	{
 		using iterator_t = typename range_t<typename T::size_type>::iterator;
+
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		typedef value_type value_type;
@@ -87,8 +103,9 @@ private:
 	};
 
 public:
-	using iterator = iterator_impl<
-		std::pair<typename T::size_type, typename T::value_type&>>;
+	using iterator = iterator_impl<std::pair<
+		typename T::size_type,
+		add_const_if_t<typename T::value_type, std::is_const_v<T>>&>>;
 
 	using const_iterator = iterator_impl<
 		std::pair<typename T::size_type, typename const T::value_type&>>;
