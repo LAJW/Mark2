@@ -1,4 +1,5 @@
 #include "tooltip.h"
+#include <algorithm/mostly_unchanged.h>
 #include <sprite.h>
 #include <update_context.h>
 
@@ -9,7 +10,7 @@ let constexpr font_size = 14.f;
 
 void mark::ui::tooltip::set(vd pos, const std::string& str, bool screen_space)
 {
-	if (m_text != str) {
+	if (!mostly_unchanged(m_text, str)) {
 		m_load.trigger();
 	}
 	m_text = str;
