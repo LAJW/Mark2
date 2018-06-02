@@ -17,6 +17,8 @@
 #include <world.h>
 #include <world_stack.h>
 
+let container_count = 8;
+
 mark::ui::ui::ui(
 	resource::manager& rm,
 	mode_stack& stack,
@@ -39,20 +41,18 @@ mark::ui::ui::~ui() = default;
 void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
 	auto& world = m_world_stack.world();
-	if (!m_stack.get().empty()) {
-		if (m_stack.get().back() != m_mode) {
-			m_mode = m_stack.get().back();
-			// router
-			if (m_mode == mode::main_menu) {
-				m_windows.front() = make_main_menu(m_rm, m_stack);
-			} else if (m_mode == mode::world) {
-				m_windows.front() = std::make_unique<mark::ui::window>(
-					mark::ui::window::info());
-			} else if (m_mode == mode::prompt) {
-				m_windows.front() = make_prompt(m_rm, m_stack);
-			} else if (m_mode == mode::options) {
-				m_windows.front() = make_options(m_rm, m_stack);
-			}
+	if (!m_stack.get().empty() && m_stack.get().back() != m_mode) {
+		m_mode = m_stack.get().back();
+		// router
+		if (m_mode == mode::main_menu) {
+			m_windows.front() = make_main_menu(m_rm, m_stack);
+		} else if (m_mode == mode::world) {
+			m_windows.front() =
+				std::make_unique<mark::ui::window>(mark::ui::window::info());
+		} else if (m_mode == mode::prompt) {
+			m_windows.front() = make_prompt(m_rm, m_stack);
+		} else if (m_mode == mode::options) {
+			m_windows.front() = make_options(m_rm, m_stack);
 		}
 	}
 	if (m_stack.get().back() == mode::world) {
@@ -62,12 +62,15 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		// Display landing pad UI
 		if (const auto modular = this->landed_modular()) {
 			if (m_windows.size() == 2) {
+				let inventory_size =
+					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
 				m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
 					inventory::info _;
 					_.modular = *modular;
 					_.rm = m_rm;
 					_.ui = *this;
 					_.pos = { 50, 50 };
+					_.size = inventory_size;
 					return _;
 				}()));
 				m_windows.push_back(std::make_unique<mark::ui::recycler>(
@@ -77,6 +80,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 						_.rm = m_rm;
 						_.tooltip = m_tooltip;
 						_.pos = { 1920 - 50 - 300, 50 };
+						_.size = inventory_size;
 						return _;
 					}()));
 			}

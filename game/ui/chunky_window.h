@@ -11,6 +11,7 @@ public:
 	struct info : window::info
 	{
 		optional<resource::manager&> rm;
+		vu32 size = mark::vu32(16 * 16, 16 * 16);
 	};
 	chunky_window(const info&);
 
@@ -22,6 +23,7 @@ private:
 	void render(update_context&) const noexcept;
 
 	const not_null<resource::image_ptr> m_background;
+	vi32 m_size;
 };
 
 } // namespace ui
