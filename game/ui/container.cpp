@@ -79,7 +79,7 @@ bool mark::ui::container::click(const event& event)
 	}
 	auto& module = *grabbed;
 	const vi32 module_size(module.size());
-	const vd relative_pos(event.cursor - this->pos());
+	const vd relative_pos(event.cursor - this->pos() - vi32(0, label_height));
 	let pos = round(relative_pos / 16.) - module_size / 2;
 	if (!m_container.can_attach(pos, module)) {
 		return false;
