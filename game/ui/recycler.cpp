@@ -91,48 +91,56 @@ static auto reserved(const recycler::queue_type& queue)
 	return reserved;
 }
 
-void recycler::recycle(
-	interface::container& container,
-	vi32 pos) noexcept
+auto find_empty_pos_for(
+	const recycler::queue_type& queue,
+	const interface::item& item) -> optional<vector<size_t>>
+{
+	let reserved = mark::ui::reserved(queue);
+	for (auto pair : enumerate(queue)) {
+		auto& [i, slot] = pair;
+		let item_size = item.size();
+		if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
+				return pos.x < queue.size().x && pos.y < queue.size().y
+					&& !reserved[pos];
+			})) {
+			return i;
+		}
+	}
+	return {};
+}
+
+void recycler::recycle(interface::container& container, vi32 pos) noexcept
 {
 	if (has_one(m_queue.data(), { container, pos })) {
 		return;
 	}
-	let reserved = mark::ui::reserved(m_queue);
-	for (auto pair : enumerate(m_queue)) {
-		auto& [i, slot] = pair;
-		let& item = item_of(mark::slot(container, pos));
-		let item_size = item.size();
-		if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
-				return pos.x < m_queue.size().x && pos.y < m_queue.size().y
-					&& !reserved[pos];
-			})) {
-			auto button = std::make_unique<item_button>(
-				[&, item_size = item_size, i = i] {
-					item_button::info _;
-					_.pos = vi32(i * static_cast<size_t>(mark::module::size));
-					_.size =
-						item_size * static_cast<unsigned>(mark::module::size);
-					_.thumbnail = item.thumbnail();
-					return _;
-				}());
-			auto& button_ref = *button;
-			button->on_click.insert([&](const event&) {
-				slot = {};
-				// Don't do anything after this as call to this function
-				// destroys all contents of the lambda we're in
-				this->remove(button_ref);
-				return false;
-			});
-			button->on_hover.insert([&, i = i](const event&) {
-				m_tooltip.set(vi32(i) - vi32{ 300, 0 }, item.describe());
-				return true;
-			});
-			this->insert(move(button));
-			slot = { container, pos };
-			break;
-		}
+	auto& item = item_of(mark::slot(container, pos));
+	let queue_pos = find_empty_pos_for(m_queue, item);
+	if (!queue_pos) {
+		return;
 	}
+	auto& slot = m_queue[*queue_pos];
+	auto button = std::make_unique<item_button>([&] {
+		item_button::info _;
+		_.pos = vi32(*queue_pos * static_cast<size_t>(mark::module::size));
+		_.size = item.size() * static_cast<unsigned>(mark::module::size);
+		_.thumbnail = item.thumbnail();
+		return _;
+	}());
+	auto& button_ref = *button;
+	button->on_click.insert([&](const event&) {
+		slot = {};
+		// Don't do anything after this as call to this function
+		// destroys all contents of the lambda we're in
+		this->remove(button_ref);
+		return false;
+	});
+	button->on_hover.insert([&](const event&) {
+		m_tooltip.set(vi32(*queue_pos) - vi32{ 300, 0 }, item.describe());
+		return true;
+	});
+	this->insert(move(button));
+	slot = { container, pos };
 }
 
 } // namespace ui
