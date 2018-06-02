@@ -3,6 +3,12 @@
 #include "resource_image.h"
 #include "sprite.h"
 
+#ifdef _DEBUG
+constexpr const bool debug_mode = true;
+#else
+constexpr const bool debug_mode = false;
+#endif
+
 static auto validate(const mark::particle::info& attr)
 {
 	assert(attr.image.get());
@@ -29,7 +35,11 @@ mark::particle::particle(const particle::info& attr, bool)
 	, m_size(attr.size)
 	, m_color(attr.color)
 	, m_layer(attr.layer)
-{}
+{
+	if constexpr (debug_mode) {
+		m_cur_lifespan = 0;
+	}
+}
 
 void mark::particle::update(
 	double dt,
