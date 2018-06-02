@@ -329,7 +329,7 @@ void mark::ui::ui::container_ui(
 			let size = static_cast<float>(
 						   std::max(grabbed()->size().x, grabbed()->size().y))
 				* module::size;
-			context.sprites[100].emplace_back([&] {
+			context.sprites[105].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
 				_.pos = mouse_pos;
