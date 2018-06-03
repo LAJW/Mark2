@@ -65,6 +65,9 @@ void mark::ui::action_bar::render(
 		return;
 	}
 	let bindings = unit->bindings();
+	size_t horizontal_lane_count = 0;
+	std::array<size_t, 40> vertical_lane_counts;
+	vertical_lane_counts.fill(0);
 	for (let& pair : mark::enumerate(bindings)) {
 		let & [ i, binding ] = pair;
 		let di = static_cast<double>(i);
@@ -73,9 +76,6 @@ void mark::ui::action_bar::render(
 		let y = resolution.y - (icon_size + icon_margin);
 
 		// Highlight bindings
-		size_t horizontal_lane_count = 0;
-		std::array<size_t, 40> vertical_lane_counts;
-		vertical_lane_counts.fill(0);
 		let center = resolution / 2.0;
 		if (std::dynamic_pointer_cast<const unit::landing_pad>(unit)) {
 			for (let & [ j, module ] : enumerate(binding.modules)) {
@@ -91,19 +91,21 @@ void mark::ui::action_bar::render(
 						 && module_pos.y <= mouse_pos_.y
 						 && mouse_pos_.y < module_pos.y + module_size.y))
 					continue;
-				sprite circle_sprite;
 				let module_pos_ = module_pos + vd(8, 8);
-				circle_sprite.pos = module_pos_;
-				circle_sprite.image = m_circle;
-				circle_sprite.frame = std::numeric_limits<size_t>::max();
-				circle_sprite.world = false;
-				circle_sprite.centred = false;
-				context.sprites[101].push_back(circle_sprite);
-				let line_end = vd(x + 32 + j * 2, y);
+				context.sprites[101].push_back([&] {
+					sprite _;
+					_.pos = module_pos_;
+					_.image = m_circle;
+					_.frame = std::numeric_limits<size_t>::max();
+					_.world = false;
+					_.centred = false;
+					return _;
+				}());
+				let line_end = vd(x + 32 + j * 2, y - (icon_margin + 1));
 				let begin_x_offset =
 					gsl::narrow_cast<int>(vertical_lane_counts[pos.x + 20] * 2);
 				let line_begin = module_pos + vd(16 + begin_x_offset, 16);
-				let line_joint_y = line_end.y - 300 + horizontal_lane_count * 2;
+				let line_joint_y = line_end.y - 150 + horizontal_lane_count * 2;
 				let line_joint_1 = vd(line_end.x, line_joint_y);
 				let line_joint_2 = vd(line_begin.x, line_joint_y);
 				path line;
@@ -126,35 +128,37 @@ void mark::ui::action_bar::render(
 		}
 
 		if (binding.thumbnail) {
-			mark::sprite sprite;
-			sprite.image = binding.thumbnail;
-			sprite.pos.x = x;
-			sprite.pos.y = y;
-			sprite.image = binding.thumbnail;
-			sprite.size = 64.f;
-			sprite.world = false;
-			sprite.centred = false;
-			context.sprites[101].emplace_back(sprite);
+			context.sprites[101].emplace_back([&] {
+				sprite _;
+				_.image = binding.thumbnail;
+				_.pos.x = x;
+				_.pos.y = y;
+				_.image = binding.thumbnail;
+				_.size = 64.f;
+				_.world = false;
+				_.centred = false;
+				return _;
+			}());
 		}
-		{
-			update_context::text_info text;
-			text.font = m_font;
-			text.layer = 101;
-			text.pos = vd(x + 32.f, y + 8.f);
-			text.box = { 300 - 14.f, 300 - 14.f };
-			text.size = 14.f;
-			text.text = std::to_string(i);
-			context.render(text);
-		}
-		{
-			update_context::text_info text;
-			text.font = m_font;
-			text.layer = 101;
-			text.pos = vd(x + 32.f, y + 32.f);
-			text.box = { 300 - 14.f, 300 - 14.f };
-			text.size = 14.f;
-			text.text = std::to_string(binding.total);
-			context.render(text);
-		}
+		context.render([&] {
+			update_context::text_info _;
+			_.font = m_font;
+			_.layer = 101;
+			_.pos = vd(x + 32.f, y + 8.f);
+			_.box = { 300 - 14.f, 300 - 14.f };
+			_.size = 14.f;
+			_.text = std::to_string(i);
+			return _;
+		}());
+		context.render([&] {
+			update_context::text_info _;
+			_.font = m_font;
+			_.layer = 101;
+			_.pos = vd(x + 32.f, y + 32.f);
+			_.box = { 300 - 14.f, 300 - 14.f };
+			_.size = 14.f;
+			_.text = std::to_string(binding.total);
+			return _;
+		}());
 	}
 }
