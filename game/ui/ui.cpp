@@ -56,7 +56,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		}
 	}
 	if (m_stack.get().back() == mode::world) {
-		m_action_bar.update(world, context, m_rm, resolution, mouse_pos_);
+		m_action_bar.update(world, context, resolution, mouse_pos_);
 		let image_circle = m_rm.image("circle.png");
 		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 		// Display landing pad UI
