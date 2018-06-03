@@ -26,6 +26,7 @@ private:
 	tooltip& m_tooltip;
 	mark::unit::modular& m_modular;
 	const mark::resource::image_ptr m_font;
+	const mark::resource::image_ptr m_grid;
 };
 } // namespace ui
 } // namespace mark

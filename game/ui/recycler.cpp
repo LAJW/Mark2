@@ -21,6 +21,7 @@ recycler::recycler(const info& info)
 	, m_modular(*info.modular)
 	, m_tooltip(*info.tooltip)
 	, m_font(info.rm->image("font.png"))
+	, m_grid(info.rm->image("inventory-grid.png"))
 {
 	auto& rm = *info.rm;
 	auto recycle_button = std::make_unique<chunky_button>([&] {
@@ -75,6 +76,18 @@ recycler::recycler(const info& info)
 
 void recycler::update(update_context& context)
 {
+	for (let i : range(vi32(m_queue.size()))) {
+		let pos = this->pos();
+		context.sprites[101].push_back([&] {
+			sprite _;
+			_.image = m_grid;
+			_.pos = vd(pos + i * static_cast<int>(mark::module::size));
+			_.centred = false;
+			_.world = false;
+			_.size = mark::module::size;
+			return _;
+		}());
+	}
 	this->chunky_window::update(context);
 }
 
