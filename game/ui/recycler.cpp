@@ -20,6 +20,7 @@ recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_modular(*info.modular)
 	, m_tooltip(*info.tooltip)
+	, m_font(info.rm->image("font.png"))
 {
 	auto& rm = *info.rm;
 	auto recycle_button = std::make_unique<chunky_button>([&] {
@@ -126,6 +127,8 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		_.pos = vi32(*queue_pos * static_cast<size_t>(mark::module::size));
 		_.size = item.size() * static_cast<unsigned>(mark::module::size);
 		_.thumbnail = item.thumbnail();
+		_.font = m_font;
+		_.item = item;
 		return _;
 	}());
 	auto& button_ref = *button;

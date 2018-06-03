@@ -149,6 +149,8 @@ public:
 		return false;
 	}
 
+	auto quantity() const -> size_t override { return 1; }
+
 protected:
 	base(resource::manager&, const YAML::Node&);
 

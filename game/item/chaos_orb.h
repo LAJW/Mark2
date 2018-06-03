@@ -20,6 +20,7 @@ public:
 	auto thumbnail() const -> resource::image_ptr override;
 	void stack(interface::item_ptr& item) override;
 	auto can_stack(const interface::item& item) const -> bool override;
+	auto quantity() const -> size_t override;
 
 private:
 	resource::image_ptr m_thumbnail;

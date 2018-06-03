@@ -35,6 +35,7 @@ public:
 	// Remove module from passed in unique_ptr on success
 	virtual void stack(interface::item_ptr& item) = 0;
 	virtual bool can_stack(const interface::item& item) const = 0;
+	virtual auto quantity() const -> size_t = 0;
 };
 } // namespace interface
 } // namespace mark

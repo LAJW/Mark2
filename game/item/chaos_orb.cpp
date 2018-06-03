@@ -68,3 +68,8 @@ auto mark::item::chaos_orb::can_stack(const interface::item& item) const -> bool
 {
 	return dynamic_cast<const chaos_orb*>(&item) != nullptr && m_quantity < 20;
 }
+
+auto mark::item::chaos_orb::quantity() const -> size_t
+{
+	return m_quantity;
+}

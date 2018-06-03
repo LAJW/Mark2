@@ -23,6 +23,7 @@ private:
 	queue_type m_queue;
 	tooltip& m_tooltip;
 	mark::unit::modular& m_modular;
+	const mark::resource::image_ptr m_font;
 };
 } // namespace ui
 } // namespace mark

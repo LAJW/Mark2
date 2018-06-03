@@ -27,7 +27,7 @@ void mark::item::shard::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::item::shard::size() const -> vu32 { return { 2, 2 }; }
+auto mark::item::shard::size() const -> vu32 { return { 1, 1 }; }
 
 auto mark::item::shard::thumbnail() const -> resource::image_ptr
 {
@@ -49,4 +49,9 @@ void mark::item::shard::stack(interface::item_ptr& item)
 auto mark::item::shard::can_stack(const interface::item& item) const -> bool
 {
 	return dynamic_cast<const shard*>(&item) != nullptr && m_quantity < 20;
+}
+
+auto mark::item::shard::quantity() const -> size_t
+{
+	return m_quantity;
 }

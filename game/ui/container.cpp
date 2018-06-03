@@ -19,18 +19,25 @@ mark::ui::container::container(const info& info)
 	, m_header(info.rm->image("inventory-header.png"))
 	, m_font(info.rm->image("font.png"))
 {
-	auto& container = *info.container;
-	let interior_size = container.interior_size();
-	for (let& pos : range(interior_size)) {
-		if (auto& item_ptr = container.items()[pos.x + pos.y * 16]) {
-			auto& item = *item_ptr;
-			this->attach(pos, item);
-		}
-	}
 }
 
 void mark::ui::container::update(update_context& context)
 {
+	std::vector<const mark::interface::item*> contents;
+	for (const auto& item : m_container.items()) {
+		contents.push_back(item.get());
+	}
+	if (contents != m_prev_contents) {
+		m_prev_contents = contents;
+		this->clear();
+		let interior_size = m_container.interior_size();
+		for (let& pos : range(interior_size)) {
+			if (auto& item_ptr = m_container.items()[pos.x + pos.y * 16]) {
+				auto& item = *item_ptr;
+				this->attach(pos, item);
+			}
+		}
+	}
 	context.sprites[100].push_back([&] {
 		sprite _;
 		_.image = m_header;
@@ -107,6 +114,8 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	let button_pos = pos * 16 + vi32(0, 32);
 	auto button_ptr = std::make_unique<mark::ui::item_button>([&] {
 		mark::ui::item_button::info _;
+		_.item = item;
+		_.font = m_font;
 		_.size = item.size() * 16U;
 		_.pos = button_pos;
 		_.thumbnail = item.thumbnail();
