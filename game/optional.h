@@ -9,8 +9,8 @@ class optional_ref
 {
 public:
 	constexpr optional_ref() = default;
-	explicit constexpr optional_ref(T&)
-		: m_ptr(T)
+	constexpr optional_ref(T& ref)
+		: m_ptr(&ref)
 	{}
 	constexpr T& operator*() const noexcept
 	{
@@ -27,7 +27,7 @@ public:
 		m_ptr = &ref;
 		return *this;
 	}
-	operator bool() { return m_ptr; }
+	operator bool() const { return m_ptr != nullptr; }
 	constexpr T& value() &
 	{
 		if (m_ptr) {
