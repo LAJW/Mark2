@@ -1,6 +1,9 @@
-﻿#include "../game/stdafx.h"
-#include "../game/algorithm.h"
+﻿#include <algorithm.h>
+#include <algorithm/diff.h>
+#include <algorithm/enumerate.h>
+#include <algorithm/range.h>
 #include <catch.hpp>
+#include <stdafx.h>
 
 TEST_CASE("Enumerate container")
 {

@@ -197,7 +197,8 @@ TEST_CASE("Remove dead modules")
 			node["cur_health"] = 0.f;
 			return node;
 		}());
-	REQUIRE(error::code::success == modular->attach({ 1, -1 }, move(core)));
+
+	REQUIRE(modular->attach({ 1, -1 }, move(core)));
 	update_context context(rm);
 	context.dt = 0.15;
 	world.update(context, {});
