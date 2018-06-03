@@ -124,9 +124,11 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	}());
 	auto& button = *button_ptr;
 	button.on_click.insert([pos, this, &button](const event& event) {
-		if (m_ui.grabbed()) {
+		if (let grabbed = m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
-			(void)m_container.attach(pos, m_ui.drop());
+			if (m_container.at(pos)->can_stack(*grabbed)) {
+				(void)m_container.attach(pos, m_ui.drop());
+			}
 			return true;
 		}
 		let actual_pos = m_container.pos_at(pos);
