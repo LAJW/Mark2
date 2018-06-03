@@ -120,6 +120,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		_.pos = button_pos;
 		_.ui = m_ui;
 		_.relative = false;
+		_.origin = true;
 		return _;
 	}());
 	auto& button = *button_ptr;
@@ -142,12 +143,6 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		// Don't call anything after this. This call destroys "this" lambda.
 		// Button doesn't need deletion, as we're only removing it on swap
 		// this->remove(button);
-		return true;
-	});
-	let length = static_cast<int>(item.size().x) * 16;
-	button.on_hover.insert([=, &item](const event&) {
-		m_ui.tooltip(
-			this->pos() + button_pos + vi32(length, 0), item.describe());
 		return true;
 	});
 	this->insert(move(button_ptr));

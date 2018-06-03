@@ -81,6 +81,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					_.tooltip = m_tooltip;
 					_.pos = { resolution_i.x - 50 - 300, 50 };
 					_.size = inventory_size;
+					_.ui = *this;
 					return _;
 				}()));
 			} else {

@@ -4,7 +4,9 @@
 #include <ui/chunky_window.h>
 
 namespace mark {
+
 namespace ui {
+class ui;
 class tooltip;
 class recycler : public chunky_window
 {
@@ -14,6 +16,7 @@ public:
 	{
 		optional<mark::unit::modular&> modular;
 		optional<tooltip&> tooltip;
+		optional<ui&> ui;
 	};
 	recycler(const info&);
 	void update(update_context&) override;
@@ -22,11 +25,13 @@ public:
 		-> bool;
 
 private:
+	ui& m_ui;
 	queue_type m_queue;
 	tooltip& m_tooltip;
 	mark::unit::modular& m_modular;
 	const mark::resource::image_ptr m_font;
 	const mark::resource::image_ptr m_grid;
 };
+
 } // namespace ui
 } // namespace mark

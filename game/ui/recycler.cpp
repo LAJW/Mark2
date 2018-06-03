@@ -22,6 +22,7 @@ recycler::recycler(const info& info)
 	, m_tooltip(*info.tooltip)
 	, m_font(info.rm->image("font.png"))
 	, m_grid(info.rm->image("inventory-grid.png"))
+	, m_ui(*info.ui)
 {
 	auto& rm = *info.rm;
 	auto recycle_button = std::make_unique<chunky_button>([&] {
@@ -141,6 +142,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		_.size = item.size() * static_cast<unsigned>(mark::module::size);
 		_.font = m_font;
 		_.item = item;
+		_.ui = m_ui;
 		return _;
 	}());
 	auto& button_ref = *button;

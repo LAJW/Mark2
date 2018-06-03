@@ -2,14 +2,27 @@
 #include <interface/item.h>
 #include <sprite.h>
 #include <ui/ui.h>
+#include <ui/window.h>
 #include <update_context.h>
 
 mark::ui::item_button::item_button(const info& info)
 	: button_base(info)
 	, m_font(info.font)
 	, m_item(*info.item)
-	, m_ui(info.ui)
+	, m_ui(*info.ui)
+	, m_origin(info.origin)
 {
+	let& item = *info.item;
+	let length = static_cast<int>(item.size().x) * 16;
+	this->on_hover.insert([=, &item](const event&) {
+		// HACK: This should be based on screen resolution and updated on resize
+		if (this->pos().x < 1000) {
+			m_ui.tooltip(this->pos() + vi32(length, 0), item.describe());
+		} else {
+			m_ui.tooltip(this->pos() - vi32(300, 0), item.describe());
+		}
+		return true;
+	});
 }
 
 void mark::ui::item_button::update(update_context& context)
@@ -19,7 +32,7 @@ void mark::ui::item_button::update(update_context& context)
 
 void mark::ui::item_button::render(update_context& context) const
 {
-	let color = m_ui && m_ui->in_recycler(m_item)
+	let color = m_origin && m_ui.in_recycler(m_item)
 		? sf::Color(150, 150, 150, 255)
 		: sf::Color::White;
 	// Display item thumbnail
