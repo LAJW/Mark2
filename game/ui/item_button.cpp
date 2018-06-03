@@ -6,11 +6,11 @@
 
 mark::ui::item_button::item_button(const info& info)
 	: button_base(info)
-	, m_thumbnail(info.thumbnail)
 	, m_font(info.font)
 	, m_item(*info.item)
 	, m_ui(info.ui)
-{}
+{
+}
 
 void mark::ui::item_button::update(update_context& context)
 {
@@ -26,7 +26,7 @@ void mark::ui::item_button::render(update_context& context) const
 	let size = this->size();
 	context.sprites[102].emplace_back([&] {
 		sprite _;
-		_.image = m_thumbnail;
+		_.image = m_item.thumbnail();
 		let pos = vd(this->pos());
 		_.pos = pos - vd(0, (size.x - size.y) / 2.);
 		_.size = static_cast<float>(std::max(size.x, size.y));

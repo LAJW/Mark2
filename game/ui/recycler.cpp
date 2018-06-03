@@ -139,7 +139,6 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		item_button::info _;
 		_.pos = vi32(*queue_pos * static_cast<size_t>(mark::module::size));
 		_.size = item.size() * static_cast<unsigned>(mark::module::size);
-		_.thumbnail = item.thumbnail();
 		_.font = m_font;
 		_.item = item;
 		return _;

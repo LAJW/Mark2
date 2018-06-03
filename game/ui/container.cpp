@@ -118,7 +118,6 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		_.font = m_font;
 		_.size = item.size() * 16U;
 		_.pos = button_pos;
-		_.thumbnail = item.thumbnail();
 		_.ui = m_ui;
 		_.relative = false;
 		return _;
