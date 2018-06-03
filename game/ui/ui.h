@@ -10,6 +10,7 @@
 namespace mark {
 namespace ui {
 class window;
+class recycler;
 
 class ui final
 {
@@ -35,6 +36,8 @@ public:
 	void recycle(interface::container&, vi32 pos) noexcept;
 	/// Returns a modular, if a modular is present in the landing pad
 	auto landed_modular() noexcept -> mark::unit::modular*;
+	/// Returns true if module is present in the recycler
+	auto in_recycler(const mark::interface::item& item) const noexcept -> bool;
 
 private:
 	/// Handler for the click event
@@ -51,6 +54,8 @@ private:
 		update_context& context,
 		vd resolution,
 		const unit::modular& modular);
+	auto recycler() noexcept -> optional<mark::ui::recycler&>;
+	auto recycler() const noexcept -> optional<const mark::ui::recycler&>;
 
 	action_bar m_action_bar;
 

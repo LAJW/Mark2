@@ -4,6 +4,7 @@
 
 namespace mark {
 namespace ui {
+class ui;
 
 class item_button final : public button_base
 {
@@ -13,6 +14,7 @@ public:
 		resource::image_ptr thumbnail;
 		resource::image_ptr font;
 		optional<const mark::interface::item&> item;
+		optional<const mark::ui::ui&> ui;
 	};
 
 	item_button(const info&);
@@ -24,6 +26,7 @@ private:
 	const not_null<resource::image_ptr> m_thumbnail;
 	const not_null<resource::image_ptr> m_font;
 	const mark::interface::item& m_item;
+	optional<const mark::ui::ui&> m_ui;
 };
 
 }

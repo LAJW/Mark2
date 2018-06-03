@@ -147,5 +147,12 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 	slot = { container, pos };
 }
 
+auto recycler::has(const mark::interface::item& item) const noexcept -> bool
+{
+	return any_of(m_queue.data(), [&](let& slot) {
+		return !slot.empty() && &item_of(slot) == &item;
+	});
+}
+
 } // namespace ui
 } // namespace mark

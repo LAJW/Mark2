@@ -1,7 +1,7 @@
 #pragma once
+#include <array2d.h>
 #include <slot.h>
 #include <ui/chunky_window.h>
-#include <array2d.h>
 
 namespace mark {
 namespace ui {
@@ -18,6 +18,8 @@ public:
 	recycler(const info&);
 	void update(update_context&) override;
 	void recycle(interface::container& container, vi32 pos) noexcept;
+	[[nodiscard]] auto has(const mark::interface::item& item) const noexcept
+		-> bool;
 
 private:
 	queue_type m_queue;

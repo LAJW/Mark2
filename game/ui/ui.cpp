@@ -380,9 +380,8 @@ auto mark::ui::ui::drop() noexcept -> interface::item_ptr
 
 void mark::ui::ui::recycle(interface::container& container, vi32 pos) noexcept
 {
-	if (m_windows.size() == 4) {
-		auto& recycler = dynamic_cast<mark::ui::recycler&>(*m_windows.back());
-		recycler.recycle(container, pos);
+	if (let recycler = this->recycler()) {
+		recycler->recycle(container, pos);
 	}
 }
 
@@ -394,4 +393,30 @@ auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
 		return nullptr;
 	}
 	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
+}
+
+auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
+	-> bool
+{
+	if (let recycler = this->recycler()) {
+		return recycler->has(item);
+	}
+	return false;
+}
+
+auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
+{
+	if (m_windows.size() == 4) {
+		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+	}
+	return {};
+}
+
+auto mark::ui::ui::recycler() const noexcept
+	-> optional<const mark::ui::recycler&>
+{
+	if (m_windows.size() == 4) {
+		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+	}
+	return {};
 }
