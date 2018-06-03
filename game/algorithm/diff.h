@@ -1,6 +1,8 @@
 #pragma once
 #include <stdafx.h>
 
+namespace mark {
+
 template <typename old_container_t, typename new_container_t>
 struct diff_result
 {
@@ -59,3 +61,4 @@ auto diff(const old_container_t& old_list, const new_container_t& new_list)
 	return diff(old_list, new_list, [](let& a, let& b) { return a == b; });
 }
 
+} // namespace
