@@ -62,3 +62,5 @@ void mark::ui::chunky_window::render(update_context& context) const noexcept
 auto mark::ui::chunky_window::size() const -> vi32 { return m_size; }
 
 auto mark::ui::chunky_window::pos() const noexcept -> vi32 { return m_pos; }
+
+void mark::ui::chunky_window::pos(const vi32& pos) { m_pos = pos; }

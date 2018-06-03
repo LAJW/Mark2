@@ -40,6 +40,7 @@ mark::ui::ui::~ui() = default;
 
 void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
+	let resolution_i = vi32(resolution);
 	auto& world = m_world_stack.world();
 	if (!m_stack.get().empty() && m_stack.get().back() != m_mode) {
 		m_mode = m_stack.get().back();
@@ -60,7 +61,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		let image_circle = m_rm.image("circle.png");
 		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 		// Display landing pad UI
-		if (const auto modular = this->landed_modular()) {
+		if (let modular = this->landed_modular()) {
 			if (m_windows.size() == 2) {
 				let inventory_size =
 					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
@@ -73,18 +74,18 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					_.size = inventory_size;
 					return _;
 				}()));
-				m_windows.push_back(std::make_unique<mark::ui::recycler>(
-					[&, modular = modular] {
-						recycler::info _;
-						_.modular = *modular;
-						_.rm = m_rm;
-						_.tooltip = m_tooltip;
-						_.pos = { 1920 - 50 - 300, 50 };
-						_.size = inventory_size;
-						return _;
-					}()));
+				m_windows.push_back(std::make_unique<mark::ui::recycler>([&] {
+					recycler::info _;
+					_.modular = *modular;
+					_.rm = m_rm;
+					_.tooltip = m_tooltip;
+					_.pos = { resolution_i.x - 50 - 300, 50 };
+					_.size = inventory_size;
+					return _;
+				}()));
+			} else {
+				this->recycler()->pos(vi32(resolution_i.x - 50 - 300, 50));
 			}
-
 			this->container_ui(context, mouse_pos, *modular);
 		} else {
 			m_windows[1]->clear();

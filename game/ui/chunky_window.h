@@ -18,6 +18,7 @@ public:
 	void update(update_context&) override;
 	auto size() const -> vi32 override;
 	auto pos() const noexcept -> vi32 override;
+	void pos(const vi32&);
 
 private:
 	void render(update_context&) const noexcept;
