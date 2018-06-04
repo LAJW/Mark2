@@ -17,9 +17,8 @@ void mark::ui::label::update(update_context& context)
 	context.render([&] {
 		update_context::text_info _;
 		_.box = vd(m_size);
-		_.pos = vd(this->pos() + parent().pos());
+		_.pos = this->pos() + parent().pos();
 		_.layer = 101;
-		_.world = false;
 		_.centred = false;
 		_.text = m_text;
 		_.size = m_font_size;

@@ -8,25 +8,14 @@ let constexpr tooltip_size = 300.f;
 let constexpr tooltip_margin = 7.f;
 let constexpr font_size = 14.f;
 
-void mark::ui::tooltip::set(vd pos, const std::string& str, bool screen_space)
+void mark::ui::tooltip::set(std::variant<vd, vi32> pos, const std::string& str)
 {
 	if (!mostly_unchanged(m_text, str)) {
 		m_load.trigger();
 	}
 	m_text = str;
 	m_pos = pos;
-	m_world = !screen_space;
 	m_adsr.trigger();
-}
-
-void mark::ui::tooltip::set(vd pos, const std::string& str)
-{
-	this->set(pos, str, false);
-}
-
-void mark::ui::tooltip::set(vi32 pos, const std::string& str)
-{
-	this->set(vd(pos), str, true);
 }
 
 mark::ui::tooltip::tooltip(resource::manager& rm) noexcept
@@ -54,7 +43,6 @@ void mark::ui::tooltip::render(update_context& context) const
 		_.image = m_background;
 		_.pos = m_pos;
 		_.size = tooltip_size;
-		_.world = m_world;
 		_.centred = false;
 		_.color = { 50, 50, 50, opacity };
 		return _;
@@ -64,7 +52,12 @@ void mark::ui::tooltip::render(update_context& context) const
 		update_context::text_info _;
 		_.font = m_font;
 		_.layer = tooltip_layer;
-		_.pos = m_pos + vd(tooltip_margin, tooltip_margin);
+		if (let pos = std::get_if<vd>(&m_pos)) {
+			_.pos = *pos + vd(tooltip_margin, tooltip_margin);
+		} else {
+			let margin = static_cast<int>(tooltip_margin);
+			_.pos = std::get<vi32>(m_pos) + vi32(margin, margin);
+		}
 		_.box = { tooltip_size - tooltip_margin * 2.f,
 				  tooltip_size - tooltip_margin * 2.f };
 		_.size = font_size;
@@ -72,7 +65,6 @@ void mark::ui::tooltip::render(update_context& context) const
 		let cur_len = static_cast<size_t>(
 			(1. - m_load.get()) * static_cast<double>(m_text.length()));
 		_.text = m_text.substr(0, cur_len);
-		_.world = m_world;
 		_.centred = false;
 		return _;
 	}());

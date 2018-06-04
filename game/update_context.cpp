@@ -1,7 +1,7 @@
-﻿#include "stdafx.h"
-#include "update_context.h"
+﻿#include "update_context.h"
 #include "particle.h"
 #include "sprite.h"
+#include "stdafx.h"
 
 namespace {
 static float width(char ch)
@@ -40,10 +40,9 @@ void mark::update_context::render(const text_info& info)
 	let size = info.size;
 	let color = info.color;
 	let& text = info.text;
-	let world = info.world;
 	let centred = info.centred;
 
-	auto offset = vd(size, size) / 2.0;
+	auto offset = vd(size, size) / 2.;
 	for (size_t i = 0; i < text.size(); i++) {
 		let ch = text[i];
 		char frame = -1;
@@ -66,12 +65,16 @@ void mark::update_context::render(const text_info& info)
 		if (frame >= 0) {
 			sprite args;
 			args.image = font;
-			args.pos = pos + offset + vd(0, offset_y(ch));
+			if (let posd = std::get_if<vd>(&pos)) {
+				args.pos = *posd + offset + vd(0, offset_y(ch));
+			} else {
+				args.pos = std::get<vi32>(pos) + vi32(offset)
+					+ vi32(0, static_cast<int>(offset_y(ch)));
+			}
 			args.size = size;
 			args.frame = frame;
 			args.color = color;
 			args.centred = centred;
-			args.world = world;
 			out.emplace_back(args);
 		}
 		if (ch != '\n') {

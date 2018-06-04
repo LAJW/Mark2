@@ -52,10 +52,9 @@ void mark::ui::vector_button::render(update_context& context) const
 	context.render([&] {
 		update_context::text_info _;
 		_.box = { 300., 50. };
-		_.pos = vd(this->pos());
+		_.pos = this->pos();
 		_.font = m_font;
 		_.text = m_title;
-		_.world = false;
 		_.centred = false;
 		_.layer = 103;
 		_.color = sf::Color::White;

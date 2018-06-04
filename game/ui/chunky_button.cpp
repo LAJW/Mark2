@@ -41,9 +41,8 @@ void mark::ui::chunky_button::render(update_context& context) const
 		context.sprites[100].emplace_back([&, offset = offset, frame = frame] {
 			sprite _;
 			_.image = m_background;
-			_.pos = vd(this->pos() + vi32(offset, 0));
+			_.pos = this->pos() + vi32(offset, 0);
 			_.size = chunk_size;
-			_.world = false;
 			_.centred = false;
 			_.frame = frame;
 			return _;
@@ -51,9 +50,8 @@ void mark::ui::chunky_button::render(update_context& context) const
 		context.sprites[100].emplace_back([&, offset = offset, frame = frame] {
 			sprite _;
 			_.image = m_background;
-			_.pos = vd(this->pos() + vi32(offset, 0));
+			_.pos = this->pos() + vi32(offset, 0);
 			_.size = chunk_size;
-			_.world = false;
 			_.centred = false;
 			_.frame = frame + 3;
 			_.color = sf::Color(
@@ -64,10 +62,9 @@ void mark::ui::chunky_button::render(update_context& context) const
 	context.render([&] {
 		update_context::text_info _;
 		_.box = { 300., 50. };
-		_.pos = vd(this->pos() + vi32(8, 8));
+		_.pos = this->pos() + vi32(8, 8);
 		_.font = m_font;
 		_.text = m_text;
-		_.world = false;
 		_.centred = false;
 		_.layer = 103;
 		_.color = sf::Color::White;

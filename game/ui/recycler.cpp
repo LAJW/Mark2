@@ -78,13 +78,11 @@ recycler::recycler(const info& info)
 void recycler::update(update_context& context)
 {
 	for (let i : range(vi32(m_queue.size()))) {
-		let pos = this->pos();
 		context.sprites[101].push_back([&] {
 			sprite _;
 			_.image = m_grid;
-			_.pos = vd(pos + i * static_cast<int>(mark::module::size));
+			_.pos = this->pos() + i * static_cast<int>(mark::module::size);
 			_.centred = false;
-			_.world = false;
 			_.size = mark::module::size;
 			return _;
 		}());

@@ -41,20 +41,18 @@ void mark::ui::container::update(update_context& context)
 	context.sprites[100].push_back([&] {
 		sprite _;
 		_.image = m_header;
-		_.pos = vd(this->pos());
+		_.pos = this->pos();
 		_.size = 32.f;
 		_.frame = std::numeric_limits<size_t>::max();
-		_.world = false;
 		_.centred = false;
 		return _;
 	}());
 	context.render([&] {
 		update_context::text_info _;
 		_.box = vd(256, 32);
-		_.pos = vd(pos());
+		_.pos = this->pos();
 		_.layer = 100;
 		_.centred = false;
-		_.world = false;
 		_.font = m_font;
 		_.text = "Container"; // TODO: Pull from the container
 		_.color = sf::Color::Cyan;
@@ -64,10 +62,9 @@ void mark::ui::container::update(update_context& context)
 		context.sprites[100].push_back([&] {
 			sprite _;
 			_.image = m_cargo_bg;
-			_.pos = vd(this->pos() + i * 16) + vd(0, 32);
+			_.pos = this->pos() + i * 16 + vi32(0, 32);
 			_.size = 16.f;
 			_.frame = std::numeric_limits<size_t>::max();
-			_.world = false;
 			_.centred = false;
 			return _;
 		}());

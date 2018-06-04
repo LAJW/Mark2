@@ -32,8 +32,12 @@ static void render(
 	}
 	tmp.rotate(sprite.rotation);
 	tmp.setColor(sprite.color);
-	let offset =
-		sprite.world ? sprite.pos - camera + resolution / 2. : sprite.pos;
+	let offset = [&] {
+		if (let screen_pos = std::get_if<vi32>(&sprite.pos)) {
+			return vector<float>(*screen_pos);
+		}
+		return vector<float>(std::get<vd>(sprite.pos) - camera + resolution / 2.);
+	}();
 	tmp.move(vector<float>(offset));
 	buffer.draw(tmp);
 }

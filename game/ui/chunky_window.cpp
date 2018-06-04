@@ -48,11 +48,10 @@ void mark::ui::chunky_window::render(update_context& context) const noexcept
 		context.sprites[100].push_back([&] {
 			let[offset, frame] = offset_and_frame_of(i, size());
 			sprite _;
-			_.world = false;
 			_.centred = false;
 			_.size = chunk_size;
 			_.frame = frame;
-			_.pos = vd(pos() + offset);
+			_.pos = pos() + offset;
 			_.image = m_background;
 			return _;
 		}());

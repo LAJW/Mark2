@@ -71,12 +71,11 @@ struct update_context
 	{
 		int layer = 0;
 		resource::image_ptr font;
-		vd pos;
+		std::variant<vd, vi32> pos;
 		vd box;
 		float size = 14.f;
 		sf::Color color = sf::Color::White;
 		std::string text;
-		bool world = false;
 		bool centred = false;
 	};
 	void render(const text_info&);

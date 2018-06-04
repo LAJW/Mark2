@@ -40,10 +40,8 @@ void mark::ui::item_button::render(update_context& context) const
 	context.sprites[102].emplace_back([&] {
 		sprite _;
 		_.image = m_item.thumbnail();
-		let pos = vd(this->pos());
-		_.pos = pos - vd(0, (size.x - size.y) / 2.);
+		_.pos = this->pos() - vi32(0, (size.x - size.y) / 2);
 		_.size = static_cast<float>(std::max(size.x, size.y));
-		_.world = false;
 		_.centred = false;
 		_.color = color;
 		return _;
@@ -57,11 +55,10 @@ void mark::ui::item_button::render(update_context& context) const
 			_.text = std::to_string(m_item.quantity());
 			let offset =
 				m_item.quantity() >= 10 ? font_size + line_size : line_size;
-			_.pos = vd(pos() + size - vi32(offset, line_size));
+			_.pos = pos() + size - vi32(offset, line_size);
 			_.font = m_font;
 			_.size = static_cast<float>(font_size);
 			_.centred = false;
-			_.world = false;
 			_.box = { 30, 30 };
 			_.layer = 102;
 			_.color = color;

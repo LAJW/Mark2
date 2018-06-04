@@ -12,7 +12,7 @@ public:
 
 private:
 	void
-	render(update_context&, const world& world, vd resolution, vd mouse_pos)
+	render(update_context&, const world& world, vi32 resolution, vi32 mouse_pos)
 		const;
 
 	const resource::image_ptr m_hotbar_bg;
