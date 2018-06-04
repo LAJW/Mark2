@@ -162,6 +162,9 @@ auto mark::module::cargo::can_attach(vi32 pos, const interface::item& item)
 	let incoming_border = incoming_pos + item.size();
 	for (let pair : enumerate(m_items)) {
 		if (let& cur_item = pair.second) {
+			if (cur_item.get() == &item) {
+				continue;
+			}
 			let i = gsl::narrow<unsigned>(pair.first);
 			let item_pos = vu32(i % 16, i / 16);
 			let item_border = item_pos + cur_item->size();
