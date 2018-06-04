@@ -26,6 +26,10 @@ public:
 private:
 	void update(update_context& context) override;
 	void render(update_context& context) const;
+	// Calculate rotation for the next frame
+	auto rotation(double dt) const noexcept -> float;
+	auto cooldown(double dt) const noexcept -> float;
+	auto can_shoot() const noexcept -> bool;
 	auto
 	make_projectile(update_context& context, mark::world&, size_t index) const
 		-> shared_ptr<unit::projectile>;
@@ -34,7 +38,8 @@ private:
 	// Get targeting system
 	// Returns parent targeting system if turret is stationary
 	// Returns this module's targeting system if turret is not stationary
-	auto targeting_system() -> mark::targeting_system&;
+	auto targeting_system() noexcept -> mark::targeting_system&;
+	auto targeting_system() const noexcept -> const mark::targeting_system&;
 
 	unique_ptr<mark::targeting_system> m_targeting_system;
 	resource::image_ptr m_image;

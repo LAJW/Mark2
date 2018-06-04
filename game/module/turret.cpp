@@ -14,13 +14,13 @@
 #include <utility>
 #include <world.h>
 
+static auto cooldown(float rate_of_fire) { return 1.f / rate_of_fire; }
+
 void mark::module::turret::update(update_context& context)
 {
 	this->module::base::update(context);
-	let dt = context.dt;
-	let fdt = gsl::narrow_cast<float>(dt);
-	m_adsr.update(dt);
-	let pos = this->pos();
+	let fdt = gsl::narrow_cast<float>(context.dt);
+	m_adsr.update(context.dt);
 	if (m_targeting_system) {
 		m_targeting_system->update(context);
 	}
@@ -29,37 +29,53 @@ void mark::module::turret::update(update_context& context)
 		*m_shared_target = *target;
 	}
 
-	m_rotation = [&] {
-		if (m_angular_velocity != 0.f) {
-			return turn(
-				*m_shared_target - pos, m_rotation, m_angular_velocity, dt);
-		}
-		if (std::abs(grid_pos().x) > std::abs(grid_pos().y)) {
-			return (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
-		}
-		return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
-	}();
-	let cooldown = 1.f / m_rate_of_fire;
-	if (m_cur_cooldown <= 0.f
-		&& ((!m_is_chargeable && !m_stunned
-			 && this->targeting_system().can_shoot())
-			|| (m_is_chargeable && !m_is_charging))) {
+	m_rotation = this->rotation(context.dt);
+	if (this->can_shoot()) {
 		for (let index : mark::range(m_projectile_count)) {
 			context.units.push_back(
 				this->make_projectile(context, parent().world(), index));
 		}
-		m_cur_cooldown = cooldown;
+		m_cur_cooldown = ::cooldown(m_rate_of_fire);
 		m_adsr.trigger();
 		m_cur_heat = std::min(m_cur_heat + m_heat_per_shot, 100.f);
 	}
-	m_cur_cooldown = [&] {
-		if (m_is_chargeable && m_cur_cooldown != 0.f) {
-			return m_is_charging ? std::max(m_cur_cooldown - fdt, 0.f)
-								 : std::min(m_cur_cooldown + fdt, cooldown);
-		}
-		return m_cur_cooldown - fdt;
-	}();
+	m_cur_cooldown = this->cooldown(context.dt);
 	this->render(context);
+}
+
+auto mark::module::turret::rotation(double dt) const noexcept -> float
+{
+	if (m_angular_velocity != 0.f) {
+		Expects(m_shared_target);
+		let direction = *m_shared_target - pos();
+		return turn(direction, m_rotation, m_angular_velocity, dt);
+	}
+	if (std::abs(grid_pos().x) >= std::abs(grid_pos().y)) {
+		return (grid_pos().x > 0 ? 0 : 180.f) + parent().rotation();
+	}
+	return (grid_pos().y > 0 ? 90 : -90.f) + parent().rotation();
+}
+
+auto mark::module::turret::cooldown(double dt) const noexcept -> float
+{
+	let dtf = gsl::narrow_cast<float>(dt);
+	if (m_is_chargeable && m_cur_cooldown != 0.f) {
+		return m_is_charging
+			? std::max(m_cur_cooldown - dtf, 0.f)
+			: std::min(m_cur_cooldown + dtf, ::cooldown(m_rate_of_fire));
+	}
+	return m_cur_cooldown - dtf;
+}
+
+auto mark::module::turret::can_shoot() const noexcept -> bool
+{
+	if (m_stunned || m_cur_cooldown > 0.f) {
+		return false;
+	}
+	if (m_is_chargeable) {
+		return !m_is_charging;
+	}
+	return this->targeting_system().can_shoot();
 }
 
 auto mark::module::turret::make_projectile(
@@ -205,7 +221,15 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(knockback);
 }
 
-auto mark::module::turret::targeting_system() -> mark::targeting_system&
+auto mark::module::turret::targeting_system() noexcept
+	-> mark::targeting_system&
+{
+	return m_targeting_system ? *m_targeting_system
+							  : parent().targeting_system();
+}
+
+auto mark::module::turret::targeting_system() const noexcept
+	-> const mark::targeting_system&
 {
 	return m_targeting_system ? *m_targeting_system
 							  : parent().targeting_system();
