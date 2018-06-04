@@ -99,7 +99,7 @@ private:
 	struct grid_element
 	{
 		module::base* module = nullptr;
-		bool reserved = false;
+		std::unordered_set<not_null<const module::base*>> reserved;
 	};
 	auto p_at(vector<int8_t> pos) noexcept -> grid_element&;
 	auto p_at(vector<int8_t> pos) const noexcept -> const grid_element&;

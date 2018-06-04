@@ -347,7 +347,7 @@ auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr&& module)
 				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + gsl::narrow<int>(module->size().y) })) {
-			this->p_at(vi8(i)).reserved = true;
+			this->p_at(vi8(i)).reserved.insert(module.get());
 		}
 	} else if (module->reserved() == module::reserved_kind::front) {
 		for (let i : range<vi32>(
@@ -355,7 +355,7 @@ auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr&& module)
 				   module_pos.y },
 				 { gsl::narrow<int>(max_size / 2),
 				   module_pos.y + gsl::narrow<int>(module->size().y) })) {
-			this->p_at(vi8(i)).reserved = true;
+			this->p_at(vi8(i)).reserved.insert(module.get());
 		}
 	}
 	m_radius = std::max(
@@ -397,7 +397,8 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	let module_pos = vi8(pos_);
 	for (let i : range(vi8(module.size()))) {
 		let[module_ptr, reserved] = this->p_at(module_pos + i);
-		if ((module_ptr && module_ptr != &module) || reserved) {
+		if ((module_ptr && module_ptr != &module)
+			|| reserved.size() - reserved.count(&module) > 0) {
 			return false;
 		}
 	}
@@ -410,7 +411,8 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
-			if (this->p_at(vi8(i)).module) {
+			let other = this->p_at(vi8(i)).module;
+			if (other && other != &module) {
 				return false;
 			}
 		}
@@ -420,7 +422,8 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 				   module_pos.y },
 				 { gsl::narrow<int>(max_size / 2),
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
-			if (this->p_at(vi8(i)).module) {
+			let other = this->p_at(vi8(i)).module;
+			if (other && other != &module) {
 				return false;
 			}
 		}
@@ -443,14 +446,14 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 				 { -gsl::narrow<int>(max_size / 2), module_pos.y },
 				 { module_pos.x,
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
-			this->p_at(vi8(i)).reserved = false;
+			this->p_at(vi8(i)).reserved.erase(&module);
 		}
 	} else if (module.reserved() == module::reserved_kind::front) {
 		for (let i : range<vi32>(
 				 { module_pos.x + module_size.x, module_pos.y },
 				 { gsl::narrow<int>(max_size / 2),
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
-			this->p_at(vi8(i)).reserved = false;
+			this->p_at(vi8(i)).reserved.erase(&module);
 		}
 	}
 	this->unbind(module);
