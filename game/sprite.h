@@ -3,9 +3,6 @@
 #include <numeric>
 
 namespace mark {
-namespace resource {
-class image;
-}
 struct sprite final
 {
 	// Display everything frame
@@ -41,4 +38,17 @@ struct rectangle final
 	sf::Color background_color = sf::Color::White;
 	bool world = true;
 };
+
+struct window final
+{
+	/// Window position in screen coordinates
+	vi32 pos;
+	/// Window size in screen coordinates
+	vi32 size;
+	/// Window scroll position
+	vi32 scroll;
+	/// Sprites to draw within the window
+	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
+};
+
 } // namespace mark

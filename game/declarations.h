@@ -24,6 +24,8 @@ class particle;
 struct path;
 struct rectangle;
 struct sprite;
+struct window;
+using renderable = std::variant<sprite, path, rectangle, window>;
 class targeting_system;
 struct update_context;
 class world;

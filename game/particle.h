@@ -27,8 +27,7 @@ public:
 	particle(const particle::info& info);
 	void update(
 		double dt,
-		std::map<int, std::vector<std::variant<sprite, path, rectangle>>>&
-			sprites);
+		std::map<int, std::vector<renderable>>& sprites);
 	inline bool dead() const { return m_cur_lifespan <= 0; }
 
 private:

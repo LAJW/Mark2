@@ -1,7 +1,7 @@
-﻿#include "stdafx.h"
-#include "particle.h"
+﻿#include "particle.h"
 #include "resource_image.h"
 #include "sprite.h"
+#include "stdafx.h"
 
 #ifdef _DEBUG
 constexpr const bool debug_mode = true;
@@ -43,7 +43,7 @@ mark::particle::particle(const particle::info& attr, bool)
 
 void mark::particle::update(
 	double dt,
-	std::map<int, std::vector<std::variant<sprite, path, rectangle>>>& sprites)
+	std::map<int, std::vector<renderable>>& sprites)
 {
 	sprites[m_layer].emplace_back([&] {
 		let frame_count = m_image->size().x / m_image->size().y;

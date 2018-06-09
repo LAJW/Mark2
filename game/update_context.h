@@ -8,7 +8,8 @@ struct update_context
 	update_context(resource::manager&);
 	~update_context();
 	double dt;
-	std::map<int, std::vector<std::variant<sprite, path, rectangle>>> sprites;
+	std::map<int, std::vector<std::variant<sprite, path, rectangle, window>>>
+		sprites;
 	std::map<int, std::vector<sprite>> normals;
 	std::vector<std::pair<vd, sf::Color>> lights;
 	std::vector<not_null<shared_ptr<unit::base>>> units;
