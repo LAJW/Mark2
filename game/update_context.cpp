@@ -8,26 +8,28 @@ static float width(char ch)
 {
 	if (ch >= '0' && ch <= '9') {
 		return 6.f / 7.f;
-	} else if (ch == 'I' || ch == '1' || ch == 't') {
-		return 4.f / 7.f;
-	} else if (ch == 'f' || ch == 'j' || ch == 'r' || ch == ';' || ch == ',') {
-		return 3.f / 7.f;
-	} else if (ch == 'i' || ch == 'l' || ch == '.' || ch == ':') {
-		return 2.f / 7.f;
-	} else if ((ch >= 'a' && ch <= 'z') || ch == 'Y') {
-		return 5.f / 7.f;
-	} else {
-		return 1;
 	}
+	if (ch == 'I' || ch == '1' || ch == 't') {
+		return 4.f / 7.f;
+	}
+	if (ch == 'f' || ch == 'j' || ch == 'r' || ch == ';' || ch == ',') {
+		return 3.f / 7.f;
+	}
+	if (ch == 'i' || ch == 'l' || ch == '.' || ch == ':') {
+		return 2.f / 7.f;
+	}
+	if ((ch >= 'a' && ch <= 'z') || ch == 'Y') {
+		return 5.f / 7.f;
+	}
+	return 1;
 }
 static float offset_y(char ch)
 {
 	if ((ch >= 'a' && ch <= 'z') || ch == ':' || ch == ';' || ch == '.'
 		|| ch == ',') {
 		return 4.f;
-	} else {
-		return 0.f;
 	}
+	return 0.f;
 }
 } // namespace
 
