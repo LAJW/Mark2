@@ -65,19 +65,21 @@ void mark::update_context::render(const text_info& info)
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			sprite args;
-			args.image = font;
-			if (let posd = std::get_if<vd>(&pos)) {
-				args.pos = *posd + offset + vd(0, offset_y(ch));
-			} else {
-				args.pos = std::get<vi32>(pos) + vi32(offset)
-					+ vi32(0, static_cast<int>(offset_y(ch)));
-			}
-			args.size = size;
-			args.frame = frame;
-			args.color = color;
-			args.centred = centred;
-			out.emplace_back(args);
+			out.push_back([&] {
+				sprite _;
+				_.image = font;
+				if (let posd = std::get_if<vd>(&pos)) {
+					_.pos = *posd + offset + vd(0, offset_y(ch));
+				} else {
+					_.pos = std::get<vi32>(pos) + vi32(offset)
+						+ vi32(0, static_cast<int>(offset_y(ch)));
+				}
+				_.size = size;
+				_.frame = frame;
+				_.color = color;
+				_.centred = centred;
+				return _;
+			}());
 		}
 		if (ch != '\n') {
 			// find next non-alnum, if goes over the screen - indent
@@ -123,12 +125,14 @@ void mark::update_context::render(const bar_info& info)
 		uint8_t frame = 0;
 		// render gray background
 		if (i >= edge) {
-			sprite args;
-			args.image = image;
-			args.pos = pos + vd(offset_x, 0);
-			args.size = 8.f;
-			args.frame = 6;
-			this->sprites[50].emplace_back(args);
+			this->sprites[50].emplace_back([&] {
+				sprite _;
+				_.image = image;
+				_.pos = pos + vd(offset_x, 0);
+				_.size = 8.f;
+				_.frame = 6;
+				return _;
+			}());
 		}
 		// calculate edge opacity
 		if (i == edge) {
@@ -152,13 +156,15 @@ void mark::update_context::render(const bar_info& info)
 					frame = 0;
 				}
 			}
-			sprite args;
-			args.image = image;
-			args.pos = pos + vd(offset_x, 0);
-			args.size = 8.f;
-			args.frame = frame;
-			args.color = sf::Color(255, 255, 255, opacity);
-			this->sprites[50].emplace_back(args);
+			this->sprites[50].push_back([&] {
+				sprite _;
+				_.image = image;
+				_.pos = pos + vd(offset_x, 0);
+				_.size = 8.f;
+				_.frame = frame;
+				_.color = sf::Color(255, 255, 255, opacity);
+				return _;
+			}());
 		}
 	}
 }
@@ -181,17 +187,19 @@ void mark::update_context::render(const update_context::spray_info& info)
 				   / static_cast<double>(info.count));
 		let rotation =
 			info.direction + this->random(0.f, info.cone) - info.cone / 2.f;
-		particle::info attr;
-		attr.image = info.image;
-		attr.color = info.color;
-		attr.pos = tmp_pos;
-		attr.velocity = tmp_velocity;
-		attr.direction = rotation;
-		attr.lifespan = tmp_lifespan;
-		attr.color = info.color;
-		attr.size = tmp_diameter;
-		attr.layer = info.layer;
-		this->particles.emplace_back(attr);
+		this->particles.push_back([&] {
+			particle::info _;
+			_.image = info.image;
+			_.color = info.color;
+			_.pos = tmp_pos;
+			_.velocity = tmp_velocity;
+			_.direction = rotation;
+			_.lifespan = tmp_lifespan;
+			_.color = info.color;
+			_.size = tmp_diameter;
+			_.layer = info.layer;
+			return _;
+		}());
 	}
 }
 
