@@ -49,8 +49,8 @@ void mark::ui::vector_button::render(update_context& context) const
 		_.background_color = { 50, 50, 50, uint8_t(255. * m_opacity) };
 		return _;
 	}());
-	context.render([&] {
-		update_context::text_info _;
+	mark::render(context.sprites[103], [&] {
+		text_info _;
 		_.box = { 300., 50. };
 		_.pos = this->pos();
 		_.font = m_font;

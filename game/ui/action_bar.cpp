@@ -134,20 +134,18 @@ void mark::ui::action_bar::render(
 				return _;
 			}());
 		}
-		context.render([&] {
-			update_context::text_info _;
+		mark::render(context.sprites[101], [&] {
+			text_info _;
 			_.font = m_font;
-			_.layer = 101;
 			_.pos = vi32(x + 32, y + 8);
 			_.box = { 300 - 14.f, 300 - 14.f };
 			_.size = 14.f;
 			_.text = std::to_string(i);
 			return _;
 		}());
-		context.render([&] {
-			update_context::text_info _;
+		mark::render(context.sprites[101], [&] {
+			text_info _;
 			_.font = m_font;
-			_.layer = 101;
 			_.pos = vi32(x + 32, y + 32);
 			_.box = { 300 - 14.f, 300 - 14.f };
 			_.size = 14.f;

@@ -18,8 +18,7 @@ mark::ui::container::container(const info& info)
 	, m_cargo_bg(info.rm->image("inventory-grid.png"))
 	, m_header(info.rm->image("inventory-header.png"))
 	, m_font(info.rm->image("font.png"))
-{
-}
+{}
 
 void mark::ui::container::update(update_context& context)
 {
@@ -47,8 +46,8 @@ void mark::ui::container::update(update_context& context)
 		_.centred = false;
 		return _;
 	}());
-	context.render([&] {
-		update_context::text_info _;
+	mark::render(context.sprites[100], [&] {
+		text_info _;
 		_.box = vd(256, 32);
 		_.pos = this->pos();
 		_.layer = 100;

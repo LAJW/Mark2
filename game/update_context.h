@@ -8,8 +8,7 @@ struct update_context
 	update_context(resource::manager&);
 	~update_context();
 	double dt;
-	std::map<int, std::vector<std::variant<sprite, path, rectangle, window>>>
-		sprites;
+	std::map<int, std::vector<renderable>> sprites;
 	std::map<int, std::vector<sprite>> normals;
 	std::vector<std::pair<vd, sf::Color>> lights;
 	std::vector<not_null<shared_ptr<unit::base>>> units;
@@ -68,21 +67,24 @@ struct update_context
 		void diameter(float min, float max = NAN);
 	};
 	void render(const spray_info&);
-	struct text_info
-	{
-		int layer = 0;
-		resource::image_ptr font;
-		std::variant<vd, vi32> pos;
-		vd box;
-		float size = 14.f;
-		sf::Color color = sf::Color::White;
-		std::string text;
-		bool centred = false;
-	};
-	void render(const text_info&);
 	bool crit = false;
 
 private:
 	resource::manager& m_resource_manager;
 };
+
+struct text_info
+{
+	int layer = 0;
+	resource::image_ptr font;
+	std::variant<vd, vi32> pos;
+	vd box;
+	float size = 14.f;
+	sf::Color color = sf::Color::White;
+	std::string text;
+	bool centred = false;
+};
+
+void render(std::vector<renderable>& layer, const text_info&);
+
 } // namespace mark

@@ -59,8 +59,8 @@ void mark::ui::chunky_button::render(update_context& context) const
 			return _;
 		}());
 	}
-	context.render([&] {
-		update_context::text_info _;
+	mark::render(context.sprites[100], [&] {
+		text_info _;
 		_.box = { 300., 50. };
 		_.pos = this->pos() + vi32(8, 8);
 		_.font = m_font;

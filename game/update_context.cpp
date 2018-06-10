@@ -33,10 +33,9 @@ static float offset_y(char ch)
 }
 } // namespace
 
-void mark::update_context::render(const text_info& info)
+void mark::render(std::vector<renderable>& layer, const text_info& info)
 {
 	let& font = info.font;
-	auto& out = sprites[info.layer];
 	let pos = info.pos;
 	let box = info.box;
 	let size = info.size;
@@ -65,7 +64,7 @@ void mark::update_context::render(const text_info& info)
 			frame = end + 3;
 		}
 		if (frame >= 0) {
-			out.push_back([&] {
+			layer.push_back([&] {
 				sprite _;
 				_.image = font;
 				if (let posd = std::get_if<vd>(&pos)) {

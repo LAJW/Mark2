@@ -1,6 +1,7 @@
 #include "label.h"
-#include <update_context.h>
+#include <sprite.h>
 #include <ui/window.h>
+#include <update_context.h>
 
 mark::ui::label::label(const info& info)
 	: node(info)
@@ -14,11 +15,10 @@ mark::ui::label::label(const info& info)
 
 void mark::ui::label::update(update_context& context)
 {
-	context.render([&] {
-		update_context::text_info _;
+	mark::render(context.sprites[101], [&] {
+		text_info _;
 		_.box = vd(m_size);
 		_.pos = this->pos() + parent().pos();
-		_.layer = 101;
 		_.centred = false;
 		_.text = m_text;
 		_.size = m_font_size;

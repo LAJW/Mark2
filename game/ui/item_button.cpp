@@ -50,8 +50,8 @@ void mark::ui::item_button::render(update_context& context) const
 	if (m_item.quantity() > 1) {
 		let constexpr font_size = 7;
 		let constexpr line_size = font_size + font_size / 2;
-		context.render([&] {
-			update_context::text_info _;
+		mark::render(context.sprites[102], [&] {
+			text_info _;
 			_.text = std::to_string(m_item.quantity());
 			let offset =
 				m_item.quantity() >= 10 ? font_size + line_size : line_size;
@@ -60,7 +60,6 @@ void mark::ui::item_button::render(update_context& context) const
 			_.size = static_cast<float>(font_size);
 			_.centred = false;
 			_.box = { 30, 30 };
-			_.layer = 102;
 			_.color = color;
 			return _;
 		}());

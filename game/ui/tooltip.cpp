@@ -48,10 +48,9 @@ void mark::ui::tooltip::render(update_context& context) const
 		return _;
 	}());
 
-	context.render([&] {
-		update_context::text_info _;
+	mark::render(context.sprites[tooltip_layer], [&] {
+		text_info _;
 		_.font = m_font;
-		_.layer = tooltip_layer;
 		if (let pos = std::get_if<vd>(&m_pos)) {
 			_.pos = *pos + vd(tooltip_margin, tooltip_margin);
 		} else {
