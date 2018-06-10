@@ -76,9 +76,9 @@ struct event_loop_info
 
 void event_loop(event_loop_info& info)
 {
-	assert(info.on_event);
-	assert(info.on_update);
-	assert(info.stack);
+	Expects(info.on_event);
+	Expects(info.on_update);
+	Expects(info.stack);
 	sf::RenderWindow window({ info.res.x, info.res.y }, info.window_title);
 	mark::renderer renderer(info.res);
 	let& on_update = info.on_update;
