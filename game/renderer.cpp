@@ -1,9 +1,9 @@
 ﻿#include "stdafx.h"
-
-#include "renderer.h"
-#include "resource_image.h"
-#include "sprite.h"
-#include "update_context.h"
+#include <algorithm/range.h>
+#include <renderer.h>
+#include <resource_image.h>
+#include <sprite.h>
+#include <update_context.h>
 
 namespace mark {
 
@@ -63,14 +63,14 @@ render(sf::RenderTexture& buffer, const path& path, const vd& camera)
 		return;
 	}
 	if (path.world) {
-		for (size_t i = 0; i < path.points.size() - 1; ++i) {
+		for (let i : mark::range(path.points.size() - 1)) {
 			let cur = path.points[i];
 			let next = path.points[i + 1];
 			points.push_back(sf::Vertex(vector<float>(cur - camera)));
 			points.push_back(sf::Vertex(vector<float>(next - camera)));
 		}
 	} else {
-		for (size_t i = 0; i < path.points.size() - 1; ++i) {
+		for (let i : mark::range(path.points.size() - 1)) {
 			let cur = path.points[i];
 			let next = path.points[i + 1];
 			points.push_back(sf::Vertex(vector<float>(cur)));
@@ -97,7 +97,7 @@ static void render(
 {
 	// TODO: Rotate buffers
 	auto& window_buffer = *(*info.window_buffers)[0];
-	for (let& [ z_index, sprites] : window.sprites) {
+	for (let & [ z_index, sprites ] : window.sprites) {
 		for (let& renderable : sprites) {
 			if (let sprite = std::get_if<mark::sprite>(&renderable)) {
 				render(window_buffer, *sprite, info.camera, info.resolution);
