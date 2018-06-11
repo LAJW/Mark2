@@ -104,6 +104,7 @@ auto mark::module::turret::make_projectile(
 	}
 	_.velocity = m_velocity;
 	_.physical = m_physical;
+	_.antimatter = m_antimatter;
 	_.aoe_radius = m_aoe_radius;
 	_.seek_radius = m_seek_radius;
 	_.team = parent().team();
@@ -173,9 +174,18 @@ auto mark::module::turret::describe() const -> std::string
 	os << "Turret" << std::endl;
 	os << "Health: " << std::round(m_cur_health) << " of "
 	   << std::round(m_max_health) << std::endl;
-	os << "Physical damage: " << m_physical << std::endl;
-	os << "Energy damage: " << m_energy << std::endl;
-	os << "Heat damage: " << m_energy << std::endl;
+	if (m_physical >= 0) {
+		os << "Physical damage: " << m_physical << std::endl;
+	}
+	if (m_antimatter >= 0) {
+		os << "Antimatter damage: " << m_antimatter << std::endl;
+	}
+	if (m_energy >= 0) {
+		os << "Energy damage: " << m_energy << std::endl;
+	}
+	if (m_heat) {
+		os << "Heat damage: " << m_heat << std::endl;
+	}
 	os << "Missiles per shot: " << m_projectile_count << std::endl;
 	os << "Cone of fire: " << m_cone << std::endl;
 	os << "Critical chance: " << std::round(m_critical_chance * 1000) / 10
@@ -209,6 +219,7 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(critical_chance);
 	MARK_BIND(critical_multiplier);
 	MARK_BIND(physical);
+	MARK_BIND(antimatter);
 	MARK_BIND(energy);
 	MARK_BIND(heat);
 	MARK_BIND(projectile_angular_velocity);

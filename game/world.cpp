@@ -109,7 +109,7 @@ mark::world::world(
 	, m_camera(std::make_unique<mark::camera>())
 	, m_stack(&stack)
 {
-	let constexpr spawn_ships = false;
+	let constexpr spawn_ships = true;
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
 		return std::dynamic_pointer_cast<unit::modular>(
@@ -142,7 +142,8 @@ mark::world::world(
 
 	for (let point : range(map_size)) {
 		let pos = m_map->map_to_world(point);
-		if (!m_map->traversable(pos, ship_radius)
+		if (length(pos) < 1200
+			|| !m_map->traversable(pos, ship_radius)
 			|| !this->find(pos, ship_radius * 4.).empty()) {
 			continue;
 		}

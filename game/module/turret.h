@@ -66,6 +66,7 @@ private:
 	float m_critical_multiplier = 1.5f;
 
 	float m_physical = 10.f;
+	float m_antimatter = 0.f;
 	float m_energy = 10.f;
 	float m_heat = 1.f;
 	float m_projectile_angular_velocity = 0.f;

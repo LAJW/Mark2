@@ -181,11 +181,15 @@ bool mark::module::base::damage(const interface::damageable::info& attr)
 		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
 		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
 		attr.damaged->insert(this);
-		if (critical) {
-			m_cur_health -= attr.physical * attr.critical_multiplier;
-		} else {
-			m_cur_health -= attr.physical;
-		}
+		let base_damage = attr.physical + attr.antimatter + attr.heat;
+		let with_critical =
+			critical ? base_damage * attr.critical_multiplier : base_damage;
+		m_cur_health -= with_critical;
+
+		let heat_fraction =
+			(critical ? attr.heat * attr.critical_multiplier : attr.heat)
+			/ m_max_health;
+		m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
 		if (stun) {
 			m_stunned += attr.stun_duration;
 		}
@@ -242,8 +246,7 @@ auto mark::module::base::world() const -> const mark::world&
 	return parent().world();
 }
 
-auto mark::module::base::thumbnail() const
-	-> resource::image_ptr
+auto mark::module::base::thumbnail() const -> resource::image_ptr
 {
 	return m_thumbnail;
 }

@@ -34,7 +34,7 @@ void mark::module::flamethrower::update(update_context& context)
 			_.piercing = 1;
 			_.segment = { pos, pos + offset };
 			_.damage.damaged = &damaged;
-			_.damage.physical = m_dps * static_cast<float>(context.dt);
+			_.damage.heat = m_dps * static_cast<float>(context.dt);
 			_.damage.team = parent().team();
 			_.damage.knocked = &knocked;
 			_.damage.knockback = 10.;

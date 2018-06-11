@@ -39,6 +39,7 @@ mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	, m_piercing(args.piercing)
 	, m_guide(args.guide)
 	, m_physical(args.physical)
+	, m_antimatter(args.antimatter)
 	, m_knockback(args.knockback)
 {}
 
@@ -100,6 +101,7 @@ void mark::unit::projectile::update(update_context& context)
 	info.damage.damaged = &m_damaged;
 	info.damage.team = this->team();
 	info.damage.physical = m_physical;
+	info.damage.antimatter = m_antimatter;
 	info.damage.critical_chance = m_critical_chance;
 	info.damage.critical_multiplier = m_critical_multiplier;
 	info.damage.stun_chance = 0.1f;
@@ -163,7 +165,11 @@ void mark::unit::projectile::render(const render_info& info) const
 		spray.diameter(is_heavy_damage ? 32.f : 8.f);
 		spray.count = is_heavy_damage ? 80 : 40;
 		spray.cone = 360.f;
-		spray.color = { 125, 125, 125, 75 };
+		if (m_antimatter > m_physical) {
+			spray.color = { 200, 0, 255, 75 };
+		} else {
+			spray.color = { 125, 125, 125, 75 };
+		}
 		context.render(spray);
 	}
 	// tail: grey dust
@@ -193,6 +199,11 @@ void mark::unit::projectile::render(const render_info& info) const
 		spray.step = mark::length(info.step);
 		spray.direction = m_rotation + 180.f;
 		spray.cone = 30.f;
+		if (m_antimatter > m_physical) {
+			spray.color = { 200, 0, 255, 255 };
+		} else {
+			spray.color = sf::Color::White;
+		}
 		context.render(spray);
 	}
 	{
@@ -231,6 +242,7 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
 	, m_critical_multiplier(node["critical_multiplier"].as<float>())
 	, m_piercing(node["piercing"].as<unsigned>())
 	, m_physical(node["physical"].as<float>(10.f))
+	, m_antimatter(node["antimatter"].as<float>(0.f))
 {}
 
 void mark::unit::projectile::serialize(YAML::Emitter& out) const
@@ -247,6 +259,7 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const
 	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
 	out << Key << "piercing" << Value << m_piercing;
 	out << Key << "physical" << Value << m_physical;
+	out << Key << "antimatter" << Value << m_antimatter;
 
 	out << Key << "damaged" << Value << BeginSeq;
 	for (let& damaged : m_damaged) {

@@ -18,7 +18,9 @@ public:
 		std::unordered_set<not_null<damageable*>>* knocked = nullptr;
 		vd pos;
 		float physical = 0.f;
+		float antimatter = 0.f;
 		float energy = 0.f;
+		float heat = 0.f;
 		float critical_chance = 0.1f;
 		float critical_multiplier = 1.50f;
 		float stun_chance = 0.0f;

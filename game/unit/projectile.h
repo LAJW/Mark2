@@ -20,6 +20,7 @@ public:
 		float lfo = 0.f;
 		double velocity = NAN;
 		float physical = 10.f;
+		float antimatter = 0.f;
 		double seek_radius = 0.f;
 		double aoe_radius = 0.f;
 		float critical_chance = 0.1f;
@@ -59,6 +60,7 @@ private:
 	std::unordered_set<not_null<interface::damageable*>> m_knocked;
 	shared_ptr<const vd> m_guide;
 	float m_physical;
+	float m_antimatter;
 	float m_rotation;
 	lfo m_rotation_lfo;
 	double m_velocity;

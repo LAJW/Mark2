@@ -129,7 +129,9 @@ std::vector<mark::command::any> mark::unit::modular::update_ai() const
 	}
 	let direction = delta / distance_to_enemy;
 	let target_pos = enemy->pos() - direction * minimal_distance;
-	return { command::guide{ enemy->pos() }, command::move{ target_pos } };
+	return { command::activate{ 5, enemy->pos() },
+			 command::guide{ enemy->pos() },
+			 command::move{ target_pos } };
 }
 
 static auto in_area(vi8 point, std::pair<vi8, vi8> area)
