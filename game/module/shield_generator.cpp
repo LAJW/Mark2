@@ -103,11 +103,9 @@ void mark::module::shield_generator::render(update_context& context) const
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
-	if (attr.team == parent().team()
-		|| attr.damaged->find(this) != attr.damaged->end()) {
+	if (attr.team == parent().team() || !attr.damaged->insert(this).second) {
 		return false;
 	}
-	attr.damaged->insert(this);
 	if (this->active()) {
 		m_model_shield.trigger(attr.pos);
 		m_cur_shield = std::max(0.f, m_cur_shield - attr.physical);

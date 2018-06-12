@@ -175,29 +175,28 @@ auto mark::module::base::neighbors()
 
 bool mark::module::base::damage(const interface::damageable::info& attr)
 {
-	if (attr.team != parent().team() && m_cur_health > 0
-		&& attr.damaged->find(this) == attr.damaged->end()) {
-		auto& rm = parent().world().resource_manager();
-		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
-		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
-		attr.damaged->insert(this);
-		let base_damage = attr.physical + attr.antimatter + attr.heat;
-		let with_critical =
-			critical ? base_damage * attr.critical_multiplier : base_damage;
-		m_cur_health -= with_critical;
-
-		let heat_fraction =
-			(critical ? attr.heat * attr.critical_multiplier : attr.heat)
-			/ m_max_health;
-		m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
-		if (stun) {
-			m_stunned += attr.stun_duration;
-		}
-		let direction = atan(parent().pos() - attr.pos);
-		parent().knockback(*attr.knocked, direction, attr.knockback);
-		return true;
+	if (attr.team == parent().team() || m_cur_health <= 0
+		|| attr.damaged->insert(this).second) {
+		return false;
 	}
-	return false;
+	auto& rm = parent().world().resource_manager();
+	let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+	let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
+	let base_damage = attr.physical + attr.antimatter + attr.heat;
+	let with_critical =
+		critical ? base_damage * attr.critical_multiplier : base_damage;
+	m_cur_health -= with_critical;
+
+	let heat_fraction =
+		(critical ? attr.heat * attr.critical_multiplier : attr.heat)
+		/ m_max_health;
+	m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
+	if (stun) {
+		m_stunned += attr.stun_duration;
+	}
+	let direction = atan(parent().pos() - attr.pos);
+	parent().knockback(*attr.knocked, direction, attr.knockback);
+	return true;
 }
 
 auto mark::module::base::dead() const -> bool { return m_cur_health <= 0.f; }
