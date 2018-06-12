@@ -112,8 +112,15 @@ mark::world::world(
 	let constexpr spawn_ships = true;
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
-		return std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialize(*this, stack.blueprints().at("ship")).get());
+		let random = resource_manager.random(0, 1);
+		if (random) {
+			return std::dynamic_pointer_cast<unit::modular>(
+				unit::deserialize(*this, stack.blueprints().at("ship")).get());
+		} else {
+			return std::dynamic_pointer_cast<unit::modular>(
+				unit::deserialize(
+					*this, stack.blueprints().at("laser-ship")).get());
+		}
 	};
 	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
