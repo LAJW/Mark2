@@ -41,7 +41,7 @@ mark::module::shield_generator::shield_generator(
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize " + std::string(type_name));
-	};
+	}
 }
 
 void mark::module::shield_generator::serialize(YAML::Emitter& out) const
@@ -108,8 +108,9 @@ auto mark::module::shield_generator::damage(
 	}
 	if (this->active()) {
 		m_model_shield.trigger(attr.pos);
-		m_cur_shield = std::max(0.f, m_cur_shield - attr.physical);
-		let heat_fraction = attr.heat / m_max_health;
+		m_cur_shield = std::max(
+			0.f, m_cur_shield - attr.physical - attr.antimatter - attr.heat);
+		let heat_fraction = attr.heat / m_max_health * 100.f;
 		m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction);
 		if (m_cur_shield == 0.f) {
 			m_broken = true;

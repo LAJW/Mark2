@@ -33,6 +33,8 @@ void mark::module::flamethrower::update(update_context& context)
 			_.aoe_radius = 0.f;
 			_.piercing = 1;
 			_.segment = { pos, pos + offset };
+			_.damage.antimatter = 0.f;
+			_.damage.physical = 0.f;
 			_.damage.damaged = &damaged;
 			_.damage.heat = m_dps * static_cast<float>(context.dt);
 			_.damage.team = parent().team();

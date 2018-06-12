@@ -70,7 +70,7 @@ reflect(const interface::damageable& damageable, vd collision, float rotation)
 
 void mark::unit::projectile::update(update_context& context)
 {
-	double dt = context.dt;
+	let dt = context.dt;
 	m_rotation_lfo.update(dt);
 	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
 	let step = rotate(vd(1, 0), rotation) * m_velocity * dt;
@@ -109,7 +109,7 @@ void mark::unit::projectile::update(update_context& context)
 	info.damage.knockback = m_knockback;
 
 	let[collisions, terrain_hit, reflected_angle] = world().damage(info);
-	let reflective_hit =
+	let reflective_hit = false && // TODO: Filter out dead objects
 		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
 			return damageable->reflective();
 		});

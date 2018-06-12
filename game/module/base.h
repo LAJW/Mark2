@@ -171,6 +171,7 @@ protected:
 	float m_max_health = 100.f;
 	float m_stunned = 0.f;
 	float m_cur_heat = 0.f;
+	bool m_burning = false;
 
 private:
 	resource::image_ptr m_thumbnail;

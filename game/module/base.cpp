@@ -49,6 +49,15 @@ void mark::module::base::update(update_context& context)
 {
 	let health_percentage = m_cur_health / m_max_health;
 	let pos = this->pos();
+	let dtf = static_cast<float>(context.dt);
+	if (m_cur_heat > 90.f) {
+		m_burning = true;
+	} else if (m_cur_heat < 50.f) {
+		m_burning = false;
+	}
+	if (m_burning) {
+		m_cur_health -= dtf * m_cur_heat;
+	}
 
 	auto neighbors = parent().neighbors_of(*this);
 	let total_surface = 2 * (m_size.x + m_size.y);
@@ -56,8 +65,7 @@ void mark::module::base::update(update_context& context)
 		let & [ module, surface ] = pair;
 		auto& module_heat = module.get().m_cur_heat;
 		let delta_heat = static_cast<float>(surface)
-			/ static_cast<float>(total_surface) * static_cast<float>(context.dt)
-			* HEAT_TRANSFER_RATE;
+			/ static_cast<float>(total_surface) * dtf * HEAT_TRANSFER_RATE;
 		if (module_heat - m_cur_heat > delta_heat) {
 			m_cur_heat += delta_heat;
 			module_heat -= delta_heat;
@@ -128,6 +136,21 @@ void mark::module::base::update(update_context& context)
 			return _;
 		}());
 	}
+	if (m_burning) {
+		context.render([&] {
+			update_context::spray_info _;
+			_.image = world().resource_manager().image("explosion.png");
+			_.lifespan(.3f, 1.f);
+			_.direction = -45.f;
+			_.cone = 90.f;
+			_.velocity(64.f, 128.f);
+			_.diameter(8.f, 16.f);
+			_.pos = pos;
+			_.count = 4;
+			_.layer = 5;
+			return _;
+		}());
+	}
 }
 
 auto mark::module::base::collide(const segment_t& ray)
@@ -189,7 +212,7 @@ bool mark::module::base::damage(const interface::damageable::info& attr)
 
 	let heat_fraction =
 		(critical ? attr.heat * attr.critical_multiplier : attr.heat)
-		/ m_max_health;
+		/ m_max_health * 100.f;
 	m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
 	if (stun) {
 		m_stunned += attr.stun_duration;
