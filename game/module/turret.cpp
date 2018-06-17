@@ -208,40 +208,6 @@ auto mark::module::turret::targeting_system() noexcept
 							  : parent().targeting_system();
 }
 
-namespace {
-template <typename prop_man, typename T>
-void bind(prop_man& property_manager, T& instance)
-{
-	MARK_BIND(physical);
-	MARK_BIND(antimatter);
-	MARK_BIND(energy);
-	MARK_BIND(heat);
-	MARK_BIND(critical_chance);
-	MARK_BIND(critical_multiplier);
-	MARK_BIND(velocity);
-	MARK_BIND(acceleration);
-	MARK_BIND(aoe_radius);
-	MARK_BIND(seek_radius);
-	MARK_BIND(knockback);
-	MARK_BIND(piercing);
-	MARK_BIND(range);
-	MARK_BIND(projectile_angular_velocity);
-	MARK_BIND(knockback);
-}
-}
-
-void mark::bind(property_manager& property_manager, projectile_config& instance)
-{
-	::bind(property_manager, instance);
-}
-
-void mark::bind(
-	property_serializer& property_manager,
-	const projectile_config& instance)
-{
-	::bind(property_manager, instance);
-}
-
 template <typename prop_man, typename T>
 void mark::module::turret::bind(prop_man& property_manager, T& instance)
 {

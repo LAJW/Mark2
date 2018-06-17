@@ -22,6 +22,8 @@ using weak_ptr = std::weak_ptr<T>;
 class map;
 class particle;
 struct path;
+class property_manager;
+class property_serializer;
 struct rectangle;
 struct sprite;
 struct window;
