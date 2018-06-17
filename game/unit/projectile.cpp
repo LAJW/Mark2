@@ -30,6 +30,7 @@ void bind(prop_man& property_manager, T& instance)
 	MARK_BIND(range);
 	MARK_BIND(projectile_angular_velocity);
 	MARK_BIND(knockback);
+	MARK_BIND(bounces);
 }
 
 static auto validate(const mark::unit::projectile::info& args)
@@ -96,6 +97,7 @@ void mark::unit::projectile::update(update_context& context)
 	let dt = context.dt;
 	m_rotation_lfo.update(dt);
 	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
+	m_velocity = std::max(0., m_velocity + m_acceleration * dt);
 	let step = rotate(vd(1, 0), rotation) * m_velocity * dt;
 	let turn_speed = m_projectile_angular_velocity;
 	if (m_guide) {
@@ -138,7 +140,8 @@ void mark::unit::projectile::update(update_context& context)
 		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
 							 return damageable->reflective();
 						 });
-	if (collisions.size() >= m_piercing && !reflective_hit) {
+	if (m_velocity == 0.
+		|| collisions.size() >= m_piercing && !reflective_hit) {
 		m_dead = true;
 	} else {
 		if (!reflective_hit) {

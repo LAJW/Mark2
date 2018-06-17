@@ -37,6 +37,8 @@ struct projectile_config
 	double m_knockback = 0.;
 	/// Number of targets a projectile can pierce. 0 means max
 	size_t m_piercing = 0;
+	/// Does the projectile bounce of flat surfaces (grenade)
+	size_t m_bounces = 0;
 	/// Maximum distance a projectile can travel before dying
 	double m_range = 2000.f;
 	/// Projectile turn speed

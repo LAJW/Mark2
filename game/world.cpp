@@ -93,6 +93,12 @@ static auto find_landing_pad_pos(const mark::map& map, mark::vi32 size)
 		});
 }
 
+static const std::vector<std::string> ship_blueprint_ids = {
+	"ship",
+	"laser-ship",
+	"grenade-ship",
+};
+
 mark::world::world(
 	world_stack& stack,
 	resource::manager& resource_manager,
@@ -112,15 +118,12 @@ mark::world::world(
 	let constexpr spawn_ships = true;
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
-		let random = resource_manager.random(0, 1);
-		if (random) {
-			return std::dynamic_pointer_cast<unit::modular>(
-				unit::deserialize(*this, stack.blueprints().at("ship")).get());
-		} else {
-			return std::dynamic_pointer_cast<unit::modular>(
-				unit::deserialize(
-					*this, stack.blueprints().at("laser-ship")).get());
-		}
+		let random =
+			resource_manager.random(0ull, ship_blueprint_ids.size() - 1);
+		let ship_blueprint_id = ship_blueprint_ids[random];
+		let& ship_blueprint = stack.blueprints().at(ship_blueprint_id);
+		return std::dynamic_pointer_cast<unit::modular>(
+			unit::deserialize(*this, ship_blueprint).get());
 	};
 	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
@@ -149,8 +152,7 @@ mark::world::world(
 
 	for (let point : range(map_size)) {
 		let pos = m_map->map_to_world(point);
-		if (length(pos) < 1200
-			|| !m_map->traversable(pos, ship_radius)
+		if (length(pos) < 1200 || !m_map->traversable(pos, ship_radius)
 			|| !this->find(pos, ship_radius * 4.).empty()) {
 			continue;
 		}

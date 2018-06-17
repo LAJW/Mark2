@@ -1,0 +1,142 @@
+team: 0
+pos:
+  x: -2304
+  y: -384
+velocity: 0
+moveto:
+  x: -2827
+  y: -608
+type: unit_modular
+modules:
+  - type: module_core
+    id: 1655306238320
+    size:
+      x: 2
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -1
+      y: -1
+    thumbnail: core.png
+  - type: module_cargo
+    id: 1655311160544
+    size:
+      x: 4
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -1
+      y: 1
+    thumbnail: cargo.png
+  - type: module_energy_generator
+    cur_energy: 100
+    max_energy: 100
+    energy_regen: 30
+    id: 1655310979664
+    size:
+      x: 2
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -5
+      y: -3
+    thumbnail: energy-generator.png
+  - type: shield_generator
+    cur_shield: 1000
+    radius: 128
+    max_shield: 1000
+    shield_per_energy: 10
+    reflective: false
+    broken: false
+    reboot_level: 0.1
+    id: 1655311041872
+    size:
+      x: 2
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -3
+      y: -1
+    thumbnail: shield-generator.png
+  - type: module_energy_generator
+    cur_energy: 100
+    max_energy: 100
+    energy_regen: 30
+    id: 1655311144208
+    size:
+      x: 2
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -3
+      y: -3
+    thumbnail: energy-generator.png
+  - type: module_battery
+    id: 1655311146496
+    size:
+      x: 2
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -5
+      y: -1
+    thumbnail: battery.png
+    max_energy: 1000
+    cur_energy: 1000
+  - type: module_warp_drive
+    id: 1655306236208
+    size:
+      x: 4
+      y: 2
+    stunned: 0
+    cur_health: 100
+    blueprint_id: ""
+    cur_heat: 0
+    max_health: 100
+    grid_pos:
+      x: -5
+      y: 1
+    thumbnail: engine.png
+  - id: 1655311886368
+    blueprint: "grenade-launcher"
+    grid_pos:
+      x: -1
+      y: -3
+  - id: 1655311890720
+    blueprint: "grenade-launcher"
+    grid_pos:
+      x: 1
+      y: -1
+lookat:
+  x: 0
+  y: 0
+ai: true
+bindings:
+  - key: 5
+    module_id: 1655310979664
+  - key: 5
+    module_id: 1655311890720

@@ -200,12 +200,6 @@ void mark::main(std::vector<std::string> args)
 
 int main(const int argc, const char* argv[])
 {
-	try {
 		mark::main({ argv, argv + argc });
 		return 0;
-	} catch (std::exception& error) {
-		std::cout << "ERROR: " << error.what() << std::endl;
-		std::cin.get();
-		return 1;
-	}
 }

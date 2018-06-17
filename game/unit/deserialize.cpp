@@ -12,7 +12,6 @@
 auto mark::unit::deserialize(world& world, const YAML::Node& node)
 	-> not_null<shared_ptr<unit::base>>
 {
-
 	let type = node["type"].as<std::string>();
 	if (type == unit::gate::type_name) {
 		return make_shared<unit::gate>(world, node);
