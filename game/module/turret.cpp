@@ -221,6 +221,8 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(guided);
 	MARK_BIND(cone);
 	MARK_BIND(heat_per_shot);
+	MARK_BIND(is_chargeable);
+	MARK_BIND(is_charging);
 }
 
 auto mark::module::turret::targeting_system() const noexcept
