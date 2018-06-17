@@ -1,6 +1,6 @@
 ﻿#include "projectile.h"
-#include <algorithm.h>
 #include "modular.h"
+#include <algorithm.h>
 #include <module/base.h>
 #include <resource_manager.h>
 #include <sprite.h>
@@ -13,9 +13,6 @@ namespace {
 static auto validate(const mark::unit::projectile::info& args)
 {
 	Expects(!std::isnan(args.rotation));
-	Expects(!std::isnan(args.velocity));
-	Expects(args.seek_radius >= 0.f);
-	Expects(args.aoe_radius >= 0.f);
 	return args;
 }
 } // namespace
@@ -26,21 +23,13 @@ mark::unit::projectile::projectile(const unit::projectile::info& args)
 
 mark::unit::projectile::projectile(const unit::projectile::info& args, bool)
 	: unit::base(args)
+	, projectile_config(args)
 	, m_image(args.world->resource_manager().image("shell.png"))
 	, m_im_tail(args.world->resource_manager().image("glare.png"))
 	, m_im_explosion(args.world->resource_manager().image("explosion.png"))
-	, m_velocity(args.velocity)
 	, m_rotation(args.rotation)
 	, m_rotation_lfo(args.lfo, args.phase)
-	, m_seek_radius(args.seek_radius)
-	, m_aoe_radius(args.aoe_radius)
-	, m_critical_chance(args.critical_chance)
-	, m_critical_multiplier(args.critical_multiplier)
-	, m_piercing(args.piercing)
 	, m_guide(args.guide)
-	, m_physical(args.physical)
-	, m_antimatter(args.antimatter)
-	, m_knockback(args.knockback)
 {}
 
 namespace mark {
@@ -74,7 +63,7 @@ void mark::unit::projectile::update(update_context& context)
 	m_rotation_lfo.update(dt);
 	let rotation = m_rotation + m_rotation_lfo.get() * 15.f;
 	let step = rotate(vd(1, 0), rotation) * m_velocity * dt;
-	let turn_speed = 500.f;
+	let turn_speed = m_projectile_angular_velocity;
 	if (m_guide) {
 		if (length(*m_guide - pos()) < m_velocity * dt * 2.0) {
 			m_guide.reset();
@@ -111,8 +100,8 @@ void mark::unit::projectile::update(update_context& context)
 	let[collisions, terrain_hit, reflected_angle] = world().damage(info);
 	let reflective_hit = false && // TODO: Filter out dead objects
 		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
-			return damageable->reflective();
-		});
+							 return damageable->reflective();
+						 });
 	if (collisions.size() >= m_piercing && !reflective_hit) {
 		m_dead = true;
 	} else {
@@ -234,16 +223,17 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
 	, m_image(world.resource_manager().image("shell.png"))
 	, m_im_tail(world.resource_manager().image("glare.png"))
 	, m_im_explosion(world.resource_manager().image("explosion.png"))
-	, m_velocity(node["velocity"].as<float>())
-	, m_rotation(node["rotation"].as<float>())
-	, m_seek_radius(node["seek_radius"].as<float>())
-	, m_aoe_radius(node["aoe_radius"].as<float>())
-	, m_critical_chance(node["critical_chance"].as<float>())
-	, m_critical_multiplier(node["critical_multiplier"].as<float>())
-	, m_piercing(node["piercing"].as<unsigned>())
-	, m_physical(node["physical"].as<float>(10.f))
-	, m_antimatter(node["antimatter"].as<float>(0.f))
-{}
+{
+	m_rotation = node["rotation"].as<float>();
+	m_critical_chance = node["critical_chance"].as<float>();
+	m_critical_multiplier = node["critical_multiplier"].as<float>();
+	m_physical = node["physical"].as<float>(10.f);
+	m_antimatter = node["antimatter"].as<float>(0.f);
+	m_velocity = node["velocity"].as<float>();
+	m_seek_radius = node["seek_radius"].as<float>();
+	m_aoe_radius = node["aoe_radius"].as<float>();
+	m_piercing = node["piercing"].as<unsigned>();
+}
 
 void mark::unit::projectile::serialize(YAML::Emitter& out) const
 {

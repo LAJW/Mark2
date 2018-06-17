@@ -56,7 +56,7 @@ void mark::unit::minion::update(update_context& context)
 				attr.world = world();
 				attr.pos = pos();
 				attr.rotation = m_rotation;
-				attr.velocity = 500.f;
+				attr.m_velocity = 500.f;
 				attr.team = this->team();
 				context.units.emplace_back(
 					std::make_shared<unit::projectile>(attr));

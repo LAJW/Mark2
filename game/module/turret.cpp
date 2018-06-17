@@ -83,36 +83,34 @@ auto mark::module::turret::make_projectile(
 	mark::world& world,
 	size_t index) const -> shared_ptr<unit::projectile>
 {
-	unit::projectile::info _;
-	_.world = world;
-	_.guide = m_guided ? m_shared_target : nullptr;
-	_.pos = pos();
-	let heat_angle =
-		m_cone * m_cone_curve(m_cur_heat / 100.f) * m_angular_velocity != 0.f
-			&& m_cone_curve == curve::flat
-		? context.random(-1.f, 1.f)
-		: 0.f;
-	let projectile_count_f = static_cast<float>(m_projectile_count);
-	let index_f = static_cast<float>(index);
-	let cur_angle = m_projectile_count != 1
-		? (index_f / (projectile_count_f - 1.f) - 0.5f) * m_cone
-		: 0.f;
-	_.rotation = m_rotation + cur_angle + heat_angle;
-	if (m_unstable) {
-		_.lfo = context.random(2.f, 4.f);
-		_.phase = context.random(0.f, 1.f);
-	}
-	_.velocity = m_velocity;
-	_.physical = m_physical;
-	_.antimatter = m_antimatter;
-	_.aoe_radius = m_aoe_radius;
-	_.seek_radius = m_seek_radius;
-	_.team = parent().team();
-	_.piercing = m_piercing;
-	_.critical_chance = m_critical_chance;
-	_.critical_multiplier = m_critical_multiplier;
-	_.knockback = m_knockback;
-	return std::make_shared<unit::projectile>(_);
+	let rotation = [&] {
+		let heat_angle =
+			m_cone * m_cone_curve(m_cur_heat / 100.f) * m_angular_velocity
+					!= 0.f
+				&& m_cone_curve == curve::flat
+			? context.random(-1.f, 1.f)
+			: 0.f;
+		let projectile_count_f = static_cast<float>(m_projectile_count);
+		let index_f = static_cast<float>(index);
+		let cur_angle = m_projectile_count != 1
+			? (index_f / (projectile_count_f - 1.f) - 0.5f) * m_cone
+			: 0.f;
+		return m_rotation + cur_angle + heat_angle;
+	}();
+	return std::make_shared<unit::projectile>([&] {
+		unit::projectile::info _;
+		static_cast<projectile_config&>(_) = *this;
+		_.world = world;
+		_.guide = m_guided ? m_shared_target : nullptr;
+		_.pos = pos();
+		_.rotation = rotation;
+		if (m_unstable) {
+			_.lfo = context.random(2.f, 4.f);
+			_.phase = context.random(0.f, 1.f);
+		}
+		_.team = parent().team();
+		return _;
+	}());
 }
 
 void mark::module::turret::render(update_context& context) const
