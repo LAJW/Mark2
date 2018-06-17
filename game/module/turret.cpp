@@ -201,6 +201,47 @@ auto mark::module::turret::describe() const -> std::string
 	return os.str();
 }
 
+auto mark::module::turret::targeting_system() noexcept
+	-> mark::targeting_system&
+{
+	return m_targeting_system ? *m_targeting_system
+							  : parent().targeting_system();
+}
+
+namespace {
+template <typename prop_man, typename T>
+void bind(prop_man& property_manager, T& instance)
+{
+	MARK_BIND(physical);
+	MARK_BIND(antimatter);
+	MARK_BIND(energy);
+	MARK_BIND(heat);
+	MARK_BIND(critical_chance);
+	MARK_BIND(critical_multiplier);
+	MARK_BIND(velocity);
+	MARK_BIND(acceleration);
+	MARK_BIND(aoe_radius);
+	MARK_BIND(seek_radius);
+	MARK_BIND(knockback);
+	MARK_BIND(piercing);
+	MARK_BIND(range);
+	MARK_BIND(projectile_angular_velocity);
+	MARK_BIND(knockback);
+}
+}
+
+void mark::bind(property_manager& property_manager, projectile_config& instance)
+{
+	::bind(property_manager, instance);
+}
+
+void mark::bind(
+	property_serializer& property_manager,
+	const projectile_config& instance)
+{
+	::bind(property_manager, instance);
+}
+
 template <typename prop_man, typename T>
 void mark::module::turret::bind(prop_man& property_manager, T& instance)
 {
@@ -214,27 +255,6 @@ void mark::module::turret::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(guided);
 	MARK_BIND(cone);
 	MARK_BIND(heat_per_shot);
-	MARK_BIND(critical_chance);
-	MARK_BIND(critical_multiplier);
-	MARK_BIND(physical);
-	MARK_BIND(antimatter);
-	MARK_BIND(energy);
-	MARK_BIND(heat);
-	MARK_BIND(projectile_angular_velocity);
-	MARK_BIND(velocity);
-	MARK_BIND(aoe_radius);
-	MARK_BIND(seek_radius);
-	MARK_BIND(range);
-	MARK_BIND(piercing);
-	MARK_BIND(is_chargeable);
-	MARK_BIND(knockback);
-}
-
-auto mark::module::turret::targeting_system() noexcept
-	-> mark::targeting_system&
-{
-	return m_targeting_system ? *m_targeting_system
-							  : parent().targeting_system();
 }
 
 auto mark::module::turret::targeting_system() const noexcept
@@ -257,6 +277,7 @@ mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
 {
 	property_manager property_manager(rm);
 	bind(property_manager, *this);
+	mark::bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
 			"Could not deserialize" + std::string(type_name));
@@ -275,6 +296,7 @@ void mark::module::turret::serialize(YAML::Emitter& out) const
 	out << Key << "type" << Value << type_name;
 	property_serializer serializer;
 	bind(serializer, *this);
+	mark::bind(serializer, *this);
 	serializer.serialize(out);
 	out << Key << "rate_of_fire_curve" << Value
 		<< curve::serialize(m_rate_of_fire_curve);

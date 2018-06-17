@@ -2,6 +2,7 @@
 #include "modular.h"
 #include <algorithm.h>
 #include <module/base.h>
+#include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -228,15 +229,9 @@ mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
 	, m_im_tail(world.resource_manager().image("glare.png"))
 	, m_im_explosion(world.resource_manager().image("explosion.png"))
 {
-	m_rotation = node["rotation"].as<float>();
-	m_critical_chance = node["critical_chance"].as<float>();
-	m_critical_multiplier = node["critical_multiplier"].as<float>();
-	m_physical = node["physical"].as<float>(10.f);
-	m_antimatter = node["antimatter"].as<float>(0.f);
-	m_velocity = node["velocity"].as<float>();
-	m_seek_radius = node["seek_radius"].as<float>();
-	m_aoe_radius = node["aoe_radius"].as<float>();
-	m_piercing = node["piercing"].as<unsigned>();
+	property_manager property_manager(world.resource_manager());
+	mark::bind(property_manager, *this);
+	Expects(!property_manager.deserialize(node));
 }
 
 void mark::unit::projectile::serialize(YAML::Emitter& out) const
@@ -245,16 +240,9 @@ void mark::unit::projectile::serialize(YAML::Emitter& out) const
 	out << BeginMap;
 	out << Key << "type" << Value << unit::projectile::type_name;
 	base::serialize(out);
-	out << Key << "rotation" << Value << m_rotation;
-	out << Key << "velocity" << Value << m_velocity;
-	out << Key << "seek_radius" << Value << m_seek_radius;
-	out << Key << "aoe_radius" << Value << m_aoe_radius;
-	out << Key << "critical_chance" << Value << m_critical_chance;
-	out << Key << "critical_multiplier" << Value << m_critical_multiplier;
-	out << Key << "piercing" << Value << m_piercing;
-	out << Key << "physical" << Value << m_physical;
-	out << Key << "antimatter" << Value << m_antimatter;
-
+	property_serializer serializer;
+	mark::bind(serializer, *this);
+	serializer.serialize(out);
 	out << Key << "damaged" << Value << BeginSeq;
 	for (let& damaged : m_damaged) {
 		out << reinterpret_cast<uint64_t>(damaged.get());

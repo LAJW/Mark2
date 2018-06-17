@@ -6,6 +6,9 @@
 #include <stdafx.h>
 
 namespace mark {
+
+class property_manager;
+class property_serializer;
 class targeting_system;
 namespace unit {
 class projectile;
@@ -24,7 +27,7 @@ struct projectile_config
 	float m_energy = 0.f;
 	/// Heat damage
 	float m_heat = 1.f;
-	/// Critical chance
+	/// Critical chance property_manager
 	float m_critical_chance = 0.1f;
 	/// Critical damage multiplier
 	float m_critical_multiplier = 1.5f;
@@ -47,6 +50,9 @@ struct projectile_config
 	/// Projectile turn speed
 	float m_projectile_angular_velocity = 0.f;
 };
+
+void bind(property_manager&, projectile_config& instance);
+void bind(property_serializer&, const projectile_config& instance);
 
 namespace module {
 class turret final
