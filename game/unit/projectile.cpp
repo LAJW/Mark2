@@ -81,23 +81,25 @@ void mark::unit::projectile::update(update_context& context)
 		}
 	}
 	pos(pos() + step);
-	world::damage_info info;
-	info.context = &context;
-	info.segment = { pos() - step * 1.2, pos() };
-	info.aoe_radius = m_aoe_radius;
-	info.piercing = m_piercing;
-	info.damage.knocked = &m_knocked;
-	info.damage.damaged = &m_damaged;
-	info.damage.team = this->team();
-	info.damage.physical = m_physical;
-	info.damage.antimatter = m_antimatter;
-	info.damage.critical_chance = m_critical_chance;
-	info.damage.critical_multiplier = m_critical_multiplier;
-	info.damage.stun_chance = 0.1f;
-	info.damage.stun_duration = 1.f;
-	info.damage.knockback = m_knockback;
 
-	let[collisions, terrain_hit, reflected_angle] = world().damage(info);
+	let[collisions, terrain_hit, reflected_angle] = world().damage([&] {
+		world::damage_info _;
+		_.context = &context;
+		_.segment = { pos() - step * 1.2, pos() };
+		_.aoe_radius = m_aoe_radius;
+		_.piercing = m_piercing;
+		_.damage.knocked = &m_knocked;
+		_.damage.damaged = &m_damaged;
+		_.damage.team = this->team();
+		_.damage.physical = m_physical;
+		_.damage.antimatter = m_antimatter;
+		_.damage.critical_chance = m_critical_chance;
+		_.damage.critical_multiplier = m_critical_multiplier;
+		_.damage.stun_chance = 0.1f;
+		_.damage.stun_duration = 1.f;
+		_.damage.knockback = m_knockback;
+		return _;
+	}());
 	let reflective_hit = false && // TODO: Filter out dead objects
 		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
 							 return damageable->reflective();
@@ -146,71 +148,73 @@ void mark::unit::projectile::render(const render_info& info) const
 		context.crit = true;
 	}
 	for (let collision : collisions) {
-		update_context::spray_info spray;
-		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
-		spray.pos = collision;
-		spray.velocity(5.f, is_heavy_damage ? 500.f : 75.f);
-		spray.lifespan(is_heavy_damage ? .7f : .3f);
-		spray.diameter(is_heavy_damage ? 32.f : 8.f);
-		spray.count = is_heavy_damage ? 80 : 40;
-		spray.cone = 360.f;
-		if (m_antimatter > m_physical) {
-			spray.color = { 200, 0, 255, 75 };
-		} else {
-			spray.color = { 125, 125, 125, 75 };
-		}
-		context.render(spray);
+		context.render([&] {
+			update_context::spray_info _;
+			_.image = is_heavy_damage ? m_im_explosion : m_im_tail;
+			_.pos = collision;
+			_.velocity(5.f, is_heavy_damage ? 500.f : 75.f);
+			_.lifespan(is_heavy_damage ? .7f : .3f);
+			_.diameter(is_heavy_damage ? 32.f : 8.f);
+			_.count = is_heavy_damage ? 80 : 40;
+			_.cone = 360.f;
+			if (m_antimatter > m_physical) {
+				_.color = { 200, 0, 255, 75 };
+			} else {
+				_.color = { 125, 125, 125, 75 };
+			}
+			return _;
+		}());
 	}
 	// tail: grey dust
-	{
-		update_context::spray_info spray;
-		spray.image = is_heavy_damage ? m_im_explosion : m_im_tail;
-		spray.pos = pos();
-		spray.velocity(100.f);
-		spray.lifespan(0.3f);
-		spray.diameter(8.f);
-		spray.count = 4;
-		spray.step = mark::length(info.step);
-		spray.direction = m_rotation + 180.f;
-		spray.cone = 30.f;
-		spray.color = { 175, 175, 175, 75 };
-		context.render(spray);
-	}
+	context.render([&] {
+		update_context::spray_info _;
+		_.image = is_heavy_damage ? m_im_explosion : m_im_tail;
+		_.pos = pos();
+		_.velocity(100.f);
+		_.lifespan(0.3f);
+		_.diameter(8.f);
+		_.count = 4;
+		_.step = mark::length(info.step);
+		_.direction = m_rotation + 180.f;
+		_.cone = 30.f;
+		_.color = { 175, 175, 175, 75 };
+		return _;
+	}());
 	// tail: white overlay
-	{
-		update_context::spray_info spray;
-		spray.image = m_im_tail;
-		spray.pos = pos();
-		spray.velocity(75.f);
-		spray.lifespan(0.15f);
-		spray.diameter(8.f);
-		spray.count = 4;
-		spray.step = mark::length(info.step);
-		spray.direction = m_rotation + 180.f;
-		spray.cone = 30.f;
+	context.render([&] {
+		update_context::spray_info _;
+		_.image = m_im_tail;
+		_.pos = pos();
+		_.velocity(75.f);
+		_.lifespan(0.15f);
+		_.diameter(8.f);
+		_.count = 4;
+		_.step = mark::length(info.step);
+		_.direction = m_rotation + 180.f;
+		_.cone = 30.f;
 		if (m_antimatter > m_physical) {
-			spray.color = { 200, 0, 255, 255 };
+			_.color = { 200, 0, 255, 255 };
 		} else {
-			spray.color = sf::Color::White;
+			_.color = sf::Color::White;
 		}
-		context.render(spray);
-	}
-	{
-		sprite args;
-		args.image = m_im_tail;
-		args.pos = pos() - info.step;
-		args.size = 32.f;
-		args.color = sf::Color(255, 200, 150, 255);
-		context.sprites[0].emplace_back(args);
-	}
-	{
-		sprite args;
-		args.image = m_image;
-		args.pos = pos();
-		args.size = 10.f;
-		args.rotation = m_rotation;
-		context.sprites[1].emplace_back(args);
-	}
+		return _;
+	}());
+	context.sprites[0].emplace_back([&] {
+		sprite _;
+		_.image = m_im_tail;
+		_.pos = pos() - info.step;
+		_.size = 32.f;
+		_.color = sf::Color(255, 200, 150, 255);
+		return _;
+	}());
+	context.sprites[1].emplace_back([&] {
+		sprite _;
+		_.image = m_image;
+		_.pos = pos();
+		_.size = 10.f;
+		_.rotation = m_rotation;
+		return _;
+	}());
 	context.lights.emplace_back(pos(), sf::Color::White);
 }
 
