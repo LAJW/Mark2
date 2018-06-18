@@ -129,8 +129,7 @@ auto mark::module::healing_turret::target() -> mark::module::base*
 
 std::string mark::module::healing_turret::describe() const
 {
-	return "Healing Turret\n"
-		   "HPS: 100\n";
+	return "Healing Turret\nHPS: 100\n" + base::describe();
 }
 
 // Serialize / Deserialize

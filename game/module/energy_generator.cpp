@@ -1,8 +1,8 @@
-﻿#include <stdafx.h>
-#include "energy_generator.h"
+﻿#include "energy_generator.h"
 #include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -28,7 +28,7 @@ void mark::module::energy_generator::update(update_context& context)
 
 auto mark::module::energy_generator::describe() const -> std::string
 {
-	return "Energy Generator";
+	return "Energy Generator\n" + base::describe();
 }
 
 auto mark::module::energy_generator::harvest_energy(double dt) -> float

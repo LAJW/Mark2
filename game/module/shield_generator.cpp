@@ -9,6 +9,9 @@
 #include <update_context.h>
 #include <world.h>
 
+let constexpr min_resistance = -2.f;
+let constexpr max_resistance = .75f;
+
 template <typename prop_man, typename T>
 void mark::module::shield_generator::bind(
 	prop_man& property_manager,
@@ -100,6 +103,11 @@ void mark::module::shield_generator::render(update_context& context) const
 	}());
 }
 
+static auto resistance_to_multiplier(float resistance)
+{
+	return 1.f - std::clamp(resistance, min_resistance, max_resistance);
+}
+
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
@@ -109,10 +117,19 @@ auto mark::module::shield_generator::damage(
 			return false;
 		}
 		m_model_shield.trigger(attr.pos);
-		m_cur_shield = std::max(
-			0.f, m_cur_shield - attr.physical - attr.antimatter - attr.heat);
-		let heat_fraction = attr.heat / m_max_health * 100.f;
-		m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction);
+		auto& rm = parent().world().resource_manager();
+		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+		let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
+		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
+		let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
+		let antimatter_multiplier =
+			resistance_to_multiplier(m_antimatter_resistance);
+		let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
+		let damage =
+			std::max(0.f, attr.physical * critical_multiplier - m_armor)
+			+ attr.antimatter * critical_multiplier * antimatter_multiplier
+			+ heat_damage;
+		m_cur_shield = std::max(0.f, m_cur_shield - damage);
 		if (m_cur_shield == 0.f) {
 			m_broken = true;
 		}
@@ -128,13 +145,12 @@ auto mark::module::shield_generator::describe() const -> std::string
 {
 	std::ostringstream os;
 	os << "Shield Generator Module" << std::endl;
-	os << "Health: " << static_cast<int>(std::ceil(m_cur_health)) << " of "
-	   << static_cast<int>(std::ceil(m_max_health)) << std::endl;
 	os << "Shields: " << static_cast<int>(std::ceil(m_cur_shield)) << " of "
 	   << static_cast<int>(std::ceil(m_max_shield)) << std::endl;
 	os << "Radius: " << static_cast<int>(std::ceil(m_radius)) << std::endl;
 	os << "Shield Per Energy: "
 	   << static_cast<int>(std::ceil(m_shield_per_energy)) << std::endl;
+	os << base::describe();
 	return os.str();
 }
 

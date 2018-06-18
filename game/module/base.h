@@ -95,7 +95,7 @@ public:
 		-> std::optional<std::pair<ref<interface::damageable>, vd>>;
 
 	// UI text describing module's properties
-	virtual auto describe() const -> std::string = 0;
+	virtual auto describe() const -> std::string;
 
 	// Obtain energy from the module
 	virtual auto harvest_energy(double) -> float { return 0.f; }
@@ -169,6 +169,14 @@ protected:
 protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;
+	float m_armor = 0.f;
+	/// Resistance to antimatter damage. 0 represents 0% resistance 1 - 100%
+	/// Values can range from -2 to .75
+	float m_antimatter_resistance = 0.f;
+	/// Resistance to heat
+	float m_heat_resistance = 0.f;
+	/// Resistance to energy damage. Minimum 0 maximum 1
+	float m_energy_resistance = 0.f;
 	float m_stunned = 0.f;
 	float m_cur_heat = 0.f;
 	bool m_burning = false;

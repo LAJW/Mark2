@@ -97,6 +97,7 @@ auto mark::module::flamethrower::describe() const -> std::string
 	os << "Damage per second: " << m_dps << std::endl;
 	os << "Range: " << m_range << std::endl;
 	os << "Cone of fire: " << m_cone_of_fire << " degrees" << std::endl;
+	os << base::describe();
 	return os.str();
 }
 

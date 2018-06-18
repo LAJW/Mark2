@@ -10,6 +10,56 @@
 #include <update_context.h>
 #include <world.h>
 
+let constexpr min_resistance = -2.f;
+let constexpr max_resistance = .75f;
+
+template <typename prop_man, typename T>
+void mark::module::base::bind(prop_man& property_manager, T& instance)
+{
+	MARK_BIND(cur_health);
+	MARK_BIND(max_health);
+	MARK_BIND(armor);
+	MARK_BIND(antimatter_resistance);
+	MARK_BIND(heat_resistance);
+	MARK_BIND(energy_resistance)
+	MARK_BIND(stunned);
+	MARK_BIND(cur_heat);
+	MARK_BIND(size);
+	MARK_BIND(blueprint_id)
+}
+
+static std::string to_percent(float value)
+{
+	std::ostringstream os;
+	os.precision(1);
+	os << value * 100.f;
+	return os.str();
+}
+
+auto mark::module::base::describe() const -> std::string
+{
+	std::ostringstream os;
+	os.precision(1);
+	os << std::fixed;
+	os << "Health: " << m_cur_health << " of " << m_max_health << std::endl;
+	os << "Heat: " << m_cur_heat << " of " << 100.f << std::endl;
+	if (m_armor > 0.f) {
+		os << "Armor: " << to_percent(m_armor) << std::endl;
+	}
+	if (m_antimatter_resistance != 0.f) {
+		os << "Antimatter resistance: " << to_percent(m_antimatter_resistance)
+		   << std::endl;
+	}
+	if (m_heat_resistance != 0.f) {
+		os << "Heat resistance " << to_percent(m_heat_resistance) << std::endl;
+	}
+	if (m_energy_resistance != 0.f) {
+		os << "Energy resistance " << to_percent(m_energy_resistance)
+		   << std::endl;
+	}
+	return os.str();
+}
+
 mark::module::base_ref::base_ref(const YAML::Node& node)
 	: m_grid_pos(node["grid_pos"].as<vi32>(vi32()))
 {}
@@ -196,7 +246,12 @@ auto mark::module::base::neighbors()
 	return parent().neighbors_of(*this);
 }
 
-bool mark::module::base::damage(const interface::damageable::info& attr)
+static auto resistance_to_multiplier(float resistance)
+{
+	return 1.f - std::clamp(resistance, min_resistance, max_resistance);
+}
+
+auto mark::module::base::damage(const interface::damageable::info& attr) -> bool
 {
 	if (attr.team == parent().team() || m_cur_health <= 0
 		|| attr.damaged->insert(this).second) {
@@ -204,15 +259,17 @@ bool mark::module::base::damage(const interface::damageable::info& attr)
 	}
 	auto& rm = parent().world().resource_manager();
 	let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+	let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
 	let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
-	let base_damage = attr.physical + attr.antimatter + attr.heat;
-	let with_critical =
-		critical ? base_damage * attr.critical_multiplier : base_damage;
-	m_cur_health -= with_critical;
-
-	let heat_fraction =
-		(critical ? attr.heat * attr.critical_multiplier : attr.heat)
-		/ m_max_health * 100.f;
+	let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
+	let antimatter_multiplier =
+		resistance_to_multiplier(m_antimatter_resistance);
+	let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
+	let damage = std::max(0.f, attr.physical * critical_multiplier - m_armor)
+		+ attr.antimatter * critical_multiplier * antimatter_multiplier
+		+ heat_damage;
+	m_cur_health = std::max(0.f, m_cur_health - damage);
+	let heat_fraction = heat_damage / m_max_health * 100.f;
 	m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
 	if (stun) {
 		m_stunned += attr.stun_duration;
@@ -314,17 +371,6 @@ auto mark::module::base::randomise(
 	property_manager property_manager(resource_manager);
 	bind(property_manager, *this);
 	return property_manager.randomise(blueprints.at(m_blueprint_id));
-}
-
-template <typename prop_man, typename T>
-void mark::module::base::bind(prop_man& property_manager, T& instance)
-{
-	MARK_BIND(cur_health);
-	MARK_BIND(max_health);
-	MARK_BIND(stunned);
-	MARK_BIND(cur_heat);
-	MARK_BIND(size);
-	MARK_BIND(blueprint_id)
 }
 
 mark::module::base::base(resource::manager& rm, const YAML::Node& node)

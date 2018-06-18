@@ -1,7 +1,7 @@
-﻿#include <stdafx.h>
-#include "engine.h"
+﻿#include "engine.h"
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 
 void mark::module::engine::update(update_context& context)
@@ -19,7 +19,10 @@ void mark::module::engine::update(update_context& context)
 	}());
 }
 
-auto mark::module::engine::describe() const -> std::string { return "Engine"; }
+auto mark::module::engine::describe() const -> std::string
+{
+	return "Engine\n" + base::describe();
+}
 
 auto mark::module::engine::global_modifiers() const -> module::modifiers
 {

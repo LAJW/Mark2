@@ -1,8 +1,8 @@
-﻿#include <stdafx.h>
-#include "battery.h"
+﻿#include "battery.h"
 #include <property_manager.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 
 void mark::module::battery::update(update_context& context)
@@ -29,7 +29,7 @@ void mark::module::battery::update(update_context& context)
 
 auto mark::module::battery::describe() const -> std::string
 {
-	return "Battery";
+	return "Battery" + base::describe();
 }
 
 auto mark::module::battery::harvest_energy(double dt) -> float

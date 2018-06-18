@@ -1,8 +1,8 @@
-﻿#include <stdafx.h>
-#include "core.h"
+﻿#include "core.h"
 #include <resource_image.h>
 #include <resource_manager.h>
 #include <sprite.h>
+#include <stdafx.h>
 #include <update_context.h>
 
 mark::module::core::core(resource::manager& rm, const YAML::Node& node)
@@ -28,7 +28,7 @@ auto mark::module::core::detachable() const -> bool { return false; }
 
 auto mark::module::core::describe() const -> std::string
 {
-	return "Core Module";
+	return "Core Module\n" + base::describe();
 }
 
 void mark::module::core::serialize(YAML::Emitter& out) const

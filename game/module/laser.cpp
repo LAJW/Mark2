@@ -108,8 +108,7 @@ void mark::module::laser::render(
 
 std::string mark::module::laser::describe() const
 {
-	return "Laser Cannon\n"
-		   "DPS: 60\n";
+	return "Laser Cannon\nDPS: 60\n" + base::describe();
 }
 
 // Serialize / Deserialize

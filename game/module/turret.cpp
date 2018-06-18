@@ -170,8 +170,6 @@ auto mark::module::turret::describe() const -> std::string
 {
 	std::ostringstream os;
 	os << "Turret" << std::endl;
-	os << "Health: " << std::round(m_cur_health) << " of "
-	   << std::round(m_max_health) << std::endl;
 	if (m_physical >= 0) {
 		os << "Physical damage: " << m_physical << std::endl;
 	}
@@ -198,6 +196,7 @@ auto mark::module::turret::describe() const -> std::string
 	} else if (m_cone_curve == curve::sin) {
 		os << "Average heat for best accuracy" << std::endl;
 	}
+	os << base::describe() << std::endl;
 	return os.str();
 }
 

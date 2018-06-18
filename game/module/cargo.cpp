@@ -249,6 +249,7 @@ std::string mark::module::cargo::describe() const
 	std::ostringstream os;
 	os << "Cargo Module" << std::endl;
 	os << "Capacity: " << m_items.size() << std::endl;
+	os << base::describe() << std::endl;
 	return os.str();
 }
 

@@ -23,7 +23,7 @@ void mark::module::warp_drive::update(update_context& context)
 
 auto mark::module::warp_drive::describe() const -> std::string
 {
-	return "Warp Drive";
+	return "Warp Drive\n" + base::describe();
 }
 
 void mark::module::warp_drive::command(const command::any& any)
