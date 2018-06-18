@@ -103,10 +103,11 @@ void mark::module::shield_generator::render(update_context& context) const
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
-	if (attr.team == parent().team() || !attr.damaged->insert(this).second) {
-		return false;
-	}
 	if (this->active()) {
+		if (attr.team == parent().team()
+			|| !attr.damaged->insert(this).second) {
+			return false;
+		}
 		m_model_shield.trigger(attr.pos);
 		m_cur_shield = std::max(
 			0.f, m_cur_shield - attr.physical - attr.antimatter - attr.heat);
@@ -115,10 +116,11 @@ auto mark::module::shield_generator::damage(
 		if (m_cur_shield == 0.f) {
 			m_broken = true;
 		}
+		parent().knockback(
+			*attr.knocked, atan(pos() - attr.pos), attr.knockback);
 	} else {
-		m_cur_health -= attr.physical;
+		base::damage(attr);
 	}
-	parent().knockback(*attr.knocked, atan(pos() - attr.pos), attr.knockback);
 	return true;
 }
 
@@ -169,4 +171,9 @@ void mark::module::shield_generator::command(const command::any& any)
 auto mark::module::shield_generator::reflective() const -> bool
 {
 	return m_reflective && m_cur_shield >= 0.f;
+}
+
+auto mark::module::shield_generator::radius() const -> double
+{
+	return m_radius;
 }

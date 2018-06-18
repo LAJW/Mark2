@@ -616,10 +616,9 @@ auto mark::unit::modular::collide(const segment_t& ray)
 	}
 	// check if module is under the shield
 	for (let shield : filter_modules<module::shield_generator>(m_modules)) {
-		if (shield.get().shield() > 0.f) {
+		if (shield.get().active()) {
 			let shield_pos = shield.get().pos();
-			let shield_size = 64.f;
-			if (length(*min - shield_pos) < shield_size - 1.f) {
+			if (length(*min - shield_pos) < shield.get().radius() - 1.f) {
 				return {};
 			}
 		}
@@ -637,10 +636,10 @@ auto mark::unit::modular::collide(vd center, double radius)
 		let module_pos = module->pos();
 		if (length(center - module_pos) < module_size + radius) {
 			for (auto shield : shields) {
-				if (shield.get().shield() > 0.f) {
+				if (shield.get().active()) {
 					let shield_pos = shield.get().pos();
-					let shield_size = 64.f;
-					if (length(module_pos - shield_pos) < shield_size) {
+					if (length(module_pos - shield_pos)
+						< shield.get().radius()) {
 						out.insert(&shield.get());
 						goto outer_continue;
 					}

@@ -21,14 +21,15 @@ public:
 	auto passive() const noexcept -> bool override;
 	void command(const command::any& any) override;
 	auto reflective() const -> bool;
+	auto radius() const -> double;
+	// Is shield active (not stunned, broken, etc.)
+	auto active() const -> bool;
 
 private:
 	void update(update_context& context) override;
 	void render(update_context& context) const;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
-	// Is shield active (not stunned, broken, etc.)
-	auto active() const -> bool;
 
 	static constexpr let default_radius = 128.f;
 	static constexpr let default_shield_per_energy = 10.f;
