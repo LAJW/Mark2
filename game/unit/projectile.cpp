@@ -9,6 +9,7 @@
 #include <unit/damageable.h>
 #include <update_context.h>
 #include <world.h>
+#include <iostream>
 
 namespace {
 
@@ -117,18 +118,21 @@ void mark::unit::projectile::update(update_context& context)
 		}
 	}
 	pos(pos() + step);
-
+	let dry_run = m_velocity >= 0. && m_bounces > 1;
 	let[collisions, terrain_hit, reflected_angle] = world().damage([&] {
 		world::damage_info _;
 		_.context = &context;
 		_.segment = { pos() - step * 1.2, pos() };
 		_.aoe_radius = m_aoe_radius;
-		_.piercing = m_piercing;
+		_.aerial = m_velocity == 0.;
+		_.piercing = m_bounces == 0 ? m_piercing : 1;
 		_.damage.knocked = &m_knocked;
 		_.damage.damaged = &m_damaged;
 		_.damage.team = this->team();
-		_.damage.physical = m_physical;
-		_.damage.antimatter = m_antimatter;
+		_.damage.physical = dry_run ? 0.f : m_physical;
+		_.damage.antimatter = dry_run ? 0.f : m_antimatter;
+		_.damage.heat = dry_run ? 0.f : m_heat;
+		_.damage.energy = dry_run ? 0.f : m_energy;
 		_.damage.critical_chance = m_critical_chance;
 		_.damage.critical_multiplier = m_critical_multiplier;
 		_.damage.stun_chance = 0.1f;
@@ -136,12 +140,16 @@ void mark::unit::projectile::update(update_context& context)
 		_.damage.knockback = m_knockback;
 		return _;
 	}());
+	if (m_bounces > 0 && collisions.size() > 0) {
+		--m_bounces;
+	}
 	let reflective_hit = false && // TODO: Filter out dead objects
 		!m_damaged.empty() && any_of(m_damaged, [&](let damageable) {
 							 return damageable->reflective();
 						 });
 	if (m_velocity == 0.
-		|| collisions.size() >= m_piercing && !reflective_hit) {
+		|| m_bounces == 0 && collisions.size() >= m_piercing
+			&& !reflective_hit) {
 		m_dead = true;
 	} else {
 		if (!reflective_hit) {
@@ -157,11 +165,16 @@ void mark::unit::projectile::update(update_context& context)
 			// TODO: This doesn't work with more than 1 reflected target
 			let& damaged = *m_damaged.begin()->get();
 			m_rotation = reflect(damaged, collisions.back(), m_rotation);
+			pos(pos() + mark::rotate(vd(length(step), 0), m_rotation));
 		}
 		if (reflective_hit) {
 			m_damaged.clear();
 			m_guide = nullptr;
 		}
+	}
+	if (dry_run) {
+		m_damaged.clear();
+		m_knocked.clear();
 	}
 	if (!collisions.empty() && terrain_hit) {
 		pos(collisions.back());

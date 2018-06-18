@@ -339,7 +339,7 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 {
 	assert(info.context);
 	auto [unit_collisions, terrain_collision] = this->collide(info.segment);
-	if (unit_collisions.empty() && !terrain_collision) {
+	if (!info.aerial && unit_collisions.empty() && !terrain_collision) {
 		return {};
 	}
 	std::vector<vd> collisions;
@@ -357,6 +357,11 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 	if (terrain_collision
 		&& (info.piercing < collisions.size() || collisions.empty())) {
 		collisions.push_back(terrain_collision->pos);
+	}
+	if (info.aerial && collisions.empty()) {
+		let average_pos = info.segment.first
+			+ (info.segment.first - info.segment.second) / 2.;
+		collisions.push_back(info.segment.first);
 	}
 	if (info.aoe_radius > 0.f) {
 		for (let& collision : collisions) {

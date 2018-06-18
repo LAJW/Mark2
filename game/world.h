@@ -60,6 +60,9 @@ public:
 		segment_t segment;
 		size_t piercing = 1; // Number of objects to pierce
 		double aoe_radius = 0.f;
+		// Apply damage in the area regardless of whether it did hit something
+		// or not
+		bool aerial = false;
 	};
 	struct damage_result
 	{

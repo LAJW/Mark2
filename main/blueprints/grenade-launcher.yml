@@ -31,12 +31,12 @@ critical_chance: 0.1
 critical_multiplier: 1.5
 physical: 50
 antimatter: 0
-energy: 10
-heat: 2
+energy: 0
+heat: 0
 projectile_angular_velocity: 0
 velocity: 1000
 acceleration: -500
-aoe_radius: 250 
+aoe_radius: 500 
 seek_radius: 0
 range: 2000
 piercing: 1
