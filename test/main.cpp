@@ -2,11 +2,8 @@
 #include <catch.hpp>
 #include <map.h>
 #include <resource_manager.h>
-
+#include "core_env.h"
 #include <module/battery.h>
-#include <module/core.h>
-#include <unit/modular.h>
-#include <world.h>
 
 // Map
 
@@ -22,28 +19,6 @@ TEST_CASE("Map collide with a horizontal ray")
 }
 
 // Battery
-
-// Module environment - a helper struct for with a world and a modular with a
-// core
-struct module_env
-{
-	mark::resource::manager_stub rm;
-	mark::world world;
-	std::shared_ptr<mark::unit::modular> modular;
-	module_env()
-		: world(rm)
-		, modular([&] {
-			mark::unit::modular::info info;
-			info.world = world;
-			auto modular = std::make_shared<mark::unit::modular>(info);
-			std::unique_ptr<mark::interface::item> core =
-				std::make_unique<mark::module::core>(rm, YAML::Node());
-			Expects(!modular->attach({ -1, -1 }, move(core)));
-			world.attach(modular);
-			return modular;
-		}())
-	{}
-};
 
 static auto attach_battery(
 	mark::resource::manager& rm,
@@ -69,7 +44,7 @@ auto yaml_serialize(const T& entity)
 
 // Battery environment - A module environment with a battery attached to the
 // module
-struct battery_env : module_env
+struct battery_env : core_env
 {
 	mark::module::battery& battery;
 	explicit battery_env(const YAML::Node& node = YAML::Node())
