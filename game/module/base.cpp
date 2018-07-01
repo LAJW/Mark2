@@ -106,7 +106,7 @@ void mark::module::base::update(update_context& context)
 		m_burning = false;
 	}
 	if (m_burning) {
-		m_cur_health -= dtf * m_cur_heat;
+		m_cur_health -= dtf * 2.f;
 	}
 
 	auto neighbors = parent().neighbors_of(*this);
