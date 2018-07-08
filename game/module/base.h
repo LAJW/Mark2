@@ -166,6 +166,17 @@ protected:
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 
+	/// Calculate amount of damage to deal. Helper implementation function to
+	/// share damage calculation logic between base, shield and alike
+	struct damage_result {
+		float health;
+		float heat;
+		bool stun;
+	};
+	auto damage(
+		const interface::damageable::info& attr,
+		mark::resource::manager& rm) const -> damage_result;
+
 protected:
 	float m_cur_health = 100.f;
 	float m_max_health = 100.f;

@@ -258,19 +258,9 @@ auto mark::module::base::damage(const interface::damageable::info& attr) -> bool
 		return false;
 	}
 	auto& rm = parent().world().resource_manager();
-	let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
-	let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
-	let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
-	let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
-	let antimatter_multiplier =
-		resistance_to_multiplier(m_antimatter_resistance);
-	let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
-	let damage = std::max(0.f, attr.physical * critical_multiplier - m_armor)
-		+ attr.antimatter * critical_multiplier * antimatter_multiplier
-		+ heat_damage;
-	m_cur_health = std::max(0.f, m_cur_health - damage);
-	let heat_fraction = heat_damage / m_max_health * 100.f;
-	m_cur_heat = std::min(100.f, m_cur_heat + heat_fraction * 2.f);
+	let [health, heat, stun] = base::damage(attr, rm);
+	m_cur_health = std::max(0.f, m_cur_health - health);
+	m_cur_heat = std::min(100.f, m_cur_heat + heat * 2.f);
 	if (stun) {
 		m_stunned += attr.stun_duration;
 	}
@@ -407,4 +397,22 @@ float mark::module::base::parent_rotation() const
 auto mark::module::base::world() noexcept -> mark::world&
 {
 	return parent().world();
+}
+
+auto mark::module::base::damage(
+	const interface::damageable::info& attr,
+	mark::resource::manager& rm) const -> damage_result
+{
+	let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+	let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
+	let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
+	let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
+	let antimatter_multiplier =
+		resistance_to_multiplier(m_antimatter_resistance);
+	let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
+	let damage = std::max(0.f, attr.physical * critical_multiplier - m_armor)
+		+ attr.antimatter * critical_multiplier * antimatter_multiplier
+		+ heat_damage;
+	let heat_fraction = heat_damage / m_max_health * 100.f;
+	return { damage, heat_fraction, stun };
 }

@@ -103,41 +103,22 @@ void mark::module::shield_generator::render(update_context& context) const
 	}());
 }
 
-static auto resistance_to_multiplier(float resistance)
-{
-	return 1.f - std::clamp(resistance, min_resistance, max_resistance);
-}
-
 auto mark::module::shield_generator::damage(
 	const interface::damageable::info& attr) -> bool
 {
-	if (this->active()) {
-		if (attr.team == parent().team()
-			|| !attr.damaged->insert(this).second) {
-			return false;
-		}
-		m_model_shield.trigger(attr.pos);
-		auto& rm = parent().world().resource_manager();
-		let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
-		let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
-		let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
-		let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
-		let antimatter_multiplier =
-			resistance_to_multiplier(m_antimatter_resistance);
-		let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
-		let damage =
-			std::max(0.f, attr.physical * critical_multiplier - m_armor)
-			+ attr.antimatter * critical_multiplier * antimatter_multiplier
-			+ heat_damage;
-		m_cur_shield = std::max(0.f, m_cur_shield - damage);
-		if (m_cur_shield == 0.f) {
-			m_broken = true;
-		}
-		parent().knockback(
-			*attr.knocked, atan(pos() - attr.pos), attr.knockback);
-	} else {
-		base::damage(attr);
+	if (!this->active()) {
+		return base::damage(attr);
 	}
+	if (attr.team == parent().team() || !attr.damaged->insert(this).second) {
+		return false;
+	}
+	m_model_shield.trigger(attr.pos);
+	let damage_result = base::damage(attr, parent().world().resource_manager());
+	m_cur_shield = std::max(0.f, m_cur_shield - damage_result.health);
+	if (m_cur_shield == 0.f) {
+		m_broken = true;
+	}
+	parent().knockback(*attr.knocked, atan(pos() - attr.pos), attr.knockback);
 	return true;
 }
 
