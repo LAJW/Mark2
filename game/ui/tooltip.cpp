@@ -8,9 +8,13 @@ let constexpr tooltip_size = 300.f;
 let constexpr tooltip_margin = 7.f;
 let constexpr font_size = 14.f;
 
-void mark::ui::tooltip::set(std::variant<vd, vi32> pos, const std::string& str)
+void mark::ui::tooltip::set(
+	std::variant<vd, vi32> pos,
+	const void* object_id,
+	const std::string& str)
 {
-	if (!mostly_unchanged(m_text, str)) {
+	if (object_id != m_object_id) {
+		m_object_id = object_id;
 		m_load.trigger();
 	}
 	m_text = str;

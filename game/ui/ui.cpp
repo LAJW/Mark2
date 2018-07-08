@@ -353,15 +353,18 @@ void mark::ui::ui::container_ui(
 					vd(module->size()) * static_cast<double>(module::size);
 				let tooltip_pos =
 					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-				m_tooltip.set(tooltip_pos, description);
+				m_tooltip.set(tooltip_pos, module, description);
 			}
 		}
 	}
 }
 
-void mark::ui::ui::tooltip(vi32 pos, const std::string& str)
+void mark::ui::ui::tooltip(
+	std::variant<vd, vi32> pos,
+	const void* object_id,
+	const std::string& str)
 {
-	m_tooltip.set(pos, str);
+	m_tooltip.set(pos, &object_id, str);
 }
 
 auto mark::ui::ui::grabbed() noexcept -> interface::item*

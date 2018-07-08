@@ -44,7 +44,7 @@ mark::map mark::map::make_cavern(mark::resource::manager& rm)
 
 mark::map mark::map::make_square(resource::manager& resource_manager)
 {
-	let constexpr square_size = 20ull;
+	constexpr const size_t square_size = 20;
 	auto map = mark::map(resource_manager, { square_size, square_size });
 	let middle = range(vector<size_t>(1, 1), map.size() - vector<size_t>(1, 1));
 	for (let pos : middle) {

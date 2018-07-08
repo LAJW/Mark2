@@ -12,8 +12,13 @@ public:
 	/// Update tooltip state, render
 	void update(update_context&) noexcept;
 	/// Set tooltip to render at a specified screen/world position with supplied
-	/// text
-	void set(std::variant<vd, vi32> pos, const std::string& text);
+	/// text. object_id is there to force redrawing of the tooltip when pointing
+	/// at a different object, while allowing to update existing tooltip
+	/// information without triggering fade-in animation
+	void
+	set(std::variant<vd, vi32> pos,
+		const void* object_id,
+		const std::string& text);
 
 private:
 	/// Render a tooltip in screen coordinates
@@ -25,6 +30,7 @@ private:
 	const resource::image_ptr m_background;
 	adsr m_adsr;
 	adsr m_load;
+	const void* m_object_id = nullptr;
 };
 
 } // namespace ui

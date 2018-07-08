@@ -152,7 +152,8 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		return false;
 	});
 	button->on_hover.insert([&](const event&) {
-		m_tooltip.set(vi32(*queue_pos) - vi32{ 300, 0 }, item.describe());
+		m_tooltip.set(
+			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
 		return true;
 	});
 	this->insert(move(button));

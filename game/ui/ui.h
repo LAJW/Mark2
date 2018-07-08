@@ -23,10 +23,11 @@ public:
 	/// Handle all events
 	[[nodiscard]] auto command(world& world, const command::any& command)
 		-> bool;
-	/// Show tooltip at a specified screen position with supplied text
-	void tooltip(vi32 pos, const std::string& text);
-	/// Show tooltip at a specified world position with supplied text
-	void tooltip(vd pos, const std::string& text);
+	/// Show tooltip at a specified world/screen position with supplied text
+	void tooltip(
+		std::variant<vd, vi32> pos,
+		const void* id,
+		const std::string& text);
 	/// Get a grabbed item
 	auto grabbed() noexcept -> interface::item*;
 	/// Grab an item
