@@ -131,6 +131,21 @@ modules:
     grid_pos:
       x: 1
       y: -1
+  - id: 1655311890721
+    blueprint: "armor"
+    grid_pos:
+      x: 3
+      y: 0
+  - id: 1655311890721
+    blueprint: "armor"
+    grid_pos:
+      x: 3
+      y: 1
+  - id: 1655311890721
+    blueprint: "armor"
+    grid_pos:
+      x: 3
+      y: 2
 lookat:
   x: 0
   y: 0

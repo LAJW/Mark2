@@ -1,0 +1,15 @@
+type: module_armor
+cur_health:
+  inherit: max_health
+max_health:
+  min: 200
+  max: 300
+stunned: 0
+cur_heat: 0
+size:
+  x: 1
+  y: 1
+grid_pos:
+  x: 0
+  y: 0
+thumbnail: armor.png
