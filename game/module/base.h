@@ -21,7 +21,8 @@ const unsigned max_dimension = 4;
 struct modifiers
 {
 	float velocity = 0.f;
-	float mass = 1.f;
+	float mass = 0.f;
+	float armor = 0.f;
 };
 
 auto deserialize(resource::manager&, const YAML::Node&) -> module::base_ptr;
@@ -114,6 +115,9 @@ public:
 
 	// get modifiers for parent modular ship
 	virtual auto global_modifiers() const -> module::modifiers;
+
+	// get modifiers for surrounding modules
+	virtual auto local_modifiers() const -> module::modifiers;
 
 	// Specifies whether space around the module should be reserved
 	// For example behind engines and in front of locked turrets

@@ -1,4 +1,5 @@
 ﻿#include "base.h"
+#include <algorithm/accumulate.h>
 #include <any>
 #include <exception.h>
 #include <property_manager.h>
@@ -289,6 +290,13 @@ void mark::module::base::on_death(update_context& context)
 
 auto mark::module::base::global_modifiers() const -> module::modifiers
 {
+	auto modifiers = module::modifiers();
+	modifiers.mass = 1.f;
+	return modifiers;
+}
+
+auto mark::module::base::local_modifiers() const -> module::modifiers
+{
 	return module::modifiers();
 }
 
@@ -326,6 +334,9 @@ auto mark::module::base::size() const -> vu32 { return m_size; }
 
 static auto size_to_image_file_name(const mark::vu32& size) -> std::string
 {
+	if (size == mark::vu32{ 1, 1 }) {
+		return "shadow-2x2.png";
+	}
 	if (size == mark::vu32{ 2, 2 }) {
 		return "shadow-2x2.png";
 	}
@@ -410,9 +421,17 @@ auto mark::module::base::damage(
 	let antimatter_multiplier =
 		resistance_to_multiplier(m_antimatter_resistance);
 	let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
-	let damage = std::max(0.f, attr.physical * critical_multiplier - m_armor)
-		+ attr.antimatter * critical_multiplier * antimatter_multiplier
-		+ heat_damage;
+	let neighbors = parent().neighbors_of(*this);
+	let armor =
+		accumulate(neighbors, m_armor, [&](const float sum, const auto& pair) {
+			return sum + pair.first.get().local_modifiers().armor;
+		});
+	let physical_damage =
+		std::max(0.f, attr.physical * critical_multiplier - armor);
+	let anitmatter_damage =
+		attr.antimatter * critical_multiplier * antimatter_multiplier;
+	let damage =
+		std::max(1.f, physical_damage + anitmatter_damage + heat_damage);
 	let heat_fraction = heat_damage / m_max_health * 100.f;
 	return { damage, heat_fraction, stun };
 }

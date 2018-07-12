@@ -1,4 +1,5 @@
 ﻿#include <stdafx.h>
+#include "armor.h"
 #include "battery.h"
 #include "laser.h"
 #include "cargo.h"
@@ -16,6 +17,9 @@ auto mark::module::deserialize(resource::manager& rm, const YAML::Node& node)
 	-> module::base_ptr
 {
 	let type = node["type"].as<std::string>();
+	if (type == module::armor::type_name) {
+		return std::make_unique<module::armor>(rm, node);
+	}
 	if (type == module::battery::type_name) {
 		return std::make_unique<module::battery>(rm, node);
 	}
