@@ -15,13 +15,12 @@ auto mark::resource::manager_impl::image(const std::string& filename)
 	-> resource::image_ptr
 {
 	auto& image_ptr = m_images[filename];
-	auto image = image_ptr.lock();
-	if (image) {
-		let new_image = mark::make_shared<resource::image_impl>(filename);
-		image_ptr = new_image.get();
-		return new_image.get();
+	if (const auto image = image_ptr.lock()) {
+		return image;
 	}
-	return image;
+	let new_image = mark::make_shared<resource::image_impl>(filename);
+	image_ptr = new_image.get();
+	return new_image.get();
 }
 
 mark::resource::manager_stub::manager_stub()
