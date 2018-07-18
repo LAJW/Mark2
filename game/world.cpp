@@ -119,7 +119,7 @@ mark::world::world(
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
 		let random =
-			resource_manager.random<size_t>(0, ship_blueprint_ids.size() - 1);
+			resource_manager.random(size_t(0), ship_blueprint_ids.size() - 1);
 		let ship_blueprint_id = ship_blueprint_ids[random];
 		let& ship_blueprint = stack.blueprints().at(ship_blueprint_id);
 		return std::dynamic_pointer_cast<unit::modular>(

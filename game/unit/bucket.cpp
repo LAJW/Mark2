@@ -42,7 +42,7 @@ void mark::unit::bucket::update(update_context& context)
 			}
 		}
 		if (diff == vd(0, 0)) {
-			m_direction = context.random<float>(-180.f, 180.f);
+			m_direction = context.random(-180.f, 180.f);
 		} else {
 			m_direction = gsl::narrow_cast<float>(atan(diff));
 		}

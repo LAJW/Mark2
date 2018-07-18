@@ -188,7 +188,7 @@ mark::map::map(resource::manager& rm, const vector<size_t>& size)
 	, m_terrain(size)
 {
 	for (auto& terrain : m_terrain.data()) {
-		terrain.variant = rm.random<unsigned>(0, 2);
+		terrain.variant = rm.random(0u, 2u);
 	}
 }
 

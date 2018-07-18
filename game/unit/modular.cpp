@@ -723,7 +723,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 					if (blueprint_node.size() == 0) {
 						throw std::runtime_error("Empty blueprint selection");
 					}
-					let index = rm.random<size_t>(0, blueprint_node.size() - 1);
+					let index = rm.random(size_t(0), blueprint_node.size() - 1);
 					return blueprint_node[index].as<std::string>();
 				}
 				return blueprint_node.as<std::string>();

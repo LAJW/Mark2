@@ -106,6 +106,7 @@ void mark::render(std::vector<renderable>& layer, const text_info& info)
 
 mark::update_context::update_context(resource::manager& rm)
 	: m_resource_manager(rm)
+	, random(rm.random)
 {}
 
 mark::update_context::~update_context() = default;

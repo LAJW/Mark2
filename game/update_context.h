@@ -27,24 +27,7 @@ struct update_context
 		float percentage;
 	};
 	void render(const bar_info& info);
-	// generate random number
-	template <typename T>
-	T random(T min, T max)
-	{
-		return m_resource_manager.random<T>(min, max);
-	}
-	// randomize if pair
-	template <typename T>
-	T random(std::pair<T, T> pair)
-	{
-		return this->random(pair.first, pair.second);
-	}
-	// forward return otherwise provided
-	template <typename T>
-	T random(T one)
-	{
-		return one;
-	}
+	mark::random &random;
 	struct spray_info
 	{
 		resource::image_ptr image;
