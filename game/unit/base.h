@@ -9,7 +9,7 @@
 namespace mark {
 namespace unit {
 
-auto deserialize(world& world, const YAML::Node& node)
+auto deserialize(world& world, random& random, const YAML::Node& node)
 	-> not_null<shared_ptr<unit::base>>;
 
 // Part of the unit modifiable by world and nothing else
@@ -51,6 +51,7 @@ public:
 
 	struct info
 	{
+		optional<mark::random&> random;
 		optional<mark::world&> world;
 		vd pos;
 		size_t team = 0;

@@ -7,13 +7,15 @@
 mark::world_stack::world_stack(
 	const YAML::Node& state_node,
 	resource::manager& resource_manager,
+	random& random,
 	const blueprint_map& blueprints)
 	: m_blueprints(blueprints)
 	, m_resource_manager(resource_manager)
+	, m_random(random)
 {
 	world_data data;
-	data.world =
-		std::make_unique<mark::world>(*this, resource_manager, state_node);
+	data.world = std::make_unique<mark::world>(
+		*this, resource_manager, random, state_node);
 	m_worlds.push_back(std::move(data));
 }
 
@@ -27,8 +29,8 @@ void mark::world_stack::next()
 	++m_current_world_id;
 	if (m_current_world_id == m_worlds.size()) {
 		world_data data;
-		data.world =
-			std::make_unique<mark::world>(*this, m_resource_manager, false);
+		data.world = std::make_unique<mark::world>(
+			*this, m_resource_manager, m_random, false);
 		m_worlds.push_back(std::move(data));
 		target->pos({ 0., 0. });
 		target->stop();

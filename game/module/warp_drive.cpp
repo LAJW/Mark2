@@ -50,8 +50,9 @@ void mark::module::warp_drive::bind(prop_man& property_manager, T& instance)
 
 mark::module::warp_drive::warp_drive(
 	resource::manager& rm,
+	random& random,
 	const YAML::Node& node)
-	: module::base(rm, node)
+	: module::base(rm, random, node)
 	, m_image_base(rm.image("engine.png"))
 {}
 

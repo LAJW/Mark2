@@ -37,6 +37,7 @@ void mark::module::laser::update(update_context& context)
 		_.damage.damaged = &damaged;
 		_.damage.physical = 100.f * static_cast<float>(context.dt);
 		_.damage.team = parent().team();
+		_.damage.random = context.random;
 		return _;
 	}());
 	this->render(context, move(damage_result.collisions), is_firing, dir);
@@ -121,12 +122,15 @@ void mark::module::laser::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-mark::module::laser::laser(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::laser::laser(
+	resource::manager& rm,
+	random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_targeting_system(*this)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
-	, m_randomiser(rm.random(1.f, 1.2f), rm.random(0.f, 1.f))
+	, m_randomiser(random(1.f, 1.2f), random(0.f, 1.f))
 {}
 
 void mark::module::laser::serialize(YAML::Emitter& out) const

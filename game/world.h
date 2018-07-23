@@ -13,12 +13,17 @@ class world final
 {
 public:
 	// Small empty world with square map for testing purposes
-	world(resource::manager& resource_manager);
+	world(resource::manager& resource_manager, random& random);
 	world(
 		world_stack& stack,
 		resource::manager& resource_manager,
+		random& random,
 		bool initial = true);
-	world(world_stack& stack, resource::manager&, const YAML::Node&);
+	world(
+		world_stack& stack,
+		resource::manager&,
+		mark::random& random,
+		const YAML::Node&);
 	~world();
 	auto resource_manager() -> resource::manager&;
 	void update(update_context&, vd screen_size);

@@ -193,7 +193,8 @@ auto mark::unit::mobile::update_movement_impl(
 
 void mark::unit::mobile::update_movement(const update_movement_info& info)
 {
-	let can_pathfind = world().resource_manager().random(0, 2);
+	auto& random = *info.random;
+	let can_pathfind = random(0, 2) == 0;
 	auto [pos, velocity, path, path_age] =
 		this->update_movement_impl(info, can_pathfind);
 	m_path_cache = std::move(path);

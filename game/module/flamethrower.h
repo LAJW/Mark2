@@ -9,7 +9,7 @@ class flamethrower final : public module::base
 public:
 	static constexpr const char* type_name = "module_flamethrower";
 
-	flamethrower(resource::manager&, const YAML::Node&);
+	flamethrower(resource::manager&, random& random, const YAML::Node&);
 	void command(const command::any& any) override;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;

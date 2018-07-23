@@ -287,6 +287,7 @@ void mark::unit::modular::update(update_context& context)
 			_.acceleration =
 				modifiers.mass > 1.f ? 5000.f / modifiers.mass : 500.f;
 			_.dt = context.dt;
+			_.random = context.random;
 			return _;
 		}());
 	}
@@ -703,7 +704,10 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t
 
 // Serializer / Deserializer
 
-mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
+mark::unit::modular::modular(
+	mark::world& world,
+	random& random,
+	const YAML::Node& node)
 	: unit::mobile(world, node)
 	, m_ai(node["ai"].as<bool>())
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
@@ -716,14 +720,14 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			let blueprint_node = module_node["blueprint"];
 			auto& rm = world.resource_manager();
 			if (!blueprint_node) {
-				return module::deserialize(rm, module_node);
+				return module::deserialize(rm, random, module_node);
 			}
 			let blueprint_id = [&] {
 				if (blueprint_node.IsSequence()) {
 					if (blueprint_node.size() == 0) {
 						throw std::runtime_error("Empty blueprint selection");
 					}
-					let index = rm.random(size_t(0), blueprint_node.size() - 1);
+					let index = random(size_t(0), blueprint_node.size() - 1);
 					return blueprint_node[index].as<std::string>();
 				}
 				return blueprint_node.as<std::string>();
@@ -732,7 +736,7 @@ mark::unit::modular::modular(mark::world& world, const YAML::Node& node)
 			for (let& property : module_node) {
 				properties[property.first] = property.second;
 			}
-			return module::deserialize(rm, properties);
+			return module::deserialize(rm, random, properties);
 		}();
 		// TODO: Propagate an error
 		Expects(module);

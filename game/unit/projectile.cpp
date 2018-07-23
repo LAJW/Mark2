@@ -138,6 +138,7 @@ void mark::unit::projectile::update(update_context& context)
 		_.damage.stun_chance = 0.1f;
 		_.damage.stun_duration = 1.f;
 		_.damage.knockback = m_knockback;
+		_.damage.random = context.random;
 		return _;
 	}());
 	if (m_bounces > 0 && collisions.size() > 0) {
@@ -272,13 +273,16 @@ auto mark::unit::projectile::dead() const -> bool { return m_dead; }
 
 // Serializer / Deserializer
 
-mark::unit::projectile::projectile(mark::world& world, const YAML::Node& node)
+mark::unit::projectile::projectile(
+	mark::world& world,
+	random& random,
+	const YAML::Node& node)
 	: unit::base(world, node)
 	, m_image(world.resource_manager().image("shell.png"))
 	, m_im_tail(world.resource_manager().image("glare.png"))
 	, m_im_explosion(world.resource_manager().image("explosion.png"))
 {
-	property_manager property_manager(world.resource_manager());
+	property_manager property_manager(random);
 	mark::bind(property_manager, *this);
 	Expects(!property_manager.deserialize(node));
 }

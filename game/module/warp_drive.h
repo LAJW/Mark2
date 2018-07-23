@@ -9,7 +9,7 @@ class warp_drive final : public module::base
 public:
 	static constexpr const char* type_name = "module_warp_drive";
 
-	warp_drive(resource::manager&, const YAML::Node&);
+	warp_drive(resource::manager&, random &random, const YAML::Node&);
 	auto describe() const -> std::string override;
 	void command(const command::any&) override;
 	void serialize(YAML::Emitter&) const override;

@@ -258,8 +258,7 @@ auto mark::module::base::damage(const interface::damageable::info& attr) -> bool
 		|| attr.damaged->insert(this).second) {
 		return false;
 	}
-	auto& rm = parent().world().resource_manager();
-	let [health, heat, stun] = base::damage(attr, rm);
+	let[health, heat, stun] = damage_impl(attr);
 	m_cur_health = std::max(0.f, m_cur_health - health);
 	m_cur_heat = std::min(100.f, m_cur_heat + heat * 2.f);
 	if (stun) {
@@ -364,21 +363,24 @@ auto mark::module::base::team() const -> size_t { return parent().team(); }
 
 auto mark::module::base::randomise(
 	const std::unordered_map<std::string, YAML::Node>& blueprints,
-	resource::manager& resource_manager) -> std::error_code
+	random& random) -> std::error_code
 {
 	if (m_blueprint_id.empty()) {
 		return error::code::module_not_random;
 	}
-	property_manager property_manager(resource_manager);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	return property_manager.randomise(blueprints.at(m_blueprint_id));
 }
 
-mark::module::base::base(resource::manager& rm, const YAML::Node& node)
+mark::module::base::base(
+	resource::manager& rm,
+	random& random,
+	const YAML::Node& node)
 	: base_ref(node)
 	, m_thumbnail(rm.image(node["thumbnail"].as<std::string>("grid.png")))
 {
-	property_manager property_manager(rm);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error("Could not deserialize module::base");
@@ -410,13 +412,13 @@ auto mark::module::base::world() noexcept -> mark::world&
 	return parent().world();
 }
 
-auto mark::module::base::damage(
-	const interface::damageable::info& attr,
-	mark::resource::manager& rm) const -> damage_result
+auto mark::module::base::damage_impl(
+	const interface::damageable::info& attr) const -> damage_result
 {
-	let critical = rm.random(0.f, 1.f) <= attr.critical_chance;
+	auto& random = *attr.random;
+	let critical = random(0.f, 1.f) <= attr.critical_chance;
 	let critical_multiplier = critical ? attr.critical_multiplier : 1.f;
-	let stun = rm.random(0.f, 1.f) <= attr.stun_chance;
+	let stun = random(0.f, 1.f) <= attr.stun_chance;
 	let heat_multiplier = resistance_to_multiplier(m_heat_resistance);
 	let antimatter_multiplier =
 		resistance_to_multiplier(m_antimatter_resistance);

@@ -143,8 +143,9 @@ void mark::module::healing_turret::bind(prop_man& property_manager, T& instance)
 
 mark::module::healing_turret::healing_turret(
 	resource::manager& rm,
+	random& random,
 	const YAML::Node& node)
-	: module::base(rm, node)
+	: module::base(rm, random, node)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
 {}

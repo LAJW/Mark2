@@ -15,7 +15,7 @@ class turret final
 public:
 	static constexpr const char* type_name = "module_turret";
 
-	turret(resource::manager&, const YAML::Node&);
+	turret(resource::manager&, random& random, const YAML::Node&);
 	~turret();
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;

@@ -40,6 +40,7 @@ void mark::module::flamethrower::update(update_context& context)
 			_.damage.team = parent().team();
 			_.damage.knocked = &knocked;
 			_.damage.knockback = 10.;
+			_.damage.random = context.random;
 			return _;
 		}());
 	}
@@ -113,8 +114,9 @@ void mark::module::flamethrower::bind(prop_man& property_manager, T& instance)
 
 mark::module::flamethrower::flamethrower(
 	resource::manager& rm,
+	random& random,
 	const YAML::Node& node)
-	: module::base(rm, node)
+	: module::base(rm, random, node)
 	, m_image_base(rm.image("turret.png"))
 	, m_image_fire(rm.image("explosion.png"))
 {}

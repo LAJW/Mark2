@@ -1,6 +1,6 @@
 #pragma once
 #include "exception.h"
-#include "resource_manager.h"
+#include "random.h"
 #include "stdafx.h"
 #include "yaml.h"
 #include <any>
@@ -28,7 +28,7 @@ private:
 		virtual auto get() -> std::any = 0;
 		[[nodiscard]] virtual auto set(std::any) -> std::error_code = 0;
 		[[nodiscard]] virtual auto
-		randomise(const YAML::Node& node, resource::manager& rm)
+		randomise(const YAML::Node& node, random&)
 			-> std::error_code = 0;
 	};
 	template <typename T>
@@ -53,11 +53,11 @@ private:
 			}
 			return error::code::bad_input;
 		}
-		auto randomise(const YAML::Node& node, resource::manager& rm)
+		auto randomise(const YAML::Node& node, random& random)
 			-> std::error_code override
 		{
 			if (node && node.IsSequence()) {
-				let index = rm.random(size_t(0), node.size() - 1);
+				let index = random(size_t(0), node.size() - 1);
 				m_ref = node[index].as<T>();
 				return error::code::success;
 			}
@@ -65,7 +65,7 @@ private:
 				if (node && node.IsMap()) {
 					let min = node["min"].as<T>();
 					let max = node["max"].as<T>();
-					m_ref = rm.random(min, max);
+					m_ref = random(min, max);
 					return error::code::success;
 				}
 			}
@@ -77,7 +77,7 @@ private:
 	};
 
 public:
-	property_manager(resource::manager&);
+	property_manager(random& random);
 	template <typename T>
 	void bind(std::string key, T& ref)
 	{
@@ -107,7 +107,7 @@ private:
 	[[nodiscard]] auto update_inherited_properties(const YAML::Node& node)
 		-> std::error_code;
 
-	resource::manager& m_rm;
+	random& m_random;
 	std::unordered_map<std::string, unique_ptr<iproperty>> m_properties;
 };
 

@@ -34,12 +34,13 @@ auto mark::module::shield_generator::active() const -> bool
 
 mark::module::shield_generator::shield_generator(
 	resource::manager& rm,
+	random& random,
 	const YAML::Node& node)
-	: module::base(rm, node)
+	: module::base(rm, random, node)
 	, m_im_generator(rm.image("shield-generator.png"))
-	, m_model_shield(rm, node["radius"].as<float>(default_radius))
+	, m_model_shield(rm, random, node["radius"].as<float>(default_radius))
 {
-	property_manager property_manager(rm);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(
@@ -113,7 +114,7 @@ auto mark::module::shield_generator::damage(
 		return false;
 	}
 	m_model_shield.trigger(attr.pos);
-	let damage_result = base::damage(attr, parent().world().resource_manager());
+	let damage_result = base::damage_impl(attr);
 	m_cur_shield = std::max(0.f, m_cur_shield - damage_result.health);
 	if (m_cur_shield == 0.f) {
 		m_broken = true;

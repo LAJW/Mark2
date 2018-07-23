@@ -17,11 +17,11 @@ public:
 		bool consumed = false;
 	};
 	virtual auto use_on(
-		resource::manager& rm,
+		mark::random& random,
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
 		module::base& item) -> use_on_result
 	{
-		(void)rm;
+		(void)random;
 		(void)blueprints;
 		(void)item;
 		use_on_result result;

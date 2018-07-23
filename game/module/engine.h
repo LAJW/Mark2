@@ -9,7 +9,7 @@ class engine final : public module::base
 public:
 	static constexpr const char* type_name = "module_engine";
 
-	engine(resource::manager&, const YAML::Node&);
+	engine(resource::manager&, mark::random& random, const YAML::Node&);
 	auto describe() const -> std::string override;
 	auto global_modifiers() const -> module::modifiers override;
 	void command(const command::any&) override;

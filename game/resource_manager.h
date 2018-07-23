@@ -11,8 +11,8 @@ class manager
 public:
 	virtual auto image(const std::string& filename)
 		-> resource::image_ptr = 0;
-	random& random;
 protected:
+	random& random;
 	manager(mark::random& random);
 };
 

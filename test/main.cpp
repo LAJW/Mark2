@@ -10,7 +10,8 @@
 TEST_CASE("Map collide with a horizontal ray")
 {
 	mark::resource::manager_stub rm;
-	let map = mark::map::make_square(rm);
+	mark::random_stub random;
+	let map = mark::map::make_square(rm, random);
 	let maybe_result = map.collide({ { 0, 0 }, { 1000, 0 } });
 	REQUIRE(maybe_result.has_value());
 	let result = maybe_result->pos;

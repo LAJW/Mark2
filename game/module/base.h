@@ -25,7 +25,8 @@ struct modifiers
 	float armor = 0.f;
 };
 
-auto deserialize(resource::manager&, const YAML::Node&) -> module::base_ptr;
+auto deserialize(resource::manager&, random& random, const YAML::Node&)
+	-> module::base_ptr;
 
 enum class reserved_kind
 {
@@ -143,7 +144,7 @@ public:
 	// Randomise all random properties
 	[[nodiscard]] auto randomise(
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
-		resource::manager& resource_manager) -> std::error_code;
+		random& random) -> std::error_code;
 
 	// No-op - modules are not stackable
 	void stack(interface::item_ptr&) override final {}
@@ -156,7 +157,7 @@ public:
 	auto quantity() const -> size_t override { return 1; }
 
 protected:
-	base(resource::manager&, const YAML::Node&);
+	base(resource::manager&, random& random, const YAML::Node&);
 
 	void update(update_context& context) override;
 
@@ -172,14 +173,14 @@ protected:
 
 	/// Calculate amount of damage to deal. Helper implementation function to
 	/// share damage calculation logic between base, shield and alike
-	struct damage_result {
+	struct damage_result
+	{
 		float health;
 		float heat;
 		bool stun;
 	};
-	auto damage(
-		const interface::damageable::info& attr,
-		mark::resource::manager& rm) const -> damage_result;
+	auto damage_impl(const interface::damageable::info& attr) const
+		-> damage_result;
 
 protected:
 	float m_cur_health = 100.f;

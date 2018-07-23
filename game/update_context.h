@@ -5,7 +5,7 @@
 namespace mark {
 struct update_context
 {
-	update_context(resource::manager&);
+	update_context(resource::manager&, random& random);
 	~update_context();
 	double dt;
 	std::map<int, std::vector<renderable>> sprites;
@@ -32,8 +32,8 @@ struct update_context
 	{
 		resource::image_ptr image;
 		vd pos;
-		float min_velocity = NAN;
-		float max_velocity = NAN;
+		double min_velocity = NAN;
+		double max_velocity = NAN;
 		float min_lifespan = NAN;
 		float max_lifespan = NAN;
 		float min_diameter = NAN;
@@ -45,7 +45,7 @@ struct update_context
 		sf::Color color = sf::Color::White;
 		int layer = 0;
 
-		void velocity(float min, float max = NAN);
+		void velocity(double min, double max = NAN);
 		void lifespan(float min, float max = NAN);
 		void diameter(float min, float max = NAN);
 	};

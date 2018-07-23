@@ -7,9 +7,13 @@
 #include <update_context.h>
 #include <world.h>
 
-mark::unit::bucket::bucket(mark::world& world, const YAML::Node& node)
+mark::unit::bucket::bucket(
+	mark::world& world,
+	mark::random& random,
+	const YAML::Node& node)
 	: unit::base(world, node)
-	, m_item(module::deserialize(world.resource_manager(), node["module"]))
+	, m_item(
+		  module::deserialize(world.resource_manager(), random, node["module"]))
 	, m_rotation(node["rotation"].as<float>(m_rotation))
 {
 }

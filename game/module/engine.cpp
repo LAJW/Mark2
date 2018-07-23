@@ -53,8 +53,11 @@ void mark::module::engine::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-mark::module::engine::engine(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::engine::engine(
+	resource::manager& rm,
+	mark::random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_image_base(rm.image("engine.png"))
 {}
 

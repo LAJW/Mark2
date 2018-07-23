@@ -13,21 +13,22 @@
 
 using Node = mark::map::Node;
 
-mark::map mark::map::make_cavern(mark::resource::manager& rm)
+mark::map
+mark::map::make_cavern(mark::resource::manager& rm, mark::random& random)
 {
 	let depth = 100;
 	let max_corridor_length = 10;
 	let spacing = 5;
 	let corridor_width = 3;
 
-	auto map = mark::map(rm, { map_size, map_size });
+	auto map = mark::map(rm, random, { map_size, map_size });
 	auto point = vi32(map.size()) / 2;
 	for (let cur_depth : range(depth)) {
 		(void)cur_depth;
-		let direction_d = rotate(vd(1, 0), rm.random(0, 3) * 90.);
+		let direction_d = rotate(vd(1, 0), random(0, 3) * 90.);
 		let direction = round(direction_d);
 		let orto = round(rotate(direction_d, 90.));
-		let length = rm.random(1, max_corridor_length);
+		let length = random(1, max_corridor_length);
 
 		for (let cur_spacing : range(-spacing, length + spacing)) {
 			for (let orto_offset : range(-corridor_width, corridor_width + 1)) {
@@ -42,10 +43,12 @@ mark::map mark::map::make_cavern(mark::resource::manager& rm)
 	return map;
 }
 
-mark::map mark::map::make_square(resource::manager& resource_manager)
+mark::map mark::map::make_square(
+	resource::manager& resource_manager,
+	mark::random& random)
 {
 	constexpr const size_t square_size = 20;
-	auto map = mark::map(resource_manager, { square_size, square_size });
+	auto map = mark::map(resource_manager, random, { square_size, square_size });
 	let middle = range(vector<size_t>(1, 1), map.size() - vector<size_t>(1, 1));
 	for (let pos : middle) {
 		map.set(vi32(pos), terrain_kind::floor_1);
@@ -183,12 +186,15 @@ auto mark::map::deserialize_terrain_kind(const std::string& str)
 	throw std::bad_cast();
 }
 
-mark::map::map(resource::manager& rm, const vector<size_t>& size)
+mark::map::map(
+	resource::manager& rm,
+	mark::random& random,
+	const vector<size_t>& size)
 	: m_tileset(rm.image("jungle-1.png"))
 	, m_terrain(size)
 {
 	for (auto& terrain : m_terrain.data()) {
-		terrain.variant = rm.random(0u, 2u);
+		terrain.variant = random(0u, 2u);
 	}
 }
 
@@ -620,8 +626,11 @@ void mark::map::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-mark::map::map(resource::manager& resource_manager, const YAML::Node& node)
-	: map(resource_manager, node["size"].as<vector<size_t>>())
+mark::map::map(
+	resource::manager& resource_manager,
+	random& random,
+	const YAML::Node& node)
+	: map(resource_manager, random, node["size"].as<vector<size_t>>())
 {
 	if (node["type"].as<std::string>() != "map") {
 		std::runtime_error("BAD_DESERIALIZE");
@@ -630,7 +639,7 @@ mark::map::map(resource::manager& resource_manager, const YAML::Node& node)
 	auto data = base64_decode(node["data"].as<std::string>());
 	for (let ch : data) {
 		m_terrain.data()[i].type = static_cast<terrain_kind>(ch);
-		m_terrain.data()[i].variant = resource_manager.random(0, 2);
+		m_terrain.data()[i].variant = random(0, 2);
 		i++;
 	}
 	this->calculate_traversable();

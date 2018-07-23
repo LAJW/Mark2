@@ -20,6 +20,7 @@ protected:
 	mobile(const info& info);
 	struct update_movement_info
 	{
+		optional<random&> random;
 		// delta time
 		double dt;
 		// maximum velocity of the ship

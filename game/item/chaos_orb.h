@@ -11,7 +11,7 @@ public:
 
 	chaos_orb(resource::manager& rm, const YAML::Node& node);
 	auto use_on(
-		resource::manager& rm,
+		mark::random& random,
 		const std::unordered_map<std::string, YAML::Node>& blueprints,
 		module::base& item) -> use_on_result override;
 	auto describe() const -> std::string override;

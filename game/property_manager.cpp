@@ -13,8 +13,8 @@ static auto get_inherit(const YAML::Node& node) -> std::optional<std::string>
 	return {};
 }
 
-mark::property_manager::property_manager(resource::manager& rm)
-	: m_rm(rm)
+mark::property_manager::property_manager(mark::random& random)
+	: m_random(random)
 {}
 
 auto mark::property_manager::deserialize(const YAML::Node& node)
@@ -25,7 +25,7 @@ auto mark::property_manager::deserialize(const YAML::Node& node)
 		if (get_inherit(child)) {
 			continue;
 		}
-		let randomise_error = property->randomise(child, m_rm);
+		let randomise_error = property->randomise(child, m_random);
 		if (randomise_error == error::code::property_not_random) {
 			if (let error = property->set(std::ref(child))) {
 				return error;
@@ -44,7 +44,7 @@ auto mark::property_manager::randomise(const YAML::Node& node)
 		if (get_inherit(child)) {
 			continue;
 		}
-		if (error::code::success == property->randomise(child, m_rm)) {
+		if (error::code::success == property->randomise(child, m_random)) {
 			++random_count;
 		}
 	}
@@ -62,7 +62,7 @@ auto mark::property_manager::randomise(
 	if (get_inherit(child)) {
 		return error::code::property_not_random;
 	}
-	if (let error = m_properties[key]->randomise(child, m_rm)) {
+	if (let error = m_properties[key]->randomise(child, m_random)) {
 		return error;
 	}
 	return update_inherited_properties(node);

@@ -14,6 +14,7 @@ public:
 		// to ignore damaged objects. Cannot be null upon invoking
 		// damage(). idamageable upon taking damage should store itself
 		// here
+		optional<random&> random;
 		std::unordered_set<not_null<damageable*>>* damaged = nullptr;
 		std::unordered_set<not_null<damageable*>>* knocked = nullptr;
 		vd pos;

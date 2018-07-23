@@ -20,17 +20,20 @@ void mark::module::cargo::bind(prop_man& property_manager, T& instance)
 	(void)instance;
 }
 
-mark::module::cargo::cargo(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::cargo::cargo(
+	resource::manager& rm,
+	mark::random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_im_body(rm.image("cargo.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_im_light(rm.image("glare.png"))
-	, m_lfo(0.5f, rm.random(0.f, 6.f))
+	, m_lfo(0.5f, random(0.f, 6.f))
 	, m_items(64)
 {
 	for (let& slot_node : node["contents"]) {
 		let slot = slot_node["slot"].as<size_t>();
-		m_items[slot] = deserialize(rm, slot_node["item"]);
+		m_items[slot] = deserialize(rm, random, slot_node["item"]);
 	}
 }
 

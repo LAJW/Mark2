@@ -15,7 +15,7 @@ class cargo final
 public:
 	static constexpr const char* type_name = "module_cargo";
 
-	cargo(resource::manager&, const YAML::Node&);
+	cargo(resource::manager&, mark::random& random, const YAML::Node&);
 
 	[[nodiscard]] auto attach(vi32 pos, interface::item_ptr&& item)
 		-> std::error_code override;

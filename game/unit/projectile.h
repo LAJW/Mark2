@@ -67,7 +67,7 @@ public:
 		float phase = 0.f;
 		float lfo = 0.f;
 	};
-	projectile(mark::world&, const YAML::Node&);
+	projectile(mark::world&, random&, const YAML::Node&);
 	projectile(const projectile::info&);
 	auto dead() const -> bool override;
 	void serialize(YAML::Emitter&) const override;

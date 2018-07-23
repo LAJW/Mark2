@@ -231,18 +231,21 @@ auto mark::module::turret::targeting_system() const noexcept
 							  : parent().targeting_system();
 }
 
-mark::module::turret::turret(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::turret::turret(
+	resource::manager& rm,
+	random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_image(rm.image("turret.png"))
 	, m_im_orb(rm.image("orb.png"))
-	, m_image_variant(rm.random(0, 11))
+	, m_image_variant(random(0, 11))
 	, m_adsr(0.1f, 8.f, 0.1f, 0.8f)
 	, m_cone_curve(
 		  curve::deserialize(node["cone_curve"].as<std::string>("flat")))
 	, m_rate_of_fire_curve(curve::deserialize(
 		  node["rate_of_fire_curve"].as<std::string>("flat")))
 {
-	property_manager property_manager(rm);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	mark::bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {

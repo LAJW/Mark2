@@ -21,6 +21,7 @@ let container_count = 8;
 
 mark::ui::ui::ui(
 	resource::manager& rm,
+	random& random,
 	mode_stack& stack,
 	world_stack& world_stack)
 	: m_world_stack(world_stack)
@@ -28,6 +29,7 @@ mark::ui::ui::ui(
 	, m_action_bar(rm)
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_rm(rm)
+	, m_random(random)
 	, m_tooltip(rm)
 {
 	m_windows.push_back(
@@ -141,7 +143,10 @@ static auto modular(mark::world& world) -> shared_ptr<unit::modular>
 }
 } // namespace mark
 
-bool mark::ui::ui::command(world& world, const mark::command::any& any)
+bool mark::ui::ui::command(
+	world& world,
+	random& random,
+	const mark::command::any& any)
 {
 	if (std::holds_alternative<command::cancel>(any)) {
 		m_stack.pop();
@@ -174,12 +179,15 @@ bool mark::ui::ui::command(world& world, const mark::command::any& any)
 		return true;
 	}
 	if (let move = std::get_if<command::move>(&any)) {
-		return this->command(world, *move);
+		return this->command(world, random, *move);
 	}
 	return false;
 }
 
-auto mark::ui::ui::command(world& world, const mark::command::move& move)
+auto mark::ui::ui::command(
+	world& world,
+	random& random,
+	const mark::command::move& move)
 	-> bool
 {
 	if (move.release) {
@@ -198,14 +206,14 @@ auto mark::ui::ui::command(world& world, const mark::command::move& move)
 	}
 	// modular drag&drop
 	if (this->grabbed()) {
-		this->drop(world, relative);
+		this->drop(world, random, relative);
 	} else {
 		this->drag(world, relative, move.shift);
 	}
 	return true;
 }
 
-void mark::ui::ui::drop(world& world, vd relative)
+void mark::ui::ui::drop(world& world, random& random, vd relative)
 {
 	Expects(grabbed());
 	let module_pos = round(relative);
@@ -222,7 +230,7 @@ void mark::ui::ui::drop(world& world, vd relative)
 	}
 	if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
-			grabbed()->use_on(m_rm, world.blueprints(), *module);
+			grabbed()->use_on(random, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
 			detach(m_grabbed);
 		}

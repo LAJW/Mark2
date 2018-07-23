@@ -12,6 +12,7 @@ mark::unit::minion::minion(const unit::mobile::info& info)
 	, m_gun_cooldown(0.5f)
 	, m_model_shield(
 		  info.world->resource_manager(),
+		  *info.random,
 		  static_cast<float>(this->radius()))
 	, m_image_explosion(info.world->resource_manager().image("explosion.png"))
 {}
@@ -47,6 +48,7 @@ void mark::unit::minion::update(update_context& context)
 				_.ai = true;
 				_.acceleration = 500.;
 				_.max_velocity = velocity;
+				_.random = context.random;
 				return _;
 			}());
 			m_rotation =

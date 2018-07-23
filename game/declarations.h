@@ -20,6 +20,7 @@ using unique_ptr = std::unique_ptr<T>;
 template <typename T>
 using weak_ptr = std::weak_ptr<T>;
 class map;
+class random;
 class particle;
 struct path;
 class property_manager;

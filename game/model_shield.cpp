@@ -6,9 +6,12 @@
 #include <algorithm/range.h>
 #include <particle.h>
 
-mark::model::shield::shield(resource::manager& rm, float radius)
+mark::model::shield::shield(
+	resource::manager& rm,
+	mark::random& random,
+	float radius)
 	: m_adsr(0, 255, 0.1f, 1)
-	, m_lfo(1.f, rm.random(0.f, 1.f))
+	, m_lfo(1.f, random(0.f, 1.f))
 	, m_image_reflection(rm.image("shield-reaction.png"))
 	, m_image_shield(rm.image("shield.png"))
 	, m_image_shard(rm.image("particle.png"))

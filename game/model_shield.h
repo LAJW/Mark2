@@ -14,7 +14,10 @@ namespace model {
 class shield
 {
 public:
-	shield(resource::manager& resource_manager, float radius);
+	shield(
+		resource::manager& resource_manager,
+		mark::random& random,
+		float radius);
 	void update(update_context& context, vd pos, bool active);
 	void trigger(vd pos);
 

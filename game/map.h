@@ -8,10 +8,10 @@ class map final
 public:
 	static constexpr const double tile_size = 64.0;
 
-	static map make_cavern(resource::manager&);
-	static map make_square(resource::manager&);
+	static map make_cavern(resource::manager&, mark::random& random);
+	static map make_square(resource::manager&, mark::random& random);
 
-	map(resource::manager&, const YAML::Node&);
+	map(resource::manager&, mark::random& random, const YAML::Node&);
 
 	auto traversable(vd pos, double radius) const -> bool;
 	auto traversable(vi32 i_pos, const size_t radius) const -> bool;
@@ -60,7 +60,7 @@ private:
 	static std::string serialize_terrain_kind(terrain_kind);
 	static enum terrain_kind deserialize_terrain_kind(const std::string&);
 
-	map(resource::manager&, const vector<size_t>& size);
+	map(resource::manager&, random& random, const vector<size_t>& size);
 
 	auto get(vi32 pos) const noexcept -> terrain_kind;
 	auto get_variant(vi32 pos) const noexcept -> unsigned;

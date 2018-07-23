@@ -9,7 +9,7 @@ class energy_generator final : public module::base
 public:
 	static constexpr const char* type_name = "module_energy_generator";
 
-	energy_generator(resource::manager&, const YAML::Node&);
+	energy_generator(resource::manager&, random& random, const YAML::Node&);
 	auto describe() const -> std::string override;
 	auto harvest_energy(double dt) -> float override;
 	auto energy_ratio() const -> float override;

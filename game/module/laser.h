@@ -14,7 +14,7 @@ class laser final : public module::base
 public:
 	static constexpr const char* type_name = "module_cannon";
 
-	laser(resource::manager&, const YAML::Node&);
+	laser(resource::manager&, random& random, const YAML::Node&);
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

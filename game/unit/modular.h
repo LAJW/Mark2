@@ -21,7 +21,7 @@ public:
 	static constexpr const char* type_name = "unit_modular";
 	static constexpr unsigned max_size = 40;
 
-	modular(mark::world& world, const YAML::Node&);
+	modular(mark::world& world, random& random, const YAML::Node&);
 	struct info : mobile::info
 	{
 		float rotation = 0.f;

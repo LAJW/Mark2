@@ -104,9 +104,11 @@ void mark::render(std::vector<renderable>& layer, const text_info& info)
 	}
 }
 
-mark::update_context::update_context(resource::manager& rm)
+mark::update_context::update_context(
+	resource::manager& rm,
+	mark::random& random)
 	: m_resource_manager(rm)
-	, random(rm.random)
+	, random(random)
 {}
 
 mark::update_context::~update_context() = default;
@@ -203,7 +205,7 @@ void mark::update_context::render(const update_context::spray_info& info)
 	}
 }
 
-void mark::update_context::spray_info::velocity(float min, float max)
+void mark::update_context::spray_info::velocity(double min, double max)
 {
 	min_velocity = min;
 	max_velocity = max;

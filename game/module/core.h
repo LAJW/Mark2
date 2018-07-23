@@ -10,7 +10,7 @@ class core final : public base
 public:
 	static constexpr const char* type_name = "module_core";
 
-	core(resource::manager&, const YAML::Node&);
+	core(resource::manager&, random& random, const YAML::Node&);
 	auto detachable() const -> bool override;
 	auto describe() const -> std::string override;
 	void serialize(YAML::Emitter&) const override;

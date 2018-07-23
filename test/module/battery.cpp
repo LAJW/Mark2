@@ -4,10 +4,12 @@
 
 static auto attach_battery(
 	mark::resource::manager& rm,
+	mark::random& random,
 	mark::unit::modular& modular,
 	const YAML::Node& node) -> mark::module::battery&
 {
-	auto battery_ptr = std::make_unique<mark::module::battery>(rm, node);
+	auto battery_ptr =
+		std::make_unique<mark::module::battery>(rm, random, node);
 	auto& battery = *battery_ptr;
 	REQUIRE(!modular.attach(
 		{ 1, -1 }, std::unique_ptr<mark::interface::item>(move(battery_ptr))));
@@ -30,7 +32,7 @@ struct battery_env : core_env
 {
 	mark::module::battery& battery;
 	explicit battery_env(const YAML::Node& node = YAML::Node())
-		: battery(attach_battery(rm, *modular, node))
+		: battery(attach_battery(rm, random, *modular, node))
 	{}
 };
 

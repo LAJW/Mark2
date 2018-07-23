@@ -10,6 +10,7 @@ public:
 	world_stack(
 		const YAML::Node& state_node,
 		resource::manager& resource_manager,
+		random& random,
 		const blueprint_map& blueprints);
 	void next();
 	void prev();
@@ -27,5 +28,6 @@ private:
 	size_t m_current_world_id = 0;
 	resource::manager& m_resource_manager;
 	const blueprint_map m_blueprints;
+	random& m_random;
 };
 } // namespace mark

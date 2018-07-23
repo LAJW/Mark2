@@ -11,7 +11,7 @@ class shield_generator final : public base
 public:
 	static constexpr const char* type_name = "shield_generator";
 
-	shield_generator(resource::manager&, const YAML::Node&);
+	shield_generator(resource::manager&, random& random, const YAML::Node&);
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string override;
 	auto collide(const segment_t&)

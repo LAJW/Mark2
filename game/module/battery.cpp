@@ -56,11 +56,14 @@ void mark::module::battery::bind(prop_man& property_manager, T& instance)
 	MARK_BIND(cur_energy);
 }
 
-mark::module::battery::battery(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::battery::battery(
+	resource::manager& rm,
+	random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_image_base(rm.image("battery.png"))
 {
-	property_manager property_manager(rm);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(

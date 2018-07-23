@@ -60,12 +60,13 @@ void mark::module::energy_generator::bind(
 
 mark::module::energy_generator::energy_generator(
 	resource::manager& rm,
+	mark::random& random,
 	const YAML::Node& node)
-	: module::base(rm, node)
+	: module::base(rm, random, node)
 	, m_image_base(rm.image("energy-generator.png"))
 	, m_image_bar(rm.image("bar.png"))
 {
-	property_manager property_manager(rm);
+	property_manager property_manager(random);
 	bind(property_manager, *this);
 	if (property_manager.deserialize(node)) {
 		throw std::runtime_error(

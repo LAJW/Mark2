@@ -18,7 +18,8 @@ mark::unit::landing_pad::landing_pad(const info& info)
 
 // Serialize / Deserialize
 
-mark::unit::landing_pad::landing_pad(mark::world& world, const YAML::Node& node)
+mark::unit::landing_pad::landing_pad(
+	mark::world& world, const YAML::Node& node)
 	: activable(world, node)
 	, m_image(world.resource_manager().image("landing-pad.png"))
 {}

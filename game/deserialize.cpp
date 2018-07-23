@@ -3,13 +3,16 @@
 #include <item/deserialize.h>
 #include <stdafx.h>
 
-auto mark::item::deserialize(resource::manager& rm, const YAML::Node& node)
+auto mark::item::deserialize(
+	resource::manager& rm,
+	mark::random& random,
+	const YAML::Node& node)
 	-> interface::item_ptr
 {
-	if (auto module = module::deserialize(rm, node)) {
+	if (auto module = module::deserialize(rm, random, node)) {
 		return module;
 	}
-	if (auto item = item::deserialize(rm, node)) {
+	if (auto item = item::deserialize(rm, random, node)) {
 		return item;
 	}
 	return nullptr;

@@ -3,7 +3,10 @@
 
 namespace mark {
 namespace item {
-auto deserialize(resource::manager& rm, const YAML::Node& node)
+auto deserialize(
+	resource::manager& rm,
+	mark::random& random,
+	const YAML::Node& node)
 	-> interface::item_ptr;
 }
 } // namespace mark

@@ -15,14 +15,17 @@ class recycler;
 class ui final
 {
 public:
-	ui(resource::manager& rm, mode_stack& stack, world_stack& world_stack);
+	ui(resource::manager& rm,
+	   random& random,
+	   mode_stack& stack,
+	   world_stack& world_stack);
 	/// Default destructor defined in the source file for enabling PIMPL
 	~ui();
 	/// Update UI state, render frames, etc.
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	/// Handle all events
-	[[nodiscard]] auto command(world& world, const command::any& command)
-		-> bool;
+	[[nodiscard]] auto
+	command(world& world, random& random, const command::any& command) -> bool;
 	/// Show tooltip at a specified world/screen position with supplied text
 	void tooltip(
 		std::variant<vd, vi32> pos,
@@ -46,9 +49,9 @@ private:
 	/// Handler for the mouse over event
 	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
 	/// Process the move command
-	auto command(world& world, const command::move& move) -> bool;
+	auto command(world& world, random& random, const command::move& move) -> bool;
 	/// Process the "drag" user command
-	void drop(world& world, vd relative);
+	void drop(world& world, random& random, vd relative);
 	/// Process the "drop" user command
 	void drag(world& world, vd relative, bool shift);
 	void container_ui(
@@ -72,6 +75,7 @@ private:
 	mark::ui::tooltip m_tooltip;
 
 	resource::manager& m_rm;
+	random& m_random;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
 

@@ -156,10 +156,11 @@ void main(std::vector<std::string> args);
 void mark::main(std::vector<std::string> args)
 {
 	mode_stack stack;
-	mark::resource::manager_impl rm;
+	resource::manager_impl rm;
+	random_impl random;
 	mark::world_stack world_stack(
-		YAML::LoadFile(mark::save_path), rm, blueprints());
-	mark::ui::ui ui(rm, stack, world_stack);
+		YAML::LoadFile(mark::save_path), rm, random, blueprints());
+	mark::ui::ui ui(rm, random, stack, world_stack);
 	let options = YAML::LoadFile(options_path);
 	mark::hid hid(options["keybindings"]);
 	event_loop_info event_loop_info;
@@ -171,7 +172,7 @@ void mark::main(std::vector<std::string> args)
 		auto& world = world_stack.world();
 		let target = world.camera() + info.mouse_pos - info.window_res / 2.;
 		for (let command : hid.commands(round(info.mouse_pos), target)) {
-			if (!ui.command(world, command) && !stack.paused()) {
+			if (!ui.command(world, random, command) && !stack.paused()) {
 				world.command(command);
 			}
 		}
@@ -179,7 +180,7 @@ void mark::main(std::vector<std::string> args)
 	event_loop_info.on_update = [&](const on_update_info& info) {
 		auto& world = world_stack.world();
 		let resolution = info.window_res;
-		mark::update_context context(rm);
+		mark::update_context context(rm, random);
 		context.dt = info.dt;
 		if (!stack.paused()) {
 			world.update(context, resolution);

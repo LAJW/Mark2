@@ -20,9 +20,9 @@ namespace {
 let voxel_dim = mark::vector<std::size_t>{ 50, 50 };
 } // namespace
 
-mark::world::world(resource::manager& rm)
+mark::world::world(resource::manager& rm, random& random)
 	: m_resource_manager(rm)
-	, m_map(std::make_unique<mark::map>(map::make_square(rm)))
+	, m_map(std::make_unique<mark::map>(map::make_square(rm, random)))
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
@@ -102,9 +102,11 @@ static const std::vector<std::string> ship_blueprint_ids = {
 mark::world::world(
 	world_stack& stack,
 	resource::manager& resource_manager,
+	random& random,
 	bool initial)
 	: m_resource_manager(resource_manager)
-	, m_map(std::make_unique<mark::map>(map::make_cavern(resource_manager)))
+	, m_map(std::make_unique<mark::map>(
+		  map::make_cavern(resource_manager, random)))
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
@@ -118,12 +120,11 @@ mark::world::world(
 	let constexpr spawn_ships = true;
 	let map_size = vi32(1000, 1000);
 	let spawn_ship = [&]() {
-		let random =
-			resource_manager.random(size_t(0), ship_blueprint_ids.size() - 1);
-		let ship_blueprint_id = ship_blueprint_ids[random];
+		let blueprint_id = random(size_t(0), ship_blueprint_ids.size() - 1);
+		let ship_blueprint_id = ship_blueprint_ids[blueprint_id];
 		let& ship_blueprint = stack.blueprints().at(ship_blueprint_id);
 		return std::dynamic_pointer_cast<unit::modular>(
-			unit::deserialize(*this, ship_blueprint).get());
+			unit::deserialize(*this, random, ship_blueprint).get());
 	};
 	let spawn_gate = [&](vd pos, bool inverted) {
 		m_units.push_back(std::make_shared<unit::gate>([&] {
@@ -385,9 +386,10 @@ auto mark::world::damage(world::damage_info info) -> damage_result
 mark::world::world(
 	world_stack& stack,
 	resource::manager& rm,
+	mark::random& random,
 	const YAML::Node& node)
 	: m_resource_manager(rm)
-	, m_map(std::make_unique<mark::map>(rm, node["map"]))
+	, m_map(std::make_unique<mark::map>(rm, random, node["map"]))
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
@@ -401,7 +403,7 @@ mark::world::world(
 	std::unordered_map<uint64_t, weak_ptr<unit::base>> unit_map;
 	let camera_target_id = node["camera"]["target_id"].as<uint64_t>();
 	for (let& unit_node : node["units"]) {
-		m_units.push_back(unit::deserialize(*this, unit_node));
+		m_units.push_back(unit::deserialize(*this, random, unit_node));
 		let unit_id = unit_node["id"].as<uint64_t>();
 		unit_map.emplace(unit_id, m_units.back().get());
 	}

@@ -5,8 +5,11 @@
 #include <stdafx.h>
 #include <update_context.h>
 
-mark::module::core::core(resource::manager& rm, const YAML::Node& node)
-	: module::base(rm, node)
+mark::module::core::core(
+	resource::manager& rm,
+	random& random,
+	const YAML::Node& node)
+	: module::base(rm, random, node)
 	, m_image(rm.image("core.png"))
 {}
 

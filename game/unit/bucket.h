@@ -8,7 +8,7 @@ class bucket final : public unit::base
 public:
 	static constexpr const char* type_name = "unit_bucket";
 
-	bucket(mark::world& world, const YAML::Node&);
+	bucket(mark::world& world, random& random, const YAML::Node&);
 	struct info : unit::base::info
 	{
 		interface::item_ptr item;

@@ -12,12 +12,12 @@ mark::item::chaos_orb::chaos_orb(
 {}
 
 auto mark::item::chaos_orb::use_on(
-	resource::manager& rm,
+	mark::random& random,
 	const std::unordered_map<std::string, YAML::Node>& blueprints,
 	module::base& item) -> use_on_result
 {
 	Expects(m_quantity != 0);
-	let error = item.randomise(blueprints, rm);
+	let error = item.randomise(blueprints, random);
 	if (error == error::code::success) {
 		--m_quantity;
 	}
