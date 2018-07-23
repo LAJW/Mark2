@@ -1,13 +1,14 @@
-﻿#include "map.h"
-#include <algorithm/range.h>
-#include <algorithm.h> // TODO: min_element_v
-#include "base64.h"
+﻿#include "base64.h"
 #include "exception.h"
+#include "map.h"
 #include "resource_manager.h"
 #include "sprite.h"
 #include "stdafx.h"
 #include "update_context.h"
 #include "vector.h"
+#include <algorithm.h>
+#include <algorithm/range.h>
+#include <random.h>
 
 // Make specific types of maps
 

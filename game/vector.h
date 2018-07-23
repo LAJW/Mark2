@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include <SFML/System/Vector2.hpp>
+#include <math.h>
 
 namespace mark {
 template <typename T>

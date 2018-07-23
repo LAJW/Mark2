@@ -1,9 +1,10 @@
 ﻿#include "laser.h"
+#include <random.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <update_context.h>
 #include <unit/modular.h>
+#include <update_context.h>
 #include <world.h>
 
 void mark::module::laser::update(update_context& context)

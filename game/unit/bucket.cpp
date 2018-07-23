@@ -2,6 +2,7 @@
 #include <exception.h>
 #include <map.h>
 #include <module/base.h>
+#include <random.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <update_context.h>

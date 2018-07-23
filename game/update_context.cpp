@@ -1,7 +1,8 @@
 ﻿#include "update_context.h"
-#include "particle.h"
-#include "sprite.h"
-#include "stdafx.h"
+#include <particle.h>
+#include <random.h>
+#include <sprite.h>
+#include <stdafx.h>
 
 namespace {
 static float width(char ch)

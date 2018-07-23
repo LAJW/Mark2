@@ -7,6 +7,7 @@
 #include <module/cargo.h>
 #include <module/core.h>
 #include <module/shield_generator.h>
+#include <random.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>

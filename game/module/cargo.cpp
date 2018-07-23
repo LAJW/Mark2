@@ -10,6 +10,7 @@
 #include <update_context.h>
 #include <world.h>
 #include <deserialize.h>
+#include <random.h>
 
 // Serialize / Deserialize
 

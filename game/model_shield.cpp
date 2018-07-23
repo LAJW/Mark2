@@ -5,6 +5,7 @@
 #include "update_context.h"
 #include <algorithm/range.h>
 #include <particle.h>
+#include <random.h>
 
 mark::model::shield::shield(
 	resource::manager& rm,

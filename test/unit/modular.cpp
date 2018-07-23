@@ -2,6 +2,7 @@
 #include <exception.h>
 #include <module/core.h>
 #include <module/turret.h>
+#include <random.h>
 #include <resource_manager.h>
 #include <unit/modular.h>
 #include <update_context.h>

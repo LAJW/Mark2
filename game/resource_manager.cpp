@@ -3,14 +3,6 @@
 #include "algorithm.h"
 #include "stdafx.h"
 
-mark::resource::manager::manager(mark::random& random)
-	: random(random)
-{}
-
-mark::resource::manager_impl::manager_impl()
-	: manager(m_random)
-{}
-
 auto mark::resource::manager_impl::image(const std::string& filename)
 	-> resource::image_ptr
 {
@@ -22,10 +14,6 @@ auto mark::resource::manager_impl::image(const std::string& filename)
 	image_ptr = new_image.get();
 	return new_image.get();
 }
-
-mark::resource::manager_stub::manager_stub()
-	: manager(m_random)
-{}
 
 auto mark::resource::manager_stub::image(const std::string&)
 	-> resource::image_ptr

@@ -17,7 +17,7 @@ public:
 	{
 		resource::image_ptr image;
 		vd pos;
-		float velocity = NAN;
+		double velocity = NAN;
 		float direction = NAN;
 		float lifespan = 0.3f;
 		sf::Color color = sf::Color::White;
@@ -36,7 +36,7 @@ private:
 	vd m_pos;
 	float m_lifespan;
 	float m_cur_lifespan;
-	float m_velocity;
+	double m_velocity;
 	float m_direction;
 	float m_size;
 	sf::Color m_color;

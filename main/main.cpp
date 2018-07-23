@@ -15,6 +15,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <random.h>
 
 namespace mark {
 constexpr let window_title = "mark 2";
