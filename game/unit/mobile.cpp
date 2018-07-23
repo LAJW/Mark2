@@ -151,9 +151,7 @@ auto mark::unit::mobile::avoid_bumping_into_terrain(vd step) const
 }
 
 auto mark::unit::mobile::update_movement_impl(
-	const update_movement_info& info,
-	const bool can_pathfind) const
-	-> std::tuple<vd, double, std::vector<vd>, float>
+	const update_movement_info& info) const -> update_movement_impl_result
 {
 	let dt = info.dt;
 	let distance = length(m_moveto - pos());
@@ -177,6 +175,9 @@ auto mark::unit::mobile::update_movement_impl(
 		if (next_step_reaches_target) {
 			return std::make_tuple(m_moveto - pos(), m_path_cache, m_path_age);
 		}
+		// Path is sometimes not computed for non-critical units to improve
+		// performance, as they rarely change direction
+		let can_pathfind = info.ai || (*info.random)(0, 2) == 0;
 		let[path_cache, path_age] = this->calculate_path(can_pathfind, dt);
 		let dir = path_cache.empty() ? normalize(m_moveto - pos())
 									 : normalize(path_cache.back() - pos());
@@ -194,10 +195,7 @@ auto mark::unit::mobile::update_movement_impl(
 
 void mark::unit::mobile::update_movement(const update_movement_info& info)
 {
-	auto& random = *info.random;
-	let can_pathfind = random(0, 2) == 0;
-	auto [pos, velocity, path, path_age] =
-		this->update_movement_impl(info, can_pathfind);
+	auto [pos, velocity, path, path_age] = this->update_movement_impl(info);
 	m_path_cache = std::move(path);
 	m_path_age = path_age;
 	this->pos(pos);

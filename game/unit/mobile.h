@@ -32,20 +32,14 @@ protected:
 	void update_movement(const update_movement_info&);
 
 private:
-	// Implementation of update_movement
-	// - random_can_pathfind - optimization value for AI opponents. There is
-	//   a limit as to how many AI ships can look for path in a specific frame.
-	//   This option is for randomizing that value. It's so that every frame
-	//   a different ship is looking for a path, not only first N ships.
-	// Returns a tuple of:
-	//  - new position
-	//  - new velocity
-	//  - new path
-	//  - new path age
-	auto update_movement_impl(
-		const update_movement_info&,
-		bool random_can_pathfind) const
-		-> std::tuple<vd, double, std::vector<vd>, float>;
+	struct update_movement_impl_result final {
+		vd pos;
+		double velocity;
+		std::vector<vd> path;
+		float path_age;
+	};
+	auto update_movement_impl(const update_movement_info&) const
+		-> update_movement_impl_result;
 
 	auto avoid_present_neighbor_collisions(double step_len) const
 		-> std::optional<vd>;
