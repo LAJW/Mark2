@@ -255,7 +255,7 @@ static auto resistance_to_multiplier(float resistance)
 auto mark::module::base::damage(const interface::damageable::info& attr) -> bool
 {
 	if (attr.team == parent().team() || m_cur_health <= 0
-		|| attr.damaged->insert(this).second) {
+		|| !attr.damaged->insert(this).second) {
 		return false;
 	}
 	let[health, heat, stun] = damage_impl(attr);
