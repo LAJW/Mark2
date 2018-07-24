@@ -827,11 +827,6 @@ auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	return nullptr;
 }
 
-auto mark::unit::modular::landed() const noexcept -> bool
-{
-	return !m_ai && world().target().get() != this;
-}
-
 void mark::unit::modular::remove_dead(update_context& context)
 {
 	let first_dead_it = partition(

@@ -8,6 +8,7 @@
 #include <sprite.h>
 #include <stdafx.h>
 #include <unit/modular.h>
+#include <unit/landing_pad.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -96,6 +97,16 @@ constexpr let HEAT_LOSS_RATE = 2.f;
 
 mark::module::base::~base() = default;
 
+static auto is_landed(const mark::unit::modular& modular) -> bool
+{
+	if (let landing_pad =
+		std::dynamic_pointer_cast<const mark::unit::landing_pad>(
+				modular.world().target())) {
+		return landing_pad->ship().get() == &modular;
+	}
+	return false;
+}
+
 void mark::module::base::update(update_context& context)
 {
 	let health_percentage = m_cur_health / m_max_health;
@@ -132,7 +143,7 @@ void mark::module::base::update(update_context& context)
 	} else {
 		m_cur_heat = 0.f;
 	}
-	if (!this->parent().landed()) {
+	if (is_landed(this->parent())) {
 		if (health_percentage <= 0.5f) {
 			context.render([&] {
 				update_context::spray_info _;

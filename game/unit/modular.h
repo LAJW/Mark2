@@ -65,8 +65,6 @@ public:
 	// Get vector of commands controlling this module
 	auto binding(vi32 pos) const -> std::vector<int8_t>;
 	void serialize(YAML::Emitter&) const override;
-	// is module resting on the landing pad
-	auto landed() const noexcept -> bool;
 	void ai(bool);
 	// Set velocity (and acceleration) of this vessel to zero
 	auto radius() const -> double override;
