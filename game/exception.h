@@ -4,6 +4,17 @@
 #include <system_error>
 
 namespace mark {
+
+inline bool success(std::error_code error_code)
+{
+	return !error_code;
+}
+
+inline bool failure(std::error_code error_code)
+{
+	return static_cast<bool>(error_code);
+}
+
 namespace error {
 enum class code
 {

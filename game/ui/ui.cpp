@@ -246,22 +246,18 @@ void mark::ui::ui::drag(world& world, vd relative, bool shift)
 	if (!pos) {
 		return;
 	}
-	let module = modular->module_at(pick_pos);
-	Expects(module);
-	if (!shift) {
+	if (shift) {
+		if (auto detached = modular->detach(pick_pos)) {
+			if (failure(push(*modular, move(detached)))) {
+				// It should be possible to reattach a module, if it was already
+				// attached
+				Expects(success(modular->attach(*pos, move(detached))));
+			}
+		}
+	} else {
 		if (modular->can_detach(pick_pos)) {
 			m_grabbed = { *modular, pick_pos };
 		}
-		return;
-	}
-	auto detached = modular->detach(pick_pos);
-	if (!detached) {
-		return;
-	}
-	if (error::code::success != push(*modular, move(detached))) {
-		// It should be possible to reattach a module, if it was already
-		// attached
-		Expects(!modular->attach(pick_pos, move(detached)));
 	}
 }
 
