@@ -153,59 +153,96 @@ TEST_CASE("Attach turret in all possible positions")
 	turret = modular.detach({ 0, -3 });
 }
 
-TEST_CASE("Failed detached attach should not set internal map")
+SCENARIO("modular")
 {
-	resource::manager_stub rm;
-	random_stub random;
-	world world(rm, random);
-	unit::modular modular([&] {
-		unit::modular::info _;
-		_.world = world;
-		return _;
-	}());
-	std::unique_ptr<interface::item> core =
-		std::make_unique<module::core>(rm, random, YAML::Node());
-	REQUIRE(error::code::success == modular.attach({ -1, -1 }, move(core)));
-
-	std::unique_ptr<interface::item> turret =
-		std::make_unique<module::turret>(rm, random, [&] {
-			YAML::Node node;
-			node["cur_health"] = 0.f;
-			return node;
+	GIVEN("An empty modular with core in the center")
+	{
+		resource::manager_stub rm;
+		random_stub random;
+		world world(rm, random);
+		auto modular = std::make_shared<unit::modular>([&] {
+			unit::modular::info _;
+			_.world = world;
+			return _;
 		}());
-	let& turret_ref = *turret;
-
-	REQUIRE(modular.at({ 3, -1 }) == nullptr);
-	REQUIRE(error::code::success != modular.attach({ 3, -1 }, move(turret)));
-	turret = modular.detach({ 3, -1 });
-	REQUIRE(modular.at({ 3, -1 }) == nullptr);
+		REQUIRE(success(modular->attach(
+			{ -1, -1 },
+			std::make_unique<module::core>(rm, random, YAML::Node()))));
+		world.attach(modular);
+		WHEN("We do nothing")
+		{
+			THEN("3, -1 should be unoccupied")
+			{
+				REQUIRE(modular->at({ 3, -1 }) == nullptr);
+			}
+		}
+		WHEN("We try to attach a module with zero health")
+		{
+			std::unique_ptr<interface::item> turret =
+				std::make_unique<module::turret>(rm, random, [&] {
+					YAML::Node node;
+					node["cur_health"] = 0.f;
+					return node;
+				}());
+			let error_code = modular->attach({ 3, -1 }, move(turret));
+			THEN("Attach should return an error")
+			{
+				REQUIRE(failure(error_code));
+			}
+			THEN("Module shouldn't be reserved in modular's grid")
+			{
+				REQUIRE(modular->at({ 3, -1 }) == nullptr);
+				REQUIRE(modular->module_at({ 3, -1 }) == nullptr);
+			}
+			THEN("There should be nothing to detach")
+			{
+				REQUIRE(modular->detach({ 3, -1 }) == nullptr);
+			}
+		}
+		WHEN("We attach and destroy a module")
+		{
+			let turret_pos = vi32{ 1, -1 };
+			std::unique_ptr<interface::item> turret =
+				std::make_unique<module::turret>(rm, random, [&] {
+				YAML::Node _;
+				_["health"] = 100.f;
+				_["armor"] = 0.f;
+				return _;
+			}());
+			REQUIRE(success(modular->attach(turret_pos, move(turret))));
+			std::unordered_set<gsl::not_null<interface::damageable*>>
+				damaged, knocked;
+			random_stub random;
+			let is_damaged = modular->module_at(turret_pos)->damage([&] {
+				interface::damageable::info _;
+				_.physical = 100.f;
+				_.knocked = &knocked;
+				_.damaged = &damaged;
+				_.team = 1;
+				_.random = random;
+				return _;
+			}());
+			THEN("damage should return true")
+			{
+				REQUIRE(is_damaged);
+			}
+			THEN(
+				"module should show up as 'dead', but not be deleted instantly")
+			{
+				let module = modular->module_at(turret_pos);
+				REQUIRE(module);
+				REQUIRE(module->dead());
+			}
+			THEN("calling world.update should delete the module from the "
+				 "modular")
+			{
+				update_context context(rm, random);
+				context.dt = 0.15;
+				world.update(context, {});
+				REQUIRE(modular->at(turret_pos) == nullptr);
+				REQUIRE(modular->module_at(turret_pos) == nullptr);
+			}
+		}
+	}
 }
 
-TEST_CASE("Remove dead modules")
-{
-	resource::manager_stub rm;
-	random_stub random;
-	world world(rm, random);
-	auto modular = std::make_shared<unit::modular>([&] {
-		unit::modular::info _;
-		_.world = world;
-		return _;
-	}());
-	world.attach(modular);
-	std::unique_ptr<interface::item> core =
-		std::make_unique<module::core>(rm, random, YAML::Node());
-	REQUIRE(error::code::success == modular->attach({ -1, -1 }, move(core)));
-
-	std::unique_ptr<interface::item> turret =
-		std::make_unique<module::turret>(rm, random, [&] {
-			YAML::Node node;
-			node["cur_health"] = 0.f;
-			return node;
-		}());
-
-	REQUIRE(modular->attach({ 1, -1 }, move(core)));
-	update_context context(rm, random);
-	context.dt = 0.15;
-	world.update(context, {});
-	REQUIRE(modular->at({ 1, -1 }) == nullptr);
-}
