@@ -1,6 +1,8 @@
 ﻿#include <catch.hpp>
 #include <exception.h>
+#include <item/shard.h>
 #include <module/core.h>
+#include <module/cargo.h>
 #include <module/turret.h>
 #include <random.h>
 #include <resource_manager.h>
@@ -241,6 +243,106 @@ SCENARIO("modular")
 				world.update(context, {});
 				REQUIRE(modular->at(turret_pos) == nullptr);
 				REQUIRE(modular->module_at(turret_pos) == nullptr);
+			}
+		}
+		WHEN("We try to push an item into a modular with no containers")
+		{
+			std::unique_ptr<interface::item> shard =
+				std::make_unique<item::shard>(rm);
+			let error_code = push(*modular, move(shard));
+			THEN("push returns a failure")
+			{
+				REQUIRE(failure(error_code));
+			}
+		}
+		WHEN("We push an item into a modular with an empty container")
+		{
+			std::unique_ptr<module::base> module =
+				std::make_unique<module::cargo>(rm, random, YAML::Node());
+			REQUIRE(success(modular->attach({ 1, -1 }, move(module))));
+			REQUIRE(!modular->containers().empty());
+			std::unique_ptr<interface::item> shard =
+				std::make_unique<item::shard>(rm);
+			let& shard_ref = *shard;
+			let error_code = push(*modular, move(shard));
+			THEN("push returns a success")
+			{
+				REQUIRE(success(error_code));
+			}
+			THEN("empties the pointer passed into push")
+			{
+				REQUIRE(shard == nullptr);
+			}
+			THEN("push puts the item at the 0, 0 position");
+			{
+				REQUIRE(
+					modular->containers().front().get().at({ 0, 0 })
+					== &shard_ref);
+			}
+		}
+		WHEN("We push two identical stackable items into a modular with an "
+			 "empty container")
+		{
+			std::unique_ptr<module::base> module =
+				std::make_unique<module::cargo>(rm, random, YAML::Node());
+			REQUIRE(success(modular->attach({ 1, -1 }, move(module))));
+			REQUIRE(!modular->containers().empty());
+			auto shard_ptr = std::make_unique<item::shard>(rm);
+			let& shard = *shard_ptr;
+			REQUIRE(success(push(*modular, move(shard_ptr))));
+			std::unique_ptr<interface::item> second_shard =
+				std::make_unique<item::shard>(rm);
+			let error_code = push(*modular, move(second_shard));
+			THEN("second push returns a success")
+			{
+				REQUIRE(error_code == error::code::stacked);
+			}
+			THEN("push puts first item at the 0, 0 position");
+			{
+				REQUIRE(
+					modular->containers().front().get().at({ 0, 0 })
+					== &shard);
+			}
+			THEN("push destroys the second item")
+			{
+				REQUIRE(second_shard == nullptr);
+			}
+			THEN("increasing the quantity on the first to two");
+			{
+				REQUIRE(
+					modular->containers().front().get().at({ 0, 0 })->quantity()
+					== 2);
+			}
+		}
+		WHEN("We put a stackable item into a modular with a single container "
+			 "that already has an item of this kind in the bottom-right corner")
+		{
+			std::unique_ptr<module::base> module =
+				std::make_unique<module::cargo>(rm, random, YAML::Node());
+			REQUIRE(success(modular->attach({ 1, -1 }, move(module))));
+			REQUIRE(!modular->containers().empty());
+			REQUIRE(success(modular->containers().front().get().attach(
+				{ 15, 3 }, std::make_unique<item::shard>(rm))));
+			std::unique_ptr<interface::item> second_shard =
+				std::make_unique<item::shard>(rm);
+			let error_code = push(*modular, move(second_shard));
+			THEN("push returns a success")
+			{
+				REQUIRE(error_code == error::code::stacked);
+			}
+			THEN("slot [0, 0] of the container remains empty");
+			{
+				REQUIRE(
+					modular->containers().front().get().at({ 0, 0 })
+					== nullptr);
+			}
+			THEN("push destroys the second item increasing the quantity on the "
+				 "first to two");
+			{
+				REQUIRE(second_shard == nullptr);
+				REQUIRE(
+					modular->containers().front().get().at({ 15, 3 })->quantity()
+					== 2);
 			}
 		}
 	}
