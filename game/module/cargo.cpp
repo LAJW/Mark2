@@ -1,5 +1,6 @@
 ﻿#include "cargo.h"
 #include "stdafx.h"
+#include <algorithm/find_if.h>
 #include <algorithm/range.h>
 #include <algorithm/enumerate.h>
 #include <exception.h>
@@ -275,8 +276,16 @@ void mark::module::cargo::on_death(update_context& context)
 
 auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 {
-	for (let i : range(gsl::narrow<int>(m_items.size()))) {
-		let drop_pos = modulo_vector<int>(i, 16);
+	for (let& cur_item : this->items()) {
+		if (!cur_item) {
+			continue;
+		}
+		cur_item->stack(item);
+		if (!item) {
+			return error::code::stacked;
+		}
+	}
+	for (let drop_pos : range(this->interior_size())) {
 		let result = this->attach(drop_pos, move(item));
 		if (result == error::code::success
 			|| result == error::code::stacked && !item) {

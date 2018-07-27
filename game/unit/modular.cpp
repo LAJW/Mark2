@@ -915,8 +915,9 @@ auto mark::unit::push(modular& modular, interface::item_ptr&& module)
 	-> std::error_code
 {
 	for (auto& container : modular.containers()) {
-		if (container.get().push(module) == error::code::success) {
-			return error::code::success;
+		let error_code = container.get().push(module);
+		if (success(error_code) || error_code == error::code::stacked) {
+			return error_code;
 		}
 	}
 	return error::code::occupied;
