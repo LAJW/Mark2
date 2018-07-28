@@ -54,7 +54,7 @@ private:
 // consumed by another stack. If there's no space for the item, function
 // returns "occupied" error
 [[nodiscard]] std::error_code
-push(module::cargo& cargo, interface::item_ptr& item);
+push(module::cargo& cargo, interface::item_ptr&& item);
 
 // Try to stack an item. Unlike push, it only stores the item if another
 // stackable item of its kind already exists in the container. Destroys the

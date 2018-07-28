@@ -922,7 +922,7 @@ auto mark::unit::push(modular& modular, interface::item_ptr&& module)
 		}
 	}
 	for (auto& container : containers) {
-		let error_code = push(container.get(), module);
+		let error_code = push(container.get(), move(module));
 		if (success(error_code) || error_code == error::code::stacked) {
 			return error_code;
 		}

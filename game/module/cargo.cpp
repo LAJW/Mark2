@@ -274,7 +274,7 @@ void mark::module::cargo::on_death(update_context& context)
 	}
 }
 
-auto mark::module::push(module::cargo& container, interface::item_ptr& item)
+auto mark::module::push(module::cargo& container, interface::item_ptr&& item)
 	-> std::error_code
 {
 	module::stack(container, move(item));
