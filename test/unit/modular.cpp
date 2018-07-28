@@ -1,8 +1,8 @@
 ﻿#include <catch.hpp>
 #include <exception.h>
 #include <item/shard.h>
-#include <module/core.h>
 #include <module/cargo.h>
+#include <module/core.h>
 #include <module/turret.h>
 #include <random.h>
 #include <resource_manager.h>
@@ -206,14 +206,14 @@ SCENARIO("modular")
 			let turret_pos = vi32{ 1, -1 };
 			std::unique_ptr<interface::item> turret =
 				std::make_unique<module::turret>(rm, random, [&] {
-				YAML::Node _;
-				_["health"] = 100.f;
-				_["armor"] = 0.f;
-				return _;
-			}());
+					YAML::Node _;
+					_["health"] = 100.f;
+					_["armor"] = 0.f;
+					return _;
+				}());
 			REQUIRE(success(modular->attach(turret_pos, move(turret))));
-			std::unordered_set<gsl::not_null<interface::damageable*>>
-				damaged, knocked;
+			std::unordered_set<gsl::not_null<interface::damageable*>> damaged,
+				knocked;
 			random_stub random;
 			let is_damaged = modular->module_at(turret_pos)->damage([&] {
 				interface::damageable::info _;
@@ -224,10 +224,7 @@ SCENARIO("modular")
 				_.random = random;
 				return _;
 			}());
-			THEN("damage should return true")
-			{
-				REQUIRE(is_damaged);
-			}
+			THEN("damage should return true") { REQUIRE(is_damaged); }
 			THEN(
 				"module should show up as 'dead', but not be deleted instantly")
 			{
@@ -250,10 +247,7 @@ SCENARIO("modular")
 			std::unique_ptr<interface::item> shard =
 				std::make_unique<item::shard>(rm);
 			let error_code = push(*modular, move(shard));
-			THEN("push returns a failure")
-			{
-				REQUIRE(failure(error_code));
-			}
+			THEN("push returns a failure") { REQUIRE(failure(error_code)); }
 		}
 		WHEN("We push an item into a modular with an empty container")
 		{
@@ -265,10 +259,7 @@ SCENARIO("modular")
 				std::make_unique<item::shard>(rm);
 			let& shard_ref = *shard;
 			let error_code = push(*modular, move(shard));
-			THEN("push returns a success")
-			{
-				REQUIRE(success(error_code));
-			}
+			THEN("push returns a success") { REQUIRE(success(error_code)); }
 			THEN("empties the pointer passed into push")
 			{
 				REQUIRE(shard == nullptr);
@@ -300,8 +291,7 @@ SCENARIO("modular")
 			THEN("push puts first item at the 0, 0 position")
 			{
 				REQUIRE(
-					modular->containers().front().get().at({ 0, 0 })
-					== &shard);
+					modular->containers().front().get().at({ 0, 0 }) == &shard);
 			}
 			THEN("push destroys the second item")
 			{
@@ -321,30 +311,60 @@ SCENARIO("modular")
 				std::make_unique<module::cargo>(rm, random, YAML::Node());
 			REQUIRE(success(modular->attach({ 1, -1 }, move(module))));
 			REQUIRE(!modular->containers().empty());
-			REQUIRE(success(modular->containers().front().get().attach(
+			auto& first_container = modular->containers().front().get();
+			REQUIRE(success(first_container.attach(
 				{ 15, 3 }, std::make_unique<item::shard>(rm))));
 			std::unique_ptr<interface::item> second_shard =
 				std::make_unique<item::shard>(rm);
 			let error_code = push(*modular, move(second_shard));
-			THEN("push returns a success")
+			THEN("push returns `stacked`")
 			{
 				REQUIRE(error_code == error::code::stacked);
 			}
 			THEN("slot [0, 0] of the container remains empty")
 			{
-				REQUIRE(
-					modular->containers().front().get().at({ 0, 0 })
-					== nullptr);
+				REQUIRE(first_container.at({ 0, 0 }) == nullptr);
 			}
 			THEN("push destroys the second item increasing the quantity on the "
 				 "first to two");
 			{
 				REQUIRE(second_shard == nullptr);
-				REQUIRE(
-					modular->containers().front().get().at({ 15, 3 })->quantity()
-					== 2);
+				REQUIRE(first_container.at({ 15, 3 })->quantity() == 2);
+			}
+		}
+		WHEN(
+			"Pushing an item into a modular with two containers, where the "
+			"second container contains an existing stack should store it there")
+		{
+			REQUIRE(success(modular->attach(
+				{ 1, -1 },
+				std::unique_ptr<module::base>(std::make_unique<module::cargo>(
+					rm, random, YAML::Node())))));
+			REQUIRE(success(modular->attach(
+				{ 1, 1 },
+				std::unique_ptr<module::base>(std::make_unique<module::cargo>(
+					rm, random, YAML::Node())))));
+			REQUIRE(modular->containers().size() == 2);
+			auto& second_container = modular->containers().back().get();
+			REQUIRE(success(second_container.attach(
+				{ 15, 3 }, std::make_unique<item::shard>(rm))));
+			std::unique_ptr<interface::item> second_shard =
+				std::make_unique<item::shard>(rm);
+			let error_code = push(*modular, move(second_shard));
+			THEN("push returns `stacked`")
+			{
+				REQUIRE(error_code == error::code::stacked);
+			}
+			THEN("slot [0, 0] of the container remains empty")
+			{
+				REQUIRE(second_container.at({ 0, 0 }) == nullptr);
+			}
+			THEN("push destroys the second item increasing the quantity on the "
+				 "first to two")
+			{
+				REQUIRE(second_shard == nullptr);
+				REQUIRE(second_container.at({ 15, 3 })->quantity() == 2);
 			}
 		}
 	}
 }
-
