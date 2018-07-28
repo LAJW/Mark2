@@ -36,12 +36,15 @@ auto mark::item::shard::thumbnail() const -> resource::image_ptr
 
 void mark::item::shard::stack(interface::item_ptr& item)
 {
+	let constexpr max_stack_quantity = 20;
 	if (let other = dynamic_cast<shard*>(item.get())) {
-		m_quantity += other->m_quantity;
-		if (m_quantity > 20) {
-			other->m_quantity = m_quantity - 20;
+		let total = m_quantity + other->quantity();
+		if (total > max_stack_quantity) {
+			other->m_quantity = total - max_stack_quantity;
+			m_quantity = max_stack_quantity;
 		} else {
 			item.reset();
+			m_quantity = total;
 		}
 	}
 }
