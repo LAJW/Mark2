@@ -273,7 +273,7 @@ SCENARIO("modular")
 			{
 				REQUIRE(shard == nullptr);
 			}
-			THEN("push puts the item at the 0, 0 position");
+			THEN("push puts the item at the 0, 0 position")
 			{
 				REQUIRE(
 					modular->containers().front().get().at({ 0, 0 })
@@ -297,7 +297,7 @@ SCENARIO("modular")
 			{
 				REQUIRE(error_code == error::code::stacked);
 			}
-			THEN("push puts first item at the 0, 0 position");
+			THEN("push puts first item at the 0, 0 position")
 			{
 				REQUIRE(
 					modular->containers().front().get().at({ 0, 0 })
@@ -307,7 +307,7 @@ SCENARIO("modular")
 			{
 				REQUIRE(second_shard == nullptr);
 			}
-			THEN("increasing the quantity on the first to two");
+			THEN("increasing the quantity on the first to two")
 			{
 				REQUIRE(
 					modular->containers().front().get().at({ 0, 0 })->quantity()
@@ -330,7 +330,7 @@ SCENARIO("modular")
 			{
 				REQUIRE(error_code == error::code::stacked);
 			}
-			THEN("slot [0, 0] of the container remains empty");
+			THEN("slot [0, 0] of the container remains empty")
 			{
 				REQUIRE(
 					modular->containers().front().get().at({ 0, 0 })
