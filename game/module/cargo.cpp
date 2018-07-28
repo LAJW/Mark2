@@ -274,14 +274,15 @@ void mark::module::cargo::on_death(update_context& context)
 	}
 }
 
-auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
+auto mark::module::push(module::cargo& container, interface::item_ptr& item)
+	-> std::error_code
 {
-	module::stack(*this, move(item));
+	module::stack(container, move(item));
 	if (!item) {
 		return error::code::stacked;
 	}
-	for (let drop_pos : range(this->interior_size())) {
-		let result = this->attach(drop_pos, move(item));
+	for (let drop_pos : range(container.interior_size())) {
+		let result = container.attach(drop_pos, move(item));
 		if (result == error::code::success
 			|| (result == error::code::stacked && !item)) {
 			return error::code::success;

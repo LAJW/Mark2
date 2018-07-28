@@ -32,11 +32,6 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 
-	// Store the item in the container. If passed item is stackable, it might be
-	// consumed by another stack. If there's no space for the item, function
-	// returns "occupied" error
-	[[nodiscard]] std::error_code push(interface::item_ptr& item);
-
 	// Size of the grid of the cargo hold in module units
 	auto interior_size() const -> vi32;
 
@@ -54,6 +49,12 @@ private:
 	lfo m_lfo;
 	std::vector<interface::item_ptr> m_items;
 };
+
+// Store the item in the container. If passed item is stackable, it might be
+// consumed by another stack. If there's no space for the item, function
+// returns "occupied" error
+[[nodiscard]] std::error_code
+push(module::cargo& cargo, interface::item_ptr& item);
 
 // Try to stack an item. Unlike push, it only stores the item if another
 // stackable item of its kind already exists in the container. Destroys the
