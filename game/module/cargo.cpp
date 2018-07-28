@@ -1,17 +1,17 @@
 ﻿#include "cargo.h"
 #include "stdafx.h"
+#include <algorithm/enumerate.h>
 #include <algorithm/find_if.h>
 #include <algorithm/range.h>
-#include <algorithm/enumerate.h>
+#include <deserialize.h>
 #include <exception.h>
+#include <random.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <sstream>
 #include <unit/bucket.h>
 #include <update_context.h>
 #include <world.h>
-#include <deserialize.h>
-#include <random.h>
 
 // Serialize / Deserialize
 
@@ -276,14 +276,9 @@ void mark::module::cargo::on_death(update_context& context)
 
 auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 {
-	for (let& cur_item : this->items()) {
-		if (!cur_item) {
-			continue;
-		}
-		cur_item->stack(item);
-		if (!item) {
-			return error::code::stacked;
-		}
+	module::stack(*this, move(item));
+	if (!item) {
+		return error::code::stacked;
 	}
 	for (let drop_pos : range(this->interior_size())) {
 		let result = this->attach(drop_pos, move(item));
@@ -293,4 +288,17 @@ auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 		}
 	}
 	return error::code::occupied;
+}
+
+void mark::module::stack(module::cargo& cargo, interface::item_ptr&& item)
+{
+	for (let& cur_item : cargo.items()) {
+		if (!cur_item) {
+			continue;
+		}
+		cur_item->stack(item);
+		if (!item) {
+			break;
+		}
+	}
 }

@@ -32,10 +32,14 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;
 
-	// try to push element to the container
+	// Store the item in the container. If passed item is stackable, it might be
+	// consumed by another stack. If there's no space for the item, function
+	// returns "occupied" error
 	[[nodiscard]] std::error_code push(interface::item_ptr& item);
-	auto interior_size() const -> vi32; // size of the contents of the
-										// cargo hold in modular units
+
+	// Size of the grid of the cargo hold in module units
+	auto interior_size() const -> vi32;
+
 	auto items() -> std::vector<interface::item_ptr>&;
 	auto items() const -> const std::vector<interface::item_ptr>&;
 
@@ -50,5 +54,11 @@ private:
 	lfo m_lfo;
 	std::vector<interface::item_ptr> m_items;
 };
+
+// Try to stack an item. Unlike push, it only stores the item if another
+// stackable item of its kind already exists in the container. Destroys the
+// item if it's fully stacked
+void stack(module::cargo& cargo, interface::item_ptr&& item);
+
 } // namespace module
 } // namespace mark

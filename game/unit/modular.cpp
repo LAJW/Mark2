@@ -914,7 +914,14 @@ auto mark::unit::modular::containers() const -> std::vector<cref<module::cargo>>
 auto mark::unit::push(modular& modular, interface::item_ptr&& module)
 	-> std::error_code
 {
-	for (auto& container : modular.containers()) {
+	let containers = modular.containers();
+	for (auto& container : containers) {
+		stack(container.get(), move(module));
+		if (module == nullptr) {
+			return error::code::stacked;
+		}
+	}
+	for (auto& container : containers) {
 		let error_code = container.get().push(module);
 		if (success(error_code) || error_code == error::code::stacked) {
 			return error_code;
