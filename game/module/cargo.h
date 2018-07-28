@@ -23,7 +23,7 @@ public:
 		-> bool override;
 	auto at(vi32 pos) -> interface::item* override;
 	auto at(vi32 pos) const -> const interface::item* override;
-	auto pos_at(vi32 pos) const noexcept -> std::optional<vi32>;
+	auto pos_at(vi32 pos) const noexcept -> std::optional<vi32> override;
 	auto detach(vi32 pos) -> interface::item_ptr override;
 	auto can_detach(vi32 pos) const noexcept -> bool override;
 	auto detachable() const -> bool override;

@@ -27,8 +27,8 @@ mark::module::cargo::cargo(
 	mark::random& random,
 	const YAML::Node& node)
 	: module::base(rm, random, node)
-	, m_im_body(rm.image("cargo.png"))
 	, m_grid_bg(rm.image("grid-background.png"))
+	, m_im_body(rm.image("cargo.png"))
 	, m_im_light(rm.image("glare.png"))
 	, m_lfo(0.5f, random(0.f, 6.f))
 	, m_items(64)
@@ -231,7 +231,7 @@ auto mark::module::cargo::can_detach(vi32 i_pos) const noexcept -> bool
 	if (let pos = this->pos_at(i_pos)) {
 		return m_items[pos->x + pos->y * 16] != nullptr;
 	}
-	return nullptr;
+	return false;
 }
 
 auto mark::module::cargo::interior_size() const -> vi32
@@ -288,7 +288,7 @@ auto mark::module::cargo::push(interface::item_ptr& item) -> std::error_code
 	for (let drop_pos : range(this->interior_size())) {
 		let result = this->attach(drop_pos, move(item));
 		if (result == error::code::success
-			|| result == error::code::stacked && !item) {
+			|| (result == error::code::stacked && !item)) {
 			return error::code::success;
 		}
 	}
