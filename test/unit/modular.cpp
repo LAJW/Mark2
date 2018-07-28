@@ -326,7 +326,7 @@ SCENARIO("modular")
 				REQUIRE(first_container.at({ 0, 0 }) == nullptr);
 			}
 			THEN("push destroys the second item increasing the quantity on the "
-				 "first to two");
+				 "first to two")
 			{
 				REQUIRE(second_shard == nullptr);
 				REQUIRE(first_container.at({ 15, 3 })->quantity() == 2);
