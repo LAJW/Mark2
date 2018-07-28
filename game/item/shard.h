@@ -1,10 +1,10 @@
 #pragma once
-#include <interface/item.h>
+#include <item/base.h>
 #include <stdafx.h>
 
 namespace mark {
 namespace item {
-class shard : public interface::item
+class shard final : public base
 {
 public:
 	static constexpr const char* type_name = "item_shard";
@@ -14,13 +14,11 @@ public:
 	void serialize(YAML::Emitter&) const override;
 	auto size() const -> vu32 override;
 	auto thumbnail() const -> resource::image_ptr override;
-	void stack(interface::item_ptr& item) override;
-	auto can_stack(const interface::item& item) const -> bool override;
-	auto quantity() const -> size_t override;
 
 private:
+	auto type_equals(const base &other) const -> bool override;
+	auto max_stack_size() const -> size_t override;
 	resource::image_ptr m_thumbnail;
-	size_t m_quantity = 1;
 };
 } // namespace item
 } // namespace mark
