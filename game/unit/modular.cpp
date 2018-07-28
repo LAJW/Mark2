@@ -710,8 +710,8 @@ mark::unit::modular::modular(
 	random& random,
 	const YAML::Node& node)
 	: unit::mobile(world, node)
-	, m_ai(node["ai"].as<bool>())
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
+	, m_ai(node["ai"].as<bool>())
 {
 	std::unordered_map<uint64_t, ref<module::base>> id_map;
 	for (let& module_node : node["modules"]) {
