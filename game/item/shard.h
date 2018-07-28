@@ -18,6 +18,7 @@ public:
 private:
 	auto type_equals(const base &other) const -> bool override;
 	auto max_stack_size() const -> size_t override;
+
 	resource::image_ptr m_thumbnail;
 };
 } // namespace item

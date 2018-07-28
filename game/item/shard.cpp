@@ -33,6 +33,7 @@ auto mark::item::shard::thumbnail() const -> resource::image_ptr
 {
 	return m_thumbnail;
 }
+
 auto mark::item::shard::type_equals(const base& item) const -> bool
 {
 	return dynamic_cast<const shard*>(&item) != nullptr;

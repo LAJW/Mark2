@@ -17,6 +17,8 @@ protected:
 private:
 	[[nodiscard]] virtual auto type_equals(const base& other) const -> bool = 0;
 	[[nodiscard]] virtual auto max_stack_size() const -> size_t = 0;
+
+protected:
 	size_t m_quantity = 1;
 };
 } // namespace item
