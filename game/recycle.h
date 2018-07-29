@@ -2,7 +2,8 @@
 #include <stdafx.h>
 
 namespace mark {
-std::vector<std::unique_ptr<interface::item>> recycle(
+auto recycle(
 	mark::resource::manager& rm,
-	std::vector<std::unique_ptr<interface::item>> items);
+	std::vector<std::unique_ptr<interface::item>> items)
+	-> std::vector<std::unique_ptr<interface::item>>;
 }
