@@ -1,8 +1,8 @@
 #include "recycler.h"
 #include <algorithm.h>
 #include <algorithm/has_one.h>
-#include <item/shard.h>
 #include <module/base.h>
+#include <recycle.h>
 #include <resource_manager.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -15,14 +15,13 @@
 
 namespace mark {
 namespace ui {
-
 recycler::recycler(const info& info)
 	: chunky_window(info)
-	, m_modular(*info.modular)
+	, m_ui(*info.ui)
 	, m_tooltip(*info.tooltip)
+	, m_modular(*info.modular)
 	, m_font(info.rm->image("font.png"))
 	, m_grid(info.rm->image("inventory-grid.png"))
-	, m_ui(*info.ui)
 {
 	auto& rm = *info.rm;
 	auto recycle_button = std::make_unique<chunky_button>([&] {
@@ -36,17 +35,25 @@ recycler::recycler(const info& info)
 		return _;
 	}());
 	recycle_button->on_click.insert([&](let&) {
+		// Harvest items
+		std::vector<std::unique_ptr<mark::interface::item>> items;
 		for (let& pos : range(m_queue.size())) {
 			auto& slot = m_queue[pos];
 			if (!slot.empty()) {
-				(void)detach(slot);
-				(void)push(m_modular, std::make_unique<item::shard>(rm));
+				items.push_back(detach(slot));
 			}
 			slot = {};
 		}
+		// Clear recycler buttons
 		while (next(this->children().begin(), 2) != this->children().end()) {
 			let child = next(this->children().begin(), 2);
 			this->remove(**child);
+		}
+		for (auto&& item : mark::recycle(rm, move(items))) {
+			// TODO: Do a dry run checking that all these items can fit in the
+			// modular's cargo area
+			let error_code = push(m_modular, move(item));
+			Expects(success(error_code) || error_code == error::code::stacked);
 		}
 		return true;
 	});
