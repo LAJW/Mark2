@@ -6,7 +6,10 @@ mark::item::base::base(const YAML::Node& node)
 
 void mark::item::base::stack(interface::item_ptr& item)
 {
-	let constexpr max_stack_quantity = 20;
+	if (!this->can_stack(*item)) {
+		return;
+	}
+	let max_stack_quantity = this->max_stack_size();
 	if (let other = dynamic_cast<base*>(item.get())) {
 		let total = m_quantity + other->quantity();
 		if (total > max_stack_quantity) {
@@ -27,6 +30,9 @@ void mark::item::base::serialize(YAML::Emitter& out) const
 
 auto mark::item::base::can_stack(const interface::item& other) const -> bool
 {
+	if (&other == this) {
+		return false;
+	}
 	if (let item = dynamic_cast<const base*>(&other)) {
 		if (this->type_equals(*item)) {
 			return m_quantity < 20;
