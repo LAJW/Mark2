@@ -1,9 +1,16 @@
 #pragma once
 #include <module/core.h>
+#include <random.h>
 #include <resource_manager.h>
 #include <unit/modular.h>
 #include <world.h>
-#include <random.h>
+
+/// make_unique with cast to the mark::interface::item base class
+template <typename T, typename... Ts>
+std::unique_ptr<mark::interface::item> make_item(Ts&&... ts)
+{
+	return std::make_unique<T>(std::forward<Ts>(ts)...);
+}
 
 // Module environment - a helper struct for with a world and a modular with a
 // core
@@ -20,8 +27,7 @@ struct core_env
 			mark::unit::modular::info info;
 			info.world = world;
 			auto modular = std::make_shared<mark::unit::modular>(info);
-			std::unique_ptr<mark::interface::item> core =
-				std::make_unique<mark::module::core>(rm, random, YAML::Node());
+			auto core = make_item<mark::module::core>(rm, random, YAML::Node());
 			Expects(!modular->attach({ -1, -1 }, move(core)));
 			world.attach(modular);
 			return modular;
