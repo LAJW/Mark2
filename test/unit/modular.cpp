@@ -218,8 +218,8 @@ SCENARIO("modular")
 			let is_damaged = modular->module_at(turret_pos)->damage([&] {
 				interface::damageable::info _;
 				_.physical = 100.f;
-				_.knocked = &knocked;
-				_.damaged = &damaged;
+				_.knocked = knocked;
+				_.damaged = damaged;
 				_.team = 1;
 				_.random = random;
 				return _;

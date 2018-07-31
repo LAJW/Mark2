@@ -35,7 +35,7 @@ void mark::module::laser::update(update_context& context)
 		let prev = pos;
 		let cur = pos + dir * static_cast<double>(module::size * 200);
 		_.segment = { prev, cur };
-		_.damage.damaged = &damaged;
+		_.damage.damaged = damaged;
 		_.damage.physical = 100.f * static_cast<float>(context.dt);
 		_.damage.team = parent().team();
 		_.damage.random = context.random;

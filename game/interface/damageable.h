@@ -7,6 +7,7 @@ namespace interface {
 class damageable
 {
 public:
+	using damaged_set = std::unordered_set<not_null<damageable*>>;
 	struct info
 	{
 		// List of pointers to a set used to store damaged objects
@@ -15,8 +16,8 @@ public:
 		// damage(). idamageable upon taking damage should store itself
 		// here
 		optional<random&> random;
-		std::unordered_set<not_null<damageable*>>* damaged = nullptr;
-		std::unordered_set<not_null<damageable*>>* knocked = nullptr;
+		optional<damaged_set&> damaged;
+		optional<damaged_set&> knocked;
 		vd pos;
 		float physical = 0.f;
 		float antimatter = 0.f;

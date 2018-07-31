@@ -126,8 +126,8 @@ void mark::unit::projectile::update(update_context& context)
 		_.aoe_radius = m_aoe_radius;
 		_.aerial = m_velocity == 0.;
 		_.piercing = m_bounces == 0 ? m_piercing : 1;
-		_.damage.knocked = &m_knocked;
-		_.damage.damaged = &m_damaged;
+		_.damage.knocked = m_knocked;
+		_.damage.damaged = m_damaged;
 		_.damage.team = this->team();
 		_.damage.physical = dry_run ? 0.f : m_physical;
 		_.damage.antimatter = dry_run ? 0.f : m_antimatter;
