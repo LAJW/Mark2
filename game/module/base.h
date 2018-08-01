@@ -71,7 +71,7 @@ class base
 {
 public:
 	// serialize module::base properties
-	virtual void serialize(YAML::Emitter&) const;
+	virtual void serialize(YAML::Emitter&) const override;
 
 	static constexpr auto max_heat = 100.f;
 
@@ -83,10 +83,10 @@ public:
 	auto world() const -> const mark::world& override;
 
 	// Module's image in the inventory
-	auto thumbnail() const -> resource::image_ptr;
+	auto thumbnail() const -> resource::image_ptr override;
 
 	// Size in grid units
-	auto size() const -> vu32;
+	auto size() const -> vu32 override;
 
 	// Describes whether the module is dead or not
 	virtual auto dead() const -> bool;
@@ -101,7 +101,7 @@ public:
 		-> std::optional<std::pair<ref<interface::damageable>, vd>>;
 
 	// UI text describing module's properties
-	virtual auto describe() const -> std::string;
+	virtual auto describe() const -> std::string override;
 
 	// Obtain energy from the module
 	virtual auto harvest_energy(double) -> float { return 0.f; }
