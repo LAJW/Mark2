@@ -45,8 +45,16 @@ auto mark::module::base::describe() const -> std::string
 	os << std::fixed;
 	os << "Health: " << m_cur_health << " of " << m_max_health << std::endl;
 	os << "Heat: " << m_cur_heat << " of " << 100.f << std::endl;
-	if (m_armor > 0.f) {
-		os << "Armor: " << to_percent(m_armor) << std::endl;
+	module::modifiers total_modifiers;
+	if (this->has_parent()) {
+		for (let& neighbor : parent().neighbors_of(*this)) {
+			let local_modifiers = neighbor.first.get().local_modifiers();
+			total_modifiers.armor += local_modifiers.armor;
+		}
+	}
+	let armor = m_armor + total_modifiers.armor;
+	if (armor > 0.f) {
+		os << "Armor: " << armor << std::endl;
 	}
 	if (m_antimatter_resistance != 0.f) {
 		os << "Antimatter resistance: " << to_percent(m_antimatter_resistance)
@@ -90,6 +98,11 @@ auto mark::module::base_ref::parent() -> unit::modular&
 auto mark::module::base_ref::grid_pos() const noexcept -> vi32
 {
 	return vi32(m_grid_pos);
+}
+
+auto mark::module::base_ref::has_parent() const -> bool
+{
+	return m_parent;
 }
 
 constexpr let HEAT_TRANSFER_RATE = 15.f;

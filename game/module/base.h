@@ -50,7 +50,11 @@ protected:
 	base_ref(const YAML::Node& node);
 	auto parent() -> unit::modular&;
 	void serialize(YAML::Emitter& out) const;
-	// Position on the grid
+	// Check if has parent
+	// Only to be used by the description function. All other functions assume
+	// that they won't be called if the module is attached to the modular or is
+	// being serialized, so no interaction with the base is allowed.
+	auto has_parent() const -> bool;
 	~base_ref() = default;
 
 private:
