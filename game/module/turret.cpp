@@ -19,7 +19,6 @@ static auto cooldown(float rate_of_fire) { return 1.f / rate_of_fire; }
 void mark::module::turret::update(update_context& context)
 {
 	this->module::base::update(context);
-	let fdt = gsl::narrow_cast<float>(context.dt);
 	m_adsr.update(context.dt);
 	if (m_targeting_system) {
 		m_targeting_system->update(context);
@@ -240,10 +239,10 @@ mark::module::turret::turret(
 	, m_im_orb(rm.image("orb.png"))
 	, m_image_variant(random(0, 11))
 	, m_adsr(0.1f, 8.f, 0.1f, 0.8f)
-	, m_cone_curve(
-		  curve::deserialize(node["cone_curve"].as<std::string>("flat")))
 	, m_rate_of_fire_curve(curve::deserialize(
 		  node["rate_of_fire_curve"].as<std::string>("flat")))
+	, m_cone_curve(
+		  curve::deserialize(node["cone_curve"].as<std::string>("flat")))
 {
 	property_manager property_manager(random);
 	bind(property_manager, *this);
