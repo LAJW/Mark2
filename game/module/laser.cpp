@@ -77,7 +77,6 @@ void mark::module::laser::render(
 				return _;
 			}());
 		}
-		return;
 	}
 	for (let& collision : collisions) {
 		context.render([&] {
@@ -94,8 +93,9 @@ void mark::module::laser::render(
 			return _;
 		}());
 	}
-	for (let i : range(1, 200)) {
-		let cur_len = module::size * static_cast<double>(200);
+	let step_count = 200;
+	for (let i : range(1, step_count)) {
+		let cur_len = module::size * static_cast<double>(step_count - i);
 		context.sprites[0].emplace_back([&] {
 			sprite _;
 			_.image = m_im_ray;
@@ -128,9 +128,9 @@ mark::module::laser::laser(
 	random& random,
 	const YAML::Node& node)
 	: module::base(rm, random, node)
-	, m_targeting_system(*this)
 	, m_model(rm.image("cannon.png"))
 	, m_im_ray(rm.image("ray.png"))
+	, m_targeting_system(*this)
 	, m_randomiser(random(1.f, 1.2f), random(0.f, 1.f))
 {}
 
