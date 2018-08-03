@@ -24,13 +24,13 @@ mark::ui::ui::ui(
 	random& random,
 	mode_stack& stack,
 	world_stack& world_stack)
-	: m_world_stack(world_stack)
-	, m_stack(stack)
-	, m_action_bar(rm)
+	: m_action_bar(rm)
 	, m_grid_bg(rm.image("grid-background.png"))
+	, m_tooltip(rm)
 	, m_rm(rm)
 	, m_random(random)
-	, m_tooltip(rm)
+	, m_stack(stack)
+	, m_world_stack(world_stack)
 {
 	m_windows.push_back(
 		std::make_unique<mark::ui::window>(mark::ui::window::info()));
@@ -266,7 +266,7 @@ static std::vector<bool> make_available_map(
 	const mark::unit::modular& modular)
 {
 	using namespace mark;
-	constexpr let grid_size = unit::modular::max_size;
+	let grid_size = gsl::narrow<int>(unit::modular::max_size);
 	let surface = range<vi32>(
 		{ -int(grid_size) / 2, -int(grid_size) / 2 },
 		{ grid_size / 2, grid_size / 2 });
