@@ -481,8 +481,7 @@ auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
 	}
 	return all_of(this->neighbors_of(*module), [&](let& neighbor) {
 		return this->p_connected_to_core(
-			neighbor.first,
-			{ vi8(module->grid_pos()), vi8(module->size()) });
+			neighbor.first, { vi8(module->grid_pos()), vi8(module->size()) });
 	});
 }
 
@@ -627,7 +626,6 @@ static auto collide(
 		}
 	}
 	return { { *damageable, *min } };
-
 }
 
 auto mark::unit::modular::collide(const segment_t& ray)
