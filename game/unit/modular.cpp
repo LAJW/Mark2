@@ -48,10 +48,10 @@ bool operator<(const Node& left, const Node& right) { return left.f < right.f; }
 template <typename module_t, typename modular_t>
 static auto neighbors_of(modular_t& modular, vi8 pos, vi8 size)
 {
-	std::vector<std::pair<ref<module_t>, unsigned>> out;
+	std::vector<std::pair<module_t&, unsigned>> out;
 	auto out_insert = [&out](module_t* module_ptr) {
 		if (module_ptr) {
-			if (out.empty() || &out.back().first.get() != module_ptr) {
+			if (out.empty() || &out.back().first != module_ptr) {
 				out.push_back({ *module_ptr, 1U });
 			} else {
 				++out.back().second;
@@ -96,8 +96,8 @@ static auto filter_modules(vector_type& modules)
 
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
-	, m_rotation(info.rotation)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
+	, m_rotation(info.rotation)
 {}
 
 mark::unit::modular::~modular() = default;
@@ -306,14 +306,14 @@ void mark::unit::modular::update(update_context& context)
 }
 
 auto mark::unit::modular::neighbors_of(const module::base& module)
-	-> std::vector<std::pair<ref<module::base>, unsigned>>
+	-> std::vector<std::pair<module::base&, unsigned>>
 {
 	return ::neighbors_of<module::base>(
 		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
 auto mark::unit::modular::neighbors_of(const module::base& module) const
-	-> std::vector<std::pair<cref<module::base>, unsigned>>
+	-> std::vector<std::pair<const module::base&, unsigned>>
 {
 	return ::neighbors_of<const module::base>(
 		*this, vi8(module.grid_pos()), vi8(module.size()));
@@ -386,7 +386,7 @@ auto mark::unit::modular::can_attach(vi32 pos_, const interface::item& item)
 	if (neighbors.size() > 1) {
 		return true;
 	}
-	return !neighbors.empty() && &neighbors.front().first.get() != module;
+	return !neighbors.empty() && &neighbors.front().first != module;
 }
 
 auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
@@ -481,7 +481,7 @@ auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
 	}
 	return all_of(this->neighbors_of(*module), [&](let& neighbor) {
 		return this->p_connected_to_core(
-			neighbor.first.get(),
+			neighbor.first,
 			{ vi8(module->grid_pos()), vi8(module->size()) });
 	});
 }

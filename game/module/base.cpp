@@ -48,7 +48,7 @@ auto mark::module::base::describe() const -> std::string
 	module::modifiers total_modifiers;
 	if (this->has_parent()) {
 		for (let& neighbor : parent().neighbors_of(*this)) {
-			let local_modifiers = neighbor.first.get().local_modifiers();
+			let local_modifiers = neighbor.first.local_modifiers();
 			total_modifiers.armor += local_modifiers.armor;
 		}
 	}
@@ -138,7 +138,7 @@ void mark::module::base::update(update_context& context)
 	let total_surface = 2 * (m_size.x + m_size.y);
 	for (auto& pair : neighbors) {
 		let & [ module, surface ] = pair;
-		auto& module_heat = module.get().m_cur_heat;
+		auto& module_heat = module.m_cur_heat;
 		let delta_heat = static_cast<float>(surface)
 			/ static_cast<float>(total_surface) * dtf * HEAT_TRANSFER_RATE;
 		if (module_heat - m_cur_heat > delta_heat) {
@@ -266,7 +266,7 @@ auto mark::module::base::collide(const segment_t& ray)
 }
 
 auto mark::module::base::neighbors()
-	-> std::vector<std::pair<ref<module::base>, unsigned>>
+	-> std::vector<std::pair<module::base&, unsigned>>
 {
 	return parent().neighbors_of(*this);
 }
@@ -450,7 +450,7 @@ auto mark::module::base::damage_impl(
 	let neighbors = parent().neighbors_of(*this);
 	let armor =
 		accumulate(neighbors, m_armor, [&](const float sum, const auto& pair) {
-			return sum + pair.first.get().local_modifiers().armor;
+			return sum + pair.first.local_modifiers().armor;
 		});
 	let physical_damage =
 		std::max(0.f, attr.physical * critical_multiplier - armor);

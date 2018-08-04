@@ -42,9 +42,9 @@ public:
 	auto can_detach(vi32 pos) const noexcept -> bool override;
 
 	auto neighbors_of(const module::base&)
-		-> std::vector<std::pair<ref<module::base>, unsigned>>;
+		-> std::vector<std::pair<module::base&, unsigned>>;
 	auto neighbors_of(const module::base&) const
-		-> std::vector<std::pair<cref<module::base>, unsigned>>;
+		-> std::vector<std::pair<const module::base&, unsigned>>;
 
 	auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;

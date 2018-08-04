@@ -110,7 +110,7 @@ public:
 	virtual auto energy_ratio() const -> float { return 0.f; }
 
 	// Neighbour modules
-	auto neighbors() -> std::vector<std::pair<ref<module::base>, unsigned>>;
+	auto neighbors() -> std::vector<std::pair<module::base&, unsigned>>;
 
 	// Default damage handling
 	auto damage(const interface::damageable::info& attr) -> bool override;

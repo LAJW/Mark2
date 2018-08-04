@@ -72,7 +72,7 @@ void mark::module::shield_generator::update(update_context& context)
 		m_cur_shield = std::min(
 			m_max_shield,
 			m_cur_shield
-				+ module.first.get().harvest_energy(context.dt)
+				+ module.first.harvest_energy(context.dt)
 					* m_shield_per_energy);
 		if (m_cur_shield / m_max_shield >= m_reboot_level) {
 			m_broken = false;
