@@ -177,6 +177,23 @@ SCENARIO("modular")
 			{
 				REQUIRE(modular->at({ 3, -1 }) == nullptr);
 			}
+			THEN("Out-of-bounds should return a nullptr")
+			{
+				REQUIRE(modular->at({ -21, 0 }) == nullptr);
+				REQUIRE(modular->module_at({ -21, 0 }) == nullptr);
+				REQUIRE(modular->at({ -22, -22 }) == nullptr);
+				REQUIRE(modular->module_at({ -22, -22 }) == nullptr);
+				REQUIRE(modular->at({ 0, -22 }) == nullptr);
+				REQUIRE(modular->module_at({ 0, -22 }) == nullptr);
+				REQUIRE(modular->at({ 22, -22 }) == nullptr);
+				REQUIRE(modular->module_at({ 22, -22 }) == nullptr);
+				REQUIRE(modular->at({ 22, 22 }) == nullptr);
+				REQUIRE(modular->module_at({ 22, 22 }) == nullptr);
+				REQUIRE(modular->at({ 0, 22 }) == nullptr);
+				REQUIRE(modular->module_at({ 0, 22 }) == nullptr);
+				REQUIRE(modular->at({ 22, 0 }) == nullptr);
+				REQUIRE(modular->module_at({ 22, 0 }) == nullptr);
+			}
 		}
 		WHEN("We try to attach a module with zero health")
 		{
