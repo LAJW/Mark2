@@ -826,10 +826,26 @@ auto mark::unit::modular::pos_at(vi32 pos) const noexcept -> std::optional<vi32>
 	return {};
 }
 
+/// Check if the value is within bounds, excluding the upper bound
+template <typename T>
+static bool between_exclusive(std::pair<T, T> bounds, T value)
+{
+	return bounds.first <= value && value < bounds.second;
+}
+
+/// Check if rectangle contains a point excluding bottom right border. Area is a
+/// pair of corners of a rectangle - bottom right and top left.
+static bool contains_exclusive(std::pair<vi32, vi32> area, vi32 point)
+{
+	let[tl, br] = area;
+	return between_exclusive({ tl.x, br.x }, point.x)
+		&& between_exclusive({ tl.y, br.y }, point.y);
+}
+
 auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
 {
 	let hs = gsl::narrow<int8_t>(max_size / 2);
-	if (pos.x >= -hs && pos.y < hs) {
+	if (contains_exclusive({ { -hs, -hs }, { hs, hs } }, pos)) {
 		return this->p_at(vi8(pos)).module;
 	}
 	return nullptr;
