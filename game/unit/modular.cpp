@@ -580,7 +580,7 @@ static auto path_length(const std::vector<vd>& path)
 
 void mark::unit::modular::knockback(
 	std::unordered_set<not_null<interface::damageable*>>& knocked,
-	float angle,
+	const float angle,
 	double distance)
 {
 	if (distance <= m_initial_knockback_path_length
@@ -596,13 +596,15 @@ void mark::unit::modular::knockback(
 	m_knockback_path = move(path);
 }
 
-auto mark::unit::modular::collide(const segment_t& ray)
+static auto collide(
+	const segment_t& ray,
+	const std::vector<mark::module::base_ptr>& modules)
 	-> std::optional<std::pair<interface::damageable&, vd>>
 {
 	std::optional<vd> min;
 	double min_length = INFINITY;
 	interface::damageable* damageable = nullptr;
-	for (auto& module : m_modules) {
+	for (auto& module : modules) {
 		if (let result = module->collide(ray)) {
 			let length = mark::length(ray.first - result->second);
 			if (length < min_length) {
@@ -616,7 +618,7 @@ auto mark::unit::modular::collide(const segment_t& ray)
 		return {};
 	}
 	// check if module is under the shield
-	for (let shield : filter_modules<module::shield_generator>(m_modules)) {
+	for (let shield : filter_modules<module::shield_generator>(modules)) {
 		if (shield.get().active()) {
 			let shield_pos = shield.get().pos();
 			if (length(*min - shield_pos) < shield.get().radius() - 1.f) {
@@ -625,14 +627,24 @@ auto mark::unit::modular::collide(const segment_t& ray)
 		}
 	}
 	return { { *damageable, *min } };
+
 }
 
-auto mark::unit::modular::collide(vd center, double radius)
-	-> std::vector<ref<interface::damageable>>
+auto mark::unit::modular::collide(const segment_t& ray)
+	-> std::optional<std::pair<interface::damageable&, vd>>
+{
+	// Delegated to a free function, to restrict access
+	return ::collide(ray, m_modules);
+}
+
+static auto collide(
+	const vd& center,
+	const double radius,
+	const std::vector<mark::module::base_ptr>& modules)
 {
 	std::unordered_set<interface::damageable*> out;
-	let shields = filter_modules<module::shield_generator>(m_modules);
-	for (auto& module : m_modules) {
+	let shields = filter_modules<module::shield_generator>(modules);
+	for (auto& module : modules) {
 		let module_size = std::max(module->size().x, module->size().y);
 		let module_pos = module->pos();
 		if (length(center - module_pos) < module_size + radius) {
@@ -655,6 +667,13 @@ auto mark::unit::modular::collide(vd center, double radius)
 		return std::ref(*ptr);
 	});
 	return tmp;
+}
+
+auto mark::unit::modular::collide(const vd center, const double radius)
+	-> std::vector<ref<interface::damageable>>
+{
+	// Delegated to a free function, to restrict access
+	return ::collide(center, radius, m_modules);
 }
 
 void mark::unit::modular::toggle_bind(int8_t command_id, vi32 user_pos)
