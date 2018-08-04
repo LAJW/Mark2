@@ -322,7 +322,6 @@ auto mark::unit::modular::neighbors_of(const module::base& module) const
 auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr&& item)
 	-> std::error_code
 {
-	let module_pos = vi8(pos_);
 	if (!item || !can_attach(pos_, *item)) {
 		return error::code::bad_pos;
 	}
@@ -468,7 +467,7 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 	for (let& cur_module : m_modules) {
 		m_radius = std::max(m_radius, length(cur_module->pos() - this->pos()));
 	}
-	return move(drop(m_modules, module_it));
+	return drop(m_modules, module_it);
 }
 
 auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
