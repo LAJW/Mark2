@@ -15,7 +15,7 @@ public:
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto describe() const -> std::string override;
 	auto collide(const segment_t&)
-		-> std::optional<std::pair<ref<interface::damageable>, vd>> override;
+		-> std::optional<std::pair<interface::damageable&, vd>> override;
 	auto shield() const noexcept -> float;
 	void serialize(YAML::Emitter&) const override;
 	auto passive() const noexcept -> bool override;

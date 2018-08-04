@@ -608,7 +608,7 @@ auto mark::unit::modular::collide(const segment_t& ray)
 			if (length < min_length) {
 				min_length = length;
 				min = result->second;
-				damageable = &result->first.get();
+				damageable = &result->first;
 			}
 		}
 	}

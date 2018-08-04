@@ -137,14 +137,13 @@ auto mark::module::shield_generator::describe() const -> std::string
 }
 
 auto mark::module::shield_generator::collide(const segment_t& ray)
-	-> std::optional<std::pair<ref<interface::damageable>, vd>>
+	-> std::optional<std::pair<interface::damageable&, vd>>
 {
 	if (!this->active()) {
 		return module::base::collide(ray);
 	}
 	if (let intersection = intersect(ray, pos(), m_radius)) {
-		return { { std::ref(static_cast<interface::damageable&>(*this)),
-				   *intersection } };
+		return { std::pair<interface::damageable&, vd>(*this, *intersection) };
 	}
 	return {};
 }

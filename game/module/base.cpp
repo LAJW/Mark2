@@ -229,7 +229,7 @@ void mark::module::base::update(update_context& context)
 }
 
 auto mark::module::base::collide(const segment_t& ray)
-	-> std::optional<std::pair<ref<interface::damageable>, vd>>
+	-> std::optional<std::pair<interface::damageable&, vd>>
 {
 	let size = this->size();
 	// half width
@@ -259,8 +259,7 @@ auto mark::module::base::collide(const segment_t& ray)
 		}
 	}
 	if (min) {
-		return { { std::ref(static_cast<interface::damageable&>(*this)),
-				   *min } };
+		return { std::pair<interface::damageable&, vd>(*this, *min) };
 	}
 	return {};
 }
