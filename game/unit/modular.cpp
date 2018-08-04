@@ -564,16 +564,14 @@ bool mark::unit::modular::damage(const interface::damageable::info& attr)
 namespace mark {
 static auto path_length(const std::vector<vd>& path)
 {
-	double path_length = 0.0;
-	for (let[i, cur] : enumerate(path)) {
+	return accumulate(enumerate(path), 0.0, [&](double path_length, auto pair) {
+		let[i, cur] = pair;
 		if (i > 0) {
 			let prev = path[i - 1];
-			let cur_length = length(prev - cur);
-			path_length += cur_length;
+			path_length += length(prev - cur);
 		}
-	}
-	Ensures(path_length >= 0.);
-	return path_length;
+		return path_length;
+	});
 }
 } // namespace mark
 
