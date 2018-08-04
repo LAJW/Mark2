@@ -597,7 +597,7 @@ void mark::unit::modular::knockback(
 }
 
 auto mark::unit::modular::collide(const segment_t& ray)
-	-> std::optional<std::pair<ref<interface::damageable>, vd>>
+	-> std::optional<std::pair<interface::damageable&, vd>>
 {
 	std::optional<vd> min;
 	double min_length = INFINITY;
@@ -624,7 +624,7 @@ auto mark::unit::modular::collide(const segment_t& ray)
 			}
 		}
 	}
-	return { { std::ref(*damageable), *min } };
+	return { { *damageable, *min } };
 }
 
 auto mark::unit::modular::collide(vd center, double radius)

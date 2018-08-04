@@ -56,7 +56,7 @@ public:
 		float angle,
 		double distance);
 	auto collide(const segment_t&)
-		-> std::optional<std::pair<ref<interface::damageable>, vd>> override;
+		-> std::optional<std::pair<interface::damageable&, vd>> override;
 	auto collide(vd center, double radius)
 		-> std::vector<ref<interface::damageable>> override;
 	// bind module at position to command

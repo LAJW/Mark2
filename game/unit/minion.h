@@ -17,7 +17,7 @@ public:
 	auto dead() const -> bool override;
 	auto damage(const interface::damageable::info&) -> bool override;
 	auto collide(const segment_t&)
-		-> std::optional<std::pair<ref<interface::damageable>, vd>> override;
+		-> std::optional<std::pair<interface::damageable &, vd>> override;
 	auto collide(vd center, double radius)
 		-> std::vector<ref<interface::damageable>> override;
 	void on_death(update_context& context) override;

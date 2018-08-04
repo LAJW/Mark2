@@ -10,7 +10,7 @@ class damageable
 {
 public:
 	virtual auto collide(const segment_t&)
-		-> std::optional<std::pair<ref<interface::damageable>, vd>> = 0;
+		-> std::optional<std::pair<interface::damageable&, vd>> = 0;
 	virtual auto collide(vd center, double radius)
 		-> std::vector<ref<interface::damageable>> = 0;
 
