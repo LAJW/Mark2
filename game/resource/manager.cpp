@@ -1,5 +1,5 @@
-﻿#include "resource_manager.h"
-#include "resource_image.h"
+﻿#include "manager.h"
+#include "image.h"
 #include "algorithm.h"
 #include "stdafx.h"
 

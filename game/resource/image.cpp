@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "resource_image.h"
+#include "image.h"
 #include <SFML/Graphics/Texture.hpp>
 
 mark::resource::image_impl::image_impl(std::string filename)

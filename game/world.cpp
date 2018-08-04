@@ -5,7 +5,7 @@
 #include <map.h>
 #include <particle.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <stdafx.h>
 #include <unit/base.h>
 #include <unit/damageable.h>

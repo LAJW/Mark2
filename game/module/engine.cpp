@@ -1,5 +1,5 @@
 ﻿#include "engine.h"
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <update_context.h>

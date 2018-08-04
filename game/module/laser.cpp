@@ -1,6 +1,6 @@
 ﻿#include "laser.h"
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <unit/modular.h>

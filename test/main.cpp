@@ -1,7 +1,7 @@
 ﻿#define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <map.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include "core_env.h"
 #include <module/battery.h>
 

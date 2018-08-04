@@ -1,7 +1,7 @@
 #pragma once
 #include <module/core.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <unit/modular.h>
 #include <world.h>
 

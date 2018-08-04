@@ -1,7 +1,7 @@
 ﻿#include "base64.h"
 #include "exception.h"
 #include "map.h"
-#include "resource_manager.h"
+#include <resource/manager.h>
 #include "sprite.h"
 #include "stdafx.h"
 #include "update_context.h"

@@ -2,7 +2,7 @@
 #include <algorithm.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/inventory.h>

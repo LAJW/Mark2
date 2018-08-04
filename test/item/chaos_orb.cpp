@@ -1,7 +1,7 @@
 #include <catch.hpp>
 #include <item/chaos_orb.h>
 #include <item/shard.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 
 SCENARIO("chaos_orb")
 {

@@ -1,7 +1,7 @@
 #include "chaos_orb.h"
 #include <exception.h>
 #include <module/base.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <stdafx.h>
 
 mark::item::chaos_orb::chaos_orb(

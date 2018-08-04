@@ -8,7 +8,7 @@
 #include <module/core.h>
 #include <module/shield_generator.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <targeting_system.h>

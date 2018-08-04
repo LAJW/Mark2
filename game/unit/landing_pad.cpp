@@ -6,7 +6,7 @@
 #include <exception.h>
 #include <module/cargo.h>
 #include <module/shield_generator.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <update_context.h>
 #include <world.h>

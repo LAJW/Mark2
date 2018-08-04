@@ -6,7 +6,7 @@
 #include <deserialize.h>
 #include <exception.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <sstream>
 #include <unit/bucket.h>

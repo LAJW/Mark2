@@ -1,6 +1,6 @@
 #include "main_menu.h"
 #include <mode_stack.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/chunky_button.h>

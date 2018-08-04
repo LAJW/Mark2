@@ -3,8 +3,8 @@
 #include <any>
 #include <exception.h>
 #include <property_manager.h>
-#include <resource_image.h>
-#include <resource_manager.h>
+#include <resource/image.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <unit/modular.h>

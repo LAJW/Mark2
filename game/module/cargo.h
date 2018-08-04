@@ -3,7 +3,7 @@
 #include <exception.h>
 #include <interface/container.h>
 #include <lfo.h>
-#include <resource_image.h>
+#include <resource/image.h>
 #include <stdafx.h>
 
 namespace mark {

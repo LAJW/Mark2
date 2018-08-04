@@ -5,7 +5,7 @@
 #include <module/energy_generator.h>
 #include <random.h>
 #include <recycle.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 
 SCENARIO("recycle function")
 {

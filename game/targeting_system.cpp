@@ -1,7 +1,7 @@
 #include "targeting_system.h"
 #include <interface/world_object.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <stdafx.h>
 #include <unit/modular.h>
 #include <update_context.h>

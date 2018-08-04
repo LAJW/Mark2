@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include <algorithm/range.h>
 #include <renderer.h>
-#include <resource_image.h>
+#include <resource/image.h>
 #include <sprite.h>
 #include <update_context.h>
 

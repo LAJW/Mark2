@@ -1,6 +1,6 @@
 #include "chunky_window.h"
 #include <algorithm/range.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <update_context.h>
 

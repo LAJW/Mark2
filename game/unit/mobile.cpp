@@ -2,7 +2,7 @@
 #include <algorithm.h>
 #include <map.h>
 #include <random.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <stdafx.h>
 #include <world.h>
 

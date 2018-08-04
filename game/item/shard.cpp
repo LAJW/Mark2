@@ -1,7 +1,7 @@
 #include "shard.h"
 #include <exception.h>
 #include <module/base.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <stdafx.h>
 
 mark::item::shard::shard(mark::resource::manager& rm, const YAML::Node& node)

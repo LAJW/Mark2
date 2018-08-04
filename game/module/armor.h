@@ -1,6 +1,6 @@
 #pragma once
 #include "base.h"
-#include <resource_image.h>
+#include <resource/image.h>
 #include <stdafx.h>
 
 namespace mark {

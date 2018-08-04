@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "resource_manager.h"
+#include <resource/manager.h>
 #include "stdafx.h"
 
 namespace mark {

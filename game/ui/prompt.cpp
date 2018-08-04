@@ -1,6 +1,6 @@
 #include "prompt.h"
 #include <mode_stack.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <ui/chunky_button.h>
 #include <ui/label.h>
 #include <ui/window.h>

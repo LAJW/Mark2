@@ -1,6 +1,6 @@
 #include <catch.hpp>
 #include <item/shard.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 
 SCENARIO("shard")
 {

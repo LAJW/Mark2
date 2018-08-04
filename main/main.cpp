@@ -2,8 +2,8 @@
 #include "command.h"
 #include "hid.h"
 #include "renderer.h"
-#include "resource_image.h"
-#include "resource_manager.h"
+#include <resource/image.h>
+#include <resource/manager.h>
 #include "sprite.h"
 #include "stdafx.h"
 #include "ui/ui.h"

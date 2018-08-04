@@ -1,7 +1,7 @@
 ﻿#include "container.h"
 #include <algorithm/range.h>
 #include <module/cargo.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/event.h>

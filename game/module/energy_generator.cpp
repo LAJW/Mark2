@@ -1,6 +1,6 @@
 ﻿#include "energy_generator.h"
 #include <property_manager.h>
-#include <resource_manager.h>
+#include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <update_context.h>
