@@ -26,7 +26,7 @@ void mark::module::laser::update(update_context& context)
 		this->render(context, {}, is_firing, dir);
 		return;
 	}
-	std::unordered_set<not_null<interface::damageable*>> damaged;
+	std::unordered_set<not_null<interface::damageable*>> damaged, knocked;
 	auto damage_result = parent().world().damage([&] {
 		world::damage_info _;
 		_.context = &context;
@@ -36,6 +36,7 @@ void mark::module::laser::update(update_context& context)
 		let cur = pos + dir * static_cast<double>(module::size * 200);
 		_.segment = { prev, cur };
 		_.damage.damaged = damaged;
+		_.damage.knocked = damaged;
 		_.damage.physical = 100.f * static_cast<float>(context.dt);
 		_.damage.team = parent().team();
 		_.damage.random = context.random;
