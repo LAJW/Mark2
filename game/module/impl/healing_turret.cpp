@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "cargo.h"
+#include "healing_turret.h"
 #include <algorithm.h>
 #include <module/base.h>
 #include <unit/modular.h>
@@ -8,7 +8,7 @@
 namespace mark {
 bool in_range(const module::base& a, const module::base& b, double range)
 {
-	return length(a.pos() - b.pos()) < range;
+	return length(a.pos() - b.pos()) <= range;
 }
 
 optional<const module::base&>
