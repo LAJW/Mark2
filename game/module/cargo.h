@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "base.h"
+#include <add_const_if.h>
 #include <exception.h>
 #include <interface/container.h>
 #include <lfo.h>
@@ -39,6 +40,10 @@ public:
 	auto items() const -> const std::vector<interface::item_ptr>&;
 
 private:
+	template <
+		typename T,
+		typename U = add_const_if_t<interface::item, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> at_impl(T& self, vi32 pos);
 	void update(update_context& context) override;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);

@@ -183,22 +183,24 @@ auto mark::module::cargo::can_attach(vi32 pos, const interface::item& item)
 	return true;
 }
 
-auto mark::module::cargo::at(vi32 i_pos) -> optional<interface::item&>
+template<typename T, typename U>
+mark::optional<U&> mark::module::cargo::at_impl(T& self, vi32 i_pos)
 {
-	// TODO: Template this
-	if (let pos = this->pos_at(i_pos)) {
-		return *m_items[pos->x + pos->y * 16];
+	if (let pos = self.pos_at(i_pos)) {
+		return *self.m_items[pos->x + pos->y * 16];
 	}
 	return {};
 }
 
-auto mark::module::cargo::at(vi32 i_pos) const
+auto mark::module::cargo::at(vi32 pos) -> optional<interface::item&>
+{
+	return at_impl(*this, pos);
+}
+
+auto mark::module::cargo::at(vi32 pos) const
 	-> optional<const interface::item&>
 {
-	if (let pos = this->pos_at(i_pos)) {
-		return *m_items[pos->x + pos->y * 16];
-	}
-	return {};
+	return at_impl(*this, pos);
 }
 
 auto mark::module::cargo::pos_at(vi32 i_pos) const noexcept
