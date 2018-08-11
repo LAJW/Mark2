@@ -835,24 +835,26 @@ static bool contains_exclusive(std::pair<vi32, vi32> area, vi32 point)
 		&& between_exclusive({ tl.y, br.y }, point.y);
 }
 
-auto mark::unit::modular::module_at(vi32 pos) noexcept
-	-> optional<module::base&>
+template<typename T, typename U>
+optional<U&> mark::unit::modular::module_at_impl(T& self, vi32 pos)
 {
 	let hs = gsl::narrow<int8_t>(max_size / 2);
 	if (contains_exclusive({ { -hs, -hs }, { hs, hs } }, pos)) {
-		return this->p_at(vi8(pos)).module;
+		return self.p_at(vi8(pos)).module;
 	}
 	return {};
+}
+
+auto mark::unit::modular::module_at(vi32 pos) noexcept
+	-> optional<module::base&>
+{
+	return module_at_impl(*this, pos);
 }
 
 auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	-> optional<const module::base&>
 {
-	let hs = gsl::narrow<int8_t>(max_size / 2);
-	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(vi8(pos)).module;
-	}
-	return {};
+	return module_at_impl(*this, pos);
 }
 
 void mark::unit::modular::remove_dead(update_context& context)

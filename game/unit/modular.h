@@ -103,6 +103,12 @@ private:
 	auto p_at(vector<int8_t> pos) noexcept -> grid_element&;
 	auto p_at(vector<int8_t> pos) const noexcept -> const grid_element&;
 
+	/// Generalized implementation function of module_at
+	template <
+		typename T,
+		typename U = add_const_if_t<module::base, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> module_at_impl(T& self, vi32 pos);
+
 	std::vector<module::base_ptr> m_modules;
 	array2d<grid_element, max_size, max_size> m_grid;
 	unique_ptr<mark::targeting_system> m_targeting_system;
