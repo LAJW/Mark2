@@ -8,6 +8,20 @@
 #include <world.h>
 
 namespace mark {
+
+template<typename U, typename T>
+optional<T&> module::healing_turret::target(U& self)
+{
+	if (self.m_stunned || !self.m_target) {
+		return {};
+	}
+	let target = self.parent().module_at(*self.m_target);
+	if (!target || !target->needs_healing()) {
+		return {};
+	}
+	return target;
+}
+
 static auto in_range(const module::base& a, const module::base& b, double range)
 {
 	return length(a.pos() - b.pos()) < range;
@@ -57,12 +71,12 @@ void mark::module::healing_turret::update(update_context& context)
 {
 	this->module::base::update(context);
 	m_model.update(context.dt);
-	if (!this->target()) {
+	if (!target(*this)) {
 		if (let target = most_damaged_neighbor_in_range(*this, 100.0)) {
 			m_target = target->grid_pos();
 		}
 	}
-	if (let target = this->target()) {
+	if (let target = this->target(*this)) {
 		target->heal(static_cast<float>(10. * context.dt));
 	}
 	this->render(context);
@@ -74,7 +88,7 @@ void mark::module::healing_turret::render(update_context& context) const
 	let model_size = std::max(this->size().x, this->size().y) * module::size;
 	context.sprites[2].push_back(m_model.render(
 		pos, model_size, parent().rotation(), this->heat_color()));
-	let target = this->target();
+	let target = this->target(*this);
 	if (!target) {
 		return;
 	}
@@ -108,24 +122,6 @@ void mark::module::healing_turret::render(update_context& context) const
 		_.color = sf::Color::Green;
 		return _;
 	});
-}
-
-auto mark::module::healing_turret::target() const -> const mark::module::base*
-{
-	if (m_stunned || !m_target) {
-		return nullptr;
-	}
-	let target = parent().module_at(*m_target);
-	if (!target || !target->needs_healing()) {
-		return nullptr;
-	}
-	return &*target;
-}
-
-auto mark::module::healing_turret::target() -> mark::module::base*
-{
-	let& self = *this;
-	return const_cast<module::base*>(self.target());
 }
 
 std::string mark::module::healing_turret::describe() const
