@@ -15,7 +15,7 @@ SCENARIO("armor")
 				return _;
 			}()))));
 		// We're relying on 0,0 being core
-		REQUIRE(&env.core == env.modular->module_at({ 0, 0 }));
+		REQUIRE(env.core.equals(*env.modular->module_at({ 0, 0 })));
 		WHEN("the core is damaged with physical damage")
 		{
 			mark::interface::damageable::damaged_set damaged, knocked;

@@ -19,9 +19,9 @@ static auto neighbor_at_pos_in_range(
 	double range)
 {
 	let module = root.parent().module_at(pos);
-	return module && module != &root && in_range(*module, root, range)
-		? module
-		: nullptr;
+	if (module && !module->equals(root) && in_range(*module, root, range))
+		return module;
+	return decltype(module)();
 }
 
 static auto neighbors_in_radius(const module::base& root, double radius)
@@ -33,7 +33,7 @@ static auto neighbors_in_radius(const module::base& root, double radius)
 		 range<vi32>({ -bound, -bound }, { bound + 1, bound + 1 })) {
 		let module = neighbor_at_pos_in_range(root, center + offset, radius);
 		if (module) {
-			neighbors.insert(module);
+			neighbors.insert(&*module);
 		}
 	}
 	return neighbors;
@@ -96,6 +96,7 @@ void mark::module::healing_turret::render(update_context& context) const
 		return _;
 	}());
 	let len = static_cast<int>(length(collision - pos) / double(module::size));
+	Expects(len >= 1); // self should never be targeted
 	transform(range(1, len), back_inserter(context.sprites[3]), [&](let i) {
 		let di = static_cast<double>(i);
 		let cur_len = module::size * di - module::size * 0.5;
@@ -118,7 +119,7 @@ auto mark::module::healing_turret::target() const -> const mark::module::base*
 	if (!target || !target->needs_healing()) {
 		return nullptr;
 	}
-	return target;
+	return &*target;
 }
 
 auto mark::module::healing_turret::target() -> mark::module::base*

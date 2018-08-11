@@ -357,7 +357,7 @@ void mark::ui::ui::container_ui(
 					vd(module->size()) * static_cast<double>(module::size);
 				let tooltip_pos =
 					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-				m_tooltip.set(tooltip_pos, module, description);
+				m_tooltip.set(tooltip_pos, &*module, description);
 			}
 		}
 	}
