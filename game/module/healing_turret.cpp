@@ -1,15 +1,17 @@
+#include <stdafx.h>
+
 #include "healing_turret.h"
+#include "impl/healing_turret.h"
 #include <algorithm.h>
 #include <resource/manager.h>
 #include <sprite.h>
-#include <stdafx.h>
 #include <unit/modular.h>
 #include <update_context.h>
 #include <world.h>
 
 namespace mark {
 
-template<typename U, typename T>
+template <typename U, typename T>
 optional<T&> module::healing_turret::target(U& self)
 {
 	if (self.m_stunned || !self.m_target) {
@@ -20,50 +22,6 @@ optional<T&> module::healing_turret::target(U& self)
 		return {};
 	}
 	return target;
-}
-
-static auto in_range(const module::base& a, const module::base& b, double range)
-{
-	return length(a.pos() - b.pos()) < range;
-}
-
-static auto neighbor_at_pos_in_range(
-	const module::base& root,
-	vi32 pos,
-	double range)
-{
-	let module = root.parent().module_at(pos);
-	if (module && !module->equals(root) && in_range(*module, root, range))
-		return module;
-	return decltype(module)();
-}
-
-static auto neighbors_in_radius(const module::base& root, double radius)
-{
-	std::unordered_set<not_null<const module::base*>> neighbors;
-	let center = root.grid_pos() + vi32(root.size()) / 2;
-	let bound = static_cast<int>(std::ceil(radius / 16.));
-	for (let offset :
-		 range<vi32>({ -bound, -bound }, { bound + 1, bound + 1 })) {
-		let module = neighbor_at_pos_in_range(root, center + offset, radius);
-		if (module) {
-			neighbors.insert(&*module);
-		}
-	}
-	return neighbors;
-}
-
-static auto
-most_damaged_neighbor_in_range(const module::base& root, double range)
-{
-	let neighbors = neighbors_in_radius(root, range);
-	let min_health_neighbour = min_element_v(neighbors, [](let a, let b) {
-		return a->cur_health() / a->max_health()
-			< b->cur_health() / b->max_health();
-	});
-	return min_health_neighbour && (*min_health_neighbour)->needs_healing()
-		? min_health_neighbour->get()
-		: nullptr;
 }
 } // namespace mark
 
