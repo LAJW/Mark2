@@ -46,10 +46,10 @@ void mark::ui::inventory::update(update_context& context)
 			_.relative = true;
 			return _;
 		}());
-		if (it != children.end()) {
-			this->insert(it->get(), move(container_window));
-		} else {
+		if (it == children.end()) {
 			this->insert(move(container_window));
+		} else {
+			this->insert(it->get(), move(container_window));
 		}
 	}
 	this->window::update(context);
