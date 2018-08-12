@@ -70,6 +70,12 @@ public:
 	constexpr optional(const optional<U&>& ref)
 		: optional_ref(static_cast<const optional_ref<U>>(ref))
 	{}
+	template <typename U>
+	constexpr optional& operator=(const optional<U&>& other)
+	{
+		*this = optional(other);
+		return *this;
+	}
 	using optional_ref<std::remove_reference_t<T>>::optional_ref;
 	using optional_ref<std::remove_reference_t<T>>::operator=;
 };
