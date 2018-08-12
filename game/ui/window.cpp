@@ -91,3 +91,16 @@ auto mark::ui::window::children() const -> const std::list<unique_ptr<node>>&
 void mark::ui::window::visibility(bool value) noexcept { m_visible = value; }
 
 void mark::ui::window::clear() noexcept { m_nodes.clear(); }
+
+namespace mark {
+
+[[nodiscard]] std::vector<ref<ui::node>> ui::window::children_mutable()
+{
+	std::vector<ref<ui::node>> result;
+	for (auto &child : m_nodes) {
+		result.push_back(*child);
+	}
+	return result;
+}
+
+}

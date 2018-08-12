@@ -19,6 +19,7 @@ public:
 	bool hover(const event&) override;
 	void update(update_context&) override;
 	auto children() const -> const std::list<unique_ptr<node>>&;
+	[[nodiscard]] std::vector<ref<node>> children_mutable();
 	void insert(
 		std::list<std::unique_ptr<node>>::const_iterator before,
 		unique_ptr<node> node);
