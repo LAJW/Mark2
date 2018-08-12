@@ -6,7 +6,7 @@ mark::slot::slot(interface::container& container, vi32 pos) noexcept
 	: m_container(&container)
 	, m_pos(pos)
 {
-	Expects(container.at(pos) != nullptr);
+	Expects(container.at(pos).has_value());
 }
 
 auto mark::slot::empty() const noexcept -> bool

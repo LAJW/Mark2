@@ -5,6 +5,7 @@
 #include <model_animated.h>
 #include <resource/image.h>
 #include <stdafx.h>
+#include <add_const_if.h>
 
 namespace mark {
 namespace module {
@@ -21,8 +22,8 @@ public:
 private:
 	void update(update_context& context) override;
 	void render(update_context& context) const;
-	auto target() const -> const module::base*;
-	auto target() -> module::base*;
+	template <typename U, typename T = add_const_if_t<base, std::is_const_v<U>>>
+	[[nodiscard]] optional<T&> static target(U& self);
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);
 

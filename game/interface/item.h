@@ -36,6 +36,7 @@ public:
 	virtual void stack(interface::item_ptr& item) = 0;
 	virtual bool can_stack(const interface::item& item) const = 0;
 	virtual auto quantity() const -> size_t = 0;
+	bool equals(const item& other) const { return &other == this; }
 };
 } // namespace interface
 } // namespace mark

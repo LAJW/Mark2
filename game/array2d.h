@@ -2,6 +2,7 @@
 #include <algorithm/range.h>
 #include <algorithm/enumerate.h>
 #include <stdafx.h>
+#include <add_const_if.h>
 
 namespace mark {
 
@@ -37,21 +38,6 @@ public:
 	auto size() const -> size_type { return { size_x, size_y }; }
 	void fill(const T& t) { m_data->fill(t); }
 };
-
-template <typename T, bool = false>
-struct add_const_if final
-{
-	using type = T;
-};
-
-template <typename T>
-struct add_const_if<T, true> final
-{
-	using type = std::add_const_t<T>;
-};
-
-template <typename T, bool cond>
-using add_const_if_t = typename add_const_if<T, cond>::type;
 
 /// 2D Array Enumerator use by calling `enumerate(instanceOfArray2d)`
 /// Behaves just like a regular array enumerator, only the index is a 2D vector

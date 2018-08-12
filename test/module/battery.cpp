@@ -49,7 +49,7 @@ TEST_CASE("Generic battery test")
 	REQUIRE(battery.detachable() == true);
 	let neighbors = battery.neighbors();
 	REQUIRE(neighbors.size() == 1);
-	REQUIRE(&neighbors[0].first == env.modular->at({ -1, -1 }));
+	REQUIRE(neighbors[0].first.equals(*env.modular->at({ -1, -1 })));
 	REQUIRE(neighbors[0].second == 2);
 	REQUIRE(env.battery.energy_ratio() == Approx(0.f));
 }

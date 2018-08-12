@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "base.h"
+#include <add_const_if.h>
 #include <exception.h>
 #include <interface/container.h>
 #include <lfo.h>
@@ -21,8 +22,8 @@ public:
 		-> std::error_code override;
 	auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool override;
-	auto at(vi32 pos) -> interface::item* override;
-	auto at(vi32 pos) const -> const interface::item* override;
+	auto at(vi32 pos) -> optional<interface::item&> override;
+	auto at(vi32 pos) const -> optional<const interface::item&> override;
 	auto pos_at(vi32 pos) const noexcept -> std::optional<vi32> override;
 	auto detach(vi32 pos) -> interface::item_ptr override;
 	auto can_detach(vi32 pos) const noexcept -> bool override;
@@ -39,6 +40,10 @@ public:
 	auto items() const -> const std::vector<interface::item_ptr>&;
 
 private:
+	template <
+		typename T,
+		typename U = add_const_if_t<interface::item, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> at_impl(T& self, vi32 pos);
 	void update(update_context& context) override;
 	template <typename property_manager, typename T>
 	static void bind(property_manager& mgr, T& instance);

@@ -48,11 +48,11 @@ TEST_CASE("Create modular with a core")
 	REQUIRE(core == nullptr);
 	REQUIRE(core_ref.pos() == vector<double>(1, 2));
 	REQUIRE(core_ref.grid_pos() == vector<int>(-1, -1));
-	REQUIRE(modular.at({ -1, -1 }) == &core_ref);
-	REQUIRE(modular.at({ 0, -1 }) == &core_ref);
-	REQUIRE(modular.at({ -1, 0 }) == &core_ref);
-	REQUIRE(modular.at({ 0, 0 }) == &core_ref);
-	REQUIRE(modular.at({ 1, -1 }) == nullptr);
+	REQUIRE(modular.at({ -1, -1 })->equals(core_ref));
+	REQUIRE(modular.at({ 0, -1 })->equals(core_ref));
+	REQUIRE(modular.at({ -1, 0 })->equals(core_ref));
+	REQUIRE(modular.at({ 0, 0 })->equals(core_ref));
+	REQUIRE(!modular.at({ 1, -1 }).has_value());
 }
 
 TEST_CASE("Try creating modular with two cores")
@@ -175,24 +175,24 @@ SCENARIO("modular")
 		{
 			THEN("3, -1 should be unoccupied")
 			{
-				REQUIRE(modular->at({ 3, -1 }) == nullptr);
+				REQUIRE(!modular->at({ 3, -1 }).has_value());
 			}
 			THEN("Out-of-bounds should return a nullptr")
 			{
-				REQUIRE(modular->at({ -21, 0 }) == nullptr);
-				REQUIRE(modular->module_at({ -21, 0 }) == nullptr);
-				REQUIRE(modular->at({ -22, -22 }) == nullptr);
-				REQUIRE(modular->module_at({ -22, -22 }) == nullptr);
-				REQUIRE(modular->at({ 0, -22 }) == nullptr);
-				REQUIRE(modular->module_at({ 0, -22 }) == nullptr);
-				REQUIRE(modular->at({ 22, -22 }) == nullptr);
-				REQUIRE(modular->module_at({ 22, -22 }) == nullptr);
-				REQUIRE(modular->at({ 22, 22 }) == nullptr);
-				REQUIRE(modular->module_at({ 22, 22 }) == nullptr);
-				REQUIRE(modular->at({ 0, 22 }) == nullptr);
-				REQUIRE(modular->module_at({ 0, 22 }) == nullptr);
-				REQUIRE(modular->at({ 22, 0 }) == nullptr);
-				REQUIRE(modular->module_at({ 22, 0 }) == nullptr);
+				REQUIRE(!modular->at({ -21, 0 }).has_value());
+				REQUIRE(!modular->module_at({ -21, 0 }).has_value());
+				REQUIRE(!modular->at({ -22, -22 }).has_value());
+				REQUIRE(!modular->module_at({ -22, -22 }).has_value());
+				REQUIRE(!modular->at({ 0, -22 }).has_value());
+				REQUIRE(!modular->module_at({ 0, -22 }).has_value());
+				REQUIRE(!modular->at({ 22, -22 }).has_value());
+				REQUIRE(!modular->module_at({ 22, -22 }).has_value());
+				REQUIRE(!modular->at({ 22, 22 }).has_value());
+				REQUIRE(!modular->module_at({ 22, 22 }).has_value());
+				REQUIRE(!modular->at({ 0, 22 }).has_value());
+				REQUIRE(!modular->module_at({ 0, 22 }).has_value());
+				REQUIRE(!modular->at({ 22, 0 }).has_value());
+				REQUIRE(!modular->module_at({ 22, 0 }).has_value());
 			}
 		}
 		WHEN("We try to attach a module with zero health")
@@ -210,8 +210,8 @@ SCENARIO("modular")
 			}
 			THEN("Module shouldn't be reserved in modular's grid")
 			{
-				REQUIRE(modular->at({ 3, -1 }) == nullptr);
-				REQUIRE(modular->module_at({ 3, -1 }) == nullptr);
+				REQUIRE(!modular->at({ 3, -1 }).has_value());
+				REQUIRE(!modular->module_at({ 3, -1 }).has_value());
 			}
 			THEN("There should be nothing to detach")
 			{
@@ -255,8 +255,8 @@ SCENARIO("modular")
 				update_context context(rm, random);
 				context.dt = 0.15;
 				world.update(context, {});
-				REQUIRE(modular->at(turret_pos) == nullptr);
-				REQUIRE(modular->module_at(turret_pos) == nullptr);
+				REQUIRE(!modular->at(turret_pos).has_value());
+				REQUIRE(!modular->module_at(turret_pos).has_value());
 			}
 		}
 		WHEN("We try to push an item into a modular with no containers")
@@ -284,8 +284,8 @@ SCENARIO("modular")
 			THEN("push puts the item at the 0, 0 position")
 			{
 				REQUIRE(
-					modular->containers().front().get().at({ 0, 0 })
-					== &shard_ref);
+					modular->containers().front().get().at({ 0, 0 })->equals(
+						shard_ref));
 			}
 		}
 		WHEN("We push two identical stackable items into a modular with an "
@@ -308,7 +308,7 @@ SCENARIO("modular")
 			THEN("push puts first item at the 0, 0 position")
 			{
 				REQUIRE(
-					modular->containers().front().get().at({ 0, 0 }) == &shard);
+					modular->containers().front().get().at({ 0, 0 })->equals(shard));
 			}
 			THEN("push destroys the second item")
 			{
@@ -340,7 +340,7 @@ SCENARIO("modular")
 			}
 			THEN("slot [0, 0] of the container remains empty")
 			{
-				REQUIRE(first_container.at({ 0, 0 }) == nullptr);
+				REQUIRE(!first_container.at({ 0, 0 }).has_value());
 			}
 			THEN("push destroys the second item increasing the quantity on the "
 				 "first to two")
@@ -374,7 +374,7 @@ SCENARIO("modular")
 			}
 			THEN("slot [0, 0] of the container remains empty")
 			{
-				REQUIRE(second_container.at({ 0, 0 }) == nullptr);
+				REQUIRE(!second_container.at({ 0, 0 }).has_value());
 			}
 			THEN("push destroys the second item increasing the quantity on the "
 				 "first to two")

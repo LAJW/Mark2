@@ -33,11 +33,12 @@ public:
 		-> std::error_code override;
 	auto can_attach(vi32 pos, const interface::item& item) const
 		-> bool override;
-	auto at(vi32 pos) noexcept -> interface::item* override;
-	auto at(vi32 pos) const noexcept -> const interface::item* override;
+	auto at(vi32 pos) noexcept -> optional<interface::item&> override;
+	auto at(vi32 pos) const noexcept
+		-> optional<const interface::item&> override;
 	auto pos_at(vi32 pos) const noexcept -> std::optional<vi32> override;
-	auto module_at(vi32 pos) noexcept -> module::base*;
-	auto module_at(vi32 pos) const noexcept -> const module::base*;
+	auto module_at(vi32 pos) noexcept -> optional<module::base&>;
+	auto module_at(vi32 pos) const noexcept -> optional<const module::base&>;
 	auto detach(vi32 pos) -> interface::item_ptr override;
 	auto can_detach(vi32 pos) const noexcept -> bool override;
 
@@ -96,11 +97,17 @@ private:
 
 	struct grid_element
 	{
-		module::base* module = nullptr;
+		optional<module::base&> module;
 		std::unordered_set<not_null<const module::base*>> reserved;
 	};
 	auto p_at(vector<int8_t> pos) noexcept -> grid_element&;
 	auto p_at(vector<int8_t> pos) const noexcept -> const grid_element&;
+
+	/// Generalized implementation function of module_at
+	template <
+		typename T,
+		typename U = add_const_if_t<module::base, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> module_at_impl(T& self, vi32 pos);
 
 	std::vector<module::base_ptr> m_modules;
 	array2d<grid_element, max_size, max_size> m_grid;
@@ -117,7 +124,7 @@ private:
 };
 
 // Drop module into the modular's containers if possible
-[[nodiscard]] auto push(modular& modular, interface::item_ptr&&)
+[[nodiscard]] auto push(modular& modular, interface::item_ptr &&)
 	-> std::error_code;
 } // namespace unit
 } // namespace mark

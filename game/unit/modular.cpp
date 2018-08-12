@@ -49,9 +49,9 @@ template <typename module_t, typename modular_t>
 static auto neighbors_of(modular_t& modular, vi8 pos, vi8 size)
 {
 	std::vector<std::pair<module_t&, unsigned>> out;
-	auto out_insert = [&out](module_t* module_ptr) {
+	auto out_insert = [&out](optional<module_t&> module_ptr) {
 		if (module_ptr) {
-			if (out.empty() || &out.back().first != module_ptr) {
+			if (out.empty() || !out.back().first.equals(*module_ptr)) {
 				out.push_back({ *module_ptr, 1U });
 			} else {
 				++out.back().second;
@@ -60,23 +60,19 @@ static auto neighbors_of(modular_t& modular, vi8 pos, vi8 size)
 	};
 	// right
 	for (let i : mark::range(size.y)) {
-		auto module_ptr = modular.module_at({ pos.x + size.x, pos.y + i });
-		out_insert(module_ptr);
+		out_insert(modular.module_at({ pos.x + size.x, pos.y + i }));
 	}
 	// bottom
 	for (let i : mark::range(size.x)) {
-		auto module_ptr = modular.module_at({ pos.x + i, pos.y + size.y });
-		out_insert(module_ptr);
+		out_insert(modular.module_at({ pos.x + i, pos.y + size.y }));
 	}
 	// left
 	for (let i : mark::range(size.y)) {
-		auto module_ptr = modular.module_at({ pos.x - 1, pos.y + i });
-		out_insert(module_ptr);
+		out_insert(modular.module_at({ pos.x - 1, pos.y + i }));
 	}
 	// top
 	for (let i : mark::range(size.x)) {
-		auto module_ptr = modular.module_at({ pos.x + i, pos.y - 1 });
-		out_insert(module_ptr);
+		out_insert(modular.module_at({ pos.x + i, pos.y - 1 }));
 	}
 	return out;
 }
@@ -343,7 +339,7 @@ auto mark::unit::modular::p_attach(vi32 pos_, module::base_ptr&& module)
 	module->m_grid_pos = module_pos;
 	module->m_parent = this;
 	for (let i : range(module->size())) {
-		this->p_at(module_pos + vi8(i)).module = module.get();
+		this->p_at(module_pos + vi8(i)).module = *module;
 	}
 	if (module->reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
@@ -400,7 +396,7 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 	let module_pos = vi8(pos_);
 	for (let i : range(vi8(module.size()))) {
 		let[module_ptr, reserved] = this->p_at(module_pos + i);
-		if ((module_ptr && module_ptr != &module)
+		if ((module_ptr && !module_ptr->equals(module))
 			|| reserved.size() - reserved.count(&module) > 0) {
 			return false;
 		}
@@ -415,7 +411,7 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 				 { module_pos.x,
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			let other = this->p_at(vi8(i)).module;
-			if (other && other != &module) {
+			if (other && !other->equals(module)) {
 				return false;
 			}
 		}
@@ -426,7 +422,7 @@ auto mark::unit::modular::p_can_attach(const module::base& module, vi32 pos_)
 				 { gsl::narrow<int>(max_size / 2),
 				   module_pos.y + gsl::narrow<int>(module.size().y) })) {
 			let other = this->p_at(vi8(i)).module;
-			if (other && other != &module) {
+			if (other && !other->equals(module)) {
 				return false;
 			}
 		}
@@ -442,7 +438,7 @@ auto mark::unit::modular::detach(vi32 user_pos) -> interface::item_ptr
 	let module_pos = vi8(module.grid_pos());
 	let module_size = vi8(module.size());
 	for (let grid_pos : range(module_pos, module_pos + module_size)) {
-		this->p_at(grid_pos).module = nullptr;
+		this->p_at(grid_pos).module.reset();
 	}
 	if (module.reserved() == module::reserved_kind::back) {
 		for (let i : range<vi32>(
@@ -697,7 +693,7 @@ auto mark::unit::modular::binding(vi32 user_pos) const -> std::vector<int8_t>
 	std::vector<int8_t> out;
 	if (let module = this->at(user_pos)) {
 		for (let& pair : m_bindings) {
-			if (module == &pair.second.get()) {
+			if (&*module == &pair.second.get()) {
 				out.push_back(pair.first);
 			}
 		}
@@ -803,13 +799,14 @@ void mark::unit::modular::serialize(YAML::Emitter& out) const
 	out << EndMap;
 }
 
-auto mark::unit::modular::at(vi32 module_pos) noexcept -> interface::item*
+auto mark::unit::modular::at(vi32 module_pos) noexcept
+	-> optional<interface::item&>
 {
 	return module_at(module_pos);
 }
 
 auto mark::unit::modular::at(vi32 module_pos) const noexcept
-	-> const interface::item*
+	-> optional<const interface::item&>
 {
 	return module_at(module_pos);
 }
@@ -838,23 +835,26 @@ static bool contains_exclusive(std::pair<vi32, vi32> area, vi32 point)
 		&& between_exclusive({ tl.y, br.y }, point.y);
 }
 
-auto mark::unit::modular::module_at(vi32 pos) noexcept -> module::base*
+template<typename T, typename U>
+optional<U&> mark::unit::modular::module_at_impl(T& self, vi32 pos)
 {
 	let hs = gsl::narrow<int8_t>(max_size / 2);
 	if (contains_exclusive({ { -hs, -hs }, { hs, hs } }, pos)) {
-		return this->p_at(vi8(pos)).module;
+		return self.p_at(vi8(pos)).module;
 	}
-	return nullptr;
+	return {};
+}
+
+auto mark::unit::modular::module_at(vi32 pos) noexcept
+	-> optional<module::base&>
+{
+	return module_at_impl(*this, pos);
 }
 
 auto mark::unit::modular::module_at(vi32 pos) const noexcept
-	-> const module::base*
+	-> optional<const module::base&>
 {
-	let hs = gsl::narrow<int8_t>(max_size / 2);
-	if (pos.x >= -hs && pos.y < hs) {
-		return this->p_at(vi8(pos)).module;
-	}
-	return nullptr;
+	return module_at_impl(*this, pos);
 }
 
 void mark::unit::modular::remove_dead(update_context& context)
@@ -876,7 +876,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 				let module_pos = vi8(module->grid_pos());
 				let module_size = vi8(module->size());
 				for (let i : range(module_size)) {
-					this->p_at(module_pos + i).module = nullptr;
+					this->p_at(module_pos + i).module.reset();
 				}
 			});
 		let first_detached_it =
@@ -888,7 +888,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			let module_pos = vi8(module->grid_pos());
 			let module_size = vi8(module->size());
 			for (let i : range(module_size)) {
-				this->p_at(module_pos + i).module = nullptr;
+				this->p_at(module_pos + i).module.reset();
 			}
 		});
 		transform(
