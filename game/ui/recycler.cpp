@@ -47,7 +47,7 @@ recycler::recycler(const info& info)
 		// Clear recycler buttons
 		while (next(this->children().begin(), 2) != this->children().end()) {
 			let child = next(this->children().begin(), 2);
-			this->remove(**child);
+			this->remove(child->get());
 		}
 		for (auto&& item : mark::recycle(rm, move(items))) {
 			// TODO: Do a dry run checking that all these items can fit in the
@@ -75,7 +75,7 @@ recycler::recycler(const info& info)
 		}
 		while (next(this->children().begin(), 2) != this->children().end()) {
 			let child = next(this->children().begin(), 2);
-			this->remove(**child);
+			this->remove(child->get());
 		}
 		return true;
 	});

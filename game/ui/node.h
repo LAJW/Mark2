@@ -5,6 +5,7 @@ namespace mark {
 namespace ui {
 struct event;
 class window;
+class node;
 
 class node_ref
 {
@@ -23,6 +24,8 @@ protected:
 		return *m_parent;
 	}
 private:
+	std::unique_ptr<node> m_next;
+	optional<node&> m_prev;
 	window* m_parent = nullptr;
 };
 

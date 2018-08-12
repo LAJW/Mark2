@@ -14,11 +14,11 @@ public:
 	};
 	window(const info& info);
 	void insert(unique_ptr<node> node);
-	void remove(node& node);
+	void remove(const node& node);
 	bool click(const event&) override;
 	bool hover(const event&) override;
 	void update(update_context&) override;
-	auto children() const -> const std::list<unique_ptr<node>>&;
+	[[nodiscard]] std::vector<ref<const node>> children() const;
 	[[nodiscard]] std::vector<ref<node>> children_mutable();
 	void insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> erase(const node& which);
@@ -26,7 +26,8 @@ public:
 	void visibility(bool) noexcept;
 
 private:
-	std::list<unique_ptr<node>> m_nodes;
+	unique_ptr<node> m_first_child;
+	optional<node&> m_last_child;
 	window* m_parent = nullptr;
 	bool m_visible = true;
 };

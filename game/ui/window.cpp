@@ -2,6 +2,9 @@
 #include <algorithm.h>
 #include <stdafx.h>
 
+namespace mark {
+namespace ui {
+
 mark::ui::window::window(const info& info)
 	: node(info)
 {
@@ -11,29 +14,32 @@ mark::ui::window::window(const info& info)
 void mark::ui::window::insert(unique_ptr<node> node)
 {
 	node->m_parent = this;
-	m_nodes.push_back(move(node));
+	if (m_first_child) {
+		node->m_prev = m_last_child;
+		auto& node_ref = *node;
+		m_last_child->m_next = move(node);
+		m_last_child = node_ref;
+	} else {
+		node->m_parent = this;
+		m_first_child = move(node);
+		m_last_child = *m_first_child;
+	}
 }
 
-void mark::ui::window::remove(node& to_remove)
-{
-	let it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
-		return node.get() == &to_remove;
-	});
-	drop(m_nodes, it)->m_parent = nullptr;
-}
+// Deprecated, combine erase and remove
+void mark::ui::window::remove(const node& to_remove) { (void)erase(to_remove); }
 
+// TODO: Implement as a non-member function
 bool mark::ui::window::click(const event& event)
 {
 	if (!m_visible) {
 		return false;
 	}
-	// Creating a copy of the node list, so that nodes can be deleted in the
-	// middle of iteration without invalidating invariants
-	std::vector<ref<ui::node>> nodes;
-	for (let& node : m_nodes) {
-		nodes.push_back(*node);
-	}
-	return any_of(nodes, [&](let& node) { return node.get().click(event); });
+	// Iterating over a copy to allow deletion in the middle
+	// Using underlying list would be faster but unsafe
+	return any_of(this->children_mutable(), [&](let& node) {
+		return node.get().click(event);
+	});
 }
 
 bool mark::ui::window::hover(const event& event)
@@ -41,13 +47,9 @@ bool mark::ui::window::hover(const event& event)
 	if (!m_visible) {
 		return false;
 	}
-	for (let& node : m_nodes) {
-		let handled = node->hover(event);
-		if (handled) {
-			return true;
-		}
-	}
-	return false;
+	return any_of(this->children_mutable(), [&](let& node) {
+		return node.get().hover(event);
+	});
 }
 
 void mark::ui::window::update(update_context& context)
@@ -56,56 +58,80 @@ void mark::ui::window::update(update_context& context)
 		return;
 	}
 	int top = 0;
-	for (let& node : m_nodes) {
-		if (node->relative()) {
-			node->pos({ 0, top });
-			node->update(context);
-			top += node->size().y;
+	for (let child : this->children_mutable()) {
+		auto& node = child.get();
+		if (node.relative()) {
+			node.pos({ 0, top });
+			node.update(context);
+			top += node.size().y;
 		} else {
-			node->update(context);
+			node.update(context);
 		}
 	}
 }
 
 void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 {
-	node->m_parent = this;
-	let before_it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
-		return node.get() == &before;
-	});
-	m_nodes.insert(before_it, move(node));
+	if (before.m_parent != this) {
+		return; // TODO: Return an error here
+	}
+	if (&before == &*m_last_child) {
+		// Calling "push_back" so that the last_child pointer is updated
+		this->insert(move(node));
+	} else {
+		node->m_parent = this;
+		// Casting is OK, because the node can be accessed using `this` pointer,
+		// so it's mutable anyway. This is just faster
+		auto& before_mutable = const_cast<ui::node&>(before);
+		node->m_next = move(before_mutable.m_next);
+		node->m_next->m_prev = *node;
+		before_mutable.m_next = move(node);
+	}
 }
 
-
-namespace mark {
-namespace ui {
-
-unique_ptr<node> window::erase(const node& which)
+unique_ptr<node> window::erase(const node& const_which)
 {
-	let node_it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
-		return node.get() == &which;
-	});
-	auto result = move(*node_it);
-	m_nodes.erase(node_it);
-	return result;
+	// Casting away const-ness, because the node is accessible from this context
+	auto& which = const_cast<node&>(const_which);
+	if (&which == &*m_last_child) {
+		m_last_child = which.m_prev;
+		which.m_prev.reset();
+		return move(m_last_child->m_next);
+	} else {
+		auto result = move(which.m_prev->m_next);
+		which.m_next->m_prev = which.m_prev;
+		which.m_prev->m_next = move(which.m_next);
+		which.m_prev.reset();
+		return result;
+	}
 }
 
-auto window::children() const -> const std::list<unique_ptr<node>>&
+auto window::children() const -> std::vector<ref<const node>>
 {
-	return m_nodes;
+	std::vector<ref<const node>> children;
+	for (auto cur = optional<ui::node&>(*m_first_child); cur.has_value();
+		 cur = *cur->m_next) {
+		children.push_back(*cur);
+	}
+	return children;
+}
+
+[[nodiscard]] std::vector<ref<node>> window::children_mutable()
+{
+	std::vector<ref<node>> children;
+	for (auto cur = optional<ui::node&>(*m_first_child); cur.has_value();
+		 cur = *cur->m_next) {
+		children.push_back(*cur);
+	}
+	return children;
 }
 
 void window::visibility(bool value) noexcept { m_visible = value; }
 
-void window::clear() noexcept { m_nodes.clear(); }
-
-[[nodiscard]] std::vector<ref<node>> window::children_mutable()
+void window::clear() noexcept
 {
-	std::vector<ref<node>> result;
-	for (auto& child : m_nodes) {
-		result.push_back(*child);
-	}
-	return result;
+	m_first_child.reset();
+	m_last_child.reset();
 }
 
 } // namespace ui
