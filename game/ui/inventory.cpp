@@ -37,8 +37,7 @@ void mark::ui::inventory::update(update_context& context)
 	for (let& it : removed) {
 		(void)this->erase(it->get());
 	}
-	for (let& pair : added) {
-		auto& [it, container] = pair;
+	for (let& [it, container] : added) {
 		auto container_window = std::make_unique<mark::ui::container>([&] {
 			mark::ui::container::info _;
 			_.rm = m_rm;
@@ -47,7 +46,11 @@ void mark::ui::inventory::update(update_context& context)
 			_.relative = true;
 			return _;
 		}());
-		this->insert(it->get(), move(container_window));
+		if (it != children.end()) {
+			this->insert(it->get(), move(container_window));
+		} else {
+			this->insert(move(container_window));
+		}
 	}
 	this->window::update(context);
 }
