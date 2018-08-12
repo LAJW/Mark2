@@ -33,9 +33,7 @@ bool mark::ui::window::click(const event& event)
 	for (let& node : m_nodes) {
 		nodes.push_back(*node);
 	}
-	return any_of(nodes, [&] (let& node) {
-		return node.get().click(event);
-	});
+	return any_of(nodes, [&](let& node) { return node.get().click(event); });
 }
 
 bool mark::ui::window::hover(const event& event)
@@ -69,38 +67,46 @@ void mark::ui::window::update(update_context& context)
 	}
 }
 
-void mark::ui::window::insert(
-	std::list<unique_ptr<node>>::const_iterator before,
-	unique_ptr<node> node)
+void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 {
 	node->m_parent = this;
-	m_nodes.insert(before, move(node));
+	let before_it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
+		return node.get() == &before;
+	});
+	m_nodes.insert(before_it, move(node));
 }
 
-void mark::ui::window::erase(
-	std::list<std::unique_ptr<mark::ui::node>>::const_iterator which)
+
+namespace mark {
+namespace ui {
+
+unique_ptr<node> window::erase(const node& which)
 {
-	m_nodes.erase(which);
+	let node_it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
+		return node.get() == &which;
+	});
+	auto result = move(*node_it);
+	m_nodes.erase(node_it);
+	return result;
 }
 
-auto mark::ui::window::children() const -> const std::list<unique_ptr<node>>&
+auto window::children() const -> const std::list<unique_ptr<node>>&
 {
 	return m_nodes;
 }
 
-void mark::ui::window::visibility(bool value) noexcept { m_visible = value; }
+void window::visibility(bool value) noexcept { m_visible = value; }
 
-void mark::ui::window::clear() noexcept { m_nodes.clear(); }
+void window::clear() noexcept { m_nodes.clear(); }
 
-namespace mark {
-
-[[nodiscard]] std::vector<ref<ui::node>> ui::window::children_mutable()
+[[nodiscard]] std::vector<ref<node>> window::children_mutable()
 {
-	std::vector<ref<ui::node>> result;
-	for (auto &child : m_nodes) {
+	std::vector<ref<node>> result;
+	for (auto& child : m_nodes) {
 		result.push_back(*child);
 	}
 	return result;
 }
 
-}
+} // namespace ui
+} // namespace mark

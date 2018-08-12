@@ -34,7 +34,7 @@ void mark::ui::inventory::update(update_context& context)
 				&& container.children().size() == item_count;
 		});
 	for (let& it : removed) {
-		this->erase(it);
+		(void)this->erase(**it);
 	}
 	for (let& pair : added) {
 		auto& [it, container] = pair;
@@ -46,7 +46,7 @@ void mark::ui::inventory::update(update_context& context)
 			_.relative = true;
 			return _;
 		}());
-		this->insert(it, move(container_window));
+		this->insert(**it, move(container_window));
 	}
 	this->window::update(context);
 }
