@@ -38,13 +38,13 @@ public:
 	};
 
 	virtual void update(update_context& ctx) = 0;
-	virtual bool click(const event&) = 0;
-	virtual bool hover(const event&) = 0;
+	[[nodiscard]] virtual bool click(const event&) = 0;
+	[[nodiscard]] virtual bool hover(const event&) = 0;
 	// get absolute pos
-	virtual auto pos() const noexcept -> vi32 { return m_pos; }
+	[[nodiscard]] virtual auto pos() const noexcept -> vi32 { return m_pos; }
 	void pos(vi32 pos) { m_pos = pos; }
-	virtual auto size() const -> vi32 { return { 0, 0 }; }
-	auto relative() const noexcept -> bool { return m_relative; }
+	[[nodiscard]] virtual auto size() const -> vi32 { return { 0, 0 }; }
+	[[nodiscard]] auto relative() const noexcept -> bool { return m_relative; }
 
 protected:
 	node(const info& info)

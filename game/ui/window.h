@@ -17,8 +17,8 @@ public:
 	window(const info& info);
 	void insert(unique_ptr<node> node);
 	void remove(const node& node);
-	bool click(const event&) override;
-	bool hover(const event&) override;
+	[[nodiscard]] bool click(const event&) override;
+	[[nodiscard]] bool hover(const event&) override;
 	void update(update_context&) override;
 	[[nodiscard]] std::vector<ref<const node>> children() const;
 	[[nodiscard]] std::vector<ref<node>> children();
