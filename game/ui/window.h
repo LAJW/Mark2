@@ -19,7 +19,7 @@ public:
 	bool hover(const event&) override;
 	void update(update_context&) override;
 	[[nodiscard]] std::vector<ref<const node>> children() const;
-	[[nodiscard]] std::vector<ref<node>> children_mutable();
+	[[nodiscard]] std::vector<ref<node>> children();
 	void insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> erase(const node& which);
 	void clear() noexcept;

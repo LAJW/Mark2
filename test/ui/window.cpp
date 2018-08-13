@@ -12,7 +12,7 @@ SCENARIO("Window")
 		ui::window window({});
 		WHEN("We call mutable children on it")
 		{
-			let result = window.children_mutable();
+			let result = window.children();
 			THEN("It should return an empty vector")
 			{
 				REQUIRE(result.empty());
@@ -27,7 +27,7 @@ SCENARIO("Window")
 		window.insert(move(child_window));
 		WHEN("We call mutable children on it")
 		{
-			let result = window.children_mutable();
+			let result = window.children();
 			THEN("It should return a vector with one element in it")
 			{
 				REQUIRE(result.size() == 1);

@@ -37,7 +37,7 @@ bool mark::ui::window::click(const event& event)
 	}
 	// Iterating over a copy to allow deletion in the middle
 	// Using underlying list would be faster but unsafe
-	return any_of(this->children_mutable(), [&](let& node) {
+	return any_of(this->children(), [&](let& node) {
 		return node.get().click(event);
 	});
 }
@@ -47,7 +47,7 @@ bool mark::ui::window::hover(const event& event)
 	if (!m_visible) {
 		return false;
 	}
-	return any_of(this->children_mutable(), [&](let& node) {
+	return any_of(this->children(), [&](let& node) {
 		return node.get().hover(event);
 	});
 }
@@ -58,7 +58,7 @@ void mark::ui::window::update(update_context& context)
 		return;
 	}
 	int top = 0;
-	for (let child : this->children_mutable()) {
+	for (let child : this->children()) {
 		auto& node = child.get();
 		if (node.relative()) {
 			node.pos({ 0, top });
@@ -116,7 +116,7 @@ auto window::children() const -> std::vector<ref<const node>>
 	return children;
 }
 
-[[nodiscard]] std::vector<ref<node>> window::children_mutable()
+[[nodiscard]] std::vector<ref<node>> window::children()
 {
 	std::vector<ref<node>> children;
 	for (auto cur = optional<ui::node&>(*m_first_child); cur.has_value();
