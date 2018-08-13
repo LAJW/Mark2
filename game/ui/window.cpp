@@ -11,7 +11,7 @@ mark::ui::window::window(const info& info)
 	pos(info.pos);
 }
 
-void mark::ui::window::insert(unique_ptr<node> node)
+void mark::ui::window::append(unique_ptr<node> node)
 {
 	node->m_parent = this;
 	if (m_first_child) {
@@ -80,7 +80,7 @@ void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 	}
 	if (&before == &*m_last_child) {
 		// Calling "push_back" so that the last_child pointer is updated
-		this->insert(move(node));
+		this->append(move(node));
 	} else {
 		node->m_parent = this;
 		// Casting is OK, because the node can be accessed using `this` pointer,

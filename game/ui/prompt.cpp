@@ -15,7 +15,7 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	menu->insert(std::make_unique<label>([&] {
+	menu->append(std::make_unique<label>([&] {
 		label::info _;
 		_.pos = { 0, -100 };
 		_.size = { 600, 300 };
@@ -37,7 +37,7 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		};
 		return _;
 	}());
-	menu->insert(move(play_button));
+	menu->append(move(play_button));
 	auto cancel_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 250, 50 };
@@ -51,6 +51,6 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		};
 		return _;
 	}());
-	menu->insert(std::move(cancel_button));
+	menu->append(std::move(cancel_button));
 	return menu;
 }

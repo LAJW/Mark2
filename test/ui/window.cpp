@@ -24,7 +24,7 @@ SCENARIO("Window")
 		ui::window window({});
 		auto child_window = std::make_unique<ui::window>(ui::window::info{});
 		let& child_window_ref = *child_window;
-		window.insert(move(child_window));
+		window.append(move(child_window));
 		WHEN("We call mutable children on it")
 		{
 			let result = window.children();

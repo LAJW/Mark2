@@ -18,7 +18,7 @@ auto mark::ui::make_options(
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	menu->insert(std::make_unique<label>([&] {
+	menu->append(std::make_unique<label>([&] {
 		label::info _;
 		_.pos = { 0, -100 };
 		_.size = { 600, 300 };
@@ -27,7 +27,7 @@ auto mark::ui::make_options(
 		_.font_size = 46;
 		return _;
 	}()));
-	menu->insert(std::make_unique<chunky_button>([&] {
+	menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -39,7 +39,7 @@ auto mark::ui::make_options(
 		};
 		return _;
 	}()));
-	menu->insert(std::make_unique<chunky_button>([&] {
+	menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -51,7 +51,7 @@ auto mark::ui::make_options(
 		};
 		return _;
 	}()));
-	menu->insert(std::make_unique<chunky_button>([&] {
+	menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -63,7 +63,7 @@ auto mark::ui::make_options(
 		};
 		return _;
 	}()));
-	menu->insert(std::make_unique<chunky_button>([&] {
+	menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");

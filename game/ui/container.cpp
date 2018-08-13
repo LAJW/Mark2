@@ -143,7 +143,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		// this->remove(button);
 		return true;
 	});
-	this->insert(move(button_ptr));
+	this->append(move(button_ptr));
 }
 
 auto mark::ui::container::pos() const noexcept -> vi32

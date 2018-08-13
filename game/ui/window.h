@@ -15,7 +15,7 @@ public:
 		vi32 pos;
 	};
 	window(const info& info);
-	void insert(unique_ptr<node> node);
+	void append(unique_ptr<node> node);
 	[[nodiscard]] bool click(const event&) override;
 	[[nodiscard]] bool hover(const event&) override;
 	void update(update_context&) override;

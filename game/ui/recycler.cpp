@@ -58,7 +58,7 @@ recycler::recycler(const info& info)
 		}
 		return true;
 	});
-	this->insert(move(recycle_button));
+	this->append(move(recycle_button));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.font = rm.image("font.png");
@@ -81,7 +81,7 @@ recycler::recycler(const info& info)
 		}
 		return true;
 	});
-	this->insert(move(cancel_recycle_button));
+	this->append(move(cancel_recycle_button));
 }
 
 void recycler::update(update_context& context)
@@ -165,7 +165,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
 		return true;
 	});
-	this->insert(move(button));
+	this->append(move(button));
 	slot = { container, pos };
 }
 
