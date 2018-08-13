@@ -45,8 +45,9 @@ recycler::recycler(const info& info)
 			slot = {};
 		}
 		// Clear recycler buttons
-		while (next(this->children().begin(), 2) != this->children().end()) {
-			let child = next(this->children().begin(), 2);
+		let children = this->children();
+		while (next(children.begin(), 2) != children.end()) {
+			let child = next(children.begin(), 2);
 			this->remove(child->get());
 		}
 		for (auto&& item : mark::recycle(rm, move(items))) {
@@ -73,8 +74,9 @@ recycler::recycler(const info& info)
 			auto& slot = m_queue[pos];
 			slot = {};
 		}
-		while (next(this->children().begin(), 2) != this->children().end()) {
-			let child = next(this->children().begin(), 2);
+		let children = this->children();
+		while (next(children.begin(), 2) != children.end()) {
+			let child = next(children.begin(), 2);
 			this->remove(child->get());
 		}
 		return true;
