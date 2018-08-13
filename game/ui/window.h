@@ -2,6 +2,7 @@
 #include "node.h"
 #include <stdafx.h>
 #include <add_const_if.h>
+#include <property.h>
 
 namespace mark {
 namespace ui {
@@ -24,7 +25,7 @@ public:
 	void insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> erase(const node& which);
 	void clear() noexcept;
-	void visibility(bool) noexcept;
+	Property<bool> visibility = true;
 
 private:
 	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
@@ -32,7 +33,6 @@ private:
 	unique_ptr<node> m_first_child;
 	optional<node&> m_last_child;
 	window* m_parent = nullptr;
-	bool m_visible = true;
 };
 } // namespace ui
 } // namespace mark

@@ -29,36 +29,37 @@ void mark::ui::window::insert(unique_ptr<node> node)
 // Deprecated, combine erase and remove
 void mark::ui::window::remove(const node& to_remove) { (void)erase(to_remove); }
 
-// TODO: Implement as a non-member function
-bool mark::ui::window::click(const event& event)
+[[nodiscard]] static bool
+propagate(window& window, std::function<bool(node&)> propagator)
 {
-	if (!m_visible) {
+	if (!window.visibility()) {
 		return false;
 	}
 	// Iterating over a copy to allow deletion in the middle
 	// Using underlying list would be faster but unsafe
-	return any_of(this->children(), [&](let& node) {
-		return node.get().click(event);
+	return any_of(window.children(), [&](let& node) {
+		return propagator(node.get());
 	});
+}
+
+// TODO: Implement as a non-member function
+bool mark::ui::window::click(const event& event)
+{
+	return propagate(*this, [&](auto& node) { return node.click(event); });
 }
 
 bool mark::ui::window::hover(const event& event)
 {
-	if (!m_visible) {
-		return false;
-	}
-	return any_of(this->children(), [&](let& node) {
-		return node.get().hover(event);
-	});
+	return propagate(*this, [&](auto& node) { return node.hover(event); });
 }
 
-void mark::ui::window::update(update_context& context)
+static void update(window& window, update_context& context)
 {
-	if (!m_visible) {
+	if (!window.visibility()) {
 		return;
 	}
 	int top = 0;
-	for (let child : this->children()) {
+	for (let child : window.children()) {
 		auto& node = child.get();
 		if (node.relative()) {
 			node.pos({ 0, top });
@@ -68,6 +69,11 @@ void mark::ui::window::update(update_context& context)
 			node.update(context);
 		}
 	}
+}
+
+void mark::ui::window::update(update_context& context)
+{
+	ui::update(*this, context);
 }
 
 void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
@@ -126,8 +132,6 @@ auto window::children() const -> std::vector<ref<const node>>
 {
 	return children_impl(*this);
 }
-
-void window::visibility(bool value) noexcept { m_visible = value; }
 
 void window::clear() noexcept
 {
