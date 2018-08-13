@@ -24,6 +24,11 @@ public:
 	void insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> remove(const node& which);
 	void clear() noexcept;
+	[[nodiscard]] optional<node&> front() noexcept;
+	[[nodiscard]] optional<const node&> front() const noexcept;
+	[[nodiscard]] optional<node&> back() noexcept;
+	[[nodiscard]] optional<const node&> back() const noexcept;
+
 	Property<bool> visibility = true;
 
 private:

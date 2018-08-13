@@ -1,6 +1,7 @@
 ﻿#include "window.h"
 #include <algorithm.h>
 #include <stdafx.h>
+#include <iostream>
 
 namespace mark {
 namespace ui {
@@ -13,6 +14,7 @@ mark::ui::window::window(const info& info)
 
 void mark::ui::window::append(unique_ptr<node> node)
 {
+	Expects(node);
 	node->m_parent = this;
 	if (m_first_child) {
 		node->m_prev = m_last_child;
@@ -34,9 +36,8 @@ propagate(window& window, std::function<bool(node&)> propagator)
 	}
 	// Iterating over a copy to allow deletion in the middle
 	// Using underlying list would be faster but unsafe
-	return any_of(window.children(), [&](let& node) {
-		return propagator(node.get());
-	});
+	return any_of(
+		window.children(), [&](let& node) { return propagator(node.get()); });
 }
 
 // TODO: Implement as a non-member function
@@ -75,28 +76,41 @@ void mark::ui::window::update(update_context& context)
 
 void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 {
+	Expects(node);
 	if (before.m_parent != this) {
 		return; // TODO: Return an error here
 	}
-	if (&before == &*m_last_child) {
-		// Calling "push_back" so that the last_child pointer is updated
-		this->append(move(node));
+	if (&before == m_first_child.get()) {
+		m_first_child->m_prev = *node;
+		node->m_next = move(m_first_child);
+		m_first_child = move(node);
 	} else {
 		node->m_parent = this;
 		// Casting is OK, because the node can be accessed using `this` pointer,
 		// so it's mutable anyway. This is just faster
 		auto& before_mutable = const_cast<ui::node&>(before);
-		node->m_next = move(before_mutable.m_next);
-		node->m_next->m_prev = *node;
-		before_mutable.m_next = move(node);
+		node->m_next = move(before_mutable.m_prev->m_next);
+		node->m_prev = before_mutable.m_prev;
+		auto& node_ref = *node;
+		before_mutable.m_prev->m_next = move(node);
+		before_mutable.m_prev = node_ref;
 	}
 }
 
 unique_ptr<node> window::remove(const node& const_which)
 {
-	// Casting away const-ness, because the node is accessible from this context
+	// Casting away const-ness for speed, because mutable reference is
+	// accessible from this context
 	auto& which = const_cast<node&>(const_which);
-	if (&which == &*m_last_child) {
+	if (which.m_parent != this) {
+		return nullptr;
+	}
+	if (&which == m_first_child.get()) {
+		auto result = move(m_first_child);
+		m_first_child = move(result->m_next);
+		result->m_prev.reset();
+		return result;
+	} else if (&which == &*m_last_child) {
 		m_last_child = which.m_prev;
 		which.m_prev.reset();
 		return move(m_last_child->m_next);
@@ -113,8 +127,7 @@ template <typename T, typename U>
 std::vector<ref<U>> window::children_impl(T& self)
 {
 	std::vector<ref<U>> children;
-	for (auto cur = optional<U&>(*self.m_first_child); cur.has_value();
-		 cur = *cur->m_next) {
+	for (auto cur = self.front(); cur; cur = *cur->m_next) {
 		children.push_back(*cur);
 	}
 	return children;
@@ -135,6 +148,14 @@ void window::clear() noexcept
 	m_first_child.reset();
 	m_last_child.reset();
 }
+
+optional<node&> window::front() noexcept { return *m_first_child; }
+
+optional<const node&> window::front() const noexcept { return *m_first_child; }
+
+optional<node&> window::back() noexcept { return m_last_child; }
+
+optional<const node&> window::back() const noexcept { return m_last_child; }
 
 } // namespace ui
 } // namespace mark
