@@ -48,7 +48,7 @@ recycler::recycler(const info& info)
 		let children = this->children();
 		while (next(children.begin(), 2) != children.end()) {
 			let child = next(children.begin(), 2);
-			this->remove(child->get());
+			(void)this->remove(child->get());
 		}
 		for (auto&& item : mark::recycle(rm, move(items))) {
 			// TODO: Do a dry run checking that all these items can fit in the
@@ -77,7 +77,7 @@ recycler::recycler(const info& info)
 		let children = this->children();
 		while (next(children.begin(), 2) != children.end()) {
 			let child = next(children.begin(), 2);
-			this->remove(child->get());
+			(void)this->remove(child->get());
 		}
 		return true;
 	});
@@ -157,7 +157,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		slot = {};
 		// Don't do anything after this as call to this function
 		// destroys all contents of the lambda we're in
-		this->remove(button_ref);
+		(void)this->remove(button_ref);
 		return false;
 	});
 	button->on_hover.insert([&](const event&) {

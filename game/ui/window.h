@@ -16,14 +16,13 @@ public:
 	};
 	window(const info& info);
 	void insert(unique_ptr<node> node);
-	void remove(const node& node);
 	[[nodiscard]] bool click(const event&) override;
 	[[nodiscard]] bool hover(const event&) override;
 	void update(update_context&) override;
 	[[nodiscard]] std::vector<ref<const node>> children() const;
 	[[nodiscard]] std::vector<ref<node>> children();
 	void insert(const node& before, unique_ptr<node>&& node);
-	[[nodiscard]] unique_ptr<node> erase(const node& which);
+	[[nodiscard]] unique_ptr<node> remove(const node& which);
 	void clear() noexcept;
 	Property<bool> visibility = true;
 

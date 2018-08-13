@@ -26,9 +26,6 @@ void mark::ui::window::insert(unique_ptr<node> node)
 	}
 }
 
-// Deprecated, combine erase and remove
-void mark::ui::window::remove(const node& to_remove) { (void)erase(to_remove); }
-
 [[nodiscard]] static bool
 propagate(window& window, std::function<bool(node&)> propagator)
 {
@@ -95,7 +92,7 @@ void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 	}
 }
 
-unique_ptr<node> window::erase(const node& const_which)
+unique_ptr<node> window::remove(const node& const_which)
 {
 	// Casting away const-ness, because the node is accessible from this context
 	auto& which = const_cast<node&>(const_which);

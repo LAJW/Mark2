@@ -35,7 +35,7 @@ void mark::ui::inventory::update(update_context& context)
 				&& container.children().size() == item_count;
 		});
 	for (let& it : removed) {
-		(void)this->erase(it->get());
+		(void)this->remove(it->get());
 	}
 	for (let& [it, container] : added) {
 		auto container_window = std::make_unique<mark::ui::container>([&] {
