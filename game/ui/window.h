@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "node.h"
 #include <stdafx.h>
+#include <add_const_if.h>
 
 namespace mark {
 namespace ui {
@@ -26,6 +27,8 @@ public:
 	void visibility(bool) noexcept;
 
 private:
+	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
+	[[nodiscard]] static std::vector<ref<U>> children_impl(T& self);
 	unique_ptr<node> m_first_child;
 	optional<node&> m_last_child;
 	window* m_parent = nullptr;

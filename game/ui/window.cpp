@@ -106,24 +106,25 @@ unique_ptr<node> window::erase(const node& const_which)
 	}
 }
 
-auto window::children() const -> std::vector<ref<const node>>
+template <typename T, typename U>
+std::vector<ref<U>> window::children_impl(T& self)
 {
-	std::vector<ref<const node>> children;
-	for (auto cur = optional<ui::node&>(*m_first_child); cur.has_value();
+	std::vector<ref<U>> children;
+	for (auto cur = optional<U&>(*self.m_first_child); cur.has_value();
 		 cur = *cur->m_next) {
 		children.push_back(*cur);
 	}
 	return children;
 }
 
+auto window::children() const -> std::vector<ref<const node>>
+{
+	return children_impl(*this);
+}
+
 [[nodiscard]] std::vector<ref<node>> window::children()
 {
-	std::vector<ref<node>> children;
-	for (auto cur = optional<ui::node&>(*m_first_child); cur.has_value();
-		 cur = *cur->m_next) {
-		children.push_back(*cur);
-	}
-	return children;
+	return children_impl(*this);
 }
 
 void window::visibility(bool value) noexcept { m_visible = value; }
