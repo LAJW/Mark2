@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <add_const_if.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -9,16 +10,35 @@ class node;
 
 class node_ref
 {
+private:
+	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> next_impl(T& self)
+	{
+		if (self.m_next) {
+			return *self.m_next;
+		}
+		return {};
+	}
+
+public:
+	[[nodiscard]] optional<node&> next() { return next_impl(*this); }
+	[[nodiscard]] optional<const node&> next() const
+	{
+		return next_impl(*this);
+	}
+	[[nodiscard]] optional<node&> prev() { return m_prev; }
+	[[nodiscard]] optional<const node&> prev() const { return m_prev; };
+
 protected:
 	friend window;
 	node_ref() = default;
 	~node_ref() = default;
-	const window& parent() const
+	[[nodiscard]] const window& parent() const
 	{
 		Expects(m_parent);
 		return *m_parent;
 	}
-	window& parent()
+	[[nodiscard]] window& parent()
 	{
 		Expects(m_parent);
 		return *m_parent;
