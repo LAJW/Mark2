@@ -10,6 +10,7 @@ SCENARIO("Window")
 	GIVEN("An empty window")
 	{
 		ui::window window({});
+		let& const_window = window;
 		WHEN("We call mutable children on it")
 		{
 			let result = window.children();
@@ -32,6 +33,22 @@ SCENARIO("Window")
 			THEN("It should return an empty optional")
 			{
 				REQUIRE(!result.has_value());
+			}
+		}
+		WHEN("We call next() on it")
+		{
+			THEN("It should return an empty optional")
+			{
+				REQUIRE(!window.next().has_value());
+				REQUIRE(!const_window.next().has_value());
+			}
+		}
+		WHEN("We call prev() on it")
+		{
+			THEN("It should return an empty optional")
+			{
+				REQUIRE(!window.next().has_value());
+				REQUIRE(!const_window.next().has_value());
 			}
 		}
 	}
@@ -131,6 +148,13 @@ SCENARIO("Window")
 			{
 				REQUIRE(&*window.back() == &second_child_ref);
 			}
+			THEN("We check next/prev siblings")
+			{
+				REQUIRE(&*window.front()->next() == &*window.back());
+				REQUIRE(!window.front()->prev().has_value());
+				REQUIRE(&*window.back()->prev() == &*window.front());
+				REQUIRE(!window.back()->next().has_value());
+			}
 		}
 		WHEN("We insert another window before the original child")
 		{
@@ -158,6 +182,13 @@ SCENARIO("Window")
 			THEN("back() should return a reference to the original child")
 			{
 				REQUIRE(&*window.back() == &child_window_ref);
+			}
+			THEN("We check next/prev siblings")
+			{
+				REQUIRE(&*window.front()->next() == &*window.back());
+				REQUIRE(!window.front()->prev().has_value());
+				REQUIRE(&*window.back()->prev() == &*window.front());
+				REQUIRE(!window.back()->next().has_value());
 			}
 		}
 	}
@@ -214,6 +245,15 @@ SCENARIO("Window")
 			{
 				REQUIRE(&*window.back() == &children.back().get());
 			}
+			THEN("We check next/prev siblings")
+			{
+				REQUIRE(&*window.children()[0].get().next() == &window.children()[1].get());
+				REQUIRE(!window.children()[0].get().prev().has_value());
+				REQUIRE(&*window.children()[1].get().prev() == &window.children()[0].get());
+				REQUIRE(&*window.children()[1].get().next() == &window.children()[2].get());
+				REQUIRE(!window.children()[2].get().next().has_value());
+				REQUIRE(&*window.children()[2].get().prev() == &window.children()[1].get());
+			}
 		}
 	}
 	GIVEN("A window with three other windows within it")
@@ -223,6 +263,19 @@ SCENARIO("Window")
 		window.append(std::make_unique<ui::window>(ui::window::info{}));
 		window.append(std::make_unique<ui::window>(ui::window::info{}));
 		let children = window.children();
+		WHEN("We don't do anything") {
+			THEN("We check next/prev siblings")
+			{
+				REQUIRE(window.children().size() == 3);
+				REQUIRE(&*window.children()[0].get().next() == &window.children()[1].get());
+				REQUIRE(!window.children()[0].get().prev().has_value());
+				REQUIRE(&*window.children()[1].get().prev() == &window.children()[0].get());
+				REQUIRE(window.children()[1].get().next().has_value());
+				REQUIRE(&*window.children()[1].get().next() == &window.children()[2].get());
+				REQUIRE(!window.children()[2].get().next().has_value());
+				REQUIRE(&*window.children()[2].get().prev() == &window.children()[1].get());
+			}
+		}
 		WHEN("We remove the middle child") {
 			let& middle_child = window.children()[1].get();
 			let result = window.remove(middle_child);
