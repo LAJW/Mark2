@@ -47,9 +47,9 @@ void mark::ui::inventory::update(update_context& context)
 			return _;
 		}());
 		if (it == children.end()) {
-			this->append(move(container_window));
+			Expects(success(this->append(move(container_window))));
 		} else {
-			this->insert(it->get(), move(container_window));
+			Expects(success(this->insert(it->get(), move(container_window))));
 		}
 	}
 	this->window::update(context);

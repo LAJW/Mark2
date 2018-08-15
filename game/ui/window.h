@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "node.h"
-#include <stdafx.h>
 #include <add_const_if.h>
 #include <property.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace ui {
@@ -15,13 +15,14 @@ public:
 		vi32 pos;
 	};
 	window(const info& info);
-	void append(unique_ptr<node> node);
+	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept; 
 	[[nodiscard]] bool click(const event&) override;
 	[[nodiscard]] bool hover(const event&) override;
 	void update(update_context&) override;
 	[[nodiscard]] std::vector<ref<const node>> children() const;
 	[[nodiscard]] std::vector<ref<node>> children();
-	void insert(const node& before, unique_ptr<node>&& node);
+	[[nodiscard]] std::error_code
+	insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> remove(const node& which);
 	void clear() noexcept;
 	[[nodiscard]] optional<node&> front() noexcept;

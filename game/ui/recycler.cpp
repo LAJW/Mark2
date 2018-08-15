@@ -54,11 +54,11 @@ recycler::recycler(const info& info)
 			// TODO: Do a dry run checking that all these items can fit in the
 			// modular's cargo area
 			let error_code = push(m_modular, move(item));
-			Expects(success(error_code) || error_code == error::code::stacked);
+			Ensures(success(error_code) || error_code == error::code::stacked);
 		}
 		return true;
 	});
-	this->append(move(recycle_button));
+	Ensures(success(this->append(move(recycle_button))));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.font = rm.image("font.png");
@@ -81,7 +81,7 @@ recycler::recycler(const info& info)
 		}
 		return true;
 	});
-	this->append(move(cancel_recycle_button));
+	Ensures(success(this->append(move(cancel_recycle_button))));
 }
 
 void recycler::update(update_context& context)
@@ -165,7 +165,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
 		return true;
 	});
-	this->append(move(button));
+	Ensures(success(this->append(move(button))));
 	slot = { container, pos };
 }
 

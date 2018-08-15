@@ -6,6 +6,7 @@
 #include <ui/chunky_button.h>
 #include <ui/label.h>
 #include <ui/window.h>
+#include <exception.h>
 
 auto mark::ui::make_main_menu(
 	mark::resource::manager& rm,
@@ -18,7 +19,7 @@ auto mark::ui::make_main_menu(
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	menu->append(std::make_unique<label>([&] {
+	Ensures(success(menu->append(std::make_unique<label>([&] {
 		label::info _;
 		_.pos = { 0, -100 };
 		_.size = { 600, 300 };
@@ -26,8 +27,8 @@ auto mark::ui::make_main_menu(
 		_.text = "Main Menu";
 		_.font_size = 46;
 		return _;
-	}()));
-	menu->append(std::make_unique<chunky_button>([&] {
+	}()))));
+	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -39,8 +40,8 @@ auto mark::ui::make_main_menu(
 			return true;
 		};
 		return _;
-	}()));
-	menu->append(std::make_unique<chunky_button>([&] {
+	}()))));
+	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -52,8 +53,8 @@ auto mark::ui::make_main_menu(
 			return true;
 		};
 		return _;
-	}()));
-	menu->append(std::make_unique<chunky_button>([&] {
+	}()))));
+	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -65,6 +66,6 @@ auto mark::ui::make_main_menu(
 			return true;
 		};
 		return _;
-	}()));
+	}()))));
 	return menu;
 }

@@ -1,7 +1,7 @@
 ﻿#include "window.h"
 #include <algorithm.h>
 #include <stdafx.h>
-#include <iostream>
+#include <exception.h>
 
 namespace mark {
 namespace ui {
@@ -12,9 +12,12 @@ mark::ui::window::window(const info& info)
 	pos(info.pos);
 }
 
-void mark::ui::window::append(unique_ptr<node> node)
+std::error_code mark::ui::window::append(std::unique_ptr<node>&& node) noexcept
 {
 	Expects(node);
+	if (node.get() == this) {
+		return error::code::ui_cycle;
+	}
 	node->m_parent = this;
 	if (m_first_child) {
 		node->m_prev = m_last_child;
@@ -26,6 +29,7 @@ void mark::ui::window::append(unique_ptr<node> node)
 		m_first_child = move(node);
 		m_last_child = *m_first_child;
 	}
+	return error::code::success;
 }
 
 [[nodiscard]] static bool
@@ -40,7 +44,6 @@ propagate(window& window, std::function<bool(node&)> propagator)
 		window.children(), [&](let& node) { return propagator(node.get()); });
 }
 
-// TODO: Implement as a non-member function
 bool mark::ui::window::click(const event& event)
 {
 	return propagate(*this, [&](auto& node) { return node.click(event); });
@@ -74,11 +77,14 @@ void mark::ui::window::update(update_context& context)
 	ui::update(*this, context);
 }
 
-void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
+std::error_code mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 {
 	Expects(node);
 	if (before.m_parent != this) {
-		return; // TODO: Return an error here
+		return error::code::ui_bad_before;
+	}
+	if (node.get() == this) {
+		return error::code::ui_cycle;
 	}
 	if (&before == m_first_child.get()) {
 		m_first_child->m_prev = *node;
@@ -95,6 +101,7 @@ void mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 		before_mutable.m_prev->m_next = move(node);
 		before_mutable.m_prev = node_ref;
 	}
+	return error::code::success;
 }
 
 unique_ptr<node> window::remove(const node& const_which)
