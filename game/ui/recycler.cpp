@@ -45,19 +45,20 @@ recycler::recycler(const info& info)
 			slot = {};
 		}
 		// Clear recycler buttons
-		while (next(this->children().begin(), 2) != this->children().end()) {
-			let child = next(this->children().begin(), 2);
-			this->remove(**child);
+		let children = this->children();
+		while (std::next(children.begin(), 2) != children.end()) {
+			let child = std::next(children.begin(), 2);
+			(void)this->remove(child->get());
 		}
 		for (auto&& item : mark::recycle(rm, move(items))) {
 			// TODO: Do a dry run checking that all these items can fit in the
 			// modular's cargo area
 			let error_code = push(m_modular, move(item));
-			Expects(success(error_code) || error_code == error::code::stacked);
+			Ensures(success(error_code) || error_code == error::code::stacked);
 		}
 		return true;
 	});
-	this->insert(move(recycle_button));
+	Ensures(success(this->append(move(recycle_button))));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.font = rm.image("font.png");
@@ -73,13 +74,14 @@ recycler::recycler(const info& info)
 			auto& slot = m_queue[pos];
 			slot = {};
 		}
-		while (next(this->children().begin(), 2) != this->children().end()) {
-			let child = next(this->children().begin(), 2);
-			this->remove(**child);
+		let children = this->children();
+		while (std::next(children.begin(), 2) != children.end()) {
+			let child = std::next(children.begin(), 2);
+			(void)this->remove(child->get());
 		}
 		return true;
 	});
-	this->insert(move(cancel_recycle_button));
+	Ensures(success(this->append(move(cancel_recycle_button))));
 }
 
 void recycler::update(update_context& context)
@@ -155,7 +157,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		slot = {};
 		// Don't do anything after this as call to this function
 		// destroys all contents of the lambda we're in
-		this->remove(button_ref);
+		(void)this->remove(button_ref);
 		return false;
 	});
 	button->on_hover.insert([&](const event&) {
@@ -163,7 +165,7 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
 		return true;
 	});
-	this->insert(move(button));
+	Ensures(success(this->append(move(button))));
 	slot = { container, pos };
 }
 

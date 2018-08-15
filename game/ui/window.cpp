@@ -1,6 +1,10 @@
 ﻿#include "window.h"
 #include <algorithm.h>
 #include <stdafx.h>
+#include <exception.h>
+
+namespace mark {
+namespace ui {
 
 mark::ui::window::window(const info& info)
 	: node(info)
@@ -8,86 +12,157 @@ mark::ui::window::window(const info& info)
 	pos(info.pos);
 }
 
-void mark::ui::window::insert(unique_ptr<node> node)
+std::error_code mark::ui::window::append(std::unique_ptr<node>&& node) noexcept
 {
+	Expects(node);
+	if (node.get() == this) {
+		return error::code::ui_cycle;
+	}
 	node->m_parent = this;
-	m_nodes.push_back(move(node));
+	if (m_first_child) {
+		node->m_prev = m_last_child;
+		auto& node_ref = *node;
+		m_last_child->m_next = move(node);
+		m_last_child = node_ref;
+	} else {
+		node->m_parent = this;
+		m_first_child = move(node);
+		m_last_child = *m_first_child;
+	}
+	return error::code::success;
 }
 
-void mark::ui::window::remove(node& to_remove)
+[[nodiscard]] static bool
+propagate(window& window, std::function<bool(node&)> propagator)
 {
-	let it = find_if(m_nodes.begin(), m_nodes.end(), [&](let& node) {
-		return node.get() == &to_remove;
-	});
-	drop(m_nodes, it)->m_parent = nullptr;
+	if (!window.visibility()) {
+		return false;
+	}
+	// Iterating over a copy to allow deletion in the middle
+	// Using underlying list would be faster but unsafe
+	return any_of(
+		window.children(), [&](let& node) { return propagator(node.get()); });
 }
 
 bool mark::ui::window::click(const event& event)
 {
-	if (!m_visible) {
-		return false;
-	}
-	// Creating a copy of the node list, so that nodes can be deleted in the
-	// middle of iteration without invalidating invariants
-	std::vector<ref<ui::node>> nodes;
-	for (let& node : m_nodes) {
-		nodes.push_back(*node);
-	}
-	return any_of(nodes, [&] (let& node) {
-		return node.get().click(event);
-	});
+	return propagate(*this, [&](auto& node) { return node.click(event); });
 }
 
 bool mark::ui::window::hover(const event& event)
 {
-	if (!m_visible) {
-		return false;
+	return propagate(*this, [&](auto& node) { return node.hover(event); });
+}
+
+static void update(window& window, update_context& context)
+{
+	if (!window.visibility()) {
+		return;
 	}
-	for (let& node : m_nodes) {
-		let handled = node->hover(event);
-		if (handled) {
-			return true;
+	int top = 0;
+	for (let child : window.children()) {
+		auto& node = child.get();
+		if (node.relative()) {
+			node.pos({ 0, top });
+			node.update(context);
+			top += node.size().y;
+		} else {
+			node.update(context);
 		}
 	}
-	return false;
 }
 
 void mark::ui::window::update(update_context& context)
 {
-	if (!m_visible) {
-		return;
+	ui::update(*this, context);
+}
+
+std::error_code mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
+{
+	Expects(node);
+	if (before.m_parent != this) {
+		return error::code::ui_bad_before;
 	}
-	int top = 0;
-	for (let& node : m_nodes) {
-		if (node->relative()) {
-			node->pos({ 0, top });
-			node->update(context);
-			top += node->size().y;
-		} else {
-			node->update(context);
-		}
+	if (node.get() == this) {
+		return error::code::ui_cycle;
+	}
+	if (&before == m_first_child.get()) {
+		m_first_child->m_prev = *node;
+		node->m_next = move(m_first_child);
+		m_first_child = move(node);
+	} else {
+		node->m_parent = this;
+		// Casting is OK, because the node can be accessed using `this` pointer,
+		// so it's mutable anyway. This is just faster
+		auto& before_mutable = const_cast<ui::node&>(before);
+		node->m_next = move(before_mutable.m_prev->m_next);
+		node->m_prev = before_mutable.m_prev;
+		auto& node_ref = *node;
+		before_mutable.m_prev->m_next = move(node);
+		before_mutable.m_prev = node_ref;
+	}
+	return error::code::success;
+}
+
+unique_ptr<node> window::remove(const node& const_which)
+{
+	// Casting away const-ness for speed, because mutable reference is
+	// accessible from this context
+	auto& which = const_cast<node&>(const_which);
+	if (which.m_parent != this) {
+		return nullptr;
+	}
+	if (&which == m_first_child.get()) {
+		auto result = move(m_first_child);
+		m_first_child = move(result->m_next);
+		result->m_prev.reset();
+		return result;
+	} else if (&which == &*m_last_child) {
+		m_last_child = which.m_prev;
+		which.m_prev.reset();
+		return move(m_last_child->m_next);
+	} else {
+		auto result = move(which.m_prev->m_next);
+		which.m_next->m_prev = which.m_prev;
+		which.m_prev->m_next = move(which.m_next);
+		which.m_prev.reset();
+		return result;
 	}
 }
 
-void mark::ui::window::insert(
-	std::list<unique_ptr<node>>::const_iterator before,
-	unique_ptr<node> node)
+template <typename T, typename U>
+std::vector<ref<U>> window::children_impl(T& self)
 {
-	node->m_parent = this;
-	m_nodes.insert(before, move(node));
+	std::vector<ref<U>> children;
+	for (auto cur = self.front(); cur; cur = *cur->m_next) {
+		children.push_back(*cur);
+	}
+	return children;
 }
 
-void mark::ui::window::erase(
-	std::list<std::unique_ptr<mark::ui::node>>::const_iterator which)
+auto window::children() const -> std::vector<ref<const node>>
 {
-	m_nodes.erase(which);
+	return children_impl(*this);
 }
 
-auto mark::ui::window::children() const -> const std::list<unique_ptr<node>>&
+[[nodiscard]] std::vector<ref<node>> window::children()
 {
-	return m_nodes;
+	return children_impl(*this);
 }
 
-void mark::ui::window::visibility(bool value) noexcept { m_visible = value; }
+void window::clear() noexcept
+{
+	m_first_child.reset();
+	m_last_child.reset();
+}
 
-void mark::ui::window::clear() noexcept { m_nodes.clear(); }
+optional<node&> window::front() noexcept { return *m_first_child; }
+
+optional<const node&> window::front() const noexcept { return *m_first_child; }
+
+optional<node&> window::back() noexcept { return m_last_child; }
+
+optional<const node&> window::back() const noexcept { return m_last_child; }
+
+} // namespace ui
+} // namespace mark

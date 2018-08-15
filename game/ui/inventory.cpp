@@ -24,9 +24,10 @@ void mark::ui::inventory::update(update_context& context)
 		return;
 	}
 	let containers = modular->containers();
+	let children = this->children();
 	let[removed, added] =
-		diff(this->children(), containers, [](let& a, let& b) {
-			let& container = dynamic_cast<const mark::ui::container&>(*a.get());
+		diff(children, containers, [](let& a, let& b) {
+			let& container = dynamic_cast<const mark::ui::container&>(a.get());
 			let item_count = count_if(b.get().items(), [](let& item) {
 				return item.get() != nullptr;
 			});
@@ -34,10 +35,9 @@ void mark::ui::inventory::update(update_context& context)
 				&& container.children().size() == item_count;
 		});
 	for (let& it : removed) {
-		this->erase(it);
+		(void)this->remove(it->get());
 	}
-	for (let& pair : added) {
-		auto& [it, container] = pair;
+	for (let& [it, container] : added) {
 		auto container_window = std::make_unique<mark::ui::container>([&] {
 			mark::ui::container::info _;
 			_.rm = m_rm;
@@ -46,7 +46,11 @@ void mark::ui::inventory::update(update_context& context)
 			_.relative = true;
 			return _;
 		}());
-		this->insert(it, move(container_window));
+		if (it == children.end()) {
+			Expects(success(this->append(move(container_window))));
+		} else {
+			Expects(success(this->insert(it->get(), move(container_window))));
+		}
 	}
 	this->window::update(context);
 }

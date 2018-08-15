@@ -21,8 +21,7 @@ public:
 	recycler(const info&);
 	void update(update_context&) override;
 	void recycle(interface::container& container, vi32 pos) noexcept;
-	[[nodiscard]] auto has(const mark::interface::item& item) const noexcept
-		-> bool;
+	[[nodiscard]] bool has(const mark::interface::item& item) const noexcept;
 
 private:
 	ui& m_ui;

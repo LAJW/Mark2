@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "node.h"
+#include <add_const_if.h>
+#include <property.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -13,23 +15,29 @@ public:
 		vi32 pos;
 	};
 	window(const info& info);
-	void insert(unique_ptr<node> node);
-	void remove(node& node);
-	bool click(const event&) override;
-	bool hover(const event&) override;
+	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept; 
+	[[nodiscard]] bool click(const event&) override;
+	[[nodiscard]] bool hover(const event&) override;
 	void update(update_context&) override;
-	auto children() const -> const std::list<unique_ptr<node>>&;
-	void insert(
-		std::list<std::unique_ptr<node>>::const_iterator before,
-		unique_ptr<node> node);
-	void erase(std::list<std::unique_ptr<node>>::const_iterator which);
+	[[nodiscard]] std::vector<ref<const node>> children() const;
+	[[nodiscard]] std::vector<ref<node>> children();
+	[[nodiscard]] std::error_code
+	insert(const node& before, unique_ptr<node>&& node);
+	[[nodiscard]] unique_ptr<node> remove(const node& which);
 	void clear() noexcept;
-	void visibility(bool) noexcept;
+	[[nodiscard]] optional<node&> front() noexcept;
+	[[nodiscard]] optional<const node&> front() const noexcept;
+	[[nodiscard]] optional<node&> back() noexcept;
+	[[nodiscard]] optional<const node&> back() const noexcept;
+
+	Property<bool> visibility = true;
 
 private:
-	std::list<unique_ptr<node>> m_nodes;
+	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
+	[[nodiscard]] static std::vector<ref<U>> children_impl(T& self);
+	unique_ptr<node> m_first_child;
+	optional<node&> m_last_child;
 	window* m_parent = nullptr;
-	bool m_visible = true;
 };
 } // namespace ui
 } // namespace mark

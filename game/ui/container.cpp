@@ -8,6 +8,7 @@
 #include <ui/item_button.h>
 #include <ui/ui.h>
 #include <update_context.h>
+#include <exception.h>
 
 let constexpr label_height = 32;
 
@@ -143,7 +144,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		// this->remove(button);
 		return true;
 	});
-	this->insert(move(button_ptr));
+	Expects(success(this->append(move(button_ptr))));
 }
 
 auto mark::ui::container::pos() const noexcept -> vi32

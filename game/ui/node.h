@@ -1,28 +1,51 @@
 ﻿#pragma once
+#include <add_const_if.h>
 #include <stdafx.h>
 
 namespace mark {
 namespace ui {
 struct event;
 class window;
+class node;
 
 class node_ref
 {
+private:
+	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
+	[[nodiscard]] static optional<U&> next_impl(T& self)
+	{
+		if (self.m_next) {
+			return *self.m_next;
+		}
+		return {};
+	}
+
+public:
+	[[nodiscard]] optional<node&> next() { return next_impl(*this); }
+	[[nodiscard]] optional<const node&> next() const
+	{
+		return next_impl(*this);
+	}
+	[[nodiscard]] optional<node&> prev() { return m_prev; }
+	[[nodiscard]] optional<const node&> prev() const { return m_prev; };
+
 protected:
 	friend window;
 	node_ref() = default;
 	~node_ref() = default;
-	const window& parent() const
+	[[nodiscard]] const window& parent() const
 	{
 		Expects(m_parent);
 		return *m_parent;
 	}
-	window& parent()
+	[[nodiscard]] window& parent()
 	{
 		Expects(m_parent);
 		return *m_parent;
 	}
 private:
+	std::unique_ptr<node> m_next;
+	optional<node&> m_prev;
 	window* m_parent = nullptr;
 };
 
@@ -35,13 +58,13 @@ public:
 	};
 
 	virtual void update(update_context& ctx) = 0;
-	virtual bool click(const event&) = 0;
-	virtual bool hover(const event&) = 0;
+	[[nodiscard]] virtual bool click(const event&) = 0;
+	[[nodiscard]] virtual bool hover(const event&) = 0;
 	// get absolute pos
-	virtual auto pos() const noexcept -> vi32 { return m_pos; }
+	[[nodiscard]] virtual auto pos() const noexcept -> vi32 { return m_pos; }
 	void pos(vi32 pos) { m_pos = pos; }
-	virtual auto size() const -> vi32 { return { 0, 0 }; }
-	auto relative() const noexcept -> bool { return m_relative; }
+	[[nodiscard]] virtual auto size() const -> vi32 { return { 0, 0 }; }
+	[[nodiscard]] auto relative() const noexcept -> bool { return m_relative; }
 
 protected:
 	node(const info& info)

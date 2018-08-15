@@ -4,6 +4,7 @@
 #include <ui/chunky_button.h>
 #include <ui/label.h>
 #include <ui/window.h>
+#include <exception.h>
 
 auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 	-> unique_ptr<window>
@@ -15,7 +16,7 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.pos = { 300, 300 };
 		return _;
 	}());
-	menu->insert(std::make_unique<label>([&] {
+	Ensures(success(menu->append(std::make_unique<label>([&] {
 		label::info _;
 		_.pos = { 0, -100 };
 		_.size = { 600, 300 };
@@ -23,7 +24,7 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.text = "Quit to Desktop";
 		_.font_size = 46;
 		return _;
-	}()));
+	}()))));
 	auto play_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 250, 50 };
@@ -37,7 +38,7 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		};
 		return _;
 	}());
-	menu->insert(move(play_button));
+	Ensures(success(menu->append(move(play_button))));
 	auto cancel_button = std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 250, 50 };
@@ -51,6 +52,6 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		};
 		return _;
 	}());
-	menu->insert(std::move(cancel_button));
+	Ensures(success(menu->append(std::move(cancel_button))));
 	return menu;
 }
