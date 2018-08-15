@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include <catch.hpp>
+#include <exception.h>
 #include <ui/window.h>
 
 SCENARIO("Window")
@@ -9,11 +10,11 @@ SCENARIO("Window")
 	using namespace ui;
 	GIVEN("An empty window")
 	{
-		ui::window window({});
-		let& const_window = window;
+		auto window = std::make_unique<ui::window>(ui::window::info{});
+		let& const_window = *window;
 		WHEN("We call mutable children on it")
 		{
-			let result = window.children();
+			let result = window->children();
 			THEN("It should return an empty vector")
 			{
 				REQUIRE(result.empty());
@@ -21,7 +22,7 @@ SCENARIO("Window")
 		}
 		WHEN("We call front() on it")
 		{
-			let result = window.front();
+			let result = window->front();
 			THEN("It should return an empty optional")
 			{
 				REQUIRE(!result.has_value());
@@ -29,7 +30,7 @@ SCENARIO("Window")
 		}
 		WHEN("We call back() on it")
 		{
-			let result = window.back();
+			let result = window->back();
 			THEN("It should return an empty optional")
 			{
 				REQUIRE(!result.has_value());
@@ -39,7 +40,7 @@ SCENARIO("Window")
 		{
 			THEN("It should return an empty optional")
 			{
-				REQUIRE(!window.next().has_value());
+				REQUIRE(!window->next().has_value());
 				REQUIRE(!const_window.next().has_value());
 			}
 		}
@@ -47,8 +48,52 @@ SCENARIO("Window")
 		{
 			THEN("It should return an empty optional")
 			{
-				REQUIRE(!window.next().has_value());
+				REQUIRE(!window->next().has_value());
 				REQUIRE(!const_window.next().has_value());
+			}
+		}
+		WHEN("We try to append it into itself")
+		{
+			auto& window_ref = *window;
+			auto node = std::unique_ptr<ui::node>(move(window));
+			let result = window_ref.append(move(node));
+			THEN("It should return ui_cycle error")
+			{
+				REQUIRE(result == mark::error::code::ui_cycle);
+			}
+			THEN("It shouldn't empty the node pointer")
+			{
+				REQUIRE(node != nullptr);
+			}
+		}
+		WHEN("We try to insert it into itself, before itself")
+		{
+			auto& window_ref = *window;
+			auto node = std::unique_ptr<ui::node>(move(window));
+			let result = window_ref.insert(window_ref, move(node));
+			THEN("It should return ui_cycle error")
+			{
+				REQUIRE(result == mark::error::code::ui_bad_before);
+			}
+			THEN("It shouldn't empty the window pointer")
+			{
+				REQUIRE(node != nullptr);
+			}
+		}
+		WHEN("We try to insert it into itself, before a child window")
+		{
+			auto& window_ref = *window;
+			REQUIRE(success(window->append(
+				std::make_unique<ui::window>(ui::window::info{}))));
+			auto node = std::unique_ptr<ui::node>(move(window));
+			let result = window_ref.insert(*window_ref.front(), move(node));
+			THEN("It should return ui_cycle error")
+			{
+				REQUIRE(result == mark::error::code::ui_cycle);
+			}
+			THEN("It shouldn't empty the window pointer")
+			{
+				REQUIRE(node != nullptr);
 			}
 		}
 	}
@@ -57,7 +102,7 @@ SCENARIO("Window")
 		ui::window window({});
 		auto child_window = std::make_unique<ui::window>(ui::window::info{});
 		let& child_window_ref = *child_window;
-		window.append(move(child_window));
+		REQUIRE(success(window.append(move(child_window))));
 		WHEN("We call front() on it")
 		{
 			let result = window.front();
@@ -127,7 +172,11 @@ SCENARIO("Window")
 			auto second_child =
 				std::make_unique<ui::window>(ui::window::info{});
 			let& second_child_ref = *second_child;
-			window.append(move(second_child));
+			let result = window.append(move(second_child));
+			THEN("append should return success")
+			{
+				REQUIRE(result == error::code::success);
+			}
 			THEN("The window children count should be two")
 			{
 				REQUIRE(window.children().size() == 2);
@@ -161,7 +210,11 @@ SCENARIO("Window")
 			auto second_child =
 				std::make_unique<ui::window>(ui::window::info{});
 			let& second_child_ref = *second_child;
-			window.insert(*window.front(), move(second_child));
+			let result = window.insert(*window.front(), move(second_child));
+			THEN("Insert should return success")
+			{
+				REQUIRE(result == error::code::success);
+			}
 			THEN("The window children count should be two")
 			{
 				REQUIRE(window.children().size() == 2);
@@ -195,8 +248,10 @@ SCENARIO("Window")
 	GIVEN("A window with two other windows within it")
 	{
 		ui::window window({});
-		window.append(std::make_unique<ui::window>(ui::window::info{}));
-		window.append(std::make_unique<ui::window>(ui::window::info{}));
+		REQUIRE(success(
+			window.append(std::make_unique<ui::window>(ui::window::info{}))));
+		REQUIRE(success(
+			window.append(std::make_unique<ui::window>(ui::window::info{}))));
 		let children = window.children();
 		REQUIRE(children.size() == 2);
 		WHEN("We remove the first child")
@@ -228,7 +283,11 @@ SCENARIO("Window")
 			auto middle_child_ptr =
 				std::make_unique<ui::window>(ui::window::info{});
 			let& middle_child = *middle_child_ptr;
-			window.insert(children.back(), move(middle_child_ptr));
+			let result = window.insert(children.back(), move(middle_child_ptr));
+			THEN("Insert should return success")
+			{
+				REQUIRE(result == error::code::success);
+			}
 			THEN("window children count should increase to three")
 			{
 				REQUIRE(window.children().size() == 3);
@@ -247,46 +306,66 @@ SCENARIO("Window")
 			}
 			THEN("We check next/prev siblings")
 			{
-				REQUIRE(&*window.children()[0].get().next() == &window.children()[1].get());
+				REQUIRE(
+					&*window.children()[0].get().next()
+					== &window.children()[1].get());
 				REQUIRE(!window.children()[0].get().prev().has_value());
-				REQUIRE(&*window.children()[1].get().prev() == &window.children()[0].get());
-				REQUIRE(&*window.children()[1].get().next() == &window.children()[2].get());
+				REQUIRE(
+					&*window.children()[1].get().prev()
+					== &window.children()[0].get());
+				REQUIRE(
+					&*window.children()[1].get().next()
+					== &window.children()[2].get());
 				REQUIRE(!window.children()[2].get().next().has_value());
-				REQUIRE(&*window.children()[2].get().prev() == &window.children()[1].get());
+				REQUIRE(
+					&*window.children()[2].get().prev()
+					== &window.children()[1].get());
 			}
 		}
 	}
 	GIVEN("A window with three other windows within it")
 	{
 		ui::window window({});
-		window.append(std::make_unique<ui::window>(ui::window::info{}));
-		window.append(std::make_unique<ui::window>(ui::window::info{}));
-		window.append(std::make_unique<ui::window>(ui::window::info{}));
+		REQUIRE(success(
+			window.append(std::make_unique<ui::window>(ui::window::info{}))));
+		REQUIRE(success(
+			window.append(std::make_unique<ui::window>(ui::window::info{}))));
+		REQUIRE(success(
+			window.append(std::make_unique<ui::window>(ui::window::info{}))));
 		let children = window.children();
-		WHEN("We don't do anything") {
+		WHEN("We don't do anything")
+		{
 			THEN("We check next/prev siblings")
 			{
 				REQUIRE(window.children().size() == 3);
-				REQUIRE(&*window.children()[0].get().next() == &window.children()[1].get());
+				REQUIRE(
+					&*window.children()[0].get().next()
+					== &window.children()[1].get());
 				REQUIRE(!window.children()[0].get().prev().has_value());
-				REQUIRE(&*window.children()[1].get().prev() == &window.children()[0].get());
+				REQUIRE(
+					&*window.children()[1].get().prev()
+					== &window.children()[0].get());
 				REQUIRE(window.children()[1].get().next().has_value());
-				REQUIRE(&*window.children()[1].get().next() == &window.children()[2].get());
+				REQUIRE(
+					&*window.children()[1].get().next()
+					== &window.children()[2].get());
 				REQUIRE(!window.children()[2].get().next().has_value());
-				REQUIRE(&*window.children()[2].get().prev() == &window.children()[1].get());
+				REQUIRE(
+					&*window.children()[2].get().prev()
+					== &window.children()[1].get());
 			}
 		}
-		WHEN("We remove the middle child") {
+		WHEN("We remove the middle child")
+		{
 			let& middle_child = window.children()[1].get();
 			let result = window.remove(middle_child);
-			THEN("result should not be empty") {
-				REQUIRE(result);
-			}
+			THEN("result should not be empty") { REQUIRE(result); }
 			THEN("result should be equal to the middle child")
 			{
 				REQUIRE(result.get() == &middle_child);
 			}
-			THEN("child count should drop to 2") {
+			THEN("child count should drop to 2")
+			{
 				REQUIRE(window.children().size() == 2);
 			}
 		}
