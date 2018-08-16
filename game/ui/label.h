@@ -26,8 +26,8 @@ public:
 
 	label(const info&);
 	void update(update_context&) override;
-	auto click(const event&) -> bool override { return false; }
-	auto hover(const event&) -> bool override { return false; }
+	handler_result click(const event&) override { return { false }; }
+	handler_result hover(const event&) override { return { false }; }
 
 private:
 

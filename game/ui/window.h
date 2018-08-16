@@ -16,8 +16,8 @@ public:
 	};
 	window(const info& info);
 	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept; 
-	[[nodiscard]] bool click(const event&) override;
-	[[nodiscard]] bool hover(const event&) override;
+	[[nodiscard]] handler_result click(const event&) override;
+	[[nodiscard]] handler_result hover(const event&) override;
 	void update(update_context&) override;
 	[[nodiscard]] std::vector<ref<const node>> children() const;
 	[[nodiscard]] std::vector<ref<node>> children();

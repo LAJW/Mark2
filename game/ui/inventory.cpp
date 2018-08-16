@@ -55,7 +55,7 @@ void mark::ui::inventory::update(update_context& context)
 	this->window::update(context);
 }
 
-auto mark::ui::inventory::hover(const event& event) -> bool
+mark::ui::handler_result mark::ui::inventory::hover(const event& event)
 {
 	m_mouse_pos = event.world_cursor;
 	return this->mark::ui::window::hover(event);

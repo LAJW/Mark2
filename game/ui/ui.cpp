@@ -122,7 +122,13 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	return any_of(m_windows, [&](let& window) { return window->click(event); });
+	for (auto &window : m_windows) {
+		let result = window->click(event);
+		if (result.handled) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool mark::ui::ui::hover(vi32 screen_pos)
@@ -131,7 +137,13 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = false;
-	return any_of(m_windows, [&](let& window) { return window->hover(event); });
+	for (auto &window : m_windows) {
+		let result = window->hover(event);
+		if (result.handled) {
+			return true;
+		}
+	}
+	return false;
 }
 
 namespace mark {

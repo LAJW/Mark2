@@ -72,14 +72,15 @@ void mark::ui::container::update(update_context& context)
 	this->window::update(context);
 }
 
-bool mark::ui::container::click(const event& event)
+mark::ui::handler_result mark::ui::container::click(const event& event)
 {
-	if (let handled = this->window::click(event)) {
-		return true;
+	auto super_result = this->window::click(event);
+	if (super_result.handled) {
+		return super_result;
 	}
 	let grabbed = m_ui.grabbed();
 	if (!grabbed) {
-		return false;
+		return { false };
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
@@ -88,12 +89,12 @@ bool mark::ui::container::click(const event& event)
 		relative_pos / static_cast<double>(mark::module::size)
 		- module_size / 2.);
 	if (!m_container.can_attach(pos, module)) {
-		return false;
+		return { false };
 	}
 	let result = m_container.attach(pos, m_ui.drop());
 	Expects(result == error::code::success || result == error::code::stacked);
 	this->attach(pos, module);
-	return false;
+	return { false };
 }
 
 auto mark::ui::container::cargo() const -> const module::cargo&

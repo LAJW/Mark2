@@ -17,7 +17,7 @@ public:
 	};
 	inventory(const info& info);
 	void update(update_context&) override;
-	[[nodiscard]] auto hover(const event&) -> bool override;
+	[[nodiscard]] handler_result hover(const event&) override;
 
 private:
 	inventory(const info& info, bool);
