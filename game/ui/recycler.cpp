@@ -15,6 +15,18 @@
 
 namespace mark {
 namespace ui {
+
+/// Remove all buttons from the recycler except "Confirm" and "Cancel"
+static void clear(recycler& window)
+{
+	let children = window.children();
+	Expects(children.size() >= 2);
+	for_each(
+		std::next(children.begin(), 2), children.end(), [&](let& child) {
+		Expects(window.remove(child.get()));
+	});
+}
+
 recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_ui(*info.ui)
@@ -44,12 +56,7 @@ recycler::recycler(const info& info)
 			}
 			slot = {};
 		}
-		// Clear recycler buttons
-		let children = this->children();
-		while (std::next(children.begin(), 2) != children.end()) {
-			let child = std::next(children.begin(), 2);
-			(void)this->remove(child->get());
-		}
+		mark::ui::clear(*this);
 		for (auto&& item : mark::recycle(rm, move(items))) {
 			// TODO: Do a dry run checking that all these items can fit in the
 			// modular's cargo area
@@ -74,11 +81,7 @@ recycler::recycler(const info& info)
 			auto& slot = m_queue[pos];
 			slot = {};
 		}
-		let children = this->children();
-		while (std::next(children.begin(), 2) != children.end()) {
-			let child = std::next(children.begin(), 2);
-			(void)this->remove(child->get());
-		}
+		mark::ui::clear(*this);
 		return true;
 	});
 	Ensures(success(this->append(move(cancel_recycle_button))));
