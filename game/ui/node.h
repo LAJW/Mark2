@@ -1,12 +1,15 @@
 ﻿#pragma once
 #include <add_const_if.h>
 #include <stdafx.h>
+#include <ui/action.h>
 
 namespace mark {
 namespace ui {
 struct event;
 class window;
 class node;
+
+class action;
 
 class node_ref
 {
@@ -43,10 +46,17 @@ protected:
 		Expects(m_parent);
 		return *m_parent;
 	}
+
 private:
 	std::unique_ptr<node> m_next;
 	optional<node&> m_prev;
 	window* m_parent = nullptr;
+};
+
+struct handler_result
+{
+	bool handled;
+	std::vector<unique_ptr<action>> actions;
 };
 
 class node : public node_ref
@@ -58,8 +68,10 @@ public:
 	};
 
 	virtual void update(update_context& ctx) = 0;
-	[[nodiscard]] virtual bool click(const event&) = 0;
-	[[nodiscard]] virtual bool hover(const event&) = 0;
+
+	[[nodiscard]] virtual handler_result click(const event&) = 0;
+	[[nodiscard]] virtual handler_result hover(const event&) = 0;
+
 	// get absolute pos
 	[[nodiscard]] virtual auto pos() const noexcept -> vi32 { return m_pos; }
 	void pos(vi32 pos) { m_pos = pos; }

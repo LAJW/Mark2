@@ -21,10 +21,10 @@ public:
 
 	button_base(const info&);
 
-	[[nodiscard]] bool click(const event&) override;
+	[[nodiscard]] handler_result click(const event&) override;
 	callback_group on_click;
 
-	[[nodiscard]] bool hover(const event&) override;
+	[[nodiscard]] handler_result hover(const event&) override;
 	callback_group on_hover;
 
 	auto pos() const noexcept -> vi32 override;

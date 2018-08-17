@@ -32,24 +32,29 @@ std::error_code mark::ui::window::append(std::unique_ptr<node>&& node) noexcept
 	return error::code::success;
 }
 
-[[nodiscard]] static bool
-propagate(window& window, std::function<bool(node&)> propagator)
+[[nodiscard]] static handler_result
+propagate(window& window, std::function<handler_result(node&)> propagator)
 {
 	if (!window.visibility()) {
-		return false;
+		return { false };
 	}
 	// Iterating over a copy to allow deletion in the middle
 	// Using underlying list would be faster but unsafe
-	return any_of(
-		window.children(), [&](let& node) { return propagator(node.get()); });
+	for (auto child : window.children()) {
+		auto child_result = propagator(child.get());
+		if (child_result.handled) {
+			return child_result;
+		}
+	}
+	return { false };
 }
 
-bool mark::ui::window::click(const event& event)
+handler_result mark::ui::window::click(const event& event)
 {
 	return propagate(*this, [&](auto& node) { return node.click(event); });
 }
 
-bool mark::ui::window::hover(const event& event)
+handler_result mark::ui::window::hover(const event& event)
 {
 	return propagate(*this, [&](auto& node) { return node.hover(event); });
 }
