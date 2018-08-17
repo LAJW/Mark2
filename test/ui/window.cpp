@@ -96,6 +96,14 @@ SCENARIO("Window")
 				REQUIRE(node != nullptr);
 			}
 		}
+		WHEN("We try to remove a window from itself")
+		{
+			let result = window->remove(*window);
+			THEN("result should return a null pointer")
+			{
+				REQUIRE(result == nullptr);
+			}
+		}
 	}
 	GIVEN("A window with another window within it")
 	{
@@ -165,6 +173,22 @@ SCENARIO("Window")
 			THEN("Remove should return a unique_ptr holding the removed child")
 			{
 				REQUIRE(result.get() == &child_window_ref);
+			}
+			THEN("result next should be empty")
+			{
+				REQUIRE(!result->next().has_value());
+			}
+			THEN("result prev should be empty")
+			{
+				REQUIRE(!result->prev().has_value());
+			}
+			THEN("window's first child should be empty")
+			{
+				REQUIRE(!window.back().has_value());
+			}
+			THEN("window's last child should be empty")
+			{
+				REQUIRE(!window.front().has_value());
 			}
 		}
 		WHEN("We append another window into the container")
@@ -256,7 +280,7 @@ SCENARIO("Window")
 		REQUIRE(children.size() == 2);
 		WHEN("We remove the first child")
 		{
-			(void)window.remove(children.front());
+			let result = window.remove(children.front());
 			THEN("window children count should drop to one")
 			{
 				REQUIRE(window.children().size() == 1);
@@ -265,10 +289,30 @@ SCENARIO("Window")
 			{
 				REQUIRE(&*window.front() == &children.back().get());
 			}
+			THEN("remove should return the first window")
+			{
+				REQUIRE(&children[0].get() == result.get());
+			}
+			THEN("result next should be empty")
+			{
+				REQUIRE(!result->next().has_value());
+			}
+			THEN("result prev should be empty")
+			{
+				REQUIRE(!result->prev().has_value());
+			}
+			THEN("remaining window's next should be empty")
+			{
+				REQUIRE(!window.front()->next().has_value());
+			}
+			THEN("remaining window's prev should be empty")
+			{
+				REQUIRE(!window.front()->prev().has_value());
+			}
 		}
 		WHEN("We remove the second child")
 		{
-			(void)window.remove(children.back());
+			let result = window.remove(children.back());
 			THEN("window children count should drop to one")
 			{
 				REQUIRE(window.children().size() == 1);
@@ -276,6 +320,26 @@ SCENARIO("Window")
 			THEN("remaining window should be the second window")
 			{
 				REQUIRE(&*window.front() == &children.front().get());
+			}
+			THEN("remove should return the first window")
+			{
+				REQUIRE(&children[1].get() == result.get());
+			}
+			THEN("result next should be empty")
+			{
+				REQUIRE(!result->next().has_value());
+			}
+			THEN("result prev should be empty")
+			{
+				REQUIRE(!result->prev().has_value());
+			}
+			THEN("remaining window's next should be empty")
+			{
+				REQUIRE(!window.front()->next().has_value());
+			}
+			THEN("remaining window's prev should be empty")
+			{
+				REQUIRE(!window.front()->prev().has_value());
 			}
 		}
 		WHEN("We add another window between the first and the second")
@@ -367,6 +431,21 @@ SCENARIO("Window")
 			THEN("child count should drop to 2")
 			{
 				REQUIRE(window.children().size() == 2);
+			}
+			THEN("result next should be empty")
+			{
+				REQUIRE(!result->next().has_value());
+			}
+			THEN("result prev should be empty")
+			{
+				REQUIRE(!result->next().has_value());
+			}
+			THEN("We check next/prev siblings")
+			{
+				REQUIRE(&*window.front()->next() == &*window.back());
+				REQUIRE(!window.front()->prev().has_value());
+				REQUIRE(&*window.back()->prev() == &*window.front());
+				REQUIRE(!window.back()->next().has_value());
 			}
 		}
 	}
