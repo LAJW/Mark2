@@ -115,7 +115,11 @@ unique_ptr<node> window::remove(const node& const_which)
 	if (&which == m_first_child.get()) {
 		auto result = move(m_first_child);
 		m_first_child = move(result->m_next);
-		result->m_prev.reset();
+		if (m_first_child) {
+			m_first_child->m_prev.reset();
+		} else {
+			m_last_child.reset();
+		}
 		return result;
 	} else if (&which == &*m_last_child) {
 		m_last_child = which.m_prev;
