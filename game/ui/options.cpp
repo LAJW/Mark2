@@ -4,13 +4,12 @@
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/action/pop_ui_state.h>
 #include <ui/chunky_button.h>
 #include <ui/label.h>
 #include <ui/window.h>
 
-auto mark::ui::make_options(
-	mark::resource::manager& rm,
-	mark::mode_stack& stack) -> unique_ptr<window>
+auto mark::ui::make_options(resource::manager& rm) -> unique_ptr<window>
 {
 	using namespace mark;
 	using namespace ui;
@@ -65,9 +64,9 @@ auto mark::ui::make_options(
 		_.background = rm.image("chunky-red-button.png");
 		_.text = "Cancel";
 		_.relative = true;
-		_.on_click = [&](let&) -> handler_result {
-			stack.pop();
-			return { true, {} };
+		_.on_click = [&](let&) {
+			return handler_result::make(
+				std::make_unique<action::pop_ui_state>());
 		};
 		return _;
 	}()))));

@@ -53,9 +53,9 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			m_windows.front() =
 				std::make_unique<mark::ui::window>(mark::ui::window::info());
 		} else if (m_mode == mode::prompt) {
-			m_windows.front() = make_prompt(m_rm, m_stack);
+			m_windows.front() = make_prompt(m_rm);
 		} else if (m_mode == mode::options) {
-			m_windows.front() = make_options(m_rm, m_stack);
+			m_windows.front() = make_options(m_rm);
 		}
 	}
 	if (m_stack.get().back() == mode::world) {
