@@ -125,6 +125,9 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	for (auto &window : m_windows) {
 		let result = window->click(event);
 		if (result.handled) {
+			for (auto& action : result.actions) {
+				action->execute();
+			}
 			return true;
 		}
 	}

@@ -8,6 +8,7 @@ namespace mark {
 namespace ui {
 class ui;
 struct event;
+
 class container final : public window
 {
 public:
@@ -20,7 +21,7 @@ public:
 	container(const info& info);
 	void update(update_context&) override;
 	[[nodiscard]] handler_result click(const event& event) override;
-	[[nodiscard]] module::cargo& cargo() const;
+	[[nodiscard]] const module::cargo& cargo() const;
 	[[nodiscard]] vi32 size() const override;
 	[[nodiscard]] vi32 pos() const noexcept override;
 

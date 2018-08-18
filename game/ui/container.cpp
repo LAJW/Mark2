@@ -24,7 +24,7 @@ mark::ui::container::container(const info& info)
 void mark::ui::container::update(update_context& context)
 {
 	std::vector<const mark::interface::item*> contents;
-	for (const auto& item : m_container.items()) {
+	for (let& item : m_container.items()) {
 		contents.push_back(item.get());
 	}
 	if (contents != m_prev_contents) {
@@ -91,13 +91,16 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	if (!m_container.can_attach(pos, module)) {
 		return { false, {} };
 	}
-	let result = m_container.attach(pos, m_ui.drop());
-	Expects(result == error::code::success || result == error::code::stacked);
-	this->attach(pos, module);
-	return { false, {} };
+	handler_result result = { true, {} };
+	result.actions.push_back(
+		std::make_unique<mark::ui::legacy_action>([pos, this] {
+		let result = m_container.attach(pos, m_ui.drop());
+		Expects(success(result) || result == error::code::stacked);
+	}));
+	return result;
 }
 
-auto mark::ui::container::cargo() const -> const module::cargo&
+const mark::module::cargo& mark::ui::container::cargo() const
 {
 	return m_container;
 }
