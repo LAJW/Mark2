@@ -48,7 +48,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		m_mode = m_stack.get().back();
 		// router
 		if (m_mode == mode::main_menu) {
-			m_windows.front() = make_main_menu(m_rm, m_stack);
+			m_windows.front() = make_main_menu(m_rm);
 		} else if (m_mode == mode::world) {
 			m_windows.front() =
 				std::make_unique<mark::ui::window>(mark::ui::window::info());
@@ -118,6 +118,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 {
+	action::base::execute_info execute_info;
+	execute_info.mode_stack = m_stack;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
@@ -126,7 +128,7 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 		let result = window->click(event);
 		if (result.handled) {
 			for (auto& action : result.actions) {
-				action->execute();
+				action->execute(execute_info);
 			}
 			return true;
 		}

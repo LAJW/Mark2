@@ -13,7 +13,7 @@ public:
 	explicit legacy(const std::function<void()> &callback)
 		: m_callback(callback)
 	{}
-	void execute() override
+	void execute(const execute_info&) override
 	{
 		m_callback();
 	}

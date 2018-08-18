@@ -21,6 +21,16 @@ struct handler_result final
 {
 	bool handled;
 	std::vector<unique_ptr<action::base>> actions;
+
+	/// Create a handled result with a single action
+	[[nodiscard]] static handler_result
+	make(std::unique_ptr<action::base> action)
+	{
+		handler_result result;
+		result.handled = true;
+		result.actions.push_back(move(action));
+		return result;
+	};
 };
 
 class callback_group final
