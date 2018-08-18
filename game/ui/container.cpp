@@ -14,11 +14,11 @@ let constexpr label_height = 32;
 
 mark::ui::container::container(const info& info)
 	: window(info)
-	, m_ui(*info.ui)
-	, m_container(*info.container)
 	, m_cargo_bg(info.rm->image("inventory-grid.png"))
 	, m_header(info.rm->image("inventory-header.png"))
 	, m_font(info.rm->image("font.png"))
+	, m_ui(*info.ui)
+	, m_container(*info.container)
 {}
 
 void mark::ui::container::update(update_context& context)
@@ -80,7 +80,7 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	}
 	let grabbed = m_ui.grabbed();
 	if (!grabbed) {
-		return { false };
+		return { false, {} };
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
@@ -89,12 +89,12 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 		relative_pos / static_cast<double>(mark::module::size)
 		- module_size / 2.);
 	if (!m_container.can_attach(pos, module)) {
-		return { false };
+		return { false, {} };
 	}
 	let result = m_container.attach(pos, m_ui.drop());
 	Expects(result == error::code::success || result == error::code::stacked);
 	this->attach(pos, module);
-	return { false };
+	return { false, {} };
 }
 
 auto mark::ui::container::cargo() const -> const module::cargo&
@@ -112,7 +112,7 @@ auto mark::ui::container::size() const -> vi32
 void mark::ui::container::attach(vi32 pos, interface::item& item)
 {
 	let button_pos = pos * 16 + vi32(0, 32);
-	auto button_ptr = std::make_unique<mark::ui::item_button>([&] {
+	auto button = std::make_unique<mark::ui::item_button>([&] {
 		mark::ui::item_button::info _;
 		_.item = item;
 		_.font = m_font;
@@ -123,8 +123,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		_.origin = true;
 		return _;
 	}());
-	auto& button = *button_ptr;
-	button.on_click.insert([pos, this, &button](const event& event) {
+	button->on_click.insert([pos, this](const event& event) {
 		if (let grabbed = m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
 			if (m_container.at(pos)->can_stack(*grabbed)) {
@@ -140,12 +139,9 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				m_ui.drag(m_container, *actual_pos);
 			}
 		}
-		// Don't call anything after this. This call destroys "this" lambda.
-		// Button doesn't need deletion, as we're only removing it on swap
-		// this->remove(button);
 		return true;
 	});
-	Expects(success(this->append(move(button_ptr))));
+	Expects(success(this->append(move(button))));
 }
 
 auto mark::ui::container::pos() const noexcept -> vi32
