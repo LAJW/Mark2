@@ -1,23 +1,16 @@
 #pragma once
-#include <stdafx.h>
+#include "base.h"
 
 namespace mark {
 namespace ui {
-
-class action {
-public:
-	virtual ~action() = default;
-	virtual void execute() = 0;
-protected:
-	action() = default;
-};
+namespace action {
 
 /// Action spawned from a lambda for backwards-compatibility purposes
 /// To be removed once we know what the common actions are and what are their
 /// arguments
-class legacy_action final : public action {
+class legacy final : public base {
 public:
-	explicit legacy_action(const std::function<void()> &callback)
+	explicit legacy(const std::function<void()> &callback)
 		: m_callback(callback)
 	{}
 	void execute() override
@@ -26,8 +19,8 @@ public:
 	}
 private:
 	const std::function<void()> m_callback;
-	
 };
 
+}
 }
 }

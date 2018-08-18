@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <stdafx.h>
-#include <ui/action.h>
+#include <ui/action/base.h>
 
 namespace mark {
 namespace ui {
@@ -20,7 +20,7 @@ struct event final
 struct handler_result final
 {
 	bool handled;
-	std::vector<unique_ptr<action>> actions;
+	std::vector<unique_ptr<action::base>> actions;
 };
 
 class callback_group final

@@ -93,7 +93,7 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	}
 	handler_result result = { true, {} };
 	result.actions.push_back(
-		std::make_unique<mark::ui::legacy_action>([pos, this] {
+		std::make_unique<mark::ui::action::legacy>([pos, this] {
 		let result = m_container.attach(pos, m_ui.drop());
 		Expects(success(result) || result == error::code::stacked);
 	}));

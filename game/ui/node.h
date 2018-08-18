@@ -2,14 +2,13 @@
 #include <add_const_if.h>
 #include <stdafx.h>
 #include <ui/event.h>
+#include <ui/action/legacy.h>
 
 namespace mark {
 namespace ui {
 struct event;
 class window;
 class node;
-
-class action;
 
 class node_ref
 {
@@ -52,6 +51,7 @@ private:
 	optional<node&> m_prev;
 	window* m_parent = nullptr;
 };
+
 
 class node : public node_ref
 {
