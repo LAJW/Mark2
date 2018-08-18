@@ -46,7 +46,7 @@ recycler::recycler(const info& info)
 		_.text = "Recycle";
 		return _;
 	}());
-	recycle_button->on_click.insert([&](let&) {
+	recycle_button->on_click.insert([&](let&) -> handler_result {
 		// Harvest items
 		std::vector<std::unique_ptr<mark::interface::item>> items;
 		for (let& pos : range(m_queue.size())) {
@@ -63,7 +63,7 @@ recycler::recycler(const info& info)
 			let error_code = push(m_modular, move(item));
 			Ensures(success(error_code) || error_code == error::code::stacked);
 		}
-		return true;
+		return { true, {} };
 	});
 	Ensures(success(this->append(move(recycle_button))));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
@@ -76,13 +76,13 @@ recycler::recycler(const info& info)
 		_.text = "Cancel";
 		return _;
 	}());
-	cancel_recycle_button->on_click.insert([&](let&) {
+	cancel_recycle_button->on_click.insert([&](let&) -> handler_result {
 		for (let& pos : range(m_queue.size())) {
 			auto& slot = m_queue[pos];
 			slot = {};
 		}
 		mark::ui::clear(*this);
-		return true;
+		return { true, {} };
 	});
 	Ensures(success(this->append(move(cancel_recycle_button))));
 }
@@ -156,17 +156,17 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		return _;
 	}());
 	auto& button_ref = *button;
-	button->on_click.insert([&](const event&) {
+	button->on_click.insert([&](const event&) -> handler_result {
 		slot = {};
 		// Don't do anything after this as call to this function
 		// destroys all contents of the lambda we're in
 		(void)this->remove(button_ref);
-		return false;
+		return { true, {} };
 	});
-	button->on_hover.insert([&](const event&) {
+	button->on_hover.insert([&](const event&) -> handler_result {
 		m_tooltip.set(
 			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
-		return true;
+		return { true, {} };
 	});
 	Ensures(success(this->append(move(button))));
 	slot = { container, pos };

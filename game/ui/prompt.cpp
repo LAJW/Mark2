@@ -32,9 +32,9 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-red-button.png");
 		_.text = "Yes";
 		_.relative = true;
-		_.on_click = [&](let&) {
+		_.on_click = [&](let&) -> handler_result {
 			stack.clear();
-			return true;
+			return { true, {} };
 		};
 		return _;
 	}());
@@ -46,9 +46,9 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "No";
 		_.relative = true;
-		_.on_click = [&](let&) {
+		_.on_click = [&](let&) -> handler_result {
 			stack.pop();
-			return true;
+			return { true, {} };
 		};
 		return _;
 	}());

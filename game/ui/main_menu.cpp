@@ -35,9 +35,9 @@ auto mark::ui::make_main_menu(
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "Solitary Traveller";
 		_.relative = true;
-		_.on_click = [&](let&) {
+		_.on_click = [&](let&) -> handler_result {
 			stack.push(mode::world);
-			return true;
+			return { true, {} };
 		};
 		return _;
 	}()))));
@@ -48,9 +48,9 @@ auto mark::ui::make_main_menu(
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "Configuration of preferences";
 		_.relative = true;
-		_.on_click = [&](let&) {
+		_.on_click = [&](let&) -> handler_result {
 			stack.push(mode::options);
-			return true;
+			return { true, {} };
 		};
 		return _;
 	}()))));
@@ -61,9 +61,9 @@ auto mark::ui::make_main_menu(
 		_.background = rm.image("chunky-red-button.png");
 		_.text = "Abandon Expedition";
 		_.relative = true;
-		_.on_click = [&](let&) {
+		_.on_click = [&](let&) -> handler_result {
 			stack.push(mode::prompt);
-			return true;
+			return { true, {} };
 		};
 		return _;
 	}()))));
