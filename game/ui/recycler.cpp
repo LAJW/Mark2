@@ -164,12 +164,8 @@ void recycler::update(update_context& context)
 				_.ui = m_ui;
 				return _;
 			}());
-			auto& button_ref = *button;
 			button->on_click.insert([&](const event&) -> handler_result {
 				slot = {};
-				// Don't do anything after this as call to this function
-				// destroys all contents of the lambda we're in
-				(void)this->remove(button_ref);
 				return { true, {} };
 			});
 			button->on_hover.insert([&](const event&) -> handler_result {
@@ -181,6 +177,9 @@ void recycler::update(update_context& context)
 				? this->append(move(button))
 				: this->insert(*before, move(button));
 			Ensures(success(error));
+		}
+		for (let removed : added_and_removed.removed) {
+			(void)this->remove(*removed);
 		}
 	}
 	this->render(context);
