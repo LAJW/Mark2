@@ -1,5 +1,6 @@
 #include "recycler.h"
 #include <algorithm.h>
+#include <algorithm/diff.h>
 #include <algorithm/has_one.h>
 #include <module/base.h>
 #include <recycle.h>
@@ -86,22 +87,7 @@ recycler::recycler(const info& info)
 	Ensures(success(this->append(move(cancel_recycle_button))));
 }
 
-void recycler::update(update_context& context)
-{
-	for (let i : range(vi32(m_queue.size()))) {
-		context.sprites[101].push_back([&] {
-			sprite _;
-			_.image = m_grid;
-			_.pos = this->pos() + i * static_cast<int>(mark::module::size);
-			_.centred = false;
-			_.size = mark::module::size;
-			return _;
-		}());
-	}
-	this->chunky_window::update(context);
-}
-
-static auto reserved(const recycler::queue_type& queue)
+[[nodiscard]] static auto reserved(const recycler::queue_type& queue)
 {
 	array2d<bool, 16, 32> reserved;
 	reserved.fill(false);
@@ -116,9 +102,9 @@ static auto reserved(const recycler::queue_type& queue)
 	return reserved;
 }
 
-auto find_empty_pos_for(
+[[nodiscard]] static optional<vector<size_t>> find_empty_pos_for(
 	const recycler::queue_type& queue,
-	const interface::item& item) -> optional<vector<size_t>>
+	const interface::item& item)
 {
 	let reserved = mark::ui::reserved(queue);
 	for (auto pair : enumerate(queue)) {
@@ -134,6 +120,87 @@ auto find_empty_pos_for(
 	return {};
 }
 
+void recycler::update(update_context& context)
+{
+	{
+		let queued_items = [&] {
+			std::vector<std::pair<vector<size_t>, const interface::item&>> queued_items;
+			for (let pair : enumerate(m_queue)) {
+				let slot = pair.second;
+				if (!slot.empty()) {
+					queued_items.emplace_back(pair.first, item_of(slot));
+				}
+			}
+			return queued_items;
+		}();
+		let item_buttons = [&] {
+			std::vector<ref<const item_button>> item_buttons;
+			let children = this->children();
+			for (let& child : children) {
+				if (let item_button =
+						dynamic_cast<const mark::ui::item_button*>(
+							&child.get())) {
+					item_buttons.push_back(*item_button);
+				}
+			}
+			return item_buttons;
+		}();
+		let added_and_removed =
+			diff(item_buttons, queued_items, [&](let& node, let& item) {
+				return item.second.equals(node.get().item());
+			});
+		for (let pair : added_and_removed.added) {
+			let before = pair.first;
+			let &item = pair.second.second;
+			let pos = pair.second.first;
+			// A module should have never been pushed in the first place
+			auto& slot = m_queue[pos];
+			auto button = std::make_unique<item_button>([&] {
+				item_button::info _;
+				_.pos = vi32(pos * static_cast<size_t>(mark::module::size));
+				_.size = item.size() * static_cast<unsigned>(mark::module::size);
+				_.font = m_font;
+				_.item = item;
+				_.ui = m_ui;
+				return _;
+			}());
+			auto& button_ref = *button;
+			button->on_click.insert([&](const event&) -> handler_result {
+				slot = {};
+				// Don't do anything after this as call to this function
+				// destroys all contents of the lambda we're in
+				(void)this->remove(button_ref);
+				return { true, {} };
+			});
+			button->on_hover.insert([&](const event&) -> handler_result {
+				return handler_result::make(
+					std::make_unique<action::set_tooltip>(
+						vi32(pos) - vi32{ 300, 0 }, &item, item.describe()));
+			});
+			let error = before == item_buttons.end()
+				? this->append(move(button))
+				: this->insert(*before, move(button));
+			Ensures(success(error));
+		}
+	}
+	this->render(context);
+	this->chunky_window::update(context);
+}
+
+void recycler::render(update_context& context) const
+{
+	for (let i : range(vi32(m_queue.size()))) {
+		context.sprites[101].push_back([&] {
+			sprite _;
+			_.image = m_grid;
+			_.pos = this->pos() + i * static_cast<int>(mark::module::size);
+			_.centred = false;
+			_.size = mark::module::size;
+			return _;
+		}());
+	}
+}
+
 void recycler::recycle(interface::container& container, vi32 pos) noexcept
 {
 	if (has_one(m_queue.data(), { container, pos })) {
@@ -145,29 +212,6 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		return;
 	}
 	auto& slot = m_queue[*queue_pos];
-	auto button = std::make_unique<item_button>([&] {
-		item_button::info _;
-		_.pos = vi32(*queue_pos * static_cast<size_t>(mark::module::size));
-		_.size = item.size() * static_cast<unsigned>(mark::module::size);
-		_.font = m_font;
-		_.item = item;
-		_.ui = m_ui;
-		return _;
-	}());
-	auto& button_ref = *button;
-	button->on_click.insert([&](const event&) -> handler_result {
-		slot = {};
-		// Don't do anything after this as call to this function
-		// destroys all contents of the lambda we're in
-		(void)this->remove(button_ref);
-		return { true, {} };
-	});
-	button->on_hover.insert([&](const event&) -> handler_result {
-		return handler_result::make(
-			std::make_unique<action::set_tooltip>(
-				  vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe()));
-	});
-	Ensures(success(this->append(move(button))));
 	slot = { container, pos };
 }
 
