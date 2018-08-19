@@ -15,16 +15,18 @@ public:
 	struct info : chunky_window::info
 	{
 		optional<ui&> ui;
+		optional<const queue_type&> queue;
 	};
 	recycler(const info&);
 	void update(update_context&) override;
 	void render(update_context&) const;
-	void recycle(interface::container& container, vi32 pos) noexcept;
+	[[nodiscard]] handler_result
+	recycle(interface::container& container, vi32 pos) const noexcept;
 	[[nodiscard]] bool has(const mark::interface::item& item) const noexcept;
 
 private:
 	const ui& m_ui;
-	queue_type m_queue;
+	const queue_type& m_queue;
 	const mark::resource::image_ptr m_font;
 	const mark::resource::image_ptr m_grid;
 };

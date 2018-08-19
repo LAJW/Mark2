@@ -19,20 +19,11 @@
 namespace mark {
 namespace ui {
 
-/// Remove all buttons from the recycler except "Confirm" and "Cancel"
-static void clear(recycler& window)
-{
-	let children = window.children();
-	Expects(children.size() >= 2);
-	for_each(std::next(children.begin(), 2), children.end(), [&](let& child) {
-		Expects(window.remove(child.get()));
-	});
-}
-
 recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_ui(*info.ui)
 	, m_font(info.rm->image("font.png"))
+	, m_queue(*info.queue)
 	, m_grid(info.rm->image("inventory-grid.png"))
 {
 	auto& rm = *info.rm;
@@ -46,24 +37,25 @@ recycler::recycler(const info& info)
 		_.text = "Recycle";
 		return _;
 	}());
-	recycle_button->on_click.insert([&](const event&) -> handler_result {
-		// Harvest items
-		std::vector<std::unique_ptr<mark::interface::item>> items;
-		for (let& pos : range(m_queue.size())) {
-			auto& slot = m_queue[pos];
-			if (!slot.empty()) {
-				items.push_back(detach(slot));
-			}
-			slot = {};
-		}
-		mark::ui::clear(*this);
-		handler_result result;
-		result.handled = true;
-		for (auto&& item : mark::recycle(rm, move(items))) {
-			result.actions.push_back(
-				std::make_unique<action::modular_push>(move(item)));
-		}
-		return result;
+	recycle_button->on_click.insert([&](const event&) {
+		return handler_result::make(std::make_unique<action::legacy>(
+			[&](const action::legacy::execute_info& info) {
+				std::vector<std::unique_ptr<mark::interface::item>> items;
+				auto& queue = *info.queue;
+				for (let& pos : range(queue.size())) {
+					auto& slot = queue[pos];
+					if (!slot.empty()) {
+						items.push_back(detach(slot));
+					}
+					slot = {};
+				}
+				for (auto&& item : mark::recycle(rm, move(items))) {
+					let error_code = push(*info.modular, move(item));
+					Ensures(
+						success(error_code)
+						|| error_code == error::code::stacked);
+				}
+			}));
 	});
 	Ensures(success(this->append(move(recycle_button))));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
@@ -76,13 +68,15 @@ recycler::recycler(const info& info)
 		_.text = "Cancel";
 		return _;
 	}());
-	cancel_recycle_button->on_click.insert([&](let&) -> handler_result {
-		for (let& pos : range(m_queue.size())) {
-			auto& slot = m_queue[pos];
-			slot = {};
-		}
-		mark::ui::clear(*this);
-		return { true, {} };
+	cancel_recycle_button->on_click.insert([&](let&) {
+		return handler_result::make(std::make_unique<action::legacy>(
+			[&](const action::legacy::execute_info& info) {
+				auto& queue = *info.queue;
+				for (let& pos : range(queue.size())) {
+					auto& slot = queue[pos];
+					slot = {};
+				}
+			}));
 	});
 	Ensures(success(this->append(move(cancel_recycle_button))));
 }
@@ -122,64 +116,60 @@ recycler::recycler(const info& info)
 
 void recycler::update(update_context& context)
 {
-	{
-		let queued_items = [&] {
-			std::vector<std::pair<vector<size_t>, const interface::item&>>
-				queued_items;
-			for (let[pos, slot] : enumerate(m_queue)) {
-				if (!slot.empty()) {
-					queued_items.emplace_back(pos, item_of(slot));
-				}
+	let queued_items = [&] {
+		std::vector<std::pair<vector<size_t>, const interface::item&>>
+			queued_items;
+		for (let[pos, slot] : enumerate(m_queue)) {
+			if (!slot.empty()) {
+				queued_items.emplace_back(pos, item_of(slot));
 			}
-			return queued_items;
-		}();
-		let item_buttons = [&] {
-			std::vector<ref<const item_button>> item_buttons;
-			let children = this->children();
-			for (let& child : children) {
-				if (let item_button =
-						dynamic_cast<const mark::ui::item_button*>(
-							&child.get())) {
-					item_buttons.push_back(*item_button);
-				}
+		}
+		return queued_items;
+	}();
+	let item_buttons = [&] {
+		std::vector<ref<const item_button>> item_buttons;
+		let children = this->children();
+		for (let& child : children) {
+			if (let item_button =
+					dynamic_cast<const mark::ui::item_button*>(&child.get())) {
+				item_buttons.push_back(*item_button);
 			}
-			return item_buttons;
-		}();
-		let added_and_removed =
-			diff(item_buttons, queued_items, [&](let& node, let& item) {
-				return item.second.equals(node.get().item());
-			});
-		for (let[before, pos_and_item] : added_and_removed.added) {
-			let & [ pos, item ] = pos_and_item;
-			// A module should have never been pushed in the first place
-			auto& slot = m_queue[pos];
-			auto button = std::make_unique<item_button>([&] {
-				item_button::info _;
-				_.pos = vi32(pos * static_cast<size_t>(mark::module::size));
-				_.size =
-					item.size() * static_cast<unsigned>(mark::module::size);
-				_.font = m_font;
-				_.item = item;
-				_.ui = m_ui;
-				return _;
-			}());
-			button->on_click.insert([&](const event&) -> handler_result {
-				slot = {};
-				return { true, {} };
-			});
-			button->on_hover.insert([&](const event&) {
-				return handler_result::make(
-					std::make_unique<action::set_tooltip>(
-						vi32(pos) - vi32{ 300, 0 }, &item, item.describe()));
-			});
-			let error = before == item_buttons.end()
-				? this->append(move(button))
-				: this->insert(*before, move(button));
-			Ensures(success(error));
 		}
-		for (let removed : added_and_removed.removed) {
-			(void)this->remove(*removed);
-		}
+		return item_buttons;
+	}();
+	let added_and_removed =
+		diff(item_buttons, queued_items, [&](let& node, let& item) {
+			return item.second.equals(node.get().item());
+		});
+	for (let[before, pos_and_item] : added_and_removed.added) {
+		let & [ pos, item ] = pos_and_item;
+		auto button = std::make_unique<item_button>([&] {
+			item_button::info _;
+			_.pos = vi32(pos * static_cast<size_t>(mark::module::size));
+			_.size = item.size() * static_cast<unsigned>(mark::module::size);
+			_.font = m_font;
+			_.item = item;
+			_.ui = m_ui;
+			return _;
+		}());
+		button->on_click.insert([&](const event&) -> handler_result {
+			return handler_result::make(std::make_unique<action::legacy>(
+				[pos](const action::base::execute_info& info) {
+					(*info.queue)[pos] = {};
+				}));
+		});
+		button->on_hover.insert([&](const event&) {
+			return handler_result::make(std::make_unique<action::set_tooltip>(
+				vi32(pos) - vi32{ 300, 0 }, &item, item.describe()));
+		});
+		let error = before == item_buttons.end()
+			? this->append(move(button))
+			: this->insert(*before, move(button));
+		// A module should have never been pushed in the first place
+		Ensures(success(error));
+	}
+	for (let removed : added_and_removed.removed) {
+		(void)this->remove(*removed);
 	}
 	this->render(context);
 	this->chunky_window::update(context);
@@ -199,18 +189,20 @@ void recycler::render(update_context& context) const
 	}
 }
 
-void recycler::recycle(interface::container& container, vi32 pos) noexcept
+// TODO: Make non-member of recycler
+handler_result
+recycler::recycle(interface::container& container, vi32 pos) const noexcept
 {
-	if (has_one(m_queue.data(), { container, pos })) {
-		return;
-	}
-	auto& item = item_of(mark::slot(container, pos));
-	let queue_pos = find_empty_pos_for(m_queue, item);
-	if (!queue_pos) {
-		return;
-	}
-	auto& slot = m_queue[*queue_pos];
-	slot = { container, pos };
+	return handler_result::make(std::make_unique<action::legacy>(
+		[&container, pos](const action::legacy::execute_info& info) {
+			auto& queue = *info.queue;
+			if (!has_one(queue.data(), { container, pos })) {
+				auto& item = item_of(mark::slot(container, pos));
+				if (let queue_pos = find_empty_pos_for(queue, item)) {
+					(*info.queue)[*queue_pos] = { container, pos };
+				}
+			}
+		}));
 }
 
 auto recycler::has(const mark::interface::item& item) const noexcept -> bool

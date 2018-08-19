@@ -82,6 +82,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 					_.pos = { resolution_i.x - 50 - 300, 50 };
 					_.size = inventory_size;
 					_.ui = *this;
+					_.queue = m_queue;
 					return _;
 				}()));
 			} else {
@@ -125,11 +126,12 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 		execute_info.modular = *landed_modular;
 	}
 	execute_info.tooltip = m_tooltip;
+	execute_info.queue = m_queue;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	for (auto &window : m_windows) {
+	for (auto& window : m_windows) {
 		let result = window->click(event);
 		if (result.handled) {
 			for (auto& action : result.actions) {
@@ -155,7 +157,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = false;
-	for (auto &window : m_windows) {
+	for (auto& window : m_windows) {
 		let result = window->hover(event);
 		if (result.handled) {
 			for (auto& action : result.actions) {
@@ -220,8 +222,7 @@ bool mark::ui::ui::command(
 auto mark::ui::ui::command(
 	world& world,
 	random& random,
-	const mark::command::move& move)
-	-> bool
+	const mark::command::move& move) -> bool
 {
 	if (move.release) {
 		return false;
@@ -419,11 +420,13 @@ auto mark::ui::ui::drop() noexcept -> interface::item_ptr
 	return detach(m_grabbed);
 }
 
-void mark::ui::ui::recycle(interface::container& container, vi32 pos) noexcept
+mark::ui::handler_result
+mark::ui::ui::recycle(interface::container& container, vi32 pos) const noexcept
 {
 	if (let recycler = this->recycler()) {
-		recycler->recycle(container, pos);
+		return recycler->recycle(container, pos);
 	}
+	return { false, {} };
 }
 
 auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*

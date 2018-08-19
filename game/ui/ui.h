@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <array2d.h>
 #include <command.h>
 #include <mode_stack.h>
 #include <slot.h>
@@ -37,7 +38,8 @@ public:
 	void drag(interface::container&, vi32 pos) noexcept;
 	/// Drop grabbed item
 	auto drop() noexcept -> interface::item_ptr;
-	void recycle(interface::container&, vi32 pos) noexcept;
+	[[nodiscard]] handler_result recycle(interface::container&, vi32 pos) const
+		noexcept;
 	/// Returns a modular, if a modular is present in the landing pad
 	auto landed_modular() noexcept -> mark::unit::modular*;
 	/// Returns true if module is present in the recycler
@@ -49,7 +51,8 @@ private:
 	/// Handler for the mouse over event
 	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
 	/// Process the move command
-	auto command(world& world, random& random, const command::move& move) -> bool;
+	auto command(world& world, random& random, const command::move& move)
+		-> bool;
 	/// Process the "drag" user command
 	void drop(world& world, random& random, vd relative);
 	/// Process the "drop" user command
@@ -78,8 +81,9 @@ private:
 	random& m_random;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
-
+	using queue_type = array2d<mark::slot, 16, 32>;
 	slot m_grabbed;
+	queue_type m_queue;
 };
 } // namespace ui
 } // namespace mark
