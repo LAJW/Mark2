@@ -78,7 +78,6 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				}()));
 				m_windows.push_back(std::make_unique<mark::ui::recycler>([&] {
 					recycler::info _;
-					_.modular = *modular;
 					_.rm = m_rm;
 					_.tooltip = m_tooltip;
 					_.pos = { resolution_i.x - 50 - 300, 50 };
@@ -120,6 +119,11 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 {
 	action::base::execute_info execute_info;
 	execute_info.mode_stack = m_stack;
+	// Can't inline into if-statement, the lifetime has to be extended
+	let landed_modular = this->landed_modular();
+	if (landed_modular) {
+		execute_info.modular = *landed_modular;
+	}
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
