@@ -124,11 +124,11 @@ void recycler::update(update_context& context)
 {
 	{
 		let queued_items = [&] {
-			std::vector<std::pair<vector<size_t>, const interface::item&>> queued_items;
-			for (let pair : enumerate(m_queue)) {
-				let slot = pair.second;
+			std::vector<std::pair<vector<size_t>, const interface::item&>>
+				queued_items;
+			for (let[pos, slot] : enumerate(m_queue)) {
 				if (!slot.empty()) {
-					queued_items.emplace_back(pair.first, item_of(slot));
+					queued_items.emplace_back(pos, item_of(slot));
 				}
 			}
 			return queued_items;
@@ -149,16 +149,15 @@ void recycler::update(update_context& context)
 			diff(item_buttons, queued_items, [&](let& node, let& item) {
 				return item.second.equals(node.get().item());
 			});
-		for (let pair : added_and_removed.added) {
-			let before = pair.first;
-			let &item = pair.second.second;
-			let pos = pair.second.first;
+		for (let[before, pos_and_item] : added_and_removed.added) {
+			let & [ pos, item ] = pos_and_item;
 			// A module should have never been pushed in the first place
 			auto& slot = m_queue[pos];
 			auto button = std::make_unique<item_button>([&] {
 				item_button::info _;
 				_.pos = vi32(pos * static_cast<size_t>(mark::module::size));
-				_.size = item.size() * static_cast<unsigned>(mark::module::size);
+				_.size =
+					item.size() * static_cast<unsigned>(mark::module::size);
 				_.font = m_font;
 				_.item = item;
 				_.ui = m_ui;
@@ -168,7 +167,7 @@ void recycler::update(update_context& context)
 				slot = {};
 				return { true, {} };
 			});
-			button->on_hover.insert([&](const event&) -> handler_result {
+			button->on_hover.insert([&](const event&) {
 				return handler_result::make(
 					std::make_unique<action::set_tooltip>(
 						vi32(pos) - vi32{ 300, 0 }, &item, item.describe()));
