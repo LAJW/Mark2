@@ -14,7 +14,6 @@ public:
 	using queue_type = array2d<mark::slot, 16, 32>;
 	struct info : chunky_window::info
 	{
-		optional<tooltip&> tooltip;
 		optional<ui&> ui;
 	};
 	recycler(const info&);
@@ -23,9 +22,8 @@ public:
 	[[nodiscard]] bool has(const mark::interface::item& item) const noexcept;
 
 private:
-	ui& m_ui;
+	const ui& m_ui;
 	queue_type m_queue;
-	tooltip& m_tooltip;
 	const mark::resource::image_ptr m_font;
 	const mark::resource::image_ptr m_grid;
 };

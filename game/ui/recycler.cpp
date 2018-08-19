@@ -7,6 +7,7 @@
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/action/modular_push.h>
+#include <ui/action/set_tooltip.h>
 #include <ui/chunky_button.h>
 #include <ui/item_button.h>
 #include <ui/tooltip.h>
@@ -30,7 +31,6 @@ static void clear(recycler& window)
 recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_ui(*info.ui)
-	, m_tooltip(*info.tooltip)
 	, m_font(info.rm->image("font.png"))
 	, m_grid(info.rm->image("inventory-grid.png"))
 {
@@ -163,9 +163,9 @@ void recycler::recycle(interface::container& container, vi32 pos) noexcept
 		return { true, {} };
 	});
 	button->on_hover.insert([&](const event&) -> handler_result {
-		m_tooltip.set(
-			vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe());
-		return { true, {} };
+		return handler_result::make(
+			std::make_unique<action::set_tooltip>(
+				  vi32(*queue_pos) - vi32{ 300, 0 }, &item, item.describe()));
 	});
 	Ensures(success(this->append(move(button))));
 	slot = { container, pos };

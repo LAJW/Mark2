@@ -79,7 +79,6 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				m_windows.push_back(std::make_unique<mark::ui::recycler>([&] {
 					recycler::info _;
 					_.rm = m_rm;
-					_.tooltip = m_tooltip;
 					_.pos = { resolution_i.x - 50 - 300, 50 };
 					_.size = inventory_size;
 					_.ui = *this;
@@ -115,6 +114,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	m_tooltip.update(context);
 }
 
+// TODO: Templatize, this and hover are the same
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 {
 	action::base::execute_info execute_info;
@@ -124,6 +124,7 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	if (landed_modular) {
 		execute_info.modular = *landed_modular;
 	}
+	execute_info.tooltip = m_tooltip;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
@@ -142,6 +143,14 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 
 bool mark::ui::ui::hover(vi32 screen_pos)
 {
+	action::base::execute_info execute_info;
+	execute_info.mode_stack = m_stack;
+	// Can't inline into if-statement, the lifetime has to be extended
+	let landed_modular = this->landed_modular();
+	if (landed_modular) {
+		execute_info.modular = *landed_modular;
+	}
+	execute_info.tooltip = m_tooltip;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
@@ -149,6 +158,9 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 	for (auto &window : m_windows) {
 		let result = window->hover(event);
 		if (result.handled) {
+			for (auto& action : result.actions) {
+				action->execute(execute_info);
+			}
 			return true;
 		}
 	}

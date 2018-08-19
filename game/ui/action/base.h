@@ -4,6 +4,7 @@
 namespace mark {
 class mode_stack;
 namespace ui {
+class tooltip;
 namespace action {
 
 class base
@@ -14,6 +15,7 @@ public:
 	{
 		optional<unit::modular&> modular;
 		optional<mode_stack&> mode_stack;
+		optional<tooltip&> tooltip;
 	};
 	virtual void execute(const execute_info& info) = 0;
 

@@ -13,7 +13,7 @@ public:
 	{
 		resource::image_ptr font;
 		optional<const mark::interface::item&> item;
-		optional<mark::ui::ui&> ui;
+		optional<const mark::ui::ui&> ui;
 		// Is this button the "origin" - i.e. the thing which points to the
 		// item you can grab
 		bool origin = false;
@@ -27,7 +27,7 @@ private:
 
 	const not_null<resource::image_ptr> m_font;
 	const mark::interface::item& m_item;
-	mark::ui::ui& m_ui;
+	const mark::ui::ui& m_ui;
 	bool m_origin;
 };
 
