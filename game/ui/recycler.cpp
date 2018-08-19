@@ -81,39 +81,6 @@ recycler::recycler(const info& info)
 	Ensures(success(this->append(move(cancel_recycle_button))));
 }
 
-[[nodiscard]] static auto reserved(const recycler::queue_type& queue)
-{
-	array2d<bool, 16, 32> reserved;
-	reserved.fill(false);
-	for (let & [ i, slot ] : enumerate(queue)) {
-		if (slot.empty()) {
-			continue;
-		}
-		for (let j : range(i, i + vector<size_t>(item_of(slot).size()))) {
-			reserved[j] = true;
-		}
-	}
-	return reserved;
-}
-
-[[nodiscard]] static optional<vector<size_t>> find_empty_pos_for(
-	const recycler::queue_type& queue,
-	const interface::item& item)
-{
-	let reserved = mark::ui::reserved(queue);
-	for (auto pair : enumerate(queue)) {
-		auto& [i, slot] = pair;
-		let item_size = item.size();
-		if (all_of(range(i, i + vector<size_t>(item_size)), [&](let pos) {
-				return pos.x < queue.size().x && pos.y < queue.size().y
-					&& !reserved[pos];
-			})) {
-			return i;
-		}
-	}
-	return {};
-}
-
 void recycler::update(update_context& context)
 {
 	let queued_items = [&] {
@@ -187,22 +154,6 @@ void recycler::render(update_context& context) const
 			return _;
 		}());
 	}
-}
-
-// TODO: Make non-member of recycler
-handler_result
-recycler::recycle(interface::container& container, vi32 pos) const noexcept
-{
-	return handler_result::make(std::make_unique<action::legacy>(
-		[&container, pos](const action::legacy::execute_info& info) {
-			auto& queue = *info.queue;
-			if (!has_one(queue.data(), { container, pos })) {
-				auto& item = item_of(mark::slot(container, pos));
-				if (let queue_pos = find_empty_pos_for(queue, item)) {
-					(*info.queue)[*queue_pos] = { container, pos };
-				}
-			}
-		}));
 }
 
 auto recycler::has(const mark::interface::item& item) const noexcept -> bool

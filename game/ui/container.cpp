@@ -1,14 +1,15 @@
 ﻿#include "container.h"
 #include <algorithm/range.h>
+#include <exception.h>
 #include <module/cargo.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/action/recycle.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
 #include <ui/ui.h>
 #include <update_context.h>
-#include <exception.h>
 
 let constexpr label_height = 32;
 
@@ -84,7 +85,8 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
-	const auto relative_pos = vd(event.cursor - this->pos() - vi32(0, label_height));
+	const auto relative_pos =
+		vd(event.cursor - this->pos() - vi32(0, label_height));
 	let pos = round(
 		relative_pos / static_cast<double>(mark::module::size)
 		- module_size / 2.);
@@ -94,9 +96,9 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	handler_result result = { true, {} };
 	result.actions.push_back(
 		std::make_unique<mark::ui::action::legacy>([pos, this] {
-		let result = m_container.attach(pos, m_ui.drop());
-		Expects(success(result) || result == error::code::stacked);
-	}));
+			let result = m_container.attach(pos, m_ui.drop());
+			Expects(success(result) || result == error::code::stacked);
+		}));
 	return result;
 }
 
@@ -137,7 +139,8 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		let actual_pos = m_container.pos_at(pos);
 		if (actual_pos) {
 			if (event.shift) {
-				return m_ui.recycle(m_container, *actual_pos);
+				return handler_result::make(std::make_unique<action::recycle>(
+					m_container, *actual_pos));
 			} else {
 				m_ui.drag(m_container, *actual_pos);
 			}

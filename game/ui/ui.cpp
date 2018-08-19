@@ -420,15 +420,6 @@ auto mark::ui::ui::drop() noexcept -> interface::item_ptr
 	return detach(m_grabbed);
 }
 
-mark::ui::handler_result
-mark::ui::ui::recycle(interface::container& container, vi32 pos) const noexcept
-{
-	if (let recycler = this->recycler()) {
-		return recycler->recycle(container, pos);
-	}
-	return { false, {} };
-}
-
 auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
 {
 	let landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(

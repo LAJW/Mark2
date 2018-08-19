@@ -20,8 +20,6 @@ public:
 	recycler(const info&);
 	void update(update_context&) override;
 	void render(update_context&) const;
-	[[nodiscard]] handler_result
-	recycle(interface::container& container, vi32 pos) const noexcept;
 	[[nodiscard]] bool has(const mark::interface::item& item) const noexcept;
 
 private:

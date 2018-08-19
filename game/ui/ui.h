@@ -38,8 +38,6 @@ public:
 	void drag(interface::container&, vi32 pos) noexcept;
 	/// Drop grabbed item
 	auto drop() noexcept -> interface::item_ptr;
-	[[nodiscard]] handler_result recycle(interface::container&, vi32 pos) const
-		noexcept;
 	/// Returns a modular, if a modular is present in the landing pad
 	auto landed_modular() noexcept -> mark::unit::modular*;
 	/// Returns true if module is present in the recycler
