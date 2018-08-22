@@ -1,16 +1,17 @@
 ﻿#include "container.h"
-#include <algorithm/find_if.h>
 #include <algorithm/range.h>
 #include <exception.h>
 #include <module/cargo.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/action/drop_into_container.h>
+#include <ui/action/grab_from_container.h>
 #include <ui/action/recycle.h>
+#include <ui/action/stack_into_container.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
 #include <ui/ui.h>
-#include <unit/modular.h>
 #include <update_context.h>
 
 let constexpr label_height = 32;
@@ -95,17 +96,9 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	if (!m_container.can_attach(pos, module)) {
 		return { false, {} };
 	}
-	handler_result result = { true, {} };
-	result.actions.push_back(std::make_unique<mark::ui::action::legacy>(
-		[pos, this](const action::base::execute_info& info) {
-			let container = find_if(info.modular->containers(), [&](let& cur) {
-				return &cur.get() == &m_container;
-			});
-			let result =
-				container->get().attach(pos, mark::detach(*info.grabbed));
-			Expects(success(result) || result == error::code::stacked);
-		}));
-	return result;
+	// drop_into_cargo action
+	return handler_result::make(
+		std::make_unique<action::drop_into_container>(m_container, pos));
 }
 
 const mark::module::cargo& mark::ui::container::cargo() const
@@ -140,32 +133,18 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			if (!m_container.at(pos)->can_stack(*grabbed)) {
 				return { true, {} };
 			}
-			return handler_result::make(std::make_unique<action::legacy>(
-				[pos, this](const action::base::execute_info& info) {
-					let container =
-						find_if(info.modular->containers(), [&](let& cur) {
-							return &cur.get() == &m_container;
-						});
-					// TODO: If not fully stacked, put the item back where
-					// it was
-					(void)container->get().attach(pos, detach(*info.grabbed));
-				}));
+			return handler_result::make(
+				std::make_unique<action::stack_into_container>(
+					m_container, pos));
 		}
-		let actual_pos = m_container.pos_at(pos);
-		if (actual_pos) {
+		if (let actual_pos = m_container.pos_at(pos)) {
 			if (event.shift) {
 				return handler_result::make(std::make_unique<action::recycle>(
 					m_container, *actual_pos));
-			} else {
-				return handler_result::make(std::make_unique<action::legacy>(
-					[actual_pos, this](const action::base::execute_info& info) {
-						let container =
-							find_if(info.modular->containers(), [&](let& cur) {
-								return &cur.get() == &m_container;
-							});
-						(*info.grabbed) = { container->get(), *actual_pos };
-					}));
 			}
+			return handler_result::make(
+				std::make_unique<action::grab_from_container>(
+					m_container, *actual_pos));
 		}
 		return { true, {} };
 	});
