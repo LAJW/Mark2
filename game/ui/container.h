@@ -31,7 +31,7 @@ private:
 	resource::image_ptr m_header;
 	resource::image_ptr m_font;
 	const ui& m_ui;
-	module::cargo& m_container;
+	const module::cargo& m_container;
 	std::vector<const mark::interface::item*> m_prev_contents;
 };
 } // namespace ui

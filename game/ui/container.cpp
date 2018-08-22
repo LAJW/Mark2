@@ -1,4 +1,5 @@
 ﻿#include "container.h"
+#include <algorithm/find_if.h>
 #include <algorithm/range.h>
 #include <exception.h>
 #include <module/cargo.h>
@@ -9,6 +10,7 @@
 #include <ui/event.h>
 #include <ui/item_button.h>
 #include <ui/ui.h>
+#include <unit/modular.h>
 #include <update_context.h>
 
 let constexpr label_height = 32;
@@ -96,7 +98,11 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	handler_result result = { true, {} };
 	result.actions.push_back(std::make_unique<mark::ui::action::legacy>(
 		[pos, this](const action::base::execute_info& info) {
-			let result = m_container.attach(pos, mark::detach(*info.grabbed));
+			let container = find_if(info.modular->containers(), [&](let& cur) {
+				return &cur.get() == &m_container;
+			});
+			let result =
+				container->get().attach(pos, mark::detach(*info.grabbed));
 			Expects(success(result) || result == error::code::stacked);
 		}));
 	return result;
@@ -131,13 +137,19 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 	button->on_click.insert([pos, this](const event& event) -> handler_result {
 		if (let grabbed = m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
-			if (m_container.at(pos)->can_stack(*grabbed)) {
-				return handler_result::make(std::make_unique<action::legacy>(
-					[pos, this](const action::base::execute_info& info) {
-						(void)m_container.attach(pos, detach(*info.grabbed));
-					}));
+			if (!m_container.at(pos)->can_stack(*grabbed)) {
+				return { true, {} };
 			}
-			return { true, {} };
+			return handler_result::make(std::make_unique<action::legacy>(
+				[pos, this](const action::base::execute_info& info) {
+					let container =
+						find_if(info.modular->containers(), [&](let& cur) {
+							return &cur.get() == &m_container;
+						});
+					// TODO: If not fully stacked, put the item back where
+					// it was
+					(void)container->get().attach(pos, detach(*info.grabbed));
+				}));
 		}
 		let actual_pos = m_container.pos_at(pos);
 		if (actual_pos) {
@@ -147,7 +159,11 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			} else {
 				return handler_result::make(std::make_unique<action::legacy>(
 					[actual_pos, this](const action::base::execute_info& info) {
-						(*info.grabbed) = { m_container, *actual_pos };
+						let container =
+							find_if(info.modular->containers(), [&](let& cur) {
+								return &cur.get() == &m_container;
+							});
+						(*info.grabbed) = { container->get(), *actual_pos };
 					}));
 			}
 		}

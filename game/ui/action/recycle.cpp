@@ -1,8 +1,11 @@
 #include "recycle.h"
 #include <algorithm.h>
+#include <algorithm/find_if.h>
 #include <algorithm/has_one.h>
 #include <interface/item.h>
+#include <module/cargo.h>
 #include <slot.h>
+#include <unit/modular.h>
 
 namespace mark {
 namespace ui {
@@ -44,8 +47,11 @@ namespace action {
 
 void recycle::execute(const execute_info& info)
 {
+	let container = find_if(info.modular->containers(), [&](let& cur) {
+		return &cur.get() == &m_container;
+	});
 	auto& queue = *info.queue;
-	mark::slot slot = { m_container, m_pos };
+	auto slot = mark::slot(container->get(), m_pos);
 	if (!has_one(queue.data(), slot)) {
 		auto& item = item_of(slot);
 		if (let queue_pos = find_empty_pos_for(queue, item)) {
