@@ -119,7 +119,7 @@ void recycler::update(update_context& context)
 			_.ui = m_ui;
 			return _;
 		}());
-		button->on_click.insert([&](const event&) -> handler_result {
+		button->on_click.insert([=](const event&) -> handler_result {
 			return handler_result::make(std::make_unique<action::legacy>(
 				[pos](const action::base::execute_info& info) {
 					(*info.queue)[pos] = {};
