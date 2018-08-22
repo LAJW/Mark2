@@ -30,7 +30,7 @@ private:
 	resource::image_ptr m_cargo_bg;
 	resource::image_ptr m_header;
 	resource::image_ptr m_font;
-	ui& m_ui;
+	const ui& m_ui;
 	module::cargo& m_container;
 	std::vector<const mark::interface::item*> m_prev_contents;
 };

@@ -127,6 +127,7 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	}
 	execute_info.tooltip = m_tooltip;
 	execute_info.queue = m_queue;
+	execute_info.grabbed = m_grabbed;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
@@ -153,6 +154,7 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 		execute_info.modular = *landed_modular;
 	}
 	execute_info.tooltip = m_tooltip;
+	execute_info.grabbed = m_grabbed;
 	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
@@ -264,7 +266,7 @@ void mark::ui::ui::drop(world& world, random& random, vd relative)
 	}
 	if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
-			grabbed()->use_on(random, world.blueprints(), *module);
+			item_of(m_grabbed).use_on(random, world.blueprints(), *module);
 		if (error == error::code::success && consumed) {
 			detach(m_grabbed);
 		}
@@ -405,9 +407,12 @@ void mark::ui::ui::tooltip(
 	m_tooltip.set(pos, &object_id, str);
 }
 
-auto mark::ui::ui::grabbed() noexcept -> interface::item*
+auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
 {
-	return !m_grabbed.empty() ? &item_of(m_grabbed) : nullptr;
+	if (m_grabbed.empty()) {
+		return {};
+	}
+	return item_of(m_grabbed);
 }
 
 void mark::ui::ui::drag(interface::container& container, vi32 pos) noexcept

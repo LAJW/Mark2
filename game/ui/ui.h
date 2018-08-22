@@ -33,7 +33,7 @@ public:
 		const void* id,
 		const std::string& text);
 	/// Get a grabbed item
-	auto grabbed() noexcept -> interface::item*;
+	[[nodiscard]] optional<const interface::item&> grabbed() const noexcept;
 	/// Grab an item
 	void drag(interface::container&, vi32 pos) noexcept;
 	/// Drop grabbed item

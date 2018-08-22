@@ -21,6 +21,7 @@ public:
 		optional<mode_stack&> mode_stack;
 		optional<tooltip&> tooltip;
 		optional<queue_type&> queue;
+		optional<slot&> grabbed;
 	};
 	virtual void execute(const execute_info& info) = 0;
 

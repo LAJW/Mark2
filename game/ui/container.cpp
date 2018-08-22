@@ -94,9 +94,9 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 		return { false, {} };
 	}
 	handler_result result = { true, {} };
-	result.actions.push_back(
-		std::make_unique<mark::ui::action::legacy>([pos, this] {
-			let result = m_container.attach(pos, m_ui.drop());
+	result.actions.push_back(std::make_unique<mark::ui::action::legacy>(
+		[pos, this](const action::base::execute_info& info) {
+			let result = m_container.attach(pos, mark::detach(*info.grabbed));
 			Expects(success(result) || result == error::code::stacked);
 		}));
 	return result;
@@ -132,7 +132,10 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		if (let grabbed = m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
 			if (m_container.at(pos)->can_stack(*grabbed)) {
-				(void)m_container.attach(pos, m_ui.drop());
+				return handler_result::make(std::make_unique<action::legacy>(
+					[pos, this](const action::base::execute_info& info) {
+						(void)m_container.attach(pos, detach(*info.grabbed));
+					}));
 			}
 			return { true, {} };
 		}
@@ -142,7 +145,10 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 				return handler_result::make(std::make_unique<action::recycle>(
 					m_container, *actual_pos));
 			} else {
-				m_ui.drag(m_container, *actual_pos);
+				return handler_result::make(std::make_unique<action::legacy>(
+					[actual_pos, this](const action::base::execute_info& info) {
+						(*info.grabbed) = { m_container, *actual_pos };
+					}));
 			}
 		}
 		return { true, {} };
