@@ -10,9 +10,11 @@ namespace action {
 
 void grab_from_container::execute(const execute_info& info)
 {
-	let container = find_if(info.modular->containers(), [&](let& cur) {
+	let containers = info.modular->containers();
+	let container = find_if(containers, [&](let& cur) {
 		return &cur.get() == &m_container;
 	});
+	Expects(container != containers.end());
 	(*info.grabbed) = { container->get(), m_pos };
 }
 

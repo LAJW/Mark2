@@ -10,9 +10,11 @@ namespace action {
 
 void drop_into_container::execute(const execute_info& info)
 {
-	let container = find_if(info.modular->containers(), [&](let& cur) {
+	let containers = info.modular->containers();
+	let container = find_if(containers, [&](let& cur) {
 		return &cur.get() == &m_container;
 	});
+	Expects(container != containers.end());
 	let result = container->get().attach(m_pos, mark::detach(*info.grabbed));
 	Expects(success(result) || result == error::code::stacked);
 }

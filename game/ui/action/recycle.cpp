@@ -47,9 +47,10 @@ namespace action {
 
 void recycle::execute(const execute_info& info)
 {
-	let container = find_if(info.modular->containers(), [&](let& cur) {
-		return &cur.get() == &m_container;
-	});
+	let containers = info.modular->containers();
+	let container = find_if(
+		containers, [&](let& cur) { return &cur.get() == &m_container; });
+	Expects(container != containers.end());
 	auto& queue = *info.queue;
 	auto slot = mark::slot(container->get(), m_pos);
 	if (!has_one(queue.data(), slot)) {

@@ -10,11 +10,12 @@ namespace action {
 
 void stack_into_container::execute(const execute_info& info)
 {
-	let container = find_if(info.modular->containers(), [&](let& cur) {
+	let containers = info.modular->containers();
+	let container = find_if(containers, [&](let& cur) {
 		return &cur.get() == &m_container;
 	});
-	// TODO: If not fully stacked, put the item back where
-	// it was
+	Expects(container != containers.end());
+	// TODO: If not fully stacked, put the item back where it was
 	(void)container->get().attach(m_pos, detach(*info.grabbed));
 }
 
