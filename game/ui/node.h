@@ -1,15 +1,14 @@
 ﻿#pragma once
 #include <add_const_if.h>
 #include <stdafx.h>
-#include <ui/action.h>
+#include <ui/event.h>
+#include <ui/action/legacy.h>
 
 namespace mark {
 namespace ui {
 struct event;
 class window;
 class node;
-
-class action;
 
 class node_ref
 {
@@ -53,11 +52,6 @@ private:
 	window* m_parent = nullptr;
 };
 
-struct handler_result
-{
-	bool handled;
-	std::vector<unique_ptr<action>> actions;
-};
 
 class node : public node_ref
 {

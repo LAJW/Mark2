@@ -16,7 +16,7 @@ public:
 		vi32 pos;
 		/// Size of the button
 		vu32 size;
-		std::function<bool(const event&)> on_click;
+		std::function<handler_result(const event&)> on_click;
 	};
 
 	button_base(const info&);

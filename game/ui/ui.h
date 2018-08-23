@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <array2d.h>
 #include <command.h>
 #include <mode_stack.h>
 #include <slot.h>
@@ -24,32 +25,28 @@ public:
 	/// Update UI state, render frames, etc.
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	/// Handle all events
-	[[nodiscard]] auto
-	command(world& world, random& random, const command::any& command) -> bool;
-	/// Show tooltip at a specified world/screen position with supplied text
-	void tooltip(
-		std::variant<vd, vi32> pos,
-		const void* id,
-		const std::string& text);
+	[[nodiscard]] bool
+	command(world& world, random& random, const command::any& command);
 	/// Get a grabbed item
-	auto grabbed() noexcept -> interface::item*;
-	/// Grab an item
-	void drag(interface::container&, vi32 pos) noexcept;
-	/// Drop grabbed item
-	auto drop() noexcept -> interface::item_ptr;
-	void recycle(interface::container&, vi32 pos) noexcept;
+	[[nodiscard]] optional<const interface::item&> grabbed() const noexcept;
 	/// Returns a modular, if a modular is present in the landing pad
-	auto landed_modular() noexcept -> mark::unit::modular*;
+	[[nodiscard]] mark::unit::modular* landed_modular() noexcept;
 	/// Returns true if module is present in the recycler
-	auto in_recycler(const mark::interface::item& item) const noexcept -> bool;
+	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
+		noexcept;
 
 private:
+	using dispatch_callback =
+		std::function<handler_result(const event&, window&)>;
+	[[nodiscard]] bool
+	dispatch(vi32 screen_pos, bool shift, dispatch_callback proc);
 	/// Handler for the click event
 	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
 	/// Handler for the mouse over event
 	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
 	/// Process the move command
-	auto command(world& world, random& random, const command::move& move) -> bool;
+	[[nodiscard]] bool
+	command(world& world, random& random, const command::move& move);
 	/// Process the "drag" user command
 	void drop(world& world, random& random, vd relative);
 	/// Process the "drop" user command
@@ -58,8 +55,8 @@ private:
 		update_context& context,
 		vd resolution,
 		const unit::modular& modular);
-	auto recycler() noexcept -> optional<mark::ui::recycler&>;
-	auto recycler() const noexcept -> optional<const mark::ui::recycler&>;
+	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
+	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
 
 	action_bar m_action_bar;
 
@@ -78,8 +75,9 @@ private:
 	random& m_random;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
-
+	using queue_type = array2d<mark::slot, 16, 32>;
 	slot m_grabbed;
+	queue_type m_queue;
 };
 } // namespace ui
 } // namespace mark

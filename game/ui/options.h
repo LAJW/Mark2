@@ -7,8 +7,7 @@ class mode_stack;
 namespace ui {
 class window;
 
-auto make_options(mark::resource::manager& rm, mark::mode_stack& stack)
-	-> unique_ptr<window>;
+[[nodiscard]] unique_ptr<window> make_options(mark::resource::manager& rm);
 
 } // namespace ui
 } // namespace mark

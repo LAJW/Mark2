@@ -1,12 +1,14 @@
 #include "prompt.h"
+#include <exception.h>
 #include <mode_stack.h>
 #include <resource/manager.h>
+#include <ui/action/pop_ui_state.h>
+#include <ui/action/clear_ui_state.h>
 #include <ui/chunky_button.h>
 #include <ui/label.h>
 #include <ui/window.h>
-#include <exception.h>
 
-auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
+auto mark::ui::make_prompt(mark::resource::manager& rm)
 	-> unique_ptr<window>
 {
 	using namespace mark;
@@ -32,9 +34,9 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-red-button.png");
 		_.text = "Yes";
 		_.relative = true;
-		_.on_click = [&](let&) {
-			stack.clear();
-			return true;
+		_.on_click = [&](const event&) {
+			return handler_result::make(
+				std::make_unique<action::clear_ui_state>());
 		};
 		return _;
 	}());
@@ -46,9 +48,9 @@ auto mark::ui::make_prompt(mark::resource::manager& rm, mark::mode_stack& stack)
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "No";
 		_.relative = true;
-		_.on_click = [&](let&) {
-			stack.pop();
-			return true;
+		_.on_click = [&](const event&) {
+			return handler_result::make(
+				std::make_unique<action::pop_ui_state>());
 		};
 		return _;
 	}());

@@ -1,30 +1,34 @@
 ﻿#include "container.h"
 #include <algorithm/range.h>
+#include <exception.h>
 #include <module/cargo.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/action/drop_into_container.h>
+#include <ui/action/grab_from_container.h>
+#include <ui/action/recycle.h>
+#include <ui/action/stack_into_container.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
 #include <ui/ui.h>
 #include <update_context.h>
-#include <exception.h>
 
 let constexpr label_height = 32;
 
 mark::ui::container::container(const info& info)
 	: window(info)
-	, m_ui(*info.ui)
-	, m_container(*info.container)
 	, m_cargo_bg(info.rm->image("inventory-grid.png"))
 	, m_header(info.rm->image("inventory-header.png"))
 	, m_font(info.rm->image("font.png"))
+	, m_ui(*info.ui)
+	, m_container(*info.container)
 {}
 
 void mark::ui::container::update(update_context& context)
 {
 	std::vector<const mark::interface::item*> contents;
-	for (const auto& item : m_container.items()) {
+	for (let& item : m_container.items()) {
 		contents.push_back(item.get());
 	}
 	if (contents != m_prev_contents) {
@@ -80,24 +84,23 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	}
 	let grabbed = m_ui.grabbed();
 	if (!grabbed) {
-		return { false };
+		return { false, {} };
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
-	const auto relative_pos = vd(event.cursor - this->pos() - vi32(0, label_height));
+	const auto relative_pos =
+		vd(event.cursor - this->pos() - vi32(0, label_height));
 	let pos = round(
 		relative_pos / static_cast<double>(mark::module::size)
 		- module_size / 2.);
 	if (!m_container.can_attach(pos, module)) {
-		return { false };
+		return { false, {} };
 	}
-	let result = m_container.attach(pos, m_ui.drop());
-	Expects(result == error::code::success || result == error::code::stacked);
-	this->attach(pos, module);
-	return { false };
+	return handler_result::make(
+		std::make_unique<action::drop_into_container>(m_container, pos));
 }
 
-auto mark::ui::container::cargo() const -> const module::cargo&
+const mark::module::cargo& mark::ui::container::cargo() const
 {
 	return m_container;
 }
@@ -112,7 +115,7 @@ auto mark::ui::container::size() const -> vi32
 void mark::ui::container::attach(vi32 pos, interface::item& item)
 {
 	let button_pos = pos * 16 + vi32(0, 32);
-	auto button_ptr = std::make_unique<mark::ui::item_button>([&] {
+	auto button = std::make_unique<mark::ui::item_button>([&] {
 		mark::ui::item_button::info _;
 		_.item = item;
 		_.font = m_font;
@@ -123,29 +126,28 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		_.origin = true;
 		return _;
 	}());
-	auto& button = *button_ptr;
-	button.on_click.insert([pos, this, &button](const event& event) {
+	button->on_click.insert([pos, this](const event& event) -> handler_result {
 		if (let grabbed = m_ui.grabbed()) {
 			// TODO: Propagate error/notify user that object cannot be put here
-			if (m_container.at(pos)->can_stack(*grabbed)) {
-				(void)m_container.attach(pos, m_ui.drop());
+			if (!m_container.at(pos)->can_stack(*grabbed)) {
+				return { true, {} };
 			}
-			return true;
+			return handler_result::make(
+				std::make_unique<action::stack_into_container>(
+					m_container, pos));
 		}
-		let actual_pos = m_container.pos_at(pos);
-		if (actual_pos) {
+		if (let actual_pos = m_container.pos_at(pos)) {
 			if (event.shift) {
-				m_ui.recycle(m_container, *actual_pos);
-			} else {
-				m_ui.drag(m_container, *actual_pos);
+				return handler_result::make(std::make_unique<action::recycle>(
+					m_container, *actual_pos));
 			}
+			return handler_result::make(
+				std::make_unique<action::grab_from_container>(
+					m_container, *actual_pos));
 		}
-		// Don't call anything after this. This call destroys "this" lambda.
-		// Button doesn't need deletion, as we're only removing it on swap
-		// this->remove(button);
-		return true;
+		return { true, {} };
 	});
-	Expects(success(this->append(move(button_ptr))));
+	Expects(success(this->append(move(button))));
 }
 
 auto mark::ui::container::pos() const noexcept -> vi32

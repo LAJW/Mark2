@@ -1,6 +1,7 @@
 #include "item_button.h"
 #include <interface/item.h>
 #include <sprite.h>
+#include <ui/action/set_tooltip.h>
 #include <ui/ui.h>
 #include <ui/window.h>
 #include <update_context.h>
@@ -14,14 +15,14 @@ mark::ui::item_button::item_button(const info& info)
 {
 	let& item = *info.item;
 	let length = static_cast<int>(item.size().x) * 16;
-	this->on_hover.insert([=, &item](const event&) {
+	this->on_hover.insert([=, &item](const event&) -> handler_result {
 		// HACK: This should be based on screen resolution and updated on resize
 		if (this->pos().x < 1000) {
-			m_ui.tooltip(this->pos() + vi32(length, 0), &item, item.describe());
-		} else {
-			m_ui.tooltip(this->pos() - vi32(300, 0), &item, item.describe());
+			return handler_result::make(std::make_unique<action::set_tooltip>(
+				this->pos() + vi32(length, 0), &item, item.describe()));
 		}
-		return true;
+		return handler_result::make(std::make_unique<action::set_tooltip>(
+			this->pos() + vi32(length, 0), &item, item.describe()));
 	});
 }
 
