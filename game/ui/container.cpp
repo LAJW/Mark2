@@ -96,7 +96,6 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	if (!m_container.can_attach(pos, module)) {
 		return { false, {} };
 	}
-	// drop_into_cargo action
 	return handler_result::make(
 		std::make_unique<action::drop_into_container>(m_container, pos));
 }

@@ -115,8 +115,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	m_tooltip.update(context);
 }
 
-// TODO: Templatize, this and hover are the same
-bool mark::ui::ui::click(vi32 screen_pos, bool shift)
+bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 {
 	action::base::execute_info execute_info;
 	execute_info.mode_stack = m_stack;
@@ -133,7 +132,7 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	event.cursor = screen_pos;
 	event.shift = shift;
 	for (auto& window : m_windows) {
-		let result = window->click(event);
+		let result = proc(event, *window);
 		if (result.handled) {
 			for (auto& action : result.actions) {
 				action->execute(execute_info);
@@ -144,31 +143,18 @@ bool mark::ui::ui::click(vi32 screen_pos, bool shift)
 	return false;
 }
 
+bool mark::ui::ui::click(vi32 screen_pos, bool shift)
+{
+	return dispatch(screen_pos, shift, [&](const event& event, window& window) {
+		return window.click(event);
+	});
+}
+
 bool mark::ui::ui::hover(vi32 screen_pos)
 {
-	action::base::execute_info execute_info;
-	execute_info.mode_stack = m_stack;
-	// Can't inline into if-statement, the lifetime has to be extended
-	let landed_modular = this->landed_modular();
-	if (landed_modular) {
-		execute_info.modular = *landed_modular;
-	}
-	execute_info.tooltip = m_tooltip;
-	execute_info.grabbed = m_grabbed;
-	mark::ui::event event;
-	event.absolute_cursor = screen_pos;
-	event.cursor = screen_pos;
-	event.shift = false;
-	for (auto& window : m_windows) {
-		let result = window->hover(event);
-		if (result.handled) {
-			for (auto& action : result.actions) {
-				action->execute(execute_info);
-			}
-			return true;
-		}
-	}
-	return false;
+	return dispatch(screen_pos, false, [&](const event& event, window& window) {
+		return window.hover(event);
+	});
 }
 
 namespace mark {
@@ -399,30 +385,12 @@ void mark::ui::ui::container_ui(
 	}
 }
 
-void mark::ui::ui::tooltip(
-	std::variant<vd, vi32> pos,
-	const void* object_id,
-	const std::string& str)
-{
-	m_tooltip.set(pos, &object_id, str);
-}
-
 auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
 {
 	if (m_grabbed.empty()) {
 		return {};
 	}
 	return item_of(m_grabbed);
-}
-
-void mark::ui::ui::drag(interface::container& container, vi32 pos) noexcept
-{
-	m_grabbed = { container, pos };
-}
-
-auto mark::ui::ui::drop() noexcept -> interface::item_ptr
-{
-	return detach(m_grabbed);
 }
 
 auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*

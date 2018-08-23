@@ -5,7 +5,7 @@ namespace mark {
 namespace ui {
 namespace action {
 
-class stack_into_container : public base
+class stack_into_container final : public base
 {
 public:
 	stack_into_container(const interface::container& container, vi32 pos)

@@ -4,7 +4,7 @@ namespace mark {
 namespace ui {
 namespace action {
 
-class recycle : public base
+class recycle final : public base
 {
 public:
 	recycle(const interface::container& container, vi32 pos)

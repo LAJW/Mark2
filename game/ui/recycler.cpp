@@ -38,7 +38,7 @@ recycler::recycler(const info& info)
 	}());
 	recycle_button->on_click.insert([&](const event&) {
 		return handler_result::make(std::make_unique<action::legacy>(
-			[&](const action::legacy::execute_info& info) {
+			[&rm](const action::legacy::execute_info& info) {
 				std::vector<std::unique_ptr<mark::interface::item>> items;
 				auto& queue = *info.queue;
 				for (let& pos : range(queue.size())) {
@@ -69,7 +69,7 @@ recycler::recycler(const info& info)
 	}());
 	cancel_recycle_button->on_click.insert([&](let&) {
 		return handler_result::make(std::make_unique<action::legacy>(
-			[&](const action::legacy::execute_info& info) {
+			[](const action::legacy::execute_info& info) {
 				auto& queue = *info.queue;
 				for (let& pos : range(queue.size())) {
 					auto& slot = queue[pos];
