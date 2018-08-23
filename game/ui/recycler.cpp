@@ -7,7 +7,6 @@
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
-#include <ui/action/modular_push.h>
 #include <ui/action/set_tooltip.h>
 #include <ui/chunky_button.h>
 #include <ui/item_button.h>
