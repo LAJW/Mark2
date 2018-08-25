@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <add_const_if.h>
 #include <stdafx.h>
-#include <ui/event.h>
 #include <ui/action/legacy.h>
+#include <ui/event.h>
 
 namespace mark {
 namespace ui {
@@ -35,15 +35,19 @@ protected:
 	friend window;
 	node_ref() = default;
 	~node_ref() = default;
-	[[nodiscard]] const window& parent() const
+	[[nodiscard]] optional<const window&> parent() const
 	{
-		Expects(m_parent);
-		return *m_parent;
+		if (m_parent) {
+			return *m_parent;
+		}
+		return {};
 	}
-	[[nodiscard]] window& parent()
+	[[nodiscard]] optional<const window&> parent()
 	{
-		Expects(m_parent);
-		return *m_parent;
+		if (m_parent) {
+			return *m_parent;
+		}
+		return {};
 	}
 
 private:
@@ -51,7 +55,6 @@ private:
 	optional<node&> m_prev;
 	window* m_parent = nullptr;
 };
-
 
 class node : public node_ref
 {

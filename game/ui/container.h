@@ -4,9 +4,10 @@
 #include <stdafx.h>
 
 namespace mark {
-
-namespace ui {
+namespace interface {
 class ui;
+}
+namespace ui {
 struct event;
 
 class container final : public window
@@ -16,7 +17,7 @@ public:
 	{
 		optional<resource::manager&> rm;
 		optional<module::cargo&> container;
-		optional<mark::ui::ui&> ui;
+		optional<mark::interface::ui&> ui;
 	};
 	container(const info& info);
 	void update(update_context&) override;
@@ -27,10 +28,11 @@ public:
 
 private:
 	void attach(vi32 pos, interface::item&);
+
 	resource::image_ptr m_cargo_bg;
 	resource::image_ptr m_header;
 	resource::image_ptr m_font;
-	const ui& m_ui;
+	const interface::ui& m_ui;
 	const module::cargo& m_container;
 	std::vector<const mark::interface::item*> m_prev_contents;
 };
