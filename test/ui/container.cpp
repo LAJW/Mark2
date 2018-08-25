@@ -141,6 +141,26 @@ SCENARIO("UI Container Element")
 				REQUIRE(action->pos().y == 0);
 			}
 		}
+		WHEN("We click on the empty space outside of the container"
+			 "grabbed item")
+		{
+			ui::event event;
+			// Top offset 16px (container border)
+			// 2 blocks to the right and 1 block to the middle to place cursor in
+			// the middle of the box
+			event.absolute_cursor = { 16, 32 + 16 * 5 };
+			event.cursor = { 16, 32 + 16 * 5 };
+			event.shift = false;
+			let result = container.click(event);
+			THEN("Click should return 'unhandled'")
+			{
+				REQUIRE(result.handled == false);
+			}
+			THEN("Click should return no actions")
+			{
+				REQUIRE(result.actions.empty());
+			}
+		}
 	}
 	GIVEN("A container element bound to a cargo container with a single child")
 	{

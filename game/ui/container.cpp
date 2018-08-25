@@ -76,6 +76,15 @@ void mark::ui::container::update(update_context& context)
 	this->window::update(context);
 }
 
+namespace mark {
+[[nodiscard]] bool contains(vi32 target, std::pair<vi32, vi32> rect)
+{
+	return target.x >= rect.first.x && target.y >= rect.first.y
+		&& target.x < rect.first.x + rect.second.x
+		&& target.y < rect.first.y + rect.second.y;
+}
+} // namespace mark
+
 mark::ui::handler_result mark::ui::container::click(const event& event)
 {
 	auto super_result = this->window::click(event);
@@ -84,7 +93,7 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 	}
 	let grabbed = m_ui.grabbed();
 	if (!grabbed) {
-		return { true, {} };
+		return { contains(event.cursor, { this->pos(), this->size() }), {} };
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
@@ -92,7 +101,7 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 		/ static_cast<double>(mark::module::size);
 	let pos = round(relative_pos - module_size / 2.);
 	if (!m_container.can_attach(pos, module)) {
-		return { true, {} };
+		return { contains(event.cursor, { this->pos(), this->size() }), {} };
 	}
 	return handler_result::make(
 		std::make_unique<action::drop_into_container>(m_container, pos));
