@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <array2d.h>
 #include <command.h>
+#include <interface/ui.h>
 #include <mode_stack.h>
 #include <slot.h>
 #include <stdafx.h>
@@ -13,7 +14,7 @@ namespace ui {
 class window;
 class recycler;
 
-class ui final
+class ui final : public interface::ui
 {
 public:
 	ui(resource::manager& rm,
@@ -28,12 +29,13 @@ public:
 	[[nodiscard]] bool
 	command(world& world, random& random, const command::any& command);
 	/// Get a grabbed item
-	[[nodiscard]] optional<const interface::item&> grabbed() const noexcept;
+	[[nodiscard]] optional<const interface::item&> grabbed() const
+		noexcept override;
 	/// Returns a modular, if a modular is present in the landing pad
 	[[nodiscard]] mark::unit::modular* landed_modular() noexcept;
 	/// Returns true if module is present in the recycler
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
-		noexcept;
+		noexcept override;
 
 private:
 	using dispatch_callback =
