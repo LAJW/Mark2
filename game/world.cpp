@@ -21,17 +21,17 @@ namespace {
 let voxel_dim = mark::vector<std::size_t>{ 50, 50 };
 } // namespace
 
-mark::world::world(resource::manager& rm, random& random)
-	: m_resource_manager(rm)
-	, m_map(std::make_unique<mark::map>(map::make_square(rm, random)))
+mark::world::world(ref<resource::manager> rm, ref<random> random)
+	: m_resource_manager(*rm)
+	, m_map(std::make_unique<mark::map>(map::make_square(*rm, *random)))
 	, m_space_bins(
 		  voxel_dim,
 		  m_map->map_to_world({ 0, 0 }),
 		  m_map->map_to_world(vi32{ m_map->size() }))
 	, m_camera(std::make_unique<mark::camera>())
-	, image_bar(rm.image("bar.png"))
-	, image_font(rm.image("font.png"))
-	, image_stun(rm.image("stun.png"))
+	, image_bar(rm->image("bar.png"))
+	, image_font(rm->image("font.png"))
+	, image_stun(rm->image("stun.png"))
 {}
 
 // Helper function for finding positions for key locations using different

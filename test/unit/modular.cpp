@@ -5,6 +5,7 @@
 #include <module/core.h>
 #include <module/turret.h>
 #include <random.h>
+#include <ref.h>
 #include <resource/manager.h>
 #include <unit/modular.h>
 #include <update_context.h>
@@ -17,7 +18,7 @@ TEST_CASE("Create an empty modular")
 {
 	resource::manager_stub rm;
 	random_stub random;
-	world world(rm, random);
+	auto world = mark::world(ref(rm), ref(random));
 	unit::modular modular([&] {
 		unit::modular::info _;
 		_.world = world;
@@ -33,7 +34,7 @@ TEST_CASE("Create modular with a core")
 {
 	resource::manager_stub rm;
 	mark::random_stub random;
-	world world(rm, random);
+	auto world = mark::world(ref(rm), ref(random));
 	unit::modular modular([&] {
 		unit::modular::info _;
 		_.world = world;
@@ -59,7 +60,7 @@ TEST_CASE("Try creating modular with two cores")
 {
 	resource::manager_stub rm;
 	random_stub random;
-	world world(rm, random);
+	auto world = mark::world(ref(rm), ref(random));
 	unit::modular modular([&] {
 		unit::modular::info _;
 		_.world = world;
@@ -77,7 +78,7 @@ TEST_CASE("Create modular with a turret to the right")
 {
 	resource::manager_stub rm;
 	random_stub random;
-	world world(rm, random);
+	auto world = mark::world(ref(rm), ref(random));
 	unit::modular modular([&] {
 		unit::modular::info _;
 		_.world = world;
@@ -100,7 +101,7 @@ TEST_CASE("Attach turret in all possible positions")
 {
 	resource::manager_stub rm;
 	random_stub random;
-	world world(rm, random);
+	auto world = mark::world(ref(rm), ref(random));
 	unit::modular modular([&] {
 		unit::modular::info _;
 		_.world = world;
@@ -161,7 +162,7 @@ SCENARIO("modular")
 	{
 		resource::manager_stub rm;
 		random_stub random;
-		world world(rm, random);
+		auto world = mark::world(ref(rm), ref(random));
 		auto modular = std::make_shared<unit::modular>([&] {
 			unit::modular::info _;
 			_.world = world;
@@ -308,7 +309,8 @@ SCENARIO("modular")
 			THEN("push puts first item at the 0, 0 position")
 			{
 				REQUIRE(
-					modular->containers().front().get().at({ 0, 0 })->equals(shard));
+					modular->containers().front().get().at({ 0, 0 })->equals(
+						shard));
 			}
 			THEN("push destroys the second item")
 			{

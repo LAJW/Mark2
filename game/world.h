@@ -1,11 +1,12 @@
 ﻿#pragma once
-#include "adsr.h"
-#include "command.h"
-#include "interface/damageable.h"
-#include "lfo.h"
-#include "space_bins.h"
-#include "stdafx.h"
-#include "unit/base.h"
+#include <adsr.h>
+#include <command.h>
+#include <interface/damageable.h>
+#include <lfo.h>
+#include <ref.h>
+#include <space_bins.h>
+#include <stdafx.h>
+#include <unit/base.h>
 
 namespace mark {
 class camera;
@@ -13,7 +14,7 @@ class world final
 {
 public:
 	// Small empty world with square map for testing purposes
-	world(resource::manager& resource_manager, random& random);
+	world(ref<resource::manager> resource_manager, ref<random> random);
 	world(
 		world_stack& stack,
 		resource::manager& resource_manager,

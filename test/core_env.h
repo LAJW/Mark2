@@ -22,7 +22,7 @@ struct core_env
 	std::shared_ptr<mark::unit::modular> modular;
 	mark::module::core& core;
 	core_env()
-		: world(rm, random)
+		: world(mark::ref(rm), mark::ref(random))
 		, modular([&] {
 			mark::unit::modular::info info;
 			info.world = world;
