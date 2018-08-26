@@ -90,7 +90,7 @@ public:
 private:
 	struct collision_type
 	{
-		ref<interface::damageable> victim;
+		std::reference_wrapper<interface::damageable> victim;
 		vd pos;
 	};
 	struct collide_result
@@ -102,7 +102,7 @@ private:
 	// Returns all collisions in a line stopping at the first terrain collision
 	auto collide(const segment_t&) -> collide_result;
 	auto collide(vd center, double radius)
-		-> std::vector<ref<interface::damageable>>;
+		-> std::vector<std::reference_wrapper<interface::damageable>>;
 	void update_spatial_partition();
 
 	resource::manager& m_resource_manager;

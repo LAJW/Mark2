@@ -21,7 +21,7 @@ public:
 		uint16_t total = 0;
 		uint16_t ready = 0;
 		float cooldown = 0.f;
-		std::vector<cref<module::base>> modules;
+		std::vector<std::reference_wrapper<const module::base>> modules;
 	};
 	constexpr static const size_t binding_count = 11;
 	using bindings_t = std::array<binding, binding_count>;

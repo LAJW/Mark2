@@ -1,7 +1,7 @@
 ﻿#include "window.h"
 #include <algorithm.h>
-#include <stdafx.h>
 #include <exception.h>
+#include <stdafx.h>
 
 namespace mark {
 namespace ui {
@@ -82,7 +82,8 @@ void mark::ui::window::update(update_context& context)
 	ui::update(*this, context);
 }
 
-std::error_code mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
+std::error_code
+mark::ui::window::insert(const node& before, unique_ptr<node>&& node)
 {
 	Expects(node);
 	if (before.m_parent != this) {
@@ -140,21 +141,21 @@ unique_ptr<node> window::remove(const node& const_which)
 }
 
 template <typename T, typename U>
-std::vector<ref<U>> window::children_impl(T& self)
+std::vector<std::reference_wrapper<U>> window::children_impl(T& self)
 {
-	std::vector<ref<U>> children;
+	std::vector<std::reference_wrapper<U>> children;
 	for (auto cur = self.front(); cur; cur = *cur->m_next) {
 		children.push_back(*cur);
 	}
 	return children;
 }
 
-auto window::children() const -> std::vector<ref<const node>>
+auto window::children() const -> std::vector<std::reference_wrapper<const node>>
 {
 	return children_impl(*this);
 }
 
-[[nodiscard]] std::vector<ref<node>> window::children()
+[[nodiscard]] std::vector<std::reference_wrapper<node>> window::children()
 {
 	return children_impl(*this);
 }

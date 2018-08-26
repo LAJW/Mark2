@@ -100,9 +100,9 @@ auto mark::unit::minion::collide(const segment_t& ray)
 }
 
 auto mark::unit::minion::collide(vd center, double radius)
-	-> std::vector<ref<interface::damageable>>
+	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
-	std::vector<ref<interface::damageable>> out;
+	std::vector<std::reference_wrapper<interface::damageable>> out;
 	if (length(pos() - center) <= this->radius() + radius) {
 		return { *this };
 	}

@@ -313,9 +313,9 @@ auto mark::world::collide(const segment_t& ray) -> collide_result
 }
 
 auto mark::world::collide(vd center, double radius)
-	-> std::vector<ref<interface::damageable>>
+	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
-	std::vector<ref<interface::damageable>> out;
+	std::vector<std::reference_wrapper<interface::damageable>> out;
 	for (auto& unit : this->find<unit::damageable>(center, radius)) {
 		let tmp = unit->collide(center, radius);
 		copy(begin(tmp), end(tmp), back_inserter(out));

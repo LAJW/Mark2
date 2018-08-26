@@ -8,10 +8,6 @@ class Color;
 
 namespace mark {
 template <typename T>
-using ref = std::reference_wrapper<T>;
-template <typename T>
-using cref = ref<const T>;
-template <typename T>
 using not_null = gsl::not_null<T>;
 template <typename T>
 using shared_ptr = std::shared_ptr<T>;

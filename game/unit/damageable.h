@@ -12,7 +12,7 @@ public:
 	virtual auto collide(const segment_t&)
 		-> std::optional<std::pair<interface::damageable&, vd>> = 0;
 	virtual auto collide(vd center, double radius)
-		-> std::vector<ref<interface::damageable>> = 0;
+		-> std::vector<std::reference_wrapper<interface::damageable>> = 0;
 
 protected:
 	template <typename... Args>

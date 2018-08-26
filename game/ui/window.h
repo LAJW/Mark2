@@ -15,12 +15,13 @@ public:
 		vi32 pos;
 	};
 	window(const info& info);
-	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept; 
+	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept;
 	[[nodiscard]] handler_result click(const event&) override;
 	[[nodiscard]] handler_result hover(const event&) override;
 	void update(update_context&) override;
-	[[nodiscard]] std::vector<ref<const node>> children() const;
-	[[nodiscard]] std::vector<ref<node>> children();
+	[[nodiscard]] std::vector<std::reference_wrapper<const node>>
+	children() const;
+	[[nodiscard]] std::vector<std::reference_wrapper<node>> children();
 	[[nodiscard]] std::error_code
 	insert(const node& before, unique_ptr<node>&& node);
 	[[nodiscard]] unique_ptr<node> remove(const node& which);
@@ -34,7 +35,8 @@ public:
 
 private:
 	template <typename T, typename U = add_const_if_t<node, std::is_const_v<T>>>
-	[[nodiscard]] static std::vector<ref<U>> children_impl(T& self);
+	[[nodiscard]] static std::vector<std::reference_wrapper<U>>
+	children_impl(T& self);
 	unique_ptr<node> m_first_child;
 	optional<node&> m_last_child;
 	window* m_parent = nullptr;

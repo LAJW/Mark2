@@ -27,7 +27,7 @@ protected:
 private:
 	virtual void update(update_context& context) = 0;
 	virtual void on_death(update_context&){ /* no-op */ };
-	ref<mark::world> m_world;
+	std::reference_wrapper<mark::world> m_world;
 };
 
 class base

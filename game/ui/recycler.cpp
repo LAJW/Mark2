@@ -93,7 +93,7 @@ void recycler::update(update_context& context)
 		return queued_items;
 	}();
 	let item_buttons = [&] {
-		std::vector<ref<const item_button>> item_buttons;
+		std::vector<std::reference_wrapper<const item_button>> item_buttons;
 		let children = this->children();
 		for (let& child : children) {
 			if (let item_button =

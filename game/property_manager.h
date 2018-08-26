@@ -15,7 +15,7 @@ private:
 	template <typename T>
 	static auto any_ref_cast(const std::any& any) -> T*
 	{
-		if (let wrapper = std::any_cast<ref<T>>(&any)) {
+		if (let wrapper = std::any_cast<std::reference_wrapper<T>>(&any)) {
 			return &wrapper->get();
 		}
 		return nullptr;
@@ -27,8 +27,7 @@ private:
 		virtual ~iproperty() = default;
 		virtual auto get() -> std::any = 0;
 		[[nodiscard]] virtual auto set(std::any) -> std::error_code = 0;
-		[[nodiscard]] virtual auto
-		randomise(const YAML::Node& node, random&)
+		[[nodiscard]] virtual auto randomise(const YAML::Node& node, random&)
 			-> std::error_code = 0;
 	};
 	template <typename T>
@@ -126,7 +125,9 @@ public:
 	{
 		property_config config;
 		config.serialize = [](std::any value_ref) {
-			return YAML::Node(std::any_cast<cref<T>>(value_ref).get());
+			return YAML::Node(
+				std::any_cast<std::reference_wrapper<const T>>(value_ref)
+					.get());
 		};
 		config.value_ref = std::ref(value_ref);
 		m_properties[key] = std::move(config);
