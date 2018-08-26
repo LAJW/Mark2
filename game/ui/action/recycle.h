@@ -12,6 +12,11 @@ public:
 		, m_pos(pos)
 	{}
 	void execute(const execute_info& info) override;
+	[[nodiscard]] const interface::container& container() const noexcept
+	{
+		return m_container;
+	}
+	[[nodiscard]] const vi32 pos() const noexcept { return m_pos; }
 
 private:
 	const interface::container& m_container;

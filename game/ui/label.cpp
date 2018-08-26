@@ -15,10 +15,11 @@ mark::ui::label::label(const info& info)
 
 void mark::ui::label::update(update_context& context)
 {
+	let parent_pos = parent() ? parent()->pos() : vi32();
 	mark::render(context.sprites[101], [&] {
 		text_info _;
 		_.box = vd(m_size);
-		_.pos = this->pos() + parent().pos();
+		_.pos = this->pos() + parent_pos;
 		_.centred = false;
 		_.text = m_text;
 		_.size = m_font_size;

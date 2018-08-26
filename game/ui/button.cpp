@@ -1,8 +1,8 @@
 ﻿#include "button.h"
-#include <ui/window.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/window.h>
 #include <update_context.h>
 
 mark::ui::button_base::button_base(const info& info)
@@ -17,7 +17,10 @@ mark::ui::button_base::button_base(const info& info)
 
 auto mark::ui::button_base::pos() const noexcept -> vi32
 {
-	return m_pos + parent().pos();
+	if (let parent = this->parent()) {
+		return m_pos + parent->pos();
+	}
+	return m_pos;
 }
 
 auto mark::ui::button_base::size() const noexcept -> vi32

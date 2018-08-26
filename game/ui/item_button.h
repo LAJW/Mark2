@@ -3,6 +3,9 @@
 #include <ui/button.h>
 
 namespace mark {
+namespace interface {
+class ui;
+};
 namespace ui {
 class ui;
 
@@ -13,7 +16,7 @@ public:
 	{
 		resource::image_ptr font;
 		optional<const interface::item&> item;
-		optional<const ui&> ui;
+		optional<const interface::ui&> ui;
 		// Is this button the "origin" - i.e. the thing which points to the
 		// item you can grab
 		bool origin = false;
@@ -28,7 +31,7 @@ private:
 
 	const not_null<resource::image_ptr> m_font;
 	const interface::item& m_item;
-	const mark::ui::ui& m_ui;
+	const interface::ui& m_ui;
 	bool m_origin;
 };
 
