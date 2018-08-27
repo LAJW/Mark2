@@ -109,7 +109,6 @@ private:
 	[[nodiscard]] auto p_can_attach(const module::base& module, vi32 pos) const
 		-> bool;
 	void remove_dead(ref<update_context>);
-	void pick_up();
 	// Remove module from module bindings
 	void unbind(const module::base& module);
 	[[nodiscard]] auto modifiers() const -> module::modifiers;

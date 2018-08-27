@@ -275,6 +275,18 @@ static auto advance_path(std::vector<vd> path, double velocity, double dt)
 	}
 	return { path.back() };
 }
+
+void pick_up_nearby_buckets(ref<mark::unit::modular> modular)
+{
+	auto buckets = modular->world().find<unit::bucket>(
+		modular->pos(), 150.f, [](let& unit) { return !unit.dead(); });
+	for (auto& bucket : buckets) {
+		auto module = bucket->release();
+		if (failure(push(*modular, move(module)))) {
+			bucket->insert(move(module));
+		}
+	}
+}
 } // namespace mark
 
 void mark::unit::modular::update(update_context& context)
@@ -283,7 +295,7 @@ void mark::unit::modular::update(update_context& context)
 	m_targeting_system->update(context);
 	this->update_modules(ref(context));
 	if (!m_ai && world().target().get() == this) {
-		this->pick_up();
+		pick_up_nearby_buckets(ref(*this));
 	}
 	if (m_knockback_path.size() > 1 && m_initial_knockback_path_length >= 0.) {
 		let velocity = m_initial_knockback_path_length / knockback_duration;
@@ -904,18 +916,6 @@ void mark::unit::modular::remove_dead(ref<update_context> context)
 				return std::make_shared<unit::bucket>(std::move(info));
 			});
 		m_modules.erase(first_detached_it, m_modules.end());
-	}
-}
-
-void mark::unit::modular::pick_up()
-{
-	auto buckets = world().find<unit::bucket>(
-		pos(), 150.f, [](let& unit) { return !unit.dead(); });
-	for (auto& bucket : buckets) {
-		auto module = bucket->release();
-		if (push(*this, move(module)) != error::code::success) {
-			bucket->insert(move(module));
-		}
 	}
 }
 
