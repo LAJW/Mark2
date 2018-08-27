@@ -47,7 +47,7 @@ auto mark::module::base::describe() const -> std::string
 	os << "Heat: " << m_cur_heat << " of " << 100.f << std::endl;
 	module::modifiers total_modifiers;
 	if (this->has_parent()) {
-		for (let& neighbor : parent().neighbors_of(*this)) {
+		for (let& neighbor : neighbors_of(*this)) {
 			let local_modifiers = neighbor.first.local_modifiers();
 			total_modifiers.armor += local_modifiers.armor;
 		}
@@ -134,7 +134,7 @@ void mark::module::base::update(update_context& context)
 		m_cur_health -= dtf * 2.f;
 	}
 
-	auto neighbors = parent().neighbors_of(*this);
+	auto neighbors = neighbors_of(*this);
 	let total_surface = 2 * (m_size.x + m_size.y);
 	for (auto& pair : neighbors) {
 		let & [ module, surface ] = pair;
@@ -267,7 +267,7 @@ auto mark::module::base::collide(const segment_t& ray)
 auto mark::module::base::neighbors()
 	-> std::vector<std::pair<module::base&, unsigned>>
 {
-	return parent().neighbors_of(*this);
+	return neighbors_of(*this);
 }
 
 static auto resistance_to_multiplier(float resistance)
@@ -446,7 +446,7 @@ auto mark::module::base::damage_impl(
 	let antimatter_multiplier =
 		resistance_to_multiplier(m_antimatter_resistance);
 	let heat_damage = attr.heat * critical_multiplier * heat_multiplier;
-	let neighbors = parent().neighbors_of(*this);
+	let neighbors = neighbors_of(*this);
 	let armor =
 		accumulate(neighbors, m_armor, [&](const float sum, const auto& pair) {
 			return sum + pair.first.local_modifiers().armor;

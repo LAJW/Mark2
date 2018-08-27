@@ -80,10 +80,6 @@ public:
 	[[nodiscard]] auto module_at(vi32 pos) noexcept -> optional<module::base&>;
 	[[nodiscard]] auto module_at(vi32 pos) const noexcept
 		-> optional<const module::base&>;
-	[[nodiscard]] auto neighbors_of(const module::base&)
-		-> std::vector<std::pair<module::base&, unsigned>>;
-	[[nodiscard]] auto neighbors_of(const module::base&) const
-		-> std::vector<std::pair<const module::base&, unsigned>>;
 	[[nodiscard]] auto rotation() const { return m_rotation; }
 
 	[[nodiscard]] auto containers()
@@ -153,5 +149,12 @@ private:
 // Drop module into the modular's containers if possible
 [[nodiscard]] auto push(modular& modular, interface::item_ptr &&)
 	-> std::error_code;
+
 } // namespace unit
+
+[[nodiscard]] auto neighbors_of(module::base&)
+	-> std::vector<std::pair<module::base&, unsigned>>;
+[[nodiscard]] auto neighbors_of(const module::base&)
+	-> std::vector<std::pair<const module::base&, unsigned>>;
+
 } // namespace mark

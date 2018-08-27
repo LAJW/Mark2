@@ -43,12 +43,13 @@ public:
 	friend module::cargo;
 
 	auto grid_pos() const noexcept -> vi32;
-	auto parent() const -> const unit::modular&;
+
+	[[nodiscard]] auto parent() -> unit::modular&;
+	[[nodiscard]] auto parent() const -> const unit::modular&;
 
 protected:
 	base_ref() = default;
 	base_ref(const YAML::Node& node);
-	auto parent() -> unit::modular&;
 	void serialize(YAML::Emitter& out) const;
 	// Check if has parent
 	// Only to be used by the description function. All other functions assume
@@ -208,5 +209,6 @@ private:
 	float m_stun_lfo = 0.f;
 	std::string m_blueprint_id;
 };
+
 } // namespace module
 } // namespace mark

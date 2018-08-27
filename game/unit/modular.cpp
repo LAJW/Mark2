@@ -90,6 +90,21 @@ static auto filter_modules(vector_type& modules)
 }
 } // namespace
 
+auto mark::neighbors_of(module::base& module)
+	-> std::vector<std::pair<module::base&, unsigned>>
+{
+	return ::neighbors_of<module::base>(
+		module.parent(), vi8(module.grid_pos()), vi8(module.size()));
+}
+
+auto mark::neighbors_of(const module::base& module)
+	-> std::vector<std::pair<const module::base&, unsigned>>
+{
+	return ::neighbors_of<const module::base>(
+		module.parent(), vi8(module.grid_pos()), vi8(module.size()));
+}
+
+
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
@@ -301,20 +316,6 @@ void mark::unit::modular::update(update_context& context)
 	}
 }
 
-auto mark::unit::modular::neighbors_of(const module::base& module)
-	-> std::vector<std::pair<module::base&, unsigned>>
-{
-	return ::neighbors_of<module::base>(
-		*this, vi8(module.grid_pos()), vi8(module.size()));
-}
-
-auto mark::unit::modular::neighbors_of(const module::base& module) const
-	-> std::vector<std::pair<const module::base&, unsigned>>
-{
-	return ::neighbors_of<const module::base>(
-		*this, vi8(module.grid_pos()), vi8(module.size()));
-}
-
 auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr&& item)
 	-> std::error_code
 {
@@ -475,7 +476,7 @@ auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
 	if (!module->detachable()) {
 		return false;
 	}
-	return all_of(this->neighbors_of(*module), [&](let& neighbor) {
+	return all_of(neighbors_of(*module), [&](let& neighbor) {
 		return this->p_connected_to_core(
 			neighbor.first, { vi8(module->grid_pos()), vi8(module->size()) });
 	});
