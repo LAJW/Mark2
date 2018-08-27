@@ -80,7 +80,7 @@ static auto neighbors_of(modular_t& modular, vi8 pos, vi8 size)
 template <typename module_type, typename vector_type>
 static auto filter_modules(vector_type& modules)
 {
-	std::vector<ref<module_type>> out;
+	std::vector<std::reference_wrapper<module_type>> out;
 	for (let& module : modules) {
 		if (let derived = dynamic_cast<module_type*>(module.get())) {
 			out.push_back(std::ref(*derived));
@@ -654,7 +654,7 @@ static auto collide(
 		}
 	outer_continue:;
 	}
-	std::vector<ref<interface::damageable>> tmp;
+	std::vector<std::reference_wrapper<interface::damageable>> tmp;
 	transform(out.cbegin(), out.cend(), back_inserter(tmp), [](let ptr) {
 		return std::ref(*ptr);
 	});
@@ -662,7 +662,7 @@ static auto collide(
 }
 
 auto mark::unit::modular::collide(const vd center, const double radius)
-	-> std::vector<ref<interface::damageable>>
+	-> std::vector<std::reference_wrapper<interface::damageable>>
 {
 	// Delegated to a free function, to restrict access
 	return ::collide(center, radius, m_modules);
@@ -723,7 +723,7 @@ mark::unit::modular::modular(
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 	, m_ai(node["ai"].as<bool>())
 {
-	std::unordered_map<uint64_t, ref<module::base>> id_map;
+	std::unordered_map<uint64_t, std::reference_wrapper<module::base>> id_map;
 	for (let& module_node : node["modules"]) {
 		let module_pos = module_node["grid_pos"].as<vi32>();
 		let id = module_node["id"].as<uint64_t>();
@@ -835,7 +835,7 @@ static bool contains_exclusive(std::pair<vi32, vi32> area, vi32 point)
 		&& between_exclusive({ tl.y, br.y }, point.y);
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 optional<U&> mark::unit::modular::module_at_impl(T& self, vi32 pos)
 {
 	let hs = gsl::narrow<int8_t>(max_size / 2);
@@ -931,12 +931,14 @@ void mark::unit::modular::unbind(const module::base& module)
 	}
 }
 
-auto mark::unit::modular::containers() -> std::vector<ref<module::cargo>>
+auto mark::unit::modular::containers()
+	-> std::vector<std::reference_wrapper<module::cargo>>
 {
 	return filter_modules<module::cargo>(m_modules);
 }
 
-auto mark::unit::modular::containers() const -> std::vector<cref<module::cargo>>
+auto mark::unit::modular::containers() const
+	-> std::vector<std::reference_wrapper<const module::cargo>>
 {
 	return filter_modules<const module::cargo>(m_modules);
 }

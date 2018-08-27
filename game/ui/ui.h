@@ -65,7 +65,7 @@ private:
 	const resource::image_ptr m_grid_bg;
 
 	// Used to detect container change
-	std::vector<ref<mark::module::cargo>> m_containers;
+	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
 
 	std::vector<unique_ptr<window>> m_windows;
 

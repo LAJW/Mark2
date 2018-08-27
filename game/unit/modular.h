@@ -15,8 +15,9 @@ class modular final
 	, public interface::has_bindings
 {
 public:
-	using find_result = std::vector<ref<module::base>>;
-	using const_find_result = std::vector<cref<module::base>>;
+	using find_result = std::vector<std::reference_wrapper<module::base>>;
+	using const_find_result =
+		std::vector<std::reference_wrapper<const module::base>>;
 
 	static constexpr const char* type_name = "unit_modular";
 	static constexpr unsigned max_size = 40;
@@ -49,8 +50,9 @@ public:
 
 	auto rotation() const { return m_rotation; }
 	auto dead() const -> bool override;
-	auto containers() -> std::vector<ref<module::cargo>>;
-	auto containers() const -> std::vector<cref<module::cargo>>;
+	auto containers() -> std::vector<std::reference_wrapper<module::cargo>>;
+	auto containers() const
+		-> std::vector<std::reference_wrapper<const module::cargo>>;
 	auto damage(const interface::damageable::info&) -> bool override;
 	void knockback(
 		std::unordered_set<not_null<interface::damageable*>>& knocked,
@@ -59,7 +61,7 @@ public:
 	auto collide(const segment_t&)
 		-> std::optional<std::pair<interface::damageable&, vd>> override;
 	auto collide(vd center, double radius)
-		-> std::vector<ref<interface::damageable>> override;
+		-> std::vector<std::reference_wrapper<interface::damageable>> override;
 	// bind module at position to command
 	void toggle_bind(int8_t, vi32 pos);
 	auto bindings() const -> bindings_t override;
@@ -116,7 +118,8 @@ private:
 	float m_rotation = 0.f;
 	bool m_ai = false;
 	vd m_lookat;
-	std::unordered_multimap<int8_t, ref<module::base>> m_bindings;
+	std::unordered_multimap<int8_t, std::reference_wrapper<module::base>>
+		m_bindings;
 	double m_velocity = 0;
 	double m_radius = 0.;
 	std::vector<vd> m_knockback_path;
