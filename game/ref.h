@@ -24,7 +24,7 @@ public:
 		: ref_(value)
 	{}
 	constexpr ref(ref<T>&& value)
-		: ref_(value)
+		: ref_(*value)
 	{}
 	constexpr explicit const ref(const ref& other) = default;
 	template <typename U>
