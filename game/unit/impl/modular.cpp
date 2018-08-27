@@ -53,7 +53,7 @@ rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
 	auto new_rotation = limit_angle(turn(
 		target,
 		gsl::narrow_cast<float>(rotation),
-		gsl::narrow_cast<float>(angular_velocity),
+		gsl::narrow_cast<float>(new_angular_velocity),
 		dt));
 	if (new_rotation <= target_angle + .5
 		&& new_rotation >= target_angle - .5) {

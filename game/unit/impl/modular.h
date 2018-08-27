@@ -21,7 +21,7 @@ struct rotation_and_angular_velocity_info final
 	double angular_velocity;
 	double angular_acceleration;
 	double dt;
-	vd target;
+	vd target; // relative target position
 };
 
 [[nodiscard]] double limit_angle(double angle);
