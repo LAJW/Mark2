@@ -104,7 +104,6 @@ auto mark::neighbors_of(const module::base& module)
 		module.parent(), vi8(module.grid_pos()), vi8(module.size()));
 }
 
-
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
@@ -289,6 +288,85 @@ void pick_up_nearby_buckets(ref<mark::unit::modular> modular)
 }
 } // namespace mark
 
+/// Limit angle to (-180, 180] degree rotation
+[[nodiscard]] static double limit_angle(double angle)
+{
+	if (angle > 180.) {
+		return angle - 360.;
+	} else if (angle <= -180.) {
+		return angle + 360.;
+	} else {
+		return angle;
+	}
+}
+
+struct should_accelerate_info final
+{
+	double rotation;
+	double target_angle;
+	double angular_velocity;
+	double angular_acceleration;
+};
+
+[[nodiscard]] static double
+should_accelerate(const should_accelerate_info& info)
+{
+	let[rotation, target_angle, angular_velocity, angular_acceleration] = info;
+	let remaining_angle = abs(limit_angle(rotation - target_angle));
+	let angle = pow(angular_velocity, 2.) / angular_acceleration
+		- .5 * pow(angular_velocity, 3.) / pow(angular_acceleration, 2.);
+	return std::abs(limit_angle(angle)) <= remaining_angle;
+}
+
+struct rotation_and_angular_velocity_info final
+{
+	double rotation;
+	double angular_velocity;
+	double angular_acceleration;
+	double dt;
+	vd target;
+};
+
+[[nodiscard]] static std::tuple<double, double>
+rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
+{
+	let[rotation, angular_velocity, angular_acceleration, dt, target] = info;
+	let target_angle = atan(target);
+	let should_accelerate = ::should_accelerate([&] {
+		should_accelerate_info _;
+		_.rotation = rotation;
+		_.angular_acceleration = angular_acceleration;
+		_.angular_velocity = angular_velocity;
+		_.target_angle = target_angle;
+		return _;
+	}());
+	auto new_angular_velocity = [&] {
+		if (should_accelerate) {
+			return angular_velocity + angular_acceleration * dt;
+		}
+		let diff = abs(rotation - target_angle);
+		let remaining_angle = std::abs(diff <= 180.) ? diff : 360. - diff;
+		if (remaining_angle < .5) {
+			return angular_velocity;
+		}
+		let deceleration = pow(angular_velocity, 2.) / remaining_angle;
+		return angular_velocity - deceleration * dt;
+	}();
+	auto new_rotation = limit_angle(turn(
+		target,
+		gsl::narrow_cast<float>(rotation),
+		gsl::narrow_cast<float>(angular_velocity),
+		dt));
+	if (new_rotation <= target_angle + .5
+		&& new_rotation >= target_angle - .5) {
+		new_angular_velocity = 0.0;
+		new_rotation = target_angle;
+	}
+	Ensures(new_rotation <= 180.0 && new_rotation >= -180.0);
+	Ensures(new_angular_velocity >= 0.);
+	return std::tuple(new_rotation, new_angular_velocity);
+}
+
 void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
@@ -316,10 +394,18 @@ void mark::unit::modular::update(update_context& context)
 		}());
 	}
 	if (m_lookat != pos()) {
-		let turn_speed = m_ai ? 32.f : 128.f;
 		let target = m_targeting_system->target();
 		let lookat = target ? *target : m_lookat;
-		m_rotation = turn(lookat - pos(), m_rotation, turn_speed, context.dt);
+		std::tie(m_rotation, m_angular_velocity) =
+			rotation_and_angular_velocity([&] {
+				rotation_and_angular_velocity_info _;
+				_.target = lookat - this->pos();
+				_.angular_acceleration = 100.f;
+				_.angular_velocity = m_angular_velocity;
+				_.rotation = m_rotation;
+				_.dt = context.dt;
+				return _;
+			}());
 	}
 	if (m_ai) {
 		for (let& command : this->update_ai()) {

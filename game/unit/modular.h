@@ -80,7 +80,7 @@ public:
 	[[nodiscard]] auto module_at(vi32 pos) noexcept -> optional<module::base&>;
 	[[nodiscard]] auto module_at(vi32 pos) const noexcept
 		-> optional<const module::base&>;
-	[[nodiscard]] auto rotation() const { return m_rotation; }
+	[[nodiscard]] float rotation() const { return static_cast<float>(m_rotation); }
 
 	[[nodiscard]] auto containers()
 		-> std::vector<std::reference_wrapper<module::cargo>>;
@@ -134,7 +134,8 @@ private:
 	array2d<grid_element, max_size, max_size> m_grid;
 	unique_ptr<mark::targeting_system> m_targeting_system;
 	module::core* m_core = nullptr;
-	float m_rotation = 0.f;
+	double m_rotation = 0.;
+	double m_angular_velocity = 0.;
 	bool m_ai = false;
 	vd m_lookat;
 	std::unordered_multimap<int8_t, std::reference_wrapper<module::base>>
