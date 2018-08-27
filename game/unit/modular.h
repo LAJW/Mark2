@@ -4,6 +4,7 @@
 #include <command.h>
 #include <interface/container.h>
 #include <interface/has_bindings.h>
+#include <ref.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -22,7 +23,7 @@ public:
 	static constexpr const char* type_name = "unit_modular";
 	static constexpr unsigned max_size = 40;
 
-	modular(mark::world& world, random& random, const YAML::Node&);
+	modular(ref<mark::world> world, ref<random> random, const YAML::Node&);
 	struct info : mobile::info
 	{
 		float rotation = 0.f;
@@ -85,12 +86,12 @@ private:
 	// Check whether module can be attached without checking structure of the
 	// ship
 	auto p_can_attach(const module::base& module, vi32 pos) const -> bool;
-	void remove_dead(update_context&);
+	void remove_dead(ref<update_context>);
 	void pick_up();
 	// Remove module from module bindings
 	void unbind(const module::base& module);
 	auto modifiers() const -> module::modifiers;
-	void update_modules(update_context& context);
+	void update_modules(ref<update_context> context);
 	// Generate a list of commands for self
 	std::vector<command::any> update_ai() const;
 	auto p_connected_to_core(

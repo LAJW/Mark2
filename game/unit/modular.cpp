@@ -98,13 +98,13 @@ mark::unit::modular::modular(info info)
 
 mark::unit::modular::~modular() = default;
 
-void mark::unit::modular::update_modules(update_context& context)
+void mark::unit::modular::update_modules(ref<update_context> context)
 {
-	this->remove_dead(context);
+	this->remove_dead(ref(context));
 	for (auto& module : m_modules) {
 		// Module might be already dead, don't update dead modules
 		if (!module->dead()) {
-			static_cast<module::base_ref&>(*module).update(context);
+			static_cast<module::base_ref&>(*module).update(*context);
 		}
 	}
 }
@@ -266,7 +266,7 @@ void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
 	m_targeting_system->update(context);
-	this->update_modules(context);
+	this->update_modules(ref(context));
 	if (!m_ai && world().target().get() == this) {
 		this->pick_up();
 	}
@@ -716,10 +716,10 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t
 // Serializer / Deserializer
 
 mark::unit::modular::modular(
-	mark::world& world,
-	random& random,
+	ref<mark::world> world,
+	ref<random> random,
 	const YAML::Node& node)
-	: unit::mobile(world, node)
+	: unit::mobile(*world, node)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 	, m_ai(node["ai"].as<bool>())
 {
@@ -729,25 +729,25 @@ mark::unit::modular::modular(
 		let id = module_node["id"].as<uint64_t>();
 		auto module = [&] {
 			let blueprint_node = module_node["blueprint"];
-			auto& rm = world.resource_manager();
+			auto& rm = world->resource_manager();
 			if (!blueprint_node) {
-				return module::deserialize(rm, random, module_node);
+				return module::deserialize(rm, *random, module_node);
 			}
 			let blueprint_id = [&] {
 				if (blueprint_node.IsSequence()) {
 					if (blueprint_node.size() == 0) {
 						throw std::runtime_error("Empty blueprint selection");
 					}
-					let index = random(size_t(0), blueprint_node.size() - 1);
+					let index = (*random)(size_t(0), blueprint_node.size() - 1);
 					return blueprint_node[index].as<std::string>();
 				}
 				return blueprint_node.as<std::string>();
 			}();
-			auto properties = world.blueprints().at(blueprint_id);
+			auto properties = world->blueprints().at(blueprint_id);
 			for (let& property : module_node) {
 				properties[property.first] = property.second;
 			}
-			return module::deserialize(rm, random, properties);
+			return module::deserialize(rm, *random, properties);
 		}();
 		// TODO: Propagate an error
 		Expects(module);
@@ -857,7 +857,7 @@ auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	return module_at_impl(*this, pos);
 }
 
-void mark::unit::modular::remove_dead(update_context& context)
+void mark::unit::modular::remove_dead(ref<update_context> context)
 {
 	let first_dead_it = partition(
 		m_modules.begin(), m_modules.end(), [](const module::base_ptr& module) {
@@ -868,7 +868,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			first_dead_it,
 			m_modules.end(),
 			[this, &context](module::base_ptr& module) {
-				module->on_death(context);
+				module->on_death(*context);
 				if (module.get() == m_core) {
 					m_core = nullptr;
 				}
@@ -894,7 +894,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 		transform(
 			make_move_iterator(first_detached_it),
 			make_move_iterator(first_dead_it),
-			back_inserter(context.units),
+			back_inserter(context->units),
 			[this](auto module) {
 				unit::bucket::info info;
 				info.world = this->world();
