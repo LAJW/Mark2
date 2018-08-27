@@ -7,11 +7,10 @@ namespace mark {
 /// IF said function already has a ref
 /// Thanks to C++17, you can specify the function as follows:
 ///   void func(ref<std::string> value);
-/// And cal it:
+/// And cal it like so:
 ///   std::string my_string;
 ///   func(ref(my_string)); <- You don't have to specify class template
 ///                            arguments
-
 template <typename T>
 class ref final
 {
@@ -21,23 +20,23 @@ public:
 		"ref is only for passing non-const references. Use regular "
 		"reference for const references");
 
-	explicit ref(T& value)
-		: m_ref(value)
+	constexpr explicit ref(T& value)
+		: ref_(value)
 	{}
-	ref(T&& value)
-		: m_ref(value)
+	constexpr ref(ref<T>&& value)
+		: ref_(value)
 	{}
-	explicit const ref(const ref& other) = default;
+	constexpr explicit const ref(const ref& other) = default;
 	template <typename U>
-	ref(const ref<U>& other)
-		: m_ref(*other)
+	constexpr ref(ref<U>&& other)
+		: ref_(*other)
 	{}
 
-	T& operator*() const { return m_ref; }
-	T* operator->() const { return &m_ref; }
+	[[nodiscard]] constexpr T& operator*() const { return ref_; }
+	[[nodiscard]] constexpr T* operator->() const { return &ref_; }
 
 private:
-	T& m_ref;
+	T& ref_;
 };
 
 template <typename T>
