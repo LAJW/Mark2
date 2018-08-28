@@ -7,6 +7,7 @@
 #include <random.h>
 #include <ref.h>
 #include <resource/manager.h>
+#include <unit/impl/modular.h>
 #include <unit/modular.h>
 #include <update_context.h>
 #include <world.h>
@@ -383,6 +384,136 @@ SCENARIO("modular")
 			{
 				REQUIRE(second_shard == nullptr);
 				REQUIRE(second_container.at({ 15, 3 })->quantity() == 2);
+			}
+		}
+	}
+}
+
+SCENARIO("Implementation functions")
+{
+	using namespace mark::unit::impl;
+	GIVEN("Limit angle function")
+	{
+		WHEN("supplied with 0.")
+		{
+			THEN("it should return 0.") { REQUIRE(0 == limit_angle(0.)); }
+		}
+		WHEN("supplied with +30.")
+		{
+			THEN("it should return +30.") { REQUIRE(30. == limit_angle(30.)); }
+		}
+		WHEN("supplied with -30.")
+		{
+			THEN("it should return -30.")
+			{
+				REQUIRE(-30. == limit_angle(-30.));
+			}
+		}
+		WHEN("supplied with -270.")
+		{
+			THEN("it should return 90.") { REQUIRE(90. == limit_angle(-270.)); }
+		}
+		WHEN("supplied with 270.")
+		{
+			THEN("it should return -90.")
+			{
+				REQUIRE(-90. == limit_angle(270.));
+			}
+		}
+	}
+	GIVEN("should_accelerate function")
+	{
+		WHEN("North-East into South-West zero speed")
+		{
+			should_accelerate_info _;
+			_.rotation = 15.;
+			_.target_angle = -175;
+			_.angular_acceleration = 100.;
+			_.angular_velocity = 0.;
+			THEN("Should return true")
+			{
+				REQUIRE(should_accelerate(_) == true);
+			}
+		}
+		WHEN("North-West into South-West godspeed")
+		{
+			should_accelerate_info _;
+			_.rotation = 160.;
+			_.target_angle = -175;
+			_.angular_acceleration = 100.;
+			_.angular_velocity = 90.;
+			THEN("Should return true")
+			{
+				REQUIRE(should_accelerate(_) == false);
+			}
+		}
+	}
+	GIVEN("rotation_and_angular_velocity_function")
+	{
+		WHEN("NE->SW Accelerate from zero")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = 20.;
+			_.angular_velocity = 0.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., -30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should accelerate") { REQUIRE(angular_velocity > 0.); }
+			THEN("Rotation should be between 20 and 90 degrees, but not 20")
+			{
+				REQUIRE(rotation > 20.);
+				REQUIRE(rotation < 90.);
+			}
+		}
+		WHEN("SE->NW Accelerate from zero")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = -20.;
+			_.angular_velocity = 0.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., 30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Speed should be negative") {
+				REQUIRE(angular_velocity > 0.);
+			}
+			THEN("Rotation should be between -20 and -90 degrees, but not 20")
+			{
+				REQUIRE(rotation < -20.);
+				REQUIRE(rotation > -90.);
+			}
+		}
+		WHEN("NW->SW Decelerate")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = 160.;
+			_.angular_velocity = 90.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., -30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should decelerate") { REQUIRE(angular_velocity < 90.); }
+			THEN("Rotation should be between 165 and 180 degrees")
+			{
+				let top_chunk = rotation > 165. && rotation <= 180.;
+				REQUIRE(top_chunk);
+			}
+		}
+		WHEN("SE->NW Decelerate")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = -160.;
+			_.angular_velocity = 90.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., 30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should decelerate") { REQUIRE(angular_velocity < 90.); }
+			THEN("Rotation should be between 165 and -180 degrees, excluding")
+			{
+				let bottom_chunk = rotation < -165. && rotation > -180.;
+				REQUIRE(bottom_chunk);
 			}
 		}
 	}
