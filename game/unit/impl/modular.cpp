@@ -48,7 +48,7 @@ rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
 			return angular_velocity;
 		}
 		let deceleration = pow(angular_velocity, 2.) / remaining_angle;
-		return angular_velocity - deceleration * dt;
+		return abs(angular_velocity - deceleration * dt);
 	}();
 	auto new_rotation = limit_angle(turn(
 		target,
