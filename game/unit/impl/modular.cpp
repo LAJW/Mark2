@@ -57,14 +57,13 @@ rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
 		dt));
 	if (new_rotation <= target_angle + .5
 		&& new_rotation >= target_angle - .5) {
-		new_angular_velocity = 0.0;
-		new_rotation = target_angle;
+		return { target_angle, 0.0 };
 	}
 	Ensures(new_rotation <= 180.0 && new_rotation >= -180.0);
 	Ensures(new_angular_velocity >= 0.);
-	return std::tuple(new_rotation, new_angular_velocity);
+	return { new_rotation, new_angular_velocity };
 }
 
 } // namespace impl
-} // namespace unti
+} // namespace unit
 } // namespace mark
