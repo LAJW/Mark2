@@ -7,6 +7,7 @@
 #include <ui/action/drop_into_container.h>
 #include <ui/action/grab_from_container.h>
 #include <ui/action/recycle.h>
+#include <ui/action/release_grabbed.h>
 #include <ui/container.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
@@ -25,13 +26,17 @@ public:
 	{
 		if (m_grabbed) {
 			return *m_grabbed;
+		} else if (m_grabbed2) {
+			return *m_grabbed2;
+		} else {
+			return {};
 		}
-		return {};
 	}
 	void grabbed(std::unique_ptr<interface::item> grabbed) noexcept
 	{
 		m_grabbed = move(grabbed);
 	}
+	void grabbed(interface::item& grabbed) noexcept { m_grabbed2 = grabbed; }
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
 		noexcept override
 	{
@@ -40,6 +45,7 @@ public:
 
 private:
 	std::unique_ptr<interface::item> m_grabbed;
+	optional<interface::item&> m_grabbed2;
 };
 
 SCENARIO("UI Container Element")
@@ -116,11 +122,12 @@ SCENARIO("UI Container Element")
 		WHEN("We click on an empty space in the container when UI holds a "
 			 "grabbed item")
 		{
-			ui.grabbed(std::make_unique<module::cargo>(rm, random, YAML::Node()));
+			ui.grabbed(
+				std::make_unique<module::cargo>(rm, random, YAML::Node()));
 			ui::event event;
 			// Top offset 16px (container border)
-			// 2 blocks to the right and 1 block to the middle to place cursor in
-			// the middle of the box
+			// 2 blocks to the right and 1 block to the middle to place cursor
+			// in the middle of the box
 			event.absolute_cursor = { 16, 32 + 16 };
 			event.cursor = { 16, 32 + 16 };
 			event.shift = false;
@@ -146,8 +153,8 @@ SCENARIO("UI Container Element")
 		{
 			ui::event event;
 			// Top offset 16px (container border)
-			// 2 blocks to the right and 1 block to the middle to place cursor in
-			// the middle of the box
+			// 2 blocks to the right and 1 block to the middle to place cursor
+			// in the middle of the box
 			event.absolute_cursor = { 16, 32 + 16 * 5 };
 			event.cursor = { 16, 32 + 16 * 5 };
 			event.shift = false;
@@ -208,6 +215,29 @@ SCENARIO("UI Container Element")
 				REQUIRE(&action.container() == &cargo);
 				REQUIRE(action.pos().x == 0);
 				REQUIRE(action.pos().y == 0);
+			}
+		}
+		WHEN("We click on the top left corner of the container, when the "
+			 "module is already grabbed")
+		{
+			ui.grabbed(*cargo.at({ 0, 0 }));
+			ui::event event;
+			// Setting to 32, because the container header is 32 pixels tall
+			event.absolute_cursor = { 0, 32 };
+			event.cursor = { 0, 32 };
+			event.shift = false;
+			let result = container.click(event);
+			THEN("It should return 'handled'")
+			{
+				REQUIRE(result.handled == true);
+			}
+			THEN("It should yield a single 'release_grabbed' action")
+			{
+				REQUIRE(result.actions.size() == 1);
+				let action = result.actions.front().get();
+				REQUIRE(
+					dynamic_cast<ui::action::release_grabbed*>(action)
+					!= nullptr);
 			}
 		}
 		WHEN("We Shift-click on the top left corner should yield a 'recycle' "
