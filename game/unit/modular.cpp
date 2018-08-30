@@ -322,7 +322,8 @@ void mark::unit::modular::update(update_context& context)
 			impl::rotation_and_angular_velocity([&] {
 				impl::rotation_and_angular_velocity_info _;
 				_.target = lookat - this->pos();
-				_.angular_acceleration = 100.f;
+				_.angular_acceleration =
+					(modifiers.velocity + 320.) / modifiers.mass * 2.;
 				_.angular_velocity = m_angular_velocity;
 				_.rotation = m_rotation;
 				_.dt = context.dt;
