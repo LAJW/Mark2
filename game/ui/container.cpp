@@ -8,6 +8,7 @@
 #include <ui/action/drop_into_container.h>
 #include <ui/action/grab_from_container.h>
 #include <ui/action/recycle.h>
+#include <ui/action/release_grabbed.h>
 #include <ui/action/stack_into_container.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
@@ -138,10 +139,7 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 			if (let grabbed = m_ui.grabbed()) {
 				if (grabbed->equals(item)) {
 					return handler_result::make(
-						std::make_unique<action::legacy>(
-							[](const action::base::execute_info& info) {
-								*info.grabbed = {};
-							}));
+						std::make_unique<action::release_grabbed>());
 				}
 				// TODO: Propagate error/notify user that object cannot be put
 				// here
