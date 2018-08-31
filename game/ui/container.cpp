@@ -8,6 +8,7 @@
 #include <ui/action/drop_into_container.h>
 #include <ui/action/grab_from_container.h>
 #include <ui/action/recycle.h>
+#include <ui/action/release_grabbed.h>
 #include <ui/action/stack_into_container.h>
 #include <ui/event.h>
 #include <ui/item_button.h>
@@ -133,27 +134,34 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		_.origin = true;
 		return _;
 	}());
-	button->on_click.insert([pos, this](const event& event) -> handler_result {
-		if (let grabbed = m_ui.grabbed()) {
-			// TODO: Propagate error/notify user that object cannot be put here
-			if (!m_container.at(pos)->can_stack(*grabbed)) {
-				return { true, {} };
+	button->on_click.insert(
+		[pos, this, &item](const event& event) -> handler_result {
+			if (let grabbed = m_ui.grabbed()) {
+				if (grabbed->equals(item)) {
+					return handler_result::make(
+						std::make_unique<action::release_grabbed>());
+				}
+				// TODO: Propagate error/notify user that object cannot be put
+				// here
+				if (!m_container.at(pos)->can_stack(*grabbed)) {
+					return { true, {} };
+				}
+				return handler_result::make(
+					std::make_unique<action::stack_into_container>(
+						m_container, pos));
 			}
-			return handler_result::make(
-				std::make_unique<action::stack_into_container>(
-					m_container, pos));
-		}
-		if (let actual_pos = m_container.pos_at(pos)) {
-			if (event.shift) {
-				return handler_result::make(std::make_unique<action::recycle>(
-					m_container, *actual_pos));
+			if (let actual_pos = m_container.pos_at(pos)) {
+				if (event.shift) {
+					return handler_result::make(
+						std::make_unique<action::recycle>(
+							m_container, *actual_pos));
+				}
+				return handler_result::make(
+					std::make_unique<action::grab_from_container>(
+						m_container, *actual_pos));
 			}
-			return handler_result::make(
-				std::make_unique<action::grab_from_container>(
-					m_container, *actual_pos));
-		}
-		return { true, {} };
-	});
+			return { true, {} };
+		});
 	Expects(success(this->append(move(button))));
 }
 
