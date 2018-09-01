@@ -29,6 +29,8 @@ rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
 {
 	let[rotation, angular_velocity, angular_acceleration, dt, target] = info;
 	auto target_angle = atan(target);
+	// HACK: U turn by default rotates to the left, but the final value of atan
+	// is -180, rather than +180. Here and below.
 	if (target_angle == -180.) {
 		target_angle = 180;
 	}
@@ -57,12 +59,14 @@ rotation_and_angular_velocity(const rotation_and_angular_velocity_info& info)
 		gsl::narrow_cast<float>(rotation),
 		gsl::narrow_cast<float>(new_angular_velocity),
 		dt);
+	// HACK: atan #2
 	if (new_rotation == -180.) {
 		new_rotation = 180;
 	}
 	const auto constexpr delta = .1;
-	if (new_rotation == target_angle || new_rotation <= target_angle + delta
-		&& new_rotation >= target_angle - delta) {
+	if (new_rotation == target_angle
+		|| new_rotation <= target_angle + delta
+			&& new_rotation >= target_angle - delta) {
 		return { target_angle, 0.0 };
 	}
 	new_rotation = limit_angle(new_rotation);
