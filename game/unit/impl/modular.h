@@ -26,7 +26,7 @@ struct rotation_and_angular_velocity_info final
 
 [[nodiscard]] double limit_angle(double angle);
 
-[[nodiscard]] double
+[[nodiscard]] bool
 should_accelerate(const should_accelerate_info& info);
 
 [[nodiscard]] std::tuple<double, double>
