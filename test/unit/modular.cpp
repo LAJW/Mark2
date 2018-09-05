@@ -1,4 +1,5 @@
-﻿#include <catch.hpp>
+﻿#include <algorithm/find_if.h>
+#include <catch.hpp>
 #include <exception.h>
 #include <item/shard.h>
 #include <module/cargo.h>
@@ -7,6 +8,7 @@
 #include <random.h>
 #include <ref.h>
 #include <resource/manager.h>
+#include <unit/impl/modular.h>
 #include <unit/modular.h>
 #include <update_context.h>
 #include <world.h>
@@ -383,6 +385,200 @@ SCENARIO("modular")
 			{
 				REQUIRE(second_shard == nullptr);
 				REQUIRE(second_container.at({ 15, 3 })->quantity() == 2);
+			}
+		}
+	}
+}
+
+SCENARIO("Implementation functions")
+{
+	using namespace mark::unit::impl;
+	GIVEN("Limit angle function")
+	{
+		WHEN("supplied with 0.")
+		{
+			THEN("it should return 0.") { REQUIRE(0 == limit_angle(0.)); }
+		}
+		WHEN("supplied with +30.")
+		{
+			THEN("it should return +30.") { REQUIRE(30. == limit_angle(30.)); }
+		}
+		WHEN("supplied with -30.")
+		{
+			THEN("it should return -30.")
+			{
+				REQUIRE(-30. == limit_angle(-30.));
+			}
+		}
+		WHEN("supplied with -270.")
+		{
+			THEN("it should return 90.") { REQUIRE(90. == limit_angle(-270.)); }
+		}
+		WHEN("supplied with 270.")
+		{
+			THEN("it should return -90.")
+			{
+				REQUIRE(-90. == limit_angle(270.));
+			}
+		}
+	}
+	GIVEN("should_accelerate function")
+	{
+		WHEN("North-East into South-West zero speed")
+		{
+			should_accelerate_info _;
+			_.rotation = 15.;
+			_.target_angle = -175;
+			_.angular_acceleration = 100.;
+			_.angular_velocity = 0.;
+			THEN("Should return true")
+			{
+				REQUIRE(should_accelerate(_) == true);
+			}
+		}
+		WHEN("North-West into South-West godspeed")
+		{
+			should_accelerate_info _;
+			_.rotation = 160.;
+			_.target_angle = -175;
+			_.angular_acceleration = 100.;
+			_.angular_velocity = 90.;
+			THEN("Should return true")
+			{
+				REQUIRE(should_accelerate(_) == false);
+			}
+		}
+	}
+	GIVEN("rotation_and_angular_velocity_function")
+	{
+		WHEN("NE->SW Accelerate from zero")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = 20.;
+			_.angular_velocity = 0.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., -30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should accelerate") { REQUIRE(angular_velocity > 0.); }
+			THEN("Rotation should be between 20 and 90 degrees, but not 20")
+			{
+				REQUIRE(rotation > 20.);
+				REQUIRE(rotation < 90.);
+			}
+		}
+		WHEN("SE->NW Accelerate from zero")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = -20.;
+			_.angular_velocity = 0.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., 30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Speed should be negative") { REQUIRE(angular_velocity > 0.); }
+			THEN("Rotation should be between -20 and -90 degrees, but not 20")
+			{
+				REQUIRE(rotation < -20.);
+				REQUIRE(rotation > -90.);
+			}
+		}
+		WHEN("NW->SW Decelerate")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = 160.;
+			_.angular_velocity = 90.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., -30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should decelerate") { REQUIRE(angular_velocity < 90.); }
+			THEN("Rotation should be between 165 and 180 degrees")
+			{
+				let top_chunk = rotation > 165. && rotation <= 180.;
+				REQUIRE(top_chunk);
+			}
+		}
+		WHEN("SE->NW Decelerate")
+		{
+			rotation_and_angular_velocity_info _;
+			_.rotation = -160.;
+			_.angular_velocity = 90.;
+			_.angular_acceleration = 100.;
+			_.dt = .16;
+			_.target = { -100., 30. };
+			let[rotation, angular_velocity] = rotation_and_angular_velocity(_);
+			THEN("Should decelerate") { REQUIRE(angular_velocity < 90.); }
+			THEN("Rotation should be between 165 and -180 degrees, excluding")
+			{
+				let bottom_chunk = rotation < -165. && rotation > -180.;
+				REQUIRE(bottom_chunk);
+			}
+		}
+		WHEN("NE->SW Full acceleration simulation")
+		{
+			double rotation = 0.;
+			double angular_velocity = 0;
+			size_t remaining_iterations = 1000;
+			std::vector<double> velocities = { 0 };
+			bool was_accelerating = false;
+			while (rotation < 179.5) {
+				if (--remaining_iterations == 0) {
+					REQUIRE(false); // The loop should stop
+				}
+				rotation_and_angular_velocity_info _;
+				_.rotation = rotation;
+				_.angular_velocity = angular_velocity;
+				_.angular_acceleration = 200.;
+				_.dt = .08;
+				_.target = { -100., -0. };
+				let[new_rotation, new_angular_velocity] =
+					rotation_and_angular_velocity(_);
+				REQUIRE(new_rotation >= rotation);
+				if (rotation < 90.) {
+					REQUIRE(new_angular_velocity > angular_velocity);
+				} else if (rotation > 90.) {
+					if (new_angular_velocity > angular_velocity) {
+						if (was_accelerating) {
+							// Accelerating twice in a row. Likely decelerating
+							// too quickly
+							REQUIRE(false);
+						} else {
+							was_accelerating = true;
+						}
+					} else {
+						was_accelerating = false;
+					}
+				}
+				rotation = new_rotation;
+				angular_velocity = new_angular_velocity;
+				velocities.push_back(angular_velocity);
+			}
+			THEN("The goal should be reached") { REQUIRE(rotation == 180.); }
+			THEN("The angular velocity should be set to zero")
+			{
+				REQUIRE(angular_velocity == 0.);
+			}
+			THEN(
+				"Average deceleration and acceleration should be roughly equal")
+			{
+				std::vector<double> accelerations;
+				REQUIRE(velocities.size() > 3);
+				for (auto it = next(velocities.begin()); it != velocities.end();
+					 ++it) {
+					accelerations.push_back(*it - *prev(it));
+				}
+				auto middle = find_if(accelerations, [&](let acceleration) {
+					return acceleration < 0.;
+				});
+				REQUIRE(middle != accelerations.end());
+				let average_acceleration =
+					std::accumulate(accelerations.begin(), middle, 0.)
+					/ gsl::narrow_cast<double>(middle - accelerations.begin());
+				let average_deceleration =
+					std::accumulate(middle, accelerations.end(), 0.)
+					/ gsl::narrow_cast<double>(accelerations.end() - middle);
+				REQUIRE(abs(average_acceleration + average_deceleration) < 1.5);
 			}
 		}
 	}

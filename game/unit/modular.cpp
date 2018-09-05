@@ -14,6 +14,7 @@
 #include <targeting_system.h>
 #include <unit/activable.h>
 #include <unit/bucket.h>
+#include <unit/impl/modular.h>
 #include <update_context.h>
 #include <world.h>
 
@@ -90,6 +91,20 @@ static auto filter_modules(vector_type& modules)
 }
 } // namespace
 
+auto mark::neighbors_of(module::base& module)
+	-> std::vector<std::pair<module::base&, unsigned>>
+{
+	return ::neighbors_of<module::base>(
+		module.parent(), vi8(module.grid_pos()), vi8(module.size()));
+}
+
+auto mark::neighbors_of(const module::base& module)
+	-> std::vector<std::pair<const module::base&, unsigned>>
+{
+	return ::neighbors_of<const module::base>(
+		module.parent(), vi8(module.grid_pos()), vi8(module.size()));
+}
+
 mark::unit::modular::modular(info info)
 	: unit::mobile(info)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
@@ -98,13 +113,13 @@ mark::unit::modular::modular(info info)
 
 mark::unit::modular::~modular() = default;
 
-void mark::unit::modular::update_modules(update_context& context)
+void mark::unit::modular::update_modules(ref<update_context> context)
 {
-	this->remove_dead(context);
+	this->remove_dead(ref(context));
 	for (auto& module : m_modules) {
 		// Module might be already dead, don't update dead modules
 		if (!module->dead()) {
-			static_cast<module::base_ref&>(*module).update(context);
+			static_cast<module::base_ref&>(*module).update(*context);
 		}
 	}
 }
@@ -260,15 +275,27 @@ static auto advance_path(std::vector<vd> path, double velocity, double dt)
 	}
 	return { path.back() };
 }
+
+void pick_up_nearby_buckets(ref<mark::unit::modular> modular)
+{
+	auto buckets = modular->world().find<unit::bucket>(
+		modular->pos(), 150.f, [](let& unit) { return !unit.dead(); });
+	for (auto& bucket : buckets) {
+		auto module = bucket->release();
+		if (failure(push(*modular, move(module)))) {
+			bucket->insert(move(module));
+		}
+	}
+}
 } // namespace mark
 
 void mark::unit::modular::update(update_context& context)
 {
 	let modifiers = this->modifiers();
 	m_targeting_system->update(context);
-	this->update_modules(context);
+	this->update_modules(ref(context));
 	if (!m_ai && world().target().get() == this) {
-		this->pick_up();
+		pick_up_nearby_buckets(ref(*this));
 	}
 	if (m_knockback_path.size() > 1 && m_initial_knockback_path_length >= 0.) {
 		let velocity = m_initial_knockback_path_length / knockback_duration;
@@ -289,30 +316,25 @@ void mark::unit::modular::update(update_context& context)
 		}());
 	}
 	if (m_lookat != pos()) {
-		let turn_speed = m_ai ? 32.f : 128.f;
 		let target = m_targeting_system->target();
 		let lookat = target ? *target : m_lookat;
-		m_rotation = turn(lookat - pos(), m_rotation, turn_speed, context.dt);
+		std::tie(m_rotation, m_angular_velocity) =
+			impl::rotation_and_angular_velocity([&] {
+				impl::rotation_and_angular_velocity_info _;
+				_.target = lookat - this->pos();
+				_.angular_acceleration =
+					(modifiers.velocity + 320.) / modifiers.mass * 2.;
+				_.angular_velocity = m_angular_velocity;
+				_.rotation = m_rotation;
+				_.dt = context.dt;
+				return _;
+			}());
 	}
 	if (m_ai) {
 		for (let& command : this->update_ai()) {
 			this->command(command);
 		}
 	}
-}
-
-auto mark::unit::modular::neighbors_of(const module::base& module)
-	-> std::vector<std::pair<module::base&, unsigned>>
-{
-	return ::neighbors_of<module::base>(
-		*this, vi8(module.grid_pos()), vi8(module.size()));
-}
-
-auto mark::unit::modular::neighbors_of(const module::base& module) const
-	-> std::vector<std::pair<const module::base&, unsigned>>
-{
-	return ::neighbors_of<const module::base>(
-		*this, vi8(module.grid_pos()), vi8(module.size()));
 }
 
 auto mark::unit::modular::attach(vi32 pos_, interface::item_ptr&& item)
@@ -475,7 +497,7 @@ auto mark::unit::modular::can_detach(vi32 user_pos) const noexcept -> bool
 	if (!module->detachable()) {
 		return false;
 	}
-	return all_of(this->neighbors_of(*module), [&](let& neighbor) {
+	return all_of(neighbors_of(*module), [&](let& neighbor) {
 		return this->p_connected_to_core(
 			neighbor.first, { vi8(module->grid_pos()), vi8(module->size()) });
 	});
@@ -716,10 +738,10 @@ auto mark::unit::modular::bindings() const -> modular::bindings_t
 // Serializer / Deserializer
 
 mark::unit::modular::modular(
-	mark::world& world,
-	random& random,
+	ref<mark::world> world,
+	ref<random> random,
 	const YAML::Node& node)
-	: unit::mobile(world, node)
+	: unit::mobile(*world, node)
 	, m_targeting_system(std::make_unique<mark::targeting_system>(*this))
 	, m_ai(node["ai"].as<bool>())
 {
@@ -729,25 +751,25 @@ mark::unit::modular::modular(
 		let id = module_node["id"].as<uint64_t>();
 		auto module = [&] {
 			let blueprint_node = module_node["blueprint"];
-			auto& rm = world.resource_manager();
+			auto& rm = world->resource_manager();
 			if (!blueprint_node) {
-				return module::deserialize(rm, random, module_node);
+				return module::deserialize(rm, *random, module_node);
 			}
 			let blueprint_id = [&] {
 				if (blueprint_node.IsSequence()) {
 					if (blueprint_node.size() == 0) {
 						throw std::runtime_error("Empty blueprint selection");
 					}
-					let index = random(size_t(0), blueprint_node.size() - 1);
+					let index = (*random)(size_t(0), blueprint_node.size() - 1);
 					return blueprint_node[index].as<std::string>();
 				}
 				return blueprint_node.as<std::string>();
 			}();
-			auto properties = world.blueprints().at(blueprint_id);
+			auto properties = world->blueprints().at(blueprint_id);
 			for (let& property : module_node) {
 				properties[property.first] = property.second;
 			}
-			return module::deserialize(rm, random, properties);
+			return module::deserialize(rm, *random, properties);
 		}();
 		// TODO: Propagate an error
 		Expects(module);
@@ -857,7 +879,7 @@ auto mark::unit::modular::module_at(vi32 pos) const noexcept
 	return module_at_impl(*this, pos);
 }
 
-void mark::unit::modular::remove_dead(update_context& context)
+void mark::unit::modular::remove_dead(ref<update_context> context)
 {
 	let first_dead_it = partition(
 		m_modules.begin(), m_modules.end(), [](const module::base_ptr& module) {
@@ -868,7 +890,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 			first_dead_it,
 			m_modules.end(),
 			[this, &context](module::base_ptr& module) {
-				module->on_death(context);
+				module->on_death(*context);
 				if (module.get() == m_core) {
 					m_core = nullptr;
 				}
@@ -894,7 +916,7 @@ void mark::unit::modular::remove_dead(update_context& context)
 		transform(
 			make_move_iterator(first_detached_it),
 			make_move_iterator(first_dead_it),
-			back_inserter(context.units),
+			back_inserter(context->units),
 			[this](auto module) {
 				unit::bucket::info info;
 				info.world = this->world();
@@ -903,18 +925,6 @@ void mark::unit::modular::remove_dead(update_context& context)
 				return std::make_shared<unit::bucket>(std::move(info));
 			});
 		m_modules.erase(first_detached_it, m_modules.end());
-	}
-}
-
-void mark::unit::modular::pick_up()
-{
-	auto buckets = world().find<unit::bucket>(
-		pos(), 150.f, [](let& unit) { return !unit.dead(); });
-	for (auto& bucket : buckets) {
-		auto module = bucket->release();
-		if (push(*this, move(module)) != error::code::success) {
-			bucket->insert(move(module));
-		}
 	}
 }
 

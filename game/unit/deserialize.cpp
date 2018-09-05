@@ -20,7 +20,7 @@ auto mark::unit::deserialize(
 		return make_shared<unit::gate>(world, node);
 	}
 	if (type == unit::modular::type_name) {
-		return make_shared<unit::modular>(world, random, node);
+		return make_shared<unit::modular>(ref(world), ref(random), node);
 	}
 	if (type == unit::landing_pad::type_name) {
 		return make_shared<unit::landing_pad>(world, node);
