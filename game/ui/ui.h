@@ -3,6 +3,7 @@
 #include <command.h>
 #include <interface/ui.h>
 #include <mode_stack.h>
+#include <ref.h>
 #include <slot.h>
 #include <stdafx.h>
 #include <ui/action_bar.h>
@@ -48,11 +49,11 @@ private:
 	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
 	/// Process the move command
 	[[nodiscard]] bool
-	command(world& world, random& random, const command::move& move);
+	command(ref<world> world, ref<random> random, const command::move& move);
 	/// Process the "drag" user command
-	void drop(world& world, random& random, vd relative);
+	void drop(ref<world> world, ref<random> random, vd relative);
 	/// Process the "drop" user command
-	void drag(world& world, vd relative, bool shift);
+	void drag(ref<world> world, vd relative, bool shift);
 	void container_ui(
 		update_context& context,
 		vd resolution,

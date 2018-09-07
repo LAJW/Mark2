@@ -158,9 +158,9 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 }
 
 namespace mark {
-static auto modular(mark::world& world) -> shared_ptr<unit::modular>
+static auto modular(ref<mark::world> world) -> shared_ptr<unit::modular>
 {
-	let target = world.target();
+	let target = world->target();
 	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
 	return landing_pad ? landing_pad->ship() : nullptr;
 }
@@ -187,7 +187,7 @@ bool mark::ui::ui::command(
 		}
 	}
 	if (let activate = std::get_if<command::activate>(&any)) {
-		let modular = mark::modular(world);
+		let modular = mark::modular(ref(world));
 		if (!modular) {
 			return false;
 		}
@@ -208,8 +208,8 @@ bool mark::ui::ui::command(
 }
 
 auto mark::ui::ui::command(
-	world& world,
-	random& random,
+	ref<world> world,
+	ref<random> random,
 	const mark::command::move& move) -> bool
 {
 	if (move.release) {
@@ -218,28 +218,28 @@ auto mark::ui::ui::command(
 	if (this->click(move.screen_pos, move.shift)) {
 		return true;
 	}
-	if (!modular(world)) {
+	if (!modular(ref(world))) {
 		return false;
 	}
-	let relative = (move.to - world.target()->pos()) / double(module::size);
+	let relative = (move.to - world->target()->pos()) / double(module::size);
 	let module_pos = round(relative);
 	if (!(std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17)) {
 		return true;
 	}
 	// modular drag&drop
 	if (this->grabbed()) {
-		this->drop(world, random, relative);
+		this->drop(ref(world), ref(random), relative);
 	} else {
-		this->drag(world, relative, move.shift);
+		this->drag(ref(world), relative, move.shift);
 	}
 	return true;
 }
 
-void mark::ui::ui::drop(world& world, random& random, vd relative)
+void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
 {
 	Expects(grabbed());
 	let module_pos = round(relative);
-	let modular = mark::modular(world);
+	let modular = mark::modular(ref(world));
 	// module's top-left corner
 	let drop_pos = module_pos - vi32(grabbed()->size()) / 2;
 	if (modular->can_attach(drop_pos, *grabbed())) {
@@ -252,18 +252,18 @@ void mark::ui::ui::drop(world& world, random& random, vd relative)
 	}
 	if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
-			item_of(m_grabbed).use_on(random, world.blueprints(), *module);
+			item_of(m_grabbed).use_on(*random, world->blueprints(), *module);
 		if (error == error::code::success && consumed) {
 			detach(m_grabbed);
 		}
 	}
 }
 
-void mark::ui::ui::drag(world& world, vd relative, bool shift)
+void mark::ui::ui::drag(ref<world> world, const vd relative, const bool shift)
 {
 	Expects(!grabbed());
 	let pick_pos = floor(relative);
-	let modular = mark::modular(world);
+	let modular = mark::modular(ref(world));
 	let pos = modular->pos_at(pick_pos);
 	if (!pos) {
 		return;
