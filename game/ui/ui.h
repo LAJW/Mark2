@@ -55,7 +55,7 @@ private:
 	/// Process the "drop" user command
 	void drag(ref<world> world, vd relative, bool shift);
 	void container_ui(
-		update_context& context,
+		ref<update_context> context,
 		vd resolution,
 		const unit::modular& modular);
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
