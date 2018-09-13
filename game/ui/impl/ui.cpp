@@ -7,6 +7,13 @@ namespace impl {
 
 vi32 drop_pos(const vd relative, const mark::interface::item& item)
 {
+	return drop_pos(relative, item.size());
+}
+
+vi32 drop_pos(const vd relative, const vu32 item_size)
+{
+	Expects(item_size.x > 0);
+	Expects(item_size.y > 0);
 	let constexpr field_size = static_cast<double>(mark::module::size);
 	const auto proc_coord = [&](const double relative, const unsigned uSize) {
 		let size = static_cast<double>(uSize) * field_size;
@@ -16,8 +23,8 @@ vi32 drop_pos(const vd relative, const mark::interface::item& item)
 				: std::floor(
 					  (relative + field_size / 2. - size / 2.) / field_size));
 	};
-	return { proc_coord(relative.x, item.size().x),
-			 proc_coord(relative.y, item.size().y) };
+	return { proc_coord(relative.x, item_size.x),
+			 proc_coord(relative.y, item_size.y) };
 }
 
 vi32 pick_pos(const vd relative)
