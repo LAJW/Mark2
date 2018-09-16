@@ -5,11 +5,6 @@ namespace mark {
 namespace ui {
 namespace impl {
 
-vi32 drop_pos(const vd relative, const mark::interface::item& item)
-{
-	return drop_pos(relative, item.size());
-}
-
 vi32 drop_pos(const vd relative, const vu32 item_size)
 {
 	Expects(item_size.x > 0);
