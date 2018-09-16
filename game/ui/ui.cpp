@@ -5,6 +5,7 @@
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/impl/ui.h>
 #include <ui/inventory.h>
 #include <ui/main_menu.h>
 #include <ui/options.h>
@@ -88,7 +89,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			} else {
 				this->recycler()->pos(vi32(resolution_i.x - 50 - 300, 50));
 			}
-			this->container_ui(context, mouse_pos, *modular);
+			this->container_ui(ref(context), mouse_pos, *modular);
 		} else {
 			m_windows[1]->clear();
 			if (m_windows.size() == 4) {
@@ -158,9 +159,9 @@ bool mark::ui::ui::hover(vi32 screen_pos)
 }
 
 namespace mark {
-static auto modular(mark::world& world) -> shared_ptr<unit::modular>
+static auto modular(ref<mark::world> world) -> shared_ptr<unit::modular>
 {
-	let target = world.target();
+	let target = world->target();
 	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
 	return landing_pad ? landing_pad->ship() : nullptr;
 }
@@ -187,7 +188,7 @@ bool mark::ui::ui::command(
 		}
 	}
 	if (let activate = std::get_if<command::activate>(&any)) {
-		let modular = mark::modular(world);
+		let modular = mark::modular(ref(world));
 		if (!modular) {
 			return false;
 		}
@@ -202,14 +203,14 @@ bool mark::ui::ui::command(
 		return true;
 	}
 	if (let move = std::get_if<command::move>(&any)) {
-		return this->command(world, random, *move);
+		return this->command(ref(world), ref(random), *move);
 	}
 	return false;
 }
 
 auto mark::ui::ui::command(
-	world& world,
-	random& random,
+	ref<world> world,
+	ref<random> random,
 	const mark::command::move& move) -> bool
 {
 	if (move.release) {
@@ -218,30 +219,29 @@ auto mark::ui::ui::command(
 	if (this->click(move.screen_pos, move.shift)) {
 		return true;
 	}
-	if (!modular(world)) {
+	if (!modular(ref(world))) {
 		return false;
 	}
-	let relative = (move.to - world.target()->pos()) / double(module::size);
+	let relative = (move.to - world->target()->pos()) / double(module::size);
 	let module_pos = round(relative);
 	if (!(std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17)) {
 		return true;
 	}
 	// modular drag&drop
 	if (this->grabbed()) {
-		this->drop(world, random, relative);
+		this->drop(ref(world), ref(random), move.to - world->target()->pos());
 	} else {
-		this->drag(world, relative, move.shift);
+		this->drag(ref(world), relative, move.shift);
 	}
 	return true;
 }
 
-void mark::ui::ui::drop(world& world, random& random, vd relative)
+void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
 {
 	Expects(grabbed());
-	let module_pos = round(relative);
-	let modular = mark::modular(world);
+	let modular = mark::modular(ref(world));
 	// module's top-left corner
-	let drop_pos = module_pos - vi32(grabbed()->size()) / 2;
+	let drop_pos = impl::drop_pos(relative, grabbed()->size());
 	if (modular->can_attach(drop_pos, *grabbed())) {
 		let grabbed_bind = modular->binding(m_grabbed.pos());
 		Expects(!modular->attach(drop_pos, detach(m_grabbed)));
@@ -252,18 +252,18 @@ void mark::ui::ui::drop(world& world, random& random, vd relative)
 	}
 	if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
-			item_of(m_grabbed).use_on(random, world.blueprints(), *module);
+			item_of(m_grabbed).use_on(*random, world->blueprints(), *module);
 		if (error == error::code::success && consumed) {
 			detach(m_grabbed);
 		}
 	}
 }
 
-void mark::ui::ui::drag(world& world, vd relative, bool shift)
+void mark::ui::ui::drag(ref<world> world, const vd relative, const bool shift)
 {
 	Expects(!grabbed());
 	let pick_pos = floor(relative);
-	let modular = mark::modular(world);
+	let modular = mark::modular(ref(world));
 	let pos = modular->pos_at(pick_pos);
 	if (!pos) {
 		return;
@@ -308,23 +308,21 @@ static std::vector<bool> make_available_map(
 }
 
 void mark::ui::ui::container_ui(
-	update_context& context,
-	vd mouse_pos,
+	ref<update_context> context,
+	const vd mouse_pos,
 	const unit::modular& modular)
 {
 	constexpr let grid_size = unit::modular::max_size;
 	let surface = range<vi32>(
 		{ -int(grid_size) / 2, -int(grid_size) / 2 },
 		{ grid_size / 2, grid_size / 2 });
-	let relative = (mouse_pos - modular.pos()) / double(module::size);
-	let module_pos = round(relative);
 	if (grabbed()) {
 		let available = make_available_map(*grabbed(), modular);
 		for (let offset : surface) {
 			if (available
 					[offset.x + grid_size / 2
 					 + (offset.y + grid_size / 2) * grid_size]) {
-				context.sprites[1].push_back([&] {
+				context->sprites[1].push_back([&] {
 					sprite _;
 					_.image = m_grid_bg;
 					_.pos = modular.pos() + vd(offset) * double(module::size)
@@ -335,28 +333,29 @@ void mark::ui::ui::container_ui(
 				}());
 			}
 		}
-		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+		let drop_pos =
+			impl::drop_pos(mouse_pos - modular.pos(), grabbed()->size());
+		if (std::abs(drop_pos.x) <= 17 && std::abs(drop_pos.y) <= 17) {
 			let size = static_cast<float>(
 						   std::max(grabbed()->size().x, grabbed()->size().y))
 				* module::size;
-			let drop_pos = module_pos
-				- vi32(grabbed()->size()) / 2; // module's top-left corner
 			let color = modular.can_attach(drop_pos, *grabbed())
 				? sf::Color::Green
 				: sf::Color::Red;
-			context.sprites[100].emplace_back([&] {
+			context->sprites[100].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
-				_.pos = vd(module_pos) * double(module::size) + modular.pos();
+				_.pos = modular.pos() + vd(drop_pos) * 16.;
 				_.size = size;
 				_.color = color;
+				_.centred = false;
 				return _;
 			}());
 		} else {
 			let size = static_cast<float>(
 						   std::max(grabbed()->size().x, grabbed()->size().y))
 				* module::size;
-			context.sprites[105].emplace_back([&] {
+			context->sprites[105].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
 				_.pos = mouse_pos;
@@ -367,13 +366,11 @@ void mark::ui::ui::container_ui(
 	}
 
 	// Display tooltips
-	let pick_pos = floor(relative);
 	if (!grabbed()) {
-		if (std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17) {
+		let pick_pos = impl::pick_pos(mouse_pos - modular.pos());
+		if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
 			// modular
-
-			let module = modular.module_at(pick_pos);
-			if (module) {
+			if (let module = modular.module_at(pick_pos)) {
 				let description = module->describe();
 				let module_size =
 					vd(module->size()) * static_cast<double>(module::size);
