@@ -241,7 +241,7 @@ void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
 	Expects(grabbed());
 	let modular = mark::modular(ref(world));
 	// module's top-left corner
-	let drop_pos = impl::drop_pos(relative, *grabbed());
+	let drop_pos = impl::drop_pos(relative, grabbed()->size());
 	if (modular->can_attach(drop_pos, *grabbed())) {
 		let grabbed_bind = modular->binding(m_grabbed.pos());
 		Expects(!modular->attach(drop_pos, detach(m_grabbed)));
@@ -333,7 +333,8 @@ void mark::ui::ui::container_ui(
 				}());
 			}
 		}
-		let drop_pos = impl::drop_pos(mouse_pos - modular.pos(), *grabbed());
+		let drop_pos =
+			impl::drop_pos(mouse_pos - modular.pos(), grabbed()->size());
 		if (std::abs(drop_pos.x) <= 17 && std::abs(drop_pos.y) <= 17) {
 			let size = static_cast<float>(
 						   std::max(grabbed()->size().x, grabbed()->size().y))
