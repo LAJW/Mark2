@@ -117,6 +117,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		}());
 	}
 	m_root->update(context);
+	m_tooltip.update(context);
 }
 
 bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
@@ -155,7 +156,7 @@ bool ui::ui::hover(vi32 screen_pos, vd world_pos)
 		// Display tooltips
 		let modular = landed_modular();
 		if (modular && !grabbed()) {
-			let pick_pos = impl::pick_pos(world_pos - modular->pos());
+			let pick_pos = impl::pick_pos();
 			if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
 				if (let module = modular->module_at(pick_pos)) {
 					let description = module->describe();
