@@ -20,13 +20,23 @@
 
 let container_count = 8;
 
-mark::ui::ui::ui(
+namespace mark {
+namespace ui {
+
+static auto modular(ref<world> world) -> shared_ptr<unit::modular>
+{
+	let target = world->target();
+	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
+	return landing_pad ? landing_pad->ship() : nullptr;
+}
+
+ui::ui(
 	resource::manager& rm,
 	random& random,
 	mode_stack& stack,
 	world_stack& world_stack)
 	: m_action_bar(rm)
-	, m_root(std::make_unique<mark::ui::window>(mark::ui::window::info()))
+	, m_root(std::make_unique<window>())
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_tooltip(rm)
 	, m_rm(rm)
@@ -35,9 +45,9 @@ mark::ui::ui::ui(
 	, m_world_stack(world_stack)
 {}
 
-mark::ui::ui::~ui() = default;
+ui::~ui() = default;
 
-void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
+void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
 	let resolution_i = vi32(resolution);
 	auto& world = m_world_stack.world();
@@ -47,7 +57,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		if (m_mode == mode::main_menu) {
 			m_root = make_main_menu(m_rm);
 		} else if (m_mode == mode::world) {
-			m_root = std::make_unique<mark::ui::window>();
+			m_root = std::make_unique<window>();
 		} else if (m_mode == mode::prompt) {
 			m_root = make_prompt(m_rm);
 		} else if (m_mode == mode::options) {
@@ -65,19 +75,18 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				// screen
 				this->recycler()->pos({ resolution_i.x - 50 - 300, 50 });
 			} else {
-				m_root = std::make_unique<mark::ui::window>();
+				m_root = std::make_unique<window>();
 				let inventory_size =
-					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
-				Ensures(success(m_root->append(
-					std::make_unique<mark::ui::inventory>([&] {
-						inventory::info _;
-						_.modular = *modular;
-						_.rm = m_rm;
-						_.ui = *this;
-						_.pos = { 50, 50 };
-						_.size = inventory_size;
-						return _;
-					}()))));
+					vu32(16 * 16, (16 * 4 + 32) * container_count);
+				Ensures(success(m_root->append(std::make_unique<inventory>([&] {
+					inventory::info _;
+					_.modular = *modular;
+					_.rm = m_rm;
+					_.ui = *this;
+					_.pos = { 50, 50 };
+					_.size = inventory_size;
+					return _;
+				}()))));
 				Ensures(success(
 					m_root->append(std::make_unique<mark::ui::recycler>([&] {
 						recycler::info _;
@@ -109,7 +118,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	m_root->update(context);
 }
 
-bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
+bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 {
 	action::base::execute_info execute_info;
 	execute_info.mode_stack = m_stack;
@@ -121,7 +130,7 @@ bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 	execute_info.tooltip = m_tooltip;
 	execute_info.queue = m_queue;
 	execute_info.grabbed = m_grabbed;
-	mark::ui::event event;
+	event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
@@ -132,33 +141,21 @@ bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 	return result.handled;
 }
 
-bool mark::ui::ui::click(vi32 screen_pos, bool shift)
+bool ui::ui::click(vi32 screen_pos, bool shift)
 {
 	return dispatch(screen_pos, shift, [&](const event& event, window& window) {
 		return window.click(event);
 	});
 }
 
-bool mark::ui::ui::hover(vi32 screen_pos)
+bool ui::ui::hover(vi32 screen_pos)
 {
 	return dispatch(screen_pos, false, [&](const event& event, window& window) {
 		return window.hover(event);
 	});
 }
 
-namespace mark {
-static auto modular(ref<mark::world> world) -> shared_ptr<unit::modular>
-{
-	let target = world->target();
-	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
-	return landing_pad ? landing_pad->ship() : nullptr;
-}
-} // namespace mark
-
-bool mark::ui::ui::command(
-	world& world,
-	random& random,
-	const mark::command::any& any)
+bool ui::ui::command(world& world, random& random, const command::any& any)
 {
 	if (std::holds_alternative<command::cancel>(any)) {
 		m_stack.pop();
@@ -176,7 +173,7 @@ bool mark::ui::ui::command(
 		}
 	}
 	if (let activate = std::get_if<command::activate>(&any)) {
-		let modular = mark::modular(ref(world));
+		let modular = mark::ui::modular(ref(world));
 		if (!modular) {
 			return false;
 		}
@@ -189,14 +186,14 @@ bool mark::ui::ui::command(
 		let pick_pos = floor(relative);
 		modular->toggle_bind(activate->id, pick_pos);
 		return true;
-	}
-	if (let move = std::get_if<command::move>(&any)) {
+	} else if (let move = std::get_if<command::move>(&any)) {
 		return this->command(ref(world), ref(random), *move);
+	} else {
+		return false;
 	}
-	return false;
 }
 
-auto mark::ui::ui::command(
+auto ui::command(
 	ref<world> world,
 	ref<random> random,
 	const mark::command::move& move) -> bool
@@ -224,10 +221,10 @@ auto mark::ui::ui::command(
 	return true;
 }
 
-void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
+void ui::drop(ref<world> world, ref<random> random, const vd relative)
 {
 	Expects(grabbed());
-	let modular = mark::modular(ref(world));
+	let modular = mark::ui::modular(ref(world));
 	// module's top-left corner
 	let drop_pos = impl::drop_pos(relative, grabbed()->size());
 	if (modular->can_attach(drop_pos, *grabbed())) {
@@ -247,11 +244,11 @@ void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
 	}
 }
 
-void mark::ui::ui::drag(ref<world> world, const vd relative, const bool shift)
+void ui::drag(ref<world> world, const vd relative, const bool shift)
 {
 	Expects(!grabbed());
 	let pick_pos = floor(relative);
-	let modular = mark::modular(ref(world));
+	let modular = mark::ui::modular(ref(world));
 	let pos = modular->pos_at(pick_pos);
 	if (!pos) {
 		return;
@@ -295,7 +292,7 @@ static std::vector<bool> make_available_map(
 	return available;
 }
 
-void mark::ui::ui::container_ui(
+void ui::container_ui(
 	ref<update_context> context,
 	const vd mouse_pos,
 	const unit::modular& modular)
@@ -370,7 +367,7 @@ void mark::ui::ui::container_ui(
 	}
 }
 
-auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
+auto ui::grabbed() const noexcept -> optional<const interface::item&>
 {
 	if (m_grabbed.empty()) {
 		return {};
@@ -378,7 +375,7 @@ auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
 	return item_of(m_grabbed);
 }
 
-auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
+auto ui::landed_modular() noexcept -> mark::unit::modular*
 {
 	let landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(
 		m_world_stack.world().target());
@@ -388,8 +385,7 @@ auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
 	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
 }
 
-auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
-	-> bool
+auto ui::in_recycler(const mark::interface::item& item) const noexcept -> bool
 {
 	if (let recycler = this->recycler()) {
 		return recycler->has(item);
@@ -397,7 +393,7 @@ auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 	return false;
 }
 
-auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
+optional<mark::ui::recycler&> ui::recycler() noexcept
 {
 	// TODO: Abstract into a template
 	let children = m_root->children();
@@ -407,8 +403,7 @@ auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
 	return {};
 }
 
-auto mark::ui::ui::recycler() const noexcept
-	-> optional<const mark::ui::recycler&>
+optional<const mark::ui::recycler&> ui::recycler() const noexcept
 {
 	let children = m_root->children();
 	if (children.size() == 2) {
@@ -416,3 +411,6 @@ auto mark::ui::ui::recycler() const noexcept
 	}
 	return {};
 }
+
+} // namespace ui
+} // namespace mark
