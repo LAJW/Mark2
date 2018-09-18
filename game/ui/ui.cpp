@@ -26,18 +26,15 @@ mark::ui::ui::ui(
 	mode_stack& stack,
 	world_stack& world_stack)
 	: m_action_bar(rm)
+	, m_main_menu(std::make_unique<mark::ui::window>(mark::ui::window::info()))
+	, m_game_ui(std::make_unique<mark::ui::window>(mark::ui::window::info()))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_tooltip(rm)
 	, m_rm(rm)
 	, m_random(random)
 	, m_stack(stack)
 	, m_world_stack(world_stack)
-{
-	m_windows.push_back(
-		std::make_unique<mark::ui::window>(mark::ui::window::info()));
-	m_windows.push_back(
-		std::make_unique<mark::ui::window>(mark::ui::window::info()));
-}
+{}
 
 mark::ui::ui::~ui() = default;
 
@@ -49,14 +46,14 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		m_mode = m_stack.get().back();
 		// router
 		if (m_mode == mode::main_menu) {
-			m_windows.front() = make_main_menu(m_rm);
+			m_main_menu = make_main_menu(m_rm);
 		} else if (m_mode == mode::world) {
-			m_windows.front() =
+			m_main_menu =
 				std::make_unique<mark::ui::window>(mark::ui::window::info());
 		} else if (m_mode == mode::prompt) {
-			m_windows.front() = make_prompt(m_rm);
+			m_main_menu = make_prompt(m_rm);
 		} else if (m_mode == mode::options) {
-			m_windows.front() = make_options(m_rm);
+			m_main_menu = make_options(m_rm);
 		}
 	}
 	if (m_stack.get().back() == mode::world) {
@@ -65,37 +62,37 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 		// Display landing pad UI
 		if (let modular = this->landed_modular()) {
-			if (m_windows.size() == 2) {
+			if (let recycler = this->recycler()) {
+				// TODO: Allow aligning windows to the right/bottom of the
+				// screen
+				this->recycler()->pos({ resolution_i.x - 50 - 300, 50 });
+			} else {
 				let inventory_size =
 					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
-				m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
-					inventory::info _;
-					_.modular = *modular;
-					_.rm = m_rm;
-					_.ui = *this;
-					_.pos = { 50, 50 };
-					_.size = inventory_size;
-					return _;
-				}()));
-				m_windows.push_back(std::make_unique<mark::ui::recycler>([&] {
-					recycler::info _;
-					_.rm = m_rm;
-					_.pos = { resolution_i.x - 50 - 300, 50 };
-					_.size = inventory_size;
-					_.ui = *this;
-					_.queue = m_queue;
-					return _;
-				}()));
-			} else {
-				this->recycler()->pos(vi32(resolution_i.x - 50 - 300, 50));
+				Ensures(success(m_game_ui->append(
+					std::make_unique<mark::ui::inventory>([&] {
+						inventory::info _;
+						_.modular = *modular;
+						_.rm = m_rm;
+						_.ui = *this;
+						_.pos = { 50, 50 };
+						_.size = inventory_size;
+						return _;
+					}()))));
+				Ensures(success(
+					m_game_ui->append(std::make_unique<mark::ui::recycler>([&] {
+						recycler::info _;
+						_.rm = m_rm;
+						_.pos = { resolution_i.x - 50 - 300, 50 };
+						_.size = inventory_size;
+						_.ui = *this;
+						_.queue = m_queue;
+						return _;
+					}()))));
 			}
 			this->container_ui(ref(context), mouse_pos, *modular);
 		} else {
-			m_windows[1]->clear();
-			if (m_windows.size() == 4) {
-				m_windows.pop_back(); // Clear recycler UI
-				m_windows.pop_back(); // Clear inventory UI
-			}
+			m_game_ui->clear();
 			m_grabbed = {};
 		}
 	}
@@ -110,8 +107,8 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			return _;
 		}());
 	}
-	for (let& window : m_windows) {
-		window->update(context);
+	for (auto window : this->windows()) {
+		window.get().update(context);
 	}
 	m_tooltip.update(context);
 }
@@ -132,8 +129,8 @@ bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	for (auto& window : m_windows) {
-		let result = proc(event, *window);
+	for (auto& window : this->windows()) {
+		let result = proc(event, window.get());
 		if (result.handled) {
 			for (auto& action : result.actions) {
 				action->execute(execute_info);
@@ -175,6 +172,7 @@ bool mark::ui::ui::command(
 	if (std::holds_alternative<command::cancel>(any)) {
 		m_stack.pop();
 		return true;
+		vi32
 	}
 	if (let guide = std::get_if<command::guide>(&any)) {
 		return this->hover(guide->screen_pos);
@@ -400,6 +398,17 @@ auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
 	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
 }
 
+std::vector<std::reference_wrapper<mark::ui::window>> mark::ui::ui::windows()
+{
+	return { std::ref(*m_main_menu), std::ref(*m_game_ui) };
+}
+
+std::vector<std::reference_wrapper<const mark::ui::window>>
+mark::ui::ui::windows() const
+{
+	return { std::cref(*m_main_menu), std::cref(*m_game_ui) };
+}
+
 auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 	-> bool
 {
@@ -411,8 +420,10 @@ auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 
 auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
 {
-	if (m_windows.size() == 4) {
-		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+	// TODO: Abstract into a template
+	let children = m_game_ui->children();
+	if (children.size() == 2) {
+		return dynamic_cast<mark::ui::recycler&>(children.back().get());
 	}
 	return {};
 }
@@ -420,8 +431,9 @@ auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
 auto mark::ui::ui::recycler() const noexcept
 	-> optional<const mark::ui::recycler&>
 {
-	if (m_windows.size() == 4) {
-		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+	let children = m_game_ui->children();
+	if (children.size() == 2) {
+		return dynamic_cast<mark::ui::recycler&>(children.back().get());
 	}
 	return {};
 }

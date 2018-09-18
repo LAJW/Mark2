@@ -54,21 +54,26 @@ private:
 	void drop(ref<world> world, ref<random> random, vd relative);
 	/// Process the "drop" user command
 	void drag(ref<world> world, vd relative, bool shift);
+	/// Process container UI frame
 	void container_ui(
 		ref<update_context> context,
 		vd resolution,
 		const unit::modular& modular);
+	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
+	/// Get a reference to all UI's windows
+	[[nodiscard]] std::vector<std::reference_wrapper<mark::ui::window>> windows();
+	[[nodiscard]] std::vector<std::reference_wrapper<const mark::ui::window>> windows() const;
 
 	action_bar m_action_bar;
+	unique_ptr<window> m_main_menu;
+	unique_ptr<window> m_game_ui;
 
 	const resource::image_ptr m_grid_bg;
 
 	// Used to detect container change
 	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
-
-	std::vector<unique_ptr<window>> m_windows;
 
 	// Used to detect stack state change
 	mode m_mode = mode::world;
