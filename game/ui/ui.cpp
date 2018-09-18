@@ -393,23 +393,26 @@ auto ui::in_recycler(const mark::interface::item& item) const noexcept -> bool
 	return false;
 }
 
+template <typename T>
+[[nodiscard]] auto get_recycler(T& root)
+{
+	using value_type = add_const_if_t<mark::ui::recycler, std::is_const_v<T>>&;
+	using return_type = optional<value_type>;
+	let children = root.children();
+	if (children.size() == 2) {
+		return return_type(dynamic_cast<value_type>(children.back().get()));
+	}
+	return return_type();
+}
+
 optional<mark::ui::recycler&> ui::recycler() noexcept
 {
-	// TODO: Abstract into a template
-	let children = m_root->children();
-	if (children.size() == 2) {
-		return dynamic_cast<mark::ui::recycler&>(children.back().get());
-	}
-	return {};
+	return get_recycler(*m_root);
 }
 
 optional<const mark::ui::recycler&> ui::recycler() const noexcept
 {
-	let children = m_root->children();
-	if (children.size() == 2) {
-		return dynamic_cast<mark::ui::recycler&>(children.back().get());
-	}
-	return {};
+	return get_recycler(*m_root);
 }
 
 } // namespace ui
