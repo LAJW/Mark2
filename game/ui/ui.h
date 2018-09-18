@@ -62,13 +62,11 @@ private:
 	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
-	/// Get a reference to all UI's windows
-	[[nodiscard]] std::vector<std::reference_wrapper<mark::ui::window>> windows();
-	[[nodiscard]] std::vector<std::reference_wrapper<const mark::ui::window>> windows() const;
 
 	action_bar m_action_bar;
-	unique_ptr<window> m_main_menu;
-	unique_ptr<window> m_game_ui;
+
+	// Root UI component
+	unique_ptr<window> m_root;
 
 	const resource::image_ptr m_grid_bg;
 

@@ -14,7 +14,7 @@ public:
 	{
 		vi32 pos;
 	};
-	window(const info& info);
+	window(const info& info = {});
 	[[nodiscard]] std::error_code append(unique_ptr<node>&& node) noexcept;
 	[[nodiscard]] handler_result click(const event&) override;
 	[[nodiscard]] handler_result hover(const event&) override;

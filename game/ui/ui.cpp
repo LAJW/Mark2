@@ -26,8 +26,7 @@ mark::ui::ui::ui(
 	mode_stack& stack,
 	world_stack& world_stack)
 	: m_action_bar(rm)
-	, m_main_menu(std::make_unique<mark::ui::window>(mark::ui::window::info()))
-	, m_game_ui(std::make_unique<mark::ui::window>(mark::ui::window::info()))
+	, m_root(std::make_unique<mark::ui::window>(mark::ui::window::info()))
 	, m_grid_bg(rm.image("grid-background.png"))
 	, m_tooltip(rm)
 	, m_rm(rm)
@@ -46,14 +45,13 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 		m_mode = m_stack.get().back();
 		// router
 		if (m_mode == mode::main_menu) {
-			m_main_menu = make_main_menu(m_rm);
+			m_root = make_main_menu(m_rm);
 		} else if (m_mode == mode::world) {
-			m_main_menu =
-				std::make_unique<mark::ui::window>(mark::ui::window::info());
+			m_root = std::make_unique<mark::ui::window>();
 		} else if (m_mode == mode::prompt) {
-			m_main_menu = make_prompt(m_rm);
+			m_root = make_prompt(m_rm);
 		} else if (m_mode == mode::options) {
-			m_main_menu = make_options(m_rm);
+			m_root = make_options(m_rm);
 		}
 	}
 	if (m_stack.get().back() == mode::world) {
@@ -67,9 +65,10 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 				// screen
 				this->recycler()->pos({ resolution_i.x - 50 - 300, 50 });
 			} else {
+				m_root = std::make_unique<mark::ui::window>();
 				let inventory_size =
 					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
-				Ensures(success(m_game_ui->append(
+				Ensures(success(m_root->append(
 					std::make_unique<mark::ui::inventory>([&] {
 						inventory::info _;
 						_.modular = *modular;
@@ -80,7 +79,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 						return _;
 					}()))));
 				Ensures(success(
-					m_game_ui->append(std::make_unique<mark::ui::recycler>([&] {
+					m_root->append(std::make_unique<mark::ui::recycler>([&] {
 						recycler::info _;
 						_.rm = m_rm;
 						_.pos = { resolution_i.x - 50 - 300, 50 };
@@ -92,7 +91,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			}
 			this->container_ui(ref(context), mouse_pos, *modular);
 		} else {
-			m_game_ui->clear();
+			m_root->clear();
 			m_grabbed = {};
 		}
 	}
@@ -107,10 +106,7 @@ void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
 			return _;
 		}());
 	}
-	for (auto window : this->windows()) {
-		window.get().update(context);
-	}
-	m_tooltip.update(context);
+	m_root->update(context);
 }
 
 bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
@@ -129,16 +125,11 @@ bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	for (auto& window : this->windows()) {
-		let result = proc(event, window.get());
-		if (result.handled) {
-			for (auto& action : result.actions) {
-				action->execute(execute_info);
-			}
-			return true;
-		}
+	let result = proc(event, *m_root);
+	for (auto& action : result.actions) {
+		action->execute(execute_info);
 	}
-	return false;
+	return result.handled;
 }
 
 bool mark::ui::ui::click(vi32 screen_pos, bool shift)
@@ -172,7 +163,6 @@ bool mark::ui::ui::command(
 	if (std::holds_alternative<command::cancel>(any)) {
 		m_stack.pop();
 		return true;
-		vi32
 	}
 	if (let guide = std::get_if<command::guide>(&any)) {
 		return this->hover(guide->screen_pos);
@@ -398,17 +388,6 @@ auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
 	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
 }
 
-std::vector<std::reference_wrapper<mark::ui::window>> mark::ui::ui::windows()
-{
-	return { std::ref(*m_main_menu), std::ref(*m_game_ui) };
-}
-
-std::vector<std::reference_wrapper<const mark::ui::window>>
-mark::ui::ui::windows() const
-{
-	return { std::cref(*m_main_menu), std::cref(*m_game_ui) };
-}
-
 auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 	-> bool
 {
@@ -421,7 +400,7 @@ auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
 {
 	// TODO: Abstract into a template
-	let children = m_game_ui->children();
+	let children = m_root->children();
 	if (children.size() == 2) {
 		return dynamic_cast<mark::ui::recycler&>(children.back().get());
 	}
@@ -431,7 +410,7 @@ auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
 auto mark::ui::ui::recycler() const noexcept
 	-> optional<const mark::ui::recycler&>
 {
-	let children = m_game_ui->children();
+	let children = m_root->children();
 	if (children.size() == 2) {
 		return dynamic_cast<mark::ui::recycler&>(children.back().get());
 	}
