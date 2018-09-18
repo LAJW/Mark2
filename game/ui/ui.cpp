@@ -5,6 +5,7 @@
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
+#include <ui/action/set_tooltip.h>
 #include <ui/impl/ui.h>
 #include <ui/inventory.h>
 #include <ui/main_menu.h>
@@ -148,9 +149,26 @@ bool ui::ui::click(vi32 screen_pos, bool shift)
 	});
 }
 
-bool ui::ui::hover(vi32 screen_pos)
+bool ui::ui::hover(vi32 screen_pos, vd world_pos)
 {
 	return dispatch(screen_pos, false, [&](const event& event, window& window) {
+		// Display tooltips
+		let modular = landed_modular();
+		if (modular && !grabbed()) {
+			let pick_pos = impl::pick_pos(world_pos - modular->pos());
+			if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
+				if (let module = modular->module_at(pick_pos)) {
+					let description = module->describe();
+					let module_size =
+						vd(module->size()) * static_cast<double>(module::size);
+					let tooltip_pos =
+						module->pos() + vd(module_size.x, -module_size.y) / 2.0;
+					return handler_result::make(
+						std::make_unique<action::set_tooltip>(
+							tooltip_pos, &*module, description));
+				}
+			}
+		}
 		return window.hover(event);
 	});
 }
@@ -162,7 +180,7 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 		return true;
 	}
 	if (let guide = std::get_if<command::guide>(&any)) {
-		return this->hover(guide->screen_pos);
+		return this->hover(guide->screen_pos, guide->pos);
 	}
 	if (this->m_stack.paused()) {
 		if (auto move = std::get_if<command::move>(&any)) {
@@ -347,22 +365,6 @@ void ui::container_ui(
 				_.size = size;
 				return _;
 			}());
-		}
-	}
-
-	// Display tooltips
-	if (!grabbed()) {
-		let pick_pos = impl::pick_pos(mouse_pos - modular.pos());
-		if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
-			// modular
-			if (let module = modular.module_at(pick_pos)) {
-				let description = module->describe();
-				let module_size =
-					vd(module->size()) * static_cast<double>(module::size);
-				let tooltip_pos =
-					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-				m_tooltip.set(tooltip_pos, &*module, description);
-			}
 		}
 	}
 }

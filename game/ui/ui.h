@@ -46,7 +46,7 @@ private:
 	/// Handler for the click event
 	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
 	/// Handler for the mouse over event
-	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
+	[[nodiscard]] auto hover(vi32 screen_pos, vd world_pos) -> bool;
 	/// Process the move command
 	[[nodiscard]] bool
 	command(ref<world> world, ref<random> random, const command::move& move);
