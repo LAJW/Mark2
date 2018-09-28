@@ -156,7 +156,7 @@ bool ui::ui::hover(vi32 screen_pos, vd world_pos)
 	return dispatch(screen_pos, false, [&](const event& event, window& window) {
 		// Display tooltips
 		let modular = landed_modular();
-		if (modular && !grabbed()) {
+		if (modular && !grabbed() && !m_stack.paused()) {
 			let pick_pos = impl::pick_pos(world_pos - modular->pos());
 			if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
 				if (let module = modular->module_at(pick_pos)) {
@@ -184,10 +184,7 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return true;
 		},
 		[&](const command::guide& guide) {
-			if (this->m_stack.paused()) {
-				return this->hover(guide.screen_pos, guide.pos);
-			}
-			return false;
+			return this->hover(guide.screen_pos, guide.pos);
 		},
 		[&](const command::move& move) {
 			if (this->m_stack.paused()) {
