@@ -195,12 +195,9 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return this->hover(guide.screen_pos, guide.pos);
 		},
 		[&](const command::move& move) {
-			if (this->m_stack.paused()) {
-				return move.release
-					? this->command(ref(world), ref(random), move)
-					: this->click(move.screen_pos, move.shift);
-			}
-			return false;
+			return move.release
+				? this->command(ref(world), ref(random), move)
+				: this->click(move.screen_pos, move.shift);
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
