@@ -313,61 +313,88 @@ static std::vector<bool> make_available_map(
 	return available;
 }
 
+[[nodiscard]] static sprite draw_grabbed_over_modular(
+	const interface::item& grabbed,
+	const unit::modular& modular,
+	const vi32& drop_pos)
+{
+	sprite _;
+	_.image = grabbed.thumbnail();
+	_.pos = modular.pos() + vd(drop_pos) * 16.
+		+ vd(grabbed.size().x / 2., grabbed.size().y / 2.) * 16.;
+	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
+		* module::size;
+	_.color = modular.can_attach(drop_pos, grabbed) ? sf::Color::Green
+													: sf::Color::Red;
+	_.centred = true;
+	return _;
+}
+
+[[nodiscard]] static sprite
+draw_grabbed_over_void(const interface::item& grabbed, const vd& mouse_pos)
+{
+	sprite _;
+	_.image = grabbed.thumbnail();
+	_.pos = mouse_pos;
+	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
+		* module::size;
+	return _;
+}
+
+[[nodiscard]] static sprite draw_grabbed(
+	const interface::item& grabbed,
+	const unit::modular& modular,
+	const vd& mouse_pos)
+{
+	let drop_pos = impl::drop_pos(mouse_pos - modular.pos(), grabbed.size());
+	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
+	let grabbed_size = vi32(grabbed.size());
+	let over_modular = drop_pos.x >= -half_size / 2
+		&& drop_pos.x <= half_size - grabbed_size.x / 2
+		&& drop_pos.y >= -half_size / 2
+		&& drop_pos.y <= half_size - grabbed_size.y / 2;
+	return over_modular ? draw_grabbed_over_modular(grabbed, modular, drop_pos)
+						: draw_grabbed_over_void(grabbed, mouse_pos);
+}
+
+void draw_grid_background(
+	ref<std::vector<renderable>> sprites,
+	const interface::item& grabbed,
+	const mark::unit::modular& modular,
+	const resource::image_ptr& tile_image)
+{
+	let available = make_available_map(grabbed, modular);
+	constexpr let grid_size = unit::modular::max_size;
+	let surface = range<vi32>(
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
+	for (let offset : surface) {
+		if (available
+				[offset.x + grid_size / 2
+				 + (offset.y + grid_size / 2) * grid_size]) {
+			sprites->push_back([&] {
+				sprite _;
+				_.image = tile_image;
+				_.pos = modular.pos() + vd(offset) * double(module::size)
+					+ vd(module::size, module::size) / 2.;
+				_.size = module::size;
+				_.color = { 0, 255, 255, 255 };
+				return _;
+			}());
+		}
+	}
+}
+
 void ui::container_ui(
 	ref<update_context> context,
 	const vd mouse_pos,
 	const unit::modular& modular)
 {
-	constexpr let grid_size = unit::modular::max_size;
-	let surface = range<vi32>(
-		{ -int(grid_size) / 2, -int(grid_size) / 2 },
-		{ grid_size / 2, grid_size / 2 });
-	if (grabbed()) {
-		let available = make_available_map(*grabbed(), modular);
-		for (let offset : surface) {
-			if (available
-					[offset.x + grid_size / 2
-					 + (offset.y + grid_size / 2) * grid_size]) {
-				context->sprites[1].push_back([&] {
-					sprite _;
-					_.image = m_grid_bg;
-					_.pos = modular.pos() + vd(offset) * double(module::size)
-						+ vd(module::size, module::size) / 2.;
-					_.size = module::size;
-					_.color = { 0, 255, 255, 255 };
-					return _;
-				}());
-			}
-		}
-		let drop_pos =
-			impl::drop_pos(mouse_pos - modular.pos(), grabbed()->size());
-		if (std::abs(drop_pos.x) <= 17 && std::abs(drop_pos.y) <= 17) {
-			context->sprites[100].emplace_back([&] {
-				sprite _;
-				_.image = grabbed()->thumbnail();
-				_.pos = modular.pos() + vd(drop_pos) * 16.
-					+ vd(grabbed()->size().x / 2., grabbed()->size().y / 2.)
-						* 16.;
-				_.size = static_cast<float>(
-							 std::max(grabbed()->size().x, grabbed()->size().y))
-					* module::size;
-				_.color = modular.can_attach(drop_pos, *grabbed())
-					? sf::Color::Green
-					: sf::Color::Red;
-				_.centred = true;
-				return _;
-			}());
-		} else {
-			context->sprites[105].emplace_back([&] {
-				sprite _;
-				_.image = grabbed()->thumbnail();
-				_.pos = mouse_pos;
-				_.size = static_cast<float>(
-							 std::max(grabbed()->size().x, grabbed()->size().y))
-					* module::size;
-				return _;
-			}());
-		}
+	if (let grabbed = this->grabbed()) {
+		draw_grid_background(
+			ref(context->sprites[1]), *grabbed, modular, m_grid_bg);
+		context->sprites[105].push_back(
+			draw_grabbed(*grabbed, modular, mouse_pos));
 	}
 }
 
