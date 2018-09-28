@@ -195,9 +195,9 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return this->hover(guide.screen_pos, guide.pos);
 		},
 		[&](const command::move& move) {
-			return move.release
-				? this->command(ref(world), ref(random), move)
-				: this->click(move.screen_pos, move.shift);
+			return !move.release
+				&& (this->command(ref(world), ref(random), move)
+					|| this->click(move.screen_pos, move.shift));
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
@@ -342,30 +342,29 @@ void ui::container_ui(
 		let drop_pos =
 			impl::drop_pos(mouse_pos - modular.pos(), grabbed()->size());
 		if (std::abs(drop_pos.x) <= 17 && std::abs(drop_pos.y) <= 17) {
-			let size = static_cast<float>(
-						   std::max(grabbed()->size().x, grabbed()->size().y))
-				* module::size;
-			let color = modular.can_attach(drop_pos, *grabbed())
-				? sf::Color::Green
-				: sf::Color::Red;
 			context->sprites[100].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
-				_.pos = modular.pos() + vd(drop_pos) * 16.;
-				_.size = size;
-				_.color = color;
-				_.centred = false;
+				_.pos = modular.pos() + vd(drop_pos) * 16.
+					+ vd(grabbed()->size().x / 2., grabbed()->size().y / 2.)
+						* 16.;
+				_.size = static_cast<float>(
+							 std::max(grabbed()->size().x, grabbed()->size().y))
+					* module::size;
+				_.color = modular.can_attach(drop_pos, *grabbed())
+					? sf::Color::Green
+					: sf::Color::Red;
+				_.centred = true;
 				return _;
 			}());
 		} else {
-			let size = static_cast<float>(
-						   std::max(grabbed()->size().x, grabbed()->size().y))
-				* module::size;
 			context->sprites[105].emplace_back([&] {
 				sprite _;
 				_.image = grabbed()->thumbnail();
 				_.pos = mouse_pos;
-				_.size = size;
+				_.size = static_cast<float>(
+							 std::max(grabbed()->size().x, grabbed()->size().y))
+					* module::size;
 				return _;
 			}());
 		}
