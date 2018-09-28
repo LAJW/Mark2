@@ -209,7 +209,7 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return false;
 		},
 		[&](const auto&) { return false; });
-} // namespace ui
+}
 
 auto ui::command(
 	ref<world> world,
