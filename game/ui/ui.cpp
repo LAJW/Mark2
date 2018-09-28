@@ -151,23 +151,31 @@ bool ui::ui::click(vi32 screen_pos, bool shift)
 	});
 }
 
+/// Calculate tooltip's world position for a module
+[[nodiscard]] static vd tooltip_pos(const mark::module::base& module)
+{
+	let module_size = vd(module.size()) * static_cast<double>(module::size);
+	return module.pos() + vd(module_size.x, -module_size.y) / 2.0;
+}
+
+[[nodiscard]] static optional<handler_result>
+modular_tooltip(vd world_pos, const unit::modular& modular)
+{
+	let pick_pos = impl::pick_pos(world_pos - modular.pos());
+	if (let module = modular.module_at(pick_pos)) {
+		return handler_result::make(std::make_unique<action::set_tooltip>(
+			tooltip_pos(*module), &*module, module->describe()));
+	}
+	return {};
+}
+
 bool ui::ui::hover(vi32 screen_pos, vd world_pos)
 {
 	return dispatch(screen_pos, false, [&](const event& event, window& window) {
-		// Display tooltips
-		let modular = landed_modular();
-		if (modular && !grabbed() && !m_stack.paused()) {
-			let pick_pos = impl::pick_pos(world_pos - modular->pos());
-			if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
-				if (let module = modular->module_at(pick_pos)) {
-					let description = module->describe();
-					let module_size =
-						vd(module->size()) * static_cast<double>(module::size);
-					let tooltip_pos =
-						module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-					return handler_result::make(
-						std::make_unique<action::set_tooltip>(
-							tooltip_pos, &*module, description));
+		if (let modular = landed_modular()) {
+			if (!grabbed() && !m_stack.paused()) {
+				if (auto action = modular_tooltip(world_pos, *modular)) {
+					return std::move(*action);
 				}
 			}
 		}
