@@ -287,10 +287,8 @@ void ui::drag(ref<world> world, const vd relative, const bool shift)
 				Expects(success(modular->attach(*pos, move(detached))));
 			}
 		}
-	} else {
-		if (modular->can_detach(pick_pos)) {
-			m_grabbed = { *modular, pick_pos };
-		}
+	} else if (modular->can_detach(pick_pos)) {
+		m_grabbed = { *modular, pick_pos };
 	}
 }
 
