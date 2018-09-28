@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include <algorithm/match.h>
 #include <algorithm/range.h>
 #include <renderer.h>
 #include <resource/image.h>
@@ -99,13 +100,17 @@ static void render(
 	auto& window_buffer = *(*info.window_buffers)[0];
 	for (let & [ z_index, sprites ] : window.sprites) {
 		for (let& renderable : sprites) {
-			if (let sprite = std::get_if<mark::sprite>(&renderable)) {
-				render(window_buffer, *sprite, info.camera, info.resolution);
-			} else if (let path = std::get_if<mark::path>(&renderable)) {
-				render(window_buffer, *path, info.camera);
-			} else if (let rect = std::get_if<rectangle>(&renderable)) {
-				render(window_buffer, *rect);
-			}
+			match(
+				renderable,
+				[&](const mark::sprite& sprite) {
+					render(window_buffer, sprite, info.camera, info.resolution);
+				},
+				[&](const mark::path& path) {
+					render(window_buffer, path, info.camera);
+				},
+				[&](const mark::rectangle& rectangle) {
+					render(window_buffer, rectangle);
+				});
 		}
 	}
 	buffer.draw([&] {
