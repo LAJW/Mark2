@@ -195,9 +195,7 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return this->hover(guide.screen_pos, guide.pos);
 		},
 		[&](const command::move& move) {
-			return !move.release
-				&& (this->command(ref(world), ref(random), move)
-					|| this->click(move.screen_pos, move.shift));
+			return this->command(ref(world), ref(random), move);
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
@@ -216,6 +214,17 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 		[&](const auto&) { return false; });
 }
 
+[[nodiscard]] static bool
+inside_modular_grid(vi32 module_pos, vu32 umodule_size)
+{
+	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
+	let module_size = vi32(umodule_size);
+	return module_pos.x >= -half_size + module_size.x / 2
+		&& module_pos.x <= half_size
+		&& module_pos.y >= -half_size + module_size.y / 2
+		&& module_pos.y <= half_size;
+}
+
 auto ui::command(
 	ref<world> world,
 	ref<random> random,
@@ -223,19 +232,15 @@ auto ui::command(
 {
 	if (move.release) {
 		return false;
-	}
-	if (this->click(move.screen_pos, move.shift)) {
+	} else if (this->click(move.screen_pos, move.shift)) {
 		return true;
-	}
-	if (!modular(ref(world))) {
+	} else if (!modular(ref(world))) {
 		return false;
 	}
 	let relative = (move.to - world->target()->pos()) / double(module::size);
-	let module_pos = round(relative);
-	if (!(std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17)) {
-		return true;
+	if (!inside_modular_grid(round(relative), { 0, 0 })) {
+		return false;
 	}
-	// modular drag&drop
 	if (this->grabbed()) {
 		this->drop(ref(world), ref(random), move.to - world->target()->pos());
 	} else {
@@ -347,14 +352,9 @@ draw_grabbed_over_void(const interface::item& grabbed, const vd& mouse_pos)
 	const vd& mouse_pos)
 {
 	let drop_pos = impl::drop_pos(mouse_pos - modular.pos(), grabbed.size());
-	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
-	let grabbed_size = vi32(grabbed.size());
-	let over_modular = drop_pos.x >= -half_size / 2
-		&& drop_pos.x <= half_size - grabbed_size.x / 2
-		&& drop_pos.y >= -half_size / 2
-		&& drop_pos.y <= half_size - grabbed_size.y / 2;
-	return over_modular ? draw_grabbed_over_modular(grabbed, modular, drop_pos)
-						: draw_grabbed_over_void(grabbed, mouse_pos);
+	return inside_modular_grid(drop_pos, grabbed.size())
+		? draw_grabbed_over_modular(grabbed, modular, drop_pos)
+		: draw_grabbed_over_void(grabbed, mouse_pos);
 }
 
 void draw_grid_background(
