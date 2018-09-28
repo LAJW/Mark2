@@ -1,5 +1,6 @@
 ﻿#include "ui.h"
 #include <algorithm.h>
+#include <algorithm/match.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
 #include <resource/manager.h>
@@ -176,41 +177,42 @@ bool ui::ui::hover(vi32 screen_pos, vd world_pos)
 
 bool ui::ui::command(world& world, random& random, const command::any& any)
 {
-	if (std::holds_alternative<command::cancel>(any)) {
-		m_stack.pop();
-		return true;
-	}
-	if (let guide = std::get_if<command::guide>(&any)) {
-		return this->hover(guide->screen_pos, guide->pos);
-	}
-	if (this->m_stack.paused()) {
-		if (auto move = std::get_if<command::move>(&any)) {
-			if (!move->release) {
-				return this->click(move->screen_pos, move->shift);
+	return match(
+		any,
+		[&](const command::cancel&) {
+			m_stack.pop();
+			return true;
+		},
+		[&](const command::guide& guide) {
+			if (this->m_stack.paused()) {
+				return this->hover(guide.screen_pos, guide.pos);
 			}
 			return false;
-		}
-	}
-	if (let activate = std::get_if<command::activate>(&any)) {
-		let modular = mark::ui::modular(ref(world));
-		if (!modular) {
+		},
+		[&](const command::move& move) {
+			if (this->m_stack.paused()) {
+				return move.release
+					? this->command(ref(world), ref(random), move)
+					: this->click(move.screen_pos, move.shift);
+			}
 			return false;
-		}
-		if (grabbed()) {
-			m_grabbed = {};
-			return true;
-		}
-		let relative =
-			(activate->pos - world.target()->pos()) / double(module::size);
-		let pick_pos = floor(relative);
-		modular->toggle_bind(activate->id, pick_pos);
-		return true;
-	} else if (let move = std::get_if<command::move>(&any)) {
-		return this->command(ref(world), ref(random), *move);
-	} else {
-		return false;
-	}
-}
+		},
+		[&](const command::activate& activate) {
+			if (grabbed()) {
+				m_grabbed = {};
+				return true;
+			}
+			if (let modular = mark::ui::modular(ref(world))) {
+				let pick_pos = floor(
+					(activate.pos - world.target()->pos())
+					/ static_cast<double>(module::size));
+				modular->toggle_bind(activate.id, pick_pos);
+				return true;
+			}
+			return false;
+		},
+		[&](const auto&) { return false; });
+} // namespace ui
 
 auto ui::command(
 	ref<world> world,
