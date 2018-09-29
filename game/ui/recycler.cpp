@@ -37,7 +37,7 @@ recycler::recycler(const info& info)
 		return _;
 	}());
 	recycle_button->on_click.insert([&](const event&) {
-		return handler_result::make(std::make_unique<action::legacy>(
+		return make_handler_result<action::legacy>(
 			[&rm](const action::legacy::execute_info& info) {
 				std::vector<std::unique_ptr<mark::interface::item>> items;
 				auto& queue = *info.queue;
@@ -54,7 +54,7 @@ recycler::recycler(const info& info)
 						success(error_code)
 						|| error_code == error::code::stacked);
 				}
-			}));
+			});
 	});
 	Ensures(success(this->append(move(recycle_button))));
 	auto cancel_recycle_button = std::make_unique<chunky_button>([&] {
@@ -68,14 +68,14 @@ recycler::recycler(const info& info)
 		return _;
 	}());
 	cancel_recycle_button->on_click.insert([&](let&) {
-		return handler_result::make(std::make_unique<action::legacy>(
+		return make_handler_result<action::legacy>(
 			[](const action::legacy::execute_info& info) {
 				auto& queue = *info.queue;
 				for (let& pos : range(queue.size())) {
 					auto& slot = queue[pos];
 					slot = {};
 				}
-			}));
+			});
 	});
 	Ensures(success(this->append(move(cancel_recycle_button))));
 }
@@ -118,15 +118,15 @@ void recycler::update(update_context& context)
 			_.ui = m_ui;
 			return _;
 		}());
-		button->on_click.insert([=](const event&) -> handler_result {
-			return handler_result::make(std::make_unique<action::legacy>(
+		button->on_click.insert([=](const event&) {
+			return make_handler_result<action::legacy>(
 				[pos](const action::base::execute_info& info) {
 					(*info.queue)[pos] = {};
-				}));
+				});
 		});
 		button->on_hover.insert([&](const event&) {
-			return handler_result::make(std::make_unique<action::set_tooltip>(
-				vi32(pos) - vi32{ 300, 0 }, &item, item.describe()));
+			return make_handler_result<action::set_tooltip>(
+				vi32(pos) - vi32{ 300, 0 }, &item, item.describe());
 		});
 		let error = before == item_buttons.end()
 			? this->append(move(button))

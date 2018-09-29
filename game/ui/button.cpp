@@ -39,7 +39,7 @@ mark::ui::handler_result mark::ui::button_base::click(const event& event)
 	let bottom_right = top_left + vi32(m_size);
 	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
-		return { on_click.dispatch(event) };
+		return on_click.dispatch(event);
 	}
 	return {};
 }
@@ -51,8 +51,8 @@ mark::ui::handler_result mark::ui::button_base::hover(const event& event)
 	if (event.cursor.x >= top_left.x && event.cursor.x < bottom_right.x
 		&& event.cursor.y >= top_left.y && event.cursor.y < bottom_right.y) {
 		m_hovering = true;
-		return { on_hover.dispatch(event) };
+		return on_hover.dispatch(event);
 	}
 	m_hovering = false;
-	return { false };
+	return {};
 }

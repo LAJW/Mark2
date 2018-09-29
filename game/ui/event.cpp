@@ -13,12 +13,11 @@ void mark::ui::callback_group::insert(
 handler_result mark::ui::callback_group::dispatch(const event& event) const
 {
 	for (let& callback : m_callbacks) {
-		auto result = callback(event);
-		if (result.handled) {
-			return result;
+		if (auto actions = callback(event)) {
+			return actions;
 		}
 	}
-	return { false, {} };
+	return { };
 }
 
 handler_result mark::ui::callback_group::operator()(const event& event) const

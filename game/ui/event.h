@@ -17,21 +17,20 @@ struct event final
 	bool shift;
 };
 
-struct handler_result final
+using handler_result = optional<std::vector<std::unique_ptr<action::base>>>;
+template <typename T, typename... Ts>
+[[nodiscard]] handler_result make_handler_result(Ts&&... action_args)
 {
-	bool handled;
-	std::vector<unique_ptr<action::base>> actions;
+	std::vector<std::unique_ptr<action::base>> actions;
+	actions.push_back(std::make_unique<T>(std::forward<Ts>(action_args)...));
+	return handler_result(move(actions));
+}
 
-	/// Create a handled result with a single action
-	[[nodiscard]] static handler_result
-	make(std::unique_ptr<action::base> action)
-	{
-		handler_result result;
-		result.handled = true;
-		result.actions.push_back(move(action));
-		return result;
-	};
-};
+/// Create a "handled", but action-less handler result
+inline [[nodiscard]] handler_result handled()
+{
+	return handler_result(std::vector<std::unique_ptr<action::base>>());
+}
 
 class callback_group final
 {

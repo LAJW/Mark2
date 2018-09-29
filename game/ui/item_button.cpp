@@ -18,11 +18,11 @@ mark::ui::item_button::item_button(const info& info)
 	this->on_hover.insert([=, &item](const event&) -> handler_result {
 		// HACK: This should be based on screen resolution and updated on resize
 		if (this->pos().x < 1000) {
-			return handler_result::make(std::make_unique<action::set_tooltip>(
-				this->pos() + vi32(length, 0), &item, item.describe()));
+			return make_handler_result<action::set_tooltip>(
+				this->pos() + vi32(length, 0), &item, item.describe());
 		}
-		return handler_result::make(std::make_unique<action::set_tooltip>(
-			this->pos() + vi32(length, 0), &item, item.describe()));
+		return make_handler_result<action::set_tooltip>(
+			this->pos() + vi32(length, 0), &item, item.describe());
 	});
 }
 

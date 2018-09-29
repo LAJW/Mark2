@@ -148,12 +148,13 @@ void ui::execute(action::base& action)
 
 bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback callback)
 {
-	let & [ handled, actions ] =
-		callback(root_event(screen_pos, shift), *m_root);
-	for (auto& action : actions) {
-		this->execute(*action);
+	let actions = callback(root_event(screen_pos, shift), *m_root);
+	if (actions) {
+		for (auto& action : *actions) {
+			this->execute(*action);
+		}
 	}
-	return handled;
+	return actions.has_value();
 }
 
 bool ui::ui::click(vi32 screen_pos, bool shift)
@@ -175,8 +176,8 @@ modular_tooltip(vd world_pos, const unit::modular& modular)
 {
 	let pick_pos = impl::pick_pos(world_pos - modular.pos());
 	if (let module = modular.module_at(pick_pos)) {
-		return handler_result::make(std::make_unique<action::set_tooltip>(
-			tooltip_pos(*module), &*module, module->describe()));
+		return make_handler_result<action::set_tooltip>(
+			tooltip_pos(*module), &*module, module->describe());
 	}
 	return {};
 }
