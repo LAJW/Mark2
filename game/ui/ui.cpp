@@ -195,7 +195,11 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return this->hover(guide.screen_pos, guide.pos);
 		},
 		[&](const command::move& move) {
-			return this->command(ref(world), ref(random), move);
+			if (move.release) {
+				return false;
+			}
+			return this->click(
+				ref(world), ref(random), move.screen_pos, move.to, move.shift);
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
@@ -225,26 +229,26 @@ inside_modular_grid(vi32 module_pos, vu32 umodule_size)
 		&& module_pos.y <= half_size;
 }
 
-auto ui::command(
+bool ui::click(
 	ref<world> world,
 	ref<random> random,
-	const mark::command::move& move) -> bool
+	const vi32 screen_pos,
+	const vd world_pos,
+	const bool shift)
 {
-	if (move.release) {
-		return false;
-	} else if (this->click(move.screen_pos, move.shift)) {
+	if (this->click(screen_pos, shift)) {
 		return true;
 	} else if (!modular(ref(world))) {
 		return false;
 	}
-	let relative = (move.to - world->target()->pos()) / double(module::size);
-	if (!inside_modular_grid(round(relative), { 0, 0 })) {
+	let relative = world_pos - world->target()->pos();
+	if (!inside_modular_grid(round(relative / double(module::size)), {})) {
 		return false;
 	}
 	if (this->grabbed()) {
-		this->drop(ref(world), ref(random), move.to - world->target()->pos());
+		this->drop(ref(world), ref(random), relative);
 	} else {
-		this->drag(ref(world), relative, move.shift);
+		this->drag(ref(world), relative, shift);
 	}
 	return true;
 }

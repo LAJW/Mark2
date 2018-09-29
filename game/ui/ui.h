@@ -47,12 +47,16 @@ private:
 	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
 	/// Handler for the mouse over event
 	[[nodiscard]] auto hover(vi32 screen_pos, vd world_pos) -> bool;
-	/// Process the move command
-	[[nodiscard]] bool
-	command(ref<world> world, ref<random> random, const command::move& move);
-	/// Process the "drag" user command
+	/// Process the click event
+	[[nodiscard]] bool click(
+		ref<world> world,
+		ref<random> random,
+		const vi32 screen_pos,
+		const vd world_pos,
+		const bool shift);
+	/// Process the "drag" event
 	void drop(ref<world> world, ref<random> random, vd relative);
-	/// Process the "drop" user command
+	/// Process the "drop" event
 	void drag(ref<world> world, vd relative, bool shift);
 	/// Process container UI frame
 	void container_ui(
