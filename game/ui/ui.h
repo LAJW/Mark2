@@ -39,6 +39,7 @@ public:
 		noexcept override;
 
 private:
+	void execute(action::base& action);
 	using dispatch_callback =
 		std::function<handler_result(const event&, window&)>;
 	[[nodiscard]] bool

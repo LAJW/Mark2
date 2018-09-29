@@ -121,7 +121,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	m_tooltip.update(context);
 }
 
-bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
+void ui::execute(action::base& action)
 {
 	action::base::execute_info execute_info;
 	execute_info.mode_stack = m_stack;
@@ -133,15 +133,27 @@ bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 	execute_info.tooltip = m_tooltip;
 	execute_info.queue = m_queue;
 	execute_info.grabbed = m_grabbed;
-	event event;
+	action.execute(execute_info);
+}
+
+/// Create an event for the root component
+[[nodiscard]] static event root_event(vi32 screen_pos, bool shift)
+{
+	mark::ui::event event;
 	event.absolute_cursor = screen_pos;
 	event.cursor = screen_pos;
 	event.shift = shift;
-	let result = proc(event, *m_root);
-	for (auto& action : result.actions) {
-		action->execute(execute_info);
+	return event;
+}
+
+bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback callback)
+{
+	let & [ handled, actions ] =
+		callback(root_event(screen_pos, shift), *m_root);
+	for (auto& action : actions) {
+		this->execute(*action);
 	}
-	return result.handled;
+	return handled;
 }
 
 bool ui::ui::click(vi32 screen_pos, bool shift)
