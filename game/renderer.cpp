@@ -1,17 +1,14 @@
 ﻿#include "stdafx.h"
 #include <algorithm/match.h>
 #include <algorithm/range.h>
+#include <ref.h>
 #include <renderer.h>
 #include <resource/image.h>
 #include <sprite.h>
 #include <update_context.h>
 
-namespace mark {
-
-const constexpr auto shadow_resolution = 512u;
-const constexpr auto shadow_resolutionf = static_cast<float>(shadow_resolution);
-
 namespace {
+using namespace mark;
 struct render_info final
 {
 	optional<renderer::window_buffers&> window_buffers;
@@ -20,9 +17,14 @@ struct render_info final
 };
 } // namespace
 
+namespace mark {
+
+const constexpr auto shadow_resolution = 512u;
+const constexpr auto shadow_resolutionf = static_cast<float>(shadow_resolution);
+
 // Render sprite using world coordinates
 static void render(
-	sf::RenderTexture& buffer,
+	ref<sf::RenderTexture> buffer,
 	const sprite& sprite,
 	const vd& camera,
 	const vd& resolution)
@@ -53,48 +55,48 @@ static void render(
 			std::get<vd>(sprite.pos) - camera + resolution / 2.);
 	}();
 	tmp.move(vector<float>(offset));
-	buffer.draw(tmp);
+	buffer->draw(tmp);
 }
 
 static void
-render(sf::RenderTexture& buffer, const path& path, const vd& camera)
+render(ref<sf::RenderTexture> buffer, const path& path, const vd& camera)
 {
 	std::vector<sf::Vertex> points;
 	if (path.points.size() <= 1) {
 		return;
 	}
 	if (path.world) {
-		for (let i : mark::range(path.points.size() - 1)) {
+		for (let i : range(path.points.size() - 1)) {
 			let cur = path.points[i];
 			let next = path.points[i + 1];
 			points.push_back(sf::Vertex(vector<float>(cur - camera)));
 			points.push_back(sf::Vertex(vector<float>(next - camera)));
 		}
 	} else {
-		for (let i : mark::range(path.points.size() - 1)) {
+		for (let i : range(path.points.size() - 1)) {
 			let cur = path.points[i];
 			let next = path.points[i + 1];
 			points.push_back(sf::Vertex(vector<float>(cur)));
 			points.push_back(sf::Vertex(vector<float>(next)));
 		}
 	}
-	buffer.draw(points.data(), points.size(), sf::Lines);
+	buffer->draw(points.data(), points.size(), sf::Lines);
 }
 
-static void render(sf::RenderTexture& buffer, const rectangle& rect)
+static void render(ref<sf::RenderTexture> buffer, const rectangle& rect)
 {
 	sf::RectangleShape rectangle;
 	rectangle.setPosition(sf::Vector2f(rect.pos));
 	rectangle.setSize(sf::Vector2f(rect.size));
 	rectangle.setFillColor(rect.background_color);
 	rectangle.setOutlineColor(rect.border_color);
-	buffer.draw(rectangle);
+	buffer->draw(rectangle);
 }
 
 static void render(
-	const mark::render_info& info,
-	sf::RenderTexture& buffer,
-	const mark::window& window)
+	const render_info& info,
+	ref<sf::RenderTexture> buffer,
+	const window& window)
 {
 	// TODO: Rotate buffers
 	auto& window_buffer = *(*info.window_buffers)[0];
@@ -102,18 +104,22 @@ static void render(
 		for (let& renderable : sprites) {
 			match(
 				renderable,
-				[&](const mark::sprite& sprite) {
-					render(window_buffer, sprite, info.camera, info.resolution);
+				[&](const sprite& sprite) {
+					render(
+						ref(window_buffer),
+						sprite,
+						info.camera,
+						info.resolution);
 				},
-				[&](const mark::path& path) {
-					render(window_buffer, path, info.camera);
+				[&](const path& path) {
+					render(ref(window_buffer), path, info.camera);
 				},
-				[&](const mark::rectangle& rectangle) {
-					render(window_buffer, rectangle);
+				[&](const rectangle& rectangle) {
+					render(ref(window_buffer), rectangle);
 				});
 		}
 	}
-	buffer.draw([&] {
+	buffer->draw([&] {
 		sf::Sprite sprite(window_buffer.getTexture());
 		// sprite.move(vector<float>(window.pos));
 		// sprite.setTextureRect({ window.scroll, window.size });
@@ -123,22 +129,21 @@ static void render(
 
 static void render(
 	const render_info& info,
-	sf::RenderTexture& buffer,
+	ref<sf::RenderTexture> buffer,
 	const renderable& any)
 {
-	if (let sprite = std::get_if<mark::sprite>(&any)) {
-		return render(buffer, *sprite, info.camera, info.resolution);
-	}
-	if (let path = std::get_if<mark::path>(&any)) {
-		return render(buffer, *path, info.camera);
-	}
-	if (let rect = std::get_if<rectangle>(&any)) {
-		return render(buffer, *rect);
-	}
-	if (let window = std::get_if<mark::window>(&any)) {
-		return render(info, buffer, *window);
-	}
-	Expects(false); // Unreachable
+	return match(
+		any,
+		[&](const sprite& sprite) {
+			return render(ref(buffer), sprite, info.camera, info.resolution);
+		},
+		[&](const path& path) {
+			return render(ref(buffer), path, info.camera);
+		},
+		[&](const rectangle& rect) { return render(ref(buffer), rect); },
+		[&](const window& window) {
+			return render(info, ref(buffer), window);
+		});
 }
 
 static unique_ptr<sf::RenderTexture>
@@ -150,7 +155,7 @@ make_render_texture(const vu32& resolution, bool smooth = false)
 	return buffer;
 }
 
-void mark::renderer::resolution(const vu32& resolution)
+void renderer::resolution(const vu32& resolution)
 {
 	if (m_buffer && m_buffer->getSize() == resolution) {
 		return;
@@ -165,7 +170,7 @@ void mark::renderer::resolution(const vu32& resolution)
 	}
 }
 
-mark::renderer::renderer(const vu32& resolution)
+renderer::renderer(const vu32& resolution)
 	: m_vbo(make_render_texture({ shadow_resolution, 1 }, true))
 {
 	this->resolution(resolution);
@@ -174,7 +179,7 @@ mark::renderer::renderer(const vu32& resolution)
 	m_bump_mapping.loadFromFile("bump_mapping.glsl", sf::Shader::Fragment);
 }
 
-void mark::renderer::clear()
+void renderer::clear()
 {
 	// Clear with white to highlight opaque objects (shields, projectiles)
 	// Side effect of this is making shadows brighter
@@ -189,7 +194,7 @@ void mark::renderer::clear()
 	}
 }
 
-sf::Sprite mark::renderer::render(const render_info& info)
+sf::Sprite renderer::render(const render_info& info)
 {
 	let camera = info.camera;
 	let resolution = info.resolution;
@@ -216,28 +221,28 @@ sf::Sprite mark::renderer::render(const render_info& info)
 	}
 	let lights_count = std::min(lights_pos.size(), static_cast<size_t>(64));
 
-	mark::render_info render_info;
+	::render_info render_info;
 	render_info.camera = camera;
 	render_info.resolution = resolution;
 	render_info.window_buffers = m_window_buffers;
 	for (let& layer : info.sprites) {
 		if (layer.first < 0) {
 			for (let& sprites : layer.second) {
-				mark::render(render_info, *m_occlusion_map, sprites);
+				mark::render(render_info, ref(*m_occlusion_map), sprites);
 			}
 		} else if (layer.first < 100) {
 			for (let& sprite : layer.second) {
-				mark::render(render_info, *m_buffer, sprite);
+				mark::render(render_info, ref(*m_buffer), sprite);
 			}
 		} else {
 			for (let& sprite : layer.second) {
-				mark::render(render_info, *m_ui_layer, sprite);
+				mark::render(render_info, ref(*m_ui_layer), sprite);
 			}
 		}
 	}
 	for (let& layer : info.normals) {
 		for (let& sprite : layer.second) {
-			mark::render(*m_normal_map, sprite, camera, resolution);
+			mark::render(ref(*m_normal_map), sprite, camera, resolution);
 		}
 	}
 
