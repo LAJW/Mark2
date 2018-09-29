@@ -40,16 +40,15 @@ public:
 
 private:
 	void execute(action::base& action);
+	[[nodiscard]] bool execute(const handler_result&);
 	using dispatch_callback =
 		std::function<handler_result(const event&, window&)>;
 	[[nodiscard]] bool
 	dispatch(vi32 screen_pos, bool shift, dispatch_callback proc);
-	/// Handler for the click event
-	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
 	/// Handler for the mouse over event
-	[[nodiscard]] auto hover(vi32 screen_pos, vd world_pos) -> bool;
+	[[nodiscard]] handler_result hover(vi32 screen_pos, vd world_pos);
 	/// Process the click event
-	[[nodiscard]] bool click(
+	[[nodiscard]] handler_result click(
 		ref<world> world,
 		ref<random> random,
 		const vi32 screen_pos,

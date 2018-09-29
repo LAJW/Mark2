@@ -136,6 +136,16 @@ void ui::execute(action::base& action)
 	action.execute(execute_info);
 }
 
+bool ui::execute(const handler_result& actions)
+{
+	if (actions) {
+		for (let &action : *actions) {
+			this->execute(*action);
+		}
+	}
+	return actions.has_value();
+}
+
 /// Create an event for the root component
 [[nodiscard]] static event root_event(vi32 screen_pos, bool shift)
 {
@@ -144,24 +154,6 @@ void ui::execute(action::base& action)
 	event.cursor = screen_pos;
 	event.shift = shift;
 	return event;
-}
-
-bool ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback callback)
-{
-	let actions = callback(root_event(screen_pos, shift), *m_root);
-	if (actions) {
-		for (auto& action : *actions) {
-			this->execute(*action);
-		}
-	}
-	return actions.has_value();
-}
-
-bool ui::ui::click(vi32 screen_pos, bool shift)
-{
-	return dispatch(screen_pos, shift, [&](const event& event, window& window) {
-		return window.click(event);
-	});
 }
 
 /// Calculate tooltip's world position for a module
@@ -182,18 +174,16 @@ modular_tooltip(vd world_pos, const unit::modular& modular)
 	return {};
 }
 
-bool ui::ui::hover(vi32 screen_pos, vd world_pos)
+handler_result ui::ui::hover(vi32 screen_pos, vd world_pos)
 {
-	return dispatch(screen_pos, false, [&](const event& event, window& window) {
-		if (let modular = landed_modular()) {
-			if (!grabbed() && !m_stack.paused()) {
-				if (auto action = modular_tooltip(world_pos, *modular)) {
-					return std::move(*action);
-				}
+	if (let modular = landed_modular()) {
+		if (!grabbed() && !m_stack.paused()) {
+			if (auto action = modular_tooltip(world_pos, *modular)) {
+				return { std::move(*action) };
 			}
 		}
-		return window.hover(event);
-	});
+	}
+	return m_root->hover(root_event(screen_pos, false));
 }
 
 bool ui::ui::command(world& world, random& random, const command::any& any)
@@ -205,14 +195,14 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			return true;
 		},
 		[&](const command::guide& guide) {
-			return this->hover(guide.screen_pos, guide.pos);
+			return execute(hover(guide.screen_pos, guide.pos));
 		},
 		[&](const command::move& move) {
 			if (move.release) {
 				return false;
 			}
-			return this->click(
-				ref(world), ref(random), move.screen_pos, move.to, move.shift);
+			return execute(click(
+				ref(world), ref(random), move.screen_pos, move.to, move.shift));
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
@@ -242,28 +232,28 @@ inside_modular_grid(vi32 module_pos, vu32 umodule_size)
 		&& module_pos.y <= half_size;
 }
 
-bool ui::click(
+handler_result ui::click(
 	ref<world> world,
 	ref<random> random,
 	const vi32 screen_pos,
 	const vd world_pos,
 	const bool shift)
 {
-	if (this->click(screen_pos, shift)) {
-		return true;
+	if (auto actions = m_root->click(root_event(screen_pos, shift))) {
+		return actions;
 	} else if (!modular(ref(world))) {
-		return false;
+		return {};
 	}
 	let relative = world_pos - world->target()->pos();
 	if (!inside_modular_grid(round(relative / double(module::size)), {})) {
-		return false;
+		return {};
 	}
 	if (this->grabbed()) {
 		this->drop(ref(world), ref(random), relative);
 	} else {
 		this->drag(ref(world), relative, shift);
 	}
-	return true;
+	return handled();
 }
 
 void ui::drop(ref<world> world, ref<random> random, const vd relative)
