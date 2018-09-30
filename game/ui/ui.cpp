@@ -264,8 +264,7 @@ handler_result ui::drop(ref<world> world, ref<random> random, const vd relative)
 		for (let& bind : grabbed_bind) {
 			modular->toggle_bind(bind, drop_pos);
 		}
-	}
-	if (let module = modular->module_at(drop_pos)) {
+	} else if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
 			item_of(m_grabbed).use_on(*random, world->blueprints(), *module);
 		if (error == error::code::success && consumed) {
