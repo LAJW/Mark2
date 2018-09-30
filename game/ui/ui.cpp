@@ -139,7 +139,7 @@ void ui::execute(action::base& action)
 bool ui::execute(const handler_result& actions)
 {
 	if (actions) {
-		for (let &action : *actions) {
+		for (let& action : *actions) {
 			this->execute(*action);
 		}
 	}
@@ -248,15 +248,11 @@ handler_result ui::click(
 	if (!inside_modular_grid(round(relative / double(module::size)), {})) {
 		return {};
 	}
-	if (this->grabbed()) {
-		this->drop(ref(world), ref(random), relative);
-	} else {
-		this->drag(ref(world), relative, shift);
-	}
-	return handled();
+	return this->grabbed() ? this->drop(ref(world), ref(random), relative)
+						   : this->drag(ref(world), relative, shift);
 }
 
-void ui::drop(ref<world> world, ref<random> random, const vd relative)
+handler_result ui::drop(ref<world> world, ref<random> random, const vd relative)
 {
 	Expects(grabbed());
 	let modular = mark::ui::modular(ref(world));
@@ -268,7 +264,6 @@ void ui::drop(ref<world> world, ref<random> random, const vd relative)
 		for (let& bind : grabbed_bind) {
 			modular->toggle_bind(bind, drop_pos);
 		}
-		return;
 	}
 	if (let module = modular->module_at(drop_pos)) {
 		let[error, consumed] =
@@ -277,16 +272,17 @@ void ui::drop(ref<world> world, ref<random> random, const vd relative)
 			detach(m_grabbed);
 		}
 	}
+	return handled();
 }
 
-void ui::drag(ref<world> world, const vd relative, const bool shift)
+handler_result ui::drag(ref<world> world, const vd relative, const bool shift)
 {
 	Expects(!grabbed());
 	let pick_pos = floor(relative / static_cast<double>(module::size));
 	let modular = mark::ui::modular(ref(world));
 	let pos = modular->pos_at(pick_pos);
 	if (!pos) {
-		return;
+		return {};
 	}
 	if (shift) {
 		if (auto detached = modular->detach(pick_pos)) {
@@ -296,9 +292,12 @@ void ui::drag(ref<world> world, const vd relative, const bool shift)
 				Expects(success(modular->attach(*pos, move(detached))));
 			}
 		}
+		return handled();
 	} else if (modular->can_detach(pick_pos)) {
 		m_grabbed = { *modular, pick_pos };
+		return handled();
 	}
+	return {};
 }
 
 static std::vector<bool> make_available_map(

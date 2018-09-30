@@ -55,9 +55,11 @@ private:
 		const vd world_pos,
 		const bool shift);
 	/// Process the "drag" event
-	void drop(ref<world> world, ref<random> random, vd relative);
+	[[nodiscard]] handler_result
+	drop(ref<world> world, ref<random> random, vd relative);
 	/// Process the "drop" event
-	void drag(ref<world> world, vd relative, bool shift);
+	[[nodiscard]] handler_result
+	drag(ref<world> world, vd relative, bool shift);
 	/// Process container UI frame
 	void container_ui(
 		ref<update_context> context,
