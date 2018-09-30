@@ -282,7 +282,7 @@ void ui::drop(ref<world> world, ref<random> random, const vd relative)
 void ui::drag(ref<world> world, const vd relative, const bool shift)
 {
 	Expects(!grabbed());
-	let pick_pos = floor(relative);
+	let pick_pos = floor(relative / static_cast<double>(module::size));
 	let modular = mark::ui::modular(ref(world));
 	let pos = modular->pos_at(pick_pos);
 	if (!pos) {
