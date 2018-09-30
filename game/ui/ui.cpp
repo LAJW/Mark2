@@ -249,7 +249,7 @@ handler_result ui::click(
 		return {};
 	}
 	return this->grabbed() ? this->drop(ref(world), ref(random), relative)
-						   : this->drag(ref(world), relative, shift);
+						   : this->drag(relative, shift);
 }
 
 handler_result ui::drop(ref<world> world, ref<random> random, const vd relative)
@@ -275,27 +275,33 @@ handler_result ui::drop(ref<world> world, ref<random> random, const vd relative)
 	return handled();
 }
 
-handler_result ui::drag(ref<world> world, const vd relative, const bool shift)
+handler_result ui::drag(const vd relative, const bool shift) const
 {
 	Expects(!grabbed());
 	let pick_pos = floor(relative / static_cast<double>(module::size));
-	let modular = mark::ui::modular(ref(world));
-	let pos = modular->pos_at(pick_pos);
-	if (!pos) {
+	let modular = this->landed_modular();
+	Expects(modular);
+	if (!modular->module_at(pick_pos)) {
 		return {};
 	}
 	if (shift) {
-		if (auto detached = modular->detach(pick_pos)) {
-			if (failure(push(*modular, move(detached)))) {
-				// It should be possible to reattach a module, if it was already
-				// attached
-				Expects(success(modular->attach(*pos, move(detached))));
-			}
-		}
-		return handled();
+		return make_handler_result<action::legacy>(
+			[pick_pos](const action::base::execute_info& info) {
+				auto& modular = *info.modular;
+				let pos = modular.pos_at(pick_pos);
+				if (auto detached = modular.detach(pick_pos)) {
+					if (failure(push(modular, move(detached)))) {
+						// It should be possible to reattach a module, if it was
+						// already attached
+						Expects(success(modular.attach(*pos, move(detached))));
+					}
+				}
+			});
 	} else if (modular->can_detach(pick_pos)) {
-		m_grabbed = { *modular, pick_pos };
-		return handled();
+		return make_handler_result<action::legacy>(
+			[pick_pos](const action::base::execute_info& info) {
+				*info.grabbed = { *info.modular, pick_pos };
+			});
 	}
 	return {};
 }
@@ -412,14 +418,31 @@ auto ui::grabbed() const noexcept -> optional<const interface::item&>
 	return item_of(m_grabbed);
 }
 
-auto ui::landed_modular() noexcept -> mark::unit::modular*
+template <
+	typename world_stack_type,
+	typename modular_type =
+		add_const_if_t<unit::modular, std::is_const_v<world_stack_type>>>
+optional<modular_type&> landed_modular(world_stack_type& world_stack)
 {
 	let landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(
-		m_world_stack.world().target());
+		world_stack.world().target());
 	if (!landing_pad) {
-		return nullptr;
+		return {};
 	}
-	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
+	if (let modular = dynamic_cast<modular_type*>(landing_pad->ship().get())) {
+		return *modular;
+	}
+	return {};
+}
+
+auto ui::landed_modular() noexcept -> optional<mark::unit::modular&>
+{
+	return mark::ui::landed_modular(m_world_stack);
+}
+
+auto ui::landed_modular() const noexcept -> optional<const mark::unit::modular&>
+{
+	return mark::ui::landed_modular(m_world_stack);
 }
 
 auto ui::in_recycler(const mark::interface::item& item) const noexcept -> bool

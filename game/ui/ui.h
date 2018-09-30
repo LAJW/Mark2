@@ -33,7 +33,9 @@ public:
 	[[nodiscard]] optional<const interface::item&> grabbed() const
 		noexcept override;
 	/// Returns a modular, if a modular is present in the landing pad
-	[[nodiscard]] mark::unit::modular* landed_modular() noexcept;
+	[[nodiscard]] optional<mark::unit::modular&> landed_modular() noexcept;
+	[[nodiscard]] optional<const mark::unit::modular&> landed_modular() const
+		noexcept;
 	/// Returns true if module is present in the recycler
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
 		noexcept override;
@@ -58,8 +60,7 @@ private:
 	[[nodiscard]] handler_result
 	drop(ref<world> world, ref<random> random, vd relative);
 	/// Process the "drop" event
-	[[nodiscard]] handler_result
-	drag(ref<world> world, vd relative, bool shift);
+	[[nodiscard]] handler_result drag(vd relative, bool shift) const;
 	/// Process container UI frame
 	void container_ui(
 		ref<update_context> context,
