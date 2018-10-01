@@ -18,6 +18,8 @@ class recycler;
 class ui final : public interface::ui
 {
 public:
+	using queue_type = array2d<mark::slot, 16, 32>;
+
 	ui(resource::manager& rm,
 	   random& random,
 	   mode_stack& stack,
@@ -27,8 +29,7 @@ public:
 	/// Update UI state, render frames, etc.
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	/// Handle all events
-	[[nodiscard]] bool
-	command(const world& world, const command::any& command);
+	[[nodiscard]] bool command(const world& world, const command::any& command);
 	/// Get a grabbed item
 	[[nodiscard]] optional<const interface::item&> grabbed() const
 		noexcept override;
@@ -67,6 +68,10 @@ private:
 	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
+	void render_logo(ref<update_context> context) const;
+	void update_recycler_position(vi32 resolution);
+	void update_state();
+	[[nodiscard]] bool state_changed() const;
 
 	action_bar m_action_bar;
 
@@ -86,9 +91,9 @@ private:
 	random& m_random;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
-	using queue_type = array2d<mark::slot, 16, 32>;
 	slot m_grabbed;
 	queue_type m_queue;
+	const unit::base* m_prev_world_target = nullptr;
 };
 } // namespace ui
 } // namespace mark

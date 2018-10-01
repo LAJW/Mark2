@@ -46,73 +46,124 @@ ui::ui(
 
 ui::~ui() = default;
 
+void ui::render_logo(ref<update_context> context) const
+{
+	context->sprites[100].push_back([&] {
+		sprite _;
+		_.centred = false;
+		_.size = 256.f;
+		_.pos = vi32(700, 300);
+		_.frame = std::numeric_limits<size_t>::max();
+		_.image = m_rm.image("mark-modular.png");
+		return _;
+	}());
+}
+
+/// Create game overlay inventory menu with cargo container management and the
+/// recycler
+[[nodiscard]] std::unique_ptr<mark::ui::window> make_inventory_menu(
+	const ui::queue_type& queue,
+	ui& ui,
+	resource::manager& rm,
+	unit::modular& modular,
+	const vi32 resolution)
+{
+	auto inventory = std::make_unique<window>();
+	let inventory_size = vu32(16 * 16, (16 * 4 + 32) * container_count);
+	Expects(
+		success(inventory->append(std::make_unique<mark::ui::inventory>([&] {
+			inventory::info _;
+			_.modular = modular;
+			_.rm = rm;
+			_.ui = ui;
+			_.pos = { 50, 50 };
+			_.size = inventory_size;
+			return _;
+		}()))));
+	Expects(success(inventory->append(std::make_unique<mark::ui::recycler>([&] {
+		recycler::info _;
+		_.rm = rm;
+		_.pos = { resolution.x - 50 - 300, 50 };
+		_.size = inventory_size;
+		_.ui = ui;
+		_.queue = queue;
+		return _;
+	}()))));
+	return inventory;
+}
+
+[[nodiscard]] static std::unique_ptr<window> route(
+	const mode mode,
+	const ui::queue_type& queue,
+	ui& ui,
+	resource::manager& rm,
+	optional<unit::modular&> modular,
+	const vi32 resolution)
+{
+	switch (mode) {
+	case mode::main_menu:
+		return make_main_menu(rm);
+	case mode::world:
+		if (modular) {
+			return make_inventory_menu(queue, ui, rm, *modular, resolution);
+		}
+	case mode::prompt:
+		return make_prompt(rm);
+	case mode::options:
+		return make_options(rm);
+	default:
+		return std::make_unique<window>();
+	}
+}
+
+void ui::update_recycler_position(const vi32 resolution)
+{
+	if (let recycler = this->recycler()) {
+		// TODO: Allow aligning windows to the right/bottom of the
+		// screen
+		this->recycler()->pos({ resolution.x - 50 - 300, 50 });
+	}
+}
+
+bool ui::state_changed() const
+{
+	let& world = m_world_stack.world();
+	let mode_changed = !m_stack.get().empty() && m_stack.get().back() != m_mode;
+	let world_target_changed = &*world.target() != m_prev_world_target;
+	return mode_changed || world_target_changed;
+}
+
+void ui::update_state()
+{
+	auto& world = m_world_stack.world();
+	m_prev_world_target = &*world.target();
+	if (!m_stack.get().empty()) {
+		m_mode = m_stack.get().back();
+	}
+}
+
 void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
-	let resolution_i = vi32(resolution);
-	auto& world = m_world_stack.world();
-	if (!m_stack.get().empty() && m_stack.get().back() != m_mode) {
-		m_mode = m_stack.get().back();
-		// router
-		if (m_mode == mode::main_menu) {
-			m_root = make_main_menu(m_rm);
-		} else if (m_mode == mode::world) {
-			m_root = std::make_unique<window>();
-		} else if (m_mode == mode::prompt) {
-			m_root = make_prompt(m_rm);
-		} else if (m_mode == mode::options) {
-			m_root = make_options(m_rm);
-		}
+	update_state();
+	if (state_changed()) {
+		m_root = route(
+			m_mode,
+			m_queue,
+			*this,
+			m_rm,
+			this->landed_modular(),
+			vi32(resolution));
 	}
 	if (m_stack.get().back() == mode::world) {
+		auto& world = m_world_stack.world();
 		m_action_bar.update(world, context, resolution, mouse_pos_);
-		let image_circle = m_rm.image("circle.png");
-		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
-		// Display landing pad UI
 		if (let modular = this->landed_modular()) {
-			if (let recycler = this->recycler()) {
-				// TODO: Allow aligning windows to the right/bottom of the
-				// screen
-				this->recycler()->pos({ resolution_i.x - 50 - 300, 50 });
-			} else {
-				m_root = std::make_unique<window>();
-				let inventory_size =
-					vu32(16 * 16, (16 * 4 + 32) * container_count);
-				Ensures(success(m_root->append(std::make_unique<inventory>([&] {
-					inventory::info _;
-					_.modular = *modular;
-					_.rm = m_rm;
-					_.ui = *this;
-					_.pos = { 50, 50 };
-					_.size = inventory_size;
-					return _;
-				}()))));
-				Ensures(success(
-					m_root->append(std::make_unique<mark::ui::recycler>([&] {
-						recycler::info _;
-						_.rm = m_rm;
-						_.pos = { resolution_i.x - 50 - 300, 50 };
-						_.size = inventory_size;
-						_.ui = *this;
-						_.queue = m_queue;
-						return _;
-					}()))));
-			}
+			let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 			this->container_ui(ref(context), mouse_pos, *modular);
-		} else {
-			m_root->clear();
-			m_grabbed = {};
 		}
 	}
 	if (m_stack.get().back() == mode::main_menu) {
-		context.sprites[100].push_back([&] {
-			sprite _;
-			_.centred = false;
-			_.size = 256.f;
-			_.pos = vi32(700, 300);
-			_.frame = std::numeric_limits<size_t>::max();
-			_.image = m_rm.image("mark-modular.png");
-			return _;
-		}());
+		render_logo(ref(context));
 	}
 	m_root->update(context);
 	m_tooltip.update(context);
