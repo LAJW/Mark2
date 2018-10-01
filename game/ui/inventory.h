@@ -12,8 +12,8 @@ class inventory final : public chunky_window
 public:
 	struct info : chunky_window::info
 	{
-		optional<mark::unit::modular&> modular;
-		optional<mark::ui::ui&> ui;
+		optional<const mark::unit::modular&> modular;
+		optional<const mark::ui::ui&> ui;
 	};
 	inventory(const info& info);
 	void update(update_context&) override;
@@ -22,9 +22,9 @@ public:
 private:
 	inventory(const info& info, bool);
 
-	ui& m_ui;
+	const ui& m_ui;
 	resource::manager& m_rm;
-	mark::unit::modular& m_modular;
+	const mark::unit::modular& m_modular;
 	vd m_mouse_pos;
 };
 } // namespace ui

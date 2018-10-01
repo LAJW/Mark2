@@ -61,11 +61,11 @@ void ui::render_logo(ref<update_context> context) const
 
 /// Create game overlay inventory menu with cargo container management and the
 /// recycler
-[[nodiscard]] std::unique_ptr<mark::ui::window> make_inventory_menu(
+[[nodiscard]] static std::unique_ptr<mark::ui::window> make_inventory_menu(
 	const ui::queue_type& queue,
-	ui& ui,
+	const ui& ui,
 	resource::manager& rm,
-	unit::modular& modular,
+	const unit::modular& modular,
 	const vi32 resolution)
 {
 	auto inventory = std::make_unique<window>();
@@ -95,9 +95,9 @@ void ui::render_logo(ref<update_context> context) const
 [[nodiscard]] static std::unique_ptr<window> route(
 	const mode mode,
 	const ui::queue_type& queue,
-	ui& ui,
+	const ui& ui,
 	resource::manager& rm,
-	optional<unit::modular&> modular,
+	optional<const unit::modular&> modular,
 	const vi32 resolution)
 {
 	switch (mode) {

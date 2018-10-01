@@ -16,8 +16,8 @@ public:
 	struct info final : window::info
 	{
 		optional<resource::manager&> rm;
-		optional<module::cargo&> container;
-		optional<mark::interface::ui&> ui;
+		optional<const module::cargo&> container;
+		optional<const mark::interface::ui&> ui;
 	};
 	container(const info& info);
 	void update(update_context&) override;
