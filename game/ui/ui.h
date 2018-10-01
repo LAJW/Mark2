@@ -28,7 +28,7 @@ public:
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	/// Handle all events
 	[[nodiscard]] bool
-	command(world& world, random& random, const command::any& command);
+	command(const world& world, const command::any& command);
 	/// Get a grabbed item
 	[[nodiscard]] optional<const interface::item&> grabbed() const
 		noexcept override;
@@ -51,14 +51,12 @@ private:
 	[[nodiscard]] handler_result hover(vi32 screen_pos, vd world_pos);
 	/// Process the click event
 	[[nodiscard]] handler_result click(
-		ref<world> world,
-		ref<random> random,
+		const world& world,
 		const vi32 screen_pos,
 		const vd world_pos,
 		const bool shift);
 	/// Process the "drag" event
-	[[nodiscard]] handler_result
-	drop(ref<world> world, ref<random> random, vd relative);
+	[[nodiscard]] handler_result drop(vd relative) const;
 	/// Process the "drop" event
 	[[nodiscard]] handler_result drag(vd relative, bool shift) const;
 	/// Process container UI frame

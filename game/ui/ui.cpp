@@ -25,13 +25,6 @@ let container_count = 8;
 namespace mark {
 namespace ui {
 
-static auto modular(ref<world> world) -> shared_ptr<unit::modular>
-{
-	let target = world->target();
-	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
-	return landing_pad ? landing_pad->ship() : nullptr;
-}
-
 ui::ui(
 	resource::manager& rm,
 	random& random,
@@ -133,6 +126,7 @@ void ui::execute(action::base& action)
 	execute_info.tooltip = m_tooltip;
 	execute_info.queue = m_queue;
 	execute_info.grabbed = m_grabbed;
+	execute_info.random = m_random;
 	action.execute(execute_info);
 }
 
@@ -186,7 +180,7 @@ handler_result ui::ui::hover(vi32 screen_pos, vd world_pos)
 	return m_root->hover(root_event(screen_pos, false));
 }
 
-bool ui::ui::command(world& world, random& random, const command::any& any)
+bool ui::ui::command(const world& world, const command::any& any)
 {
 	return match(
 		any,
@@ -201,15 +195,14 @@ bool ui::ui::command(world& world, random& random, const command::any& any)
 			if (move.release) {
 				return false;
 			}
-			return execute(click(
-				ref(world), ref(random), move.screen_pos, move.to, move.shift));
+			return execute(click(world, move.screen_pos, move.to, move.shift));
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
 				m_grabbed = {};
 				return true;
 			}
-			if (let modular = mark::ui::modular(ref(world))) {
+			if (let modular = this->landed_modular()) {
 				let pick_pos = floor(
 					(activate.pos - world.target()->pos())
 					/ static_cast<double>(module::size));
@@ -233,43 +226,51 @@ inside_modular_grid(vi32 module_pos, vu32 umodule_size)
 }
 
 handler_result ui::click(
-	ref<world> world,
-	ref<random> random,
+	const world& world,
 	const vi32 screen_pos,
 	const vd world_pos,
 	const bool shift)
 {
 	if (auto actions = m_root->click(root_event(screen_pos, shift))) {
 		return actions;
-	} else if (!modular(ref(world))) {
+	} else if (!landed_modular()) {
 		return {};
 	}
-	let relative = world_pos - world->target()->pos();
+	let relative = world_pos - world.target()->pos();
 	if (!inside_modular_grid(round(relative / double(module::size)), {})) {
 		return {};
 	}
-	return this->grabbed() ? this->drop(ref(world), ref(random), relative)
-						   : this->drag(relative, shift);
+	return this->grabbed() ? this->drop(relative) : this->drag(relative, shift);
 }
 
-handler_result ui::drop(ref<world> world, ref<random> random, const vd relative)
+handler_result ui::drop(const vd relative) const
 {
 	Expects(grabbed());
-	let modular = mark::ui::modular(ref(world));
-	// module's top-left corner
+	let modular = this->landed_modular();
 	let drop_pos = impl::drop_pos(relative, grabbed()->size());
 	if (modular->can_attach(drop_pos, *grabbed())) {
-		let grabbed_bind = modular->binding(m_grabbed.pos());
-		Expects(!modular->attach(drop_pos, detach(m_grabbed)));
-		for (let& bind : grabbed_bind) {
-			modular->toggle_bind(bind, drop_pos);
-		}
-	} else if (let module = modular->module_at(drop_pos)) {
-		let[error, consumed] =
-			item_of(m_grabbed).use_on(*random, world->blueprints(), *module);
-		if (error == error::code::success && consumed) {
-			detach(m_grabbed);
-		}
+		const auto bindings = (&m_grabbed.container() == &*modular)
+			? modular->binding(m_grabbed.pos())
+			: std::vector<int8_t>();
+		return make_handler_result<action::legacy>(
+			[=](const action::base::execute_info& info) {
+				Expects(!info.modular->attach(drop_pos, detach(*info.grabbed)));
+				for (let& bind : bindings) {
+					info.modular->toggle_bind(bind, drop_pos);
+				}
+			});
+	} else if (modular->module_at(drop_pos)) {
+		return make_handler_result<action::legacy>(
+			[=](const action::base::execute_info& info) {
+				let module = info.modular->module_at(drop_pos);
+				let[error, consumed] =
+					item_of(*info.grabbed)
+						.use_on(
+							*info.random, m_world_stack.blueprints(), *module);
+				if (success(error) && consumed) {
+					detach(*info.grabbed);
+				}
+			});
 	}
 	return handled();
 }

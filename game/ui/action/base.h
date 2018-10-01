@@ -1,6 +1,7 @@
 #pragma once
 #include <stdafx.h>
 #include <array2d.h>
+#include <ref.h>
 
 namespace mark {
 class mode_stack;
@@ -22,6 +23,7 @@ public:
 		optional<tooltip&> tooltip;
 		optional<queue_type&> queue;
 		optional<slot&> grabbed;
+		optional<random&> random;
 	};
 	virtual void execute(const execute_info& info) = 0;
 
