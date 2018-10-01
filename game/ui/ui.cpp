@@ -243,37 +243,108 @@ handler_result ui::click(
 	return this->grabbed() ? this->drop(relative) : this->drag(relative, shift);
 }
 
+class attach_grabbed_module final : public action::base
+{
+public:
+	attach_grabbed_module(const vi32 drop_pos, std::vector<int8_t> bindings)
+		: m_drop_pos(drop_pos)
+		, m_bindings(move(bindings))
+	{}
+	void execute(const execute_info& info) override
+	{
+		Expects(info.grabbed);
+		Expects(!info.modular->attach(m_drop_pos, detach(*info.grabbed)));
+		for (let& bind : m_bindings) {
+			info.modular->toggle_bind(bind, m_drop_pos);
+		}
+	}
+
+private:
+	vi32 m_drop_pos;
+	std::vector<int8_t> m_bindings;
+};
+
+class use_grabbed_item final : public action::base
+{
+public:
+	use_grabbed_item(
+		const vi32 drop_pos,
+		const std::unordered_map<std::string, YAML::Node>& blueprints)
+		: m_drop_pos(drop_pos)
+		, m_blueprints(blueprints)
+	{}
+	void execute(const execute_info& info) override
+	{
+		let module = info.modular->module_at(m_drop_pos);
+		let[error, consumed] =
+			item_of(*info.grabbed).use_on(*info.random, m_blueprints, *module);
+		if (success(error) && consumed) {
+			detach(*info.grabbed);
+		}
+	}
+
+private:
+	vi32 m_drop_pos;
+	const std::unordered_map<std::string, YAML::Node>& m_blueprints;
+};
+
 handler_result ui::drop(const vd relative) const
 {
 	Expects(grabbed());
 	let modular = this->landed_modular();
 	let drop_pos = impl::drop_pos(relative, grabbed()->size());
 	if (modular->can_attach(drop_pos, *grabbed())) {
-		const auto bindings = (&m_grabbed.container() == &*modular)
+		auto bindings = (&m_grabbed.container() == &*modular)
 			? modular->binding(m_grabbed.pos())
 			: std::vector<int8_t>();
-		return make_handler_result<action::legacy>(
-			[=](const action::base::execute_info& info) {
-				Expects(!info.modular->attach(drop_pos, detach(*info.grabbed)));
-				for (let& bind : bindings) {
-					info.modular->toggle_bind(bind, drop_pos);
-				}
-			});
+		return make_handler_result<attach_grabbed_module>(
+			drop_pos, move(bindings));
 	} else if (modular->module_at(drop_pos)) {
-		return make_handler_result<action::legacy>(
-			[=](const action::base::execute_info& info) {
-				let module = info.modular->module_at(drop_pos);
-				let[error, consumed] =
-					item_of(*info.grabbed)
-						.use_on(
-							*info.random, m_world_stack.blueprints(), *module);
-				if (success(error) && consumed) {
-					detach(*info.grabbed);
-				}
-			});
+		return make_handler_result<use_grabbed_item>(
+			drop_pos, m_world_stack.blueprints());
 	}
 	return handled();
 }
+
+/// Detach a module at a specified position from the modular and push it into
+/// cargo (if available)
+class quick_detach final : public action::base
+{
+public:
+	explicit quick_detach(const vi32 pick_pos)
+		: m_pick_pos(pick_pos)
+	{}
+	void execute(const execute_info& info) override
+	{
+		auto& modular = *info.modular;
+		let pos = modular.pos_at(m_pick_pos);
+		if (auto detached = modular.detach(m_pick_pos)) {
+			if (failure(push(modular, move(detached)))) {
+				// It should be possible to reattach a module, if it was
+				// already attached
+				Expects(success(modular.attach(*pos, move(detached))));
+			}
+		}
+	}
+
+private:
+	vi32 m_pick_pos;
+};
+
+class grab_from_modular final : public action::base
+{
+public:
+	explicit grab_from_modular(const vi32 pick_pos)
+		: m_pick_pos(pick_pos)
+	{}
+	void execute(const execute_info& info) override
+	{
+		*info.grabbed = { *info.modular, m_pick_pos };
+	}
+
+private:
+	vi32 m_pick_pos;
+};
 
 handler_result ui::drag(const vd relative, const bool shift) const
 {
@@ -283,27 +354,13 @@ handler_result ui::drag(const vd relative, const bool shift) const
 	Expects(modular);
 	if (!modular->module_at(pick_pos)) {
 		return {};
-	}
-	if (shift) {
-		return make_handler_result<action::legacy>(
-			[pick_pos](const action::base::execute_info& info) {
-				auto& modular = *info.modular;
-				let pos = modular.pos_at(pick_pos);
-				if (auto detached = modular.detach(pick_pos)) {
-					if (failure(push(modular, move(detached)))) {
-						// It should be possible to reattach a module, if it was
-						// already attached
-						Expects(success(modular.attach(*pos, move(detached))));
-					}
-				}
-			});
+	} else if (shift) {
+		return make_handler_result<quick_detach>(pick_pos);
 	} else if (modular->can_detach(pick_pos)) {
-		return make_handler_result<action::legacy>(
-			[pick_pos](const action::base::execute_info& info) {
-				*info.grabbed = { *info.modular, pick_pos };
-			});
+		return make_handler_result<grab_from_modular>(pick_pos);
+	} else {
+		return {};
 	}
-	return {};
 }
 
 static std::vector<bool> make_available_map(
