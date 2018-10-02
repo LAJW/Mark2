@@ -59,36 +59,110 @@ void ui::render_logo(ref<update_context> context) const
 	}());
 }
 
-/// Create game overlay inventory menu with cargo container management and the
-/// recycler
-[[nodiscard]] static std::unique_ptr<mark::ui::window> make_inventory_menu(
-	const ui& ui,
-	resource::manager& rm,
-	const unit::modular& modular,
-	const vi32 resolution)
+[[nodiscard]] static bool
+inside_modular_grid(vi32 module_pos, vu32 umodule_size)
 {
-	auto inventory = std::make_unique<window>();
-	let inventory_size = vu32(16 * 16, (16 * 4 + 32) * container_count);
-	Expects(
-		success(inventory->append(std::make_unique<mark::ui::inventory>([&] {
+	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
+	let module_size = vi32(umodule_size);
+	return module_pos.x >= -half_size + module_size.x / 2
+		&& module_pos.x <= half_size
+		&& module_pos.y >= -half_size + module_size.y / 2
+		&& module_pos.y <= half_size;
+}
+
+const std::unordered_map<std::string, YAML::Node>& ui::blueprints() const
+{
+	return m_world_stack.blueprints();
+}
+
+const slot& ui::grabbed_raw() const { return m_grabbed; }
+
+class ship_editor final : public window
+{
+public:
+	struct info : window::info
+	{
+		optional<const ui&> ui;
+		optional<resource::manager&> resource_manager;
+		optional<const unit::modular&> modular;
+		vi32 resolution;
+	};
+
+	ship_editor(const info& info)
+		: window(info)
+		, m_ui(*info.ui)
+	{
+		let inventory_size = vu32(16 * 16, (16 * 4 + 32) * container_count);
+		Expects(success(this->append(std::make_unique<inventory>([&] {
 			inventory::info _;
-			_.modular = modular;
-			_.rm = rm;
-			_.ui = ui;
+			_.modular = info.modular;
+			_.rm = info.resource_manager;
+			_.ui = info.ui;
 			_.pos = { 50, 50 };
 			_.size = inventory_size;
 			return _;
 		}()))));
-	Expects(success(inventory->append(std::make_unique<mark::ui::recycler>([&] {
-		recycler::info _;
-		_.rm = rm;
-		_.pos = { resolution.x - 50 - 300, 50 };
-		_.size = inventory_size;
-		_.ui = ui;
-		return _;
-	}()))));
-	return inventory;
-}
+		Expects(success(this->append(std::make_unique<recycler>([&] {
+			recycler::info _;
+			_.rm = info.resource_manager;
+			_.pos = { info.resolution.x - 50 - 300, 50 };
+			_.size = inventory_size;
+			_.ui = info.ui;
+			return _;
+		}()))));
+	}
+
+	handler_result click(const event& event) override
+	{
+		if (let modular = m_ui.landed_modular()) {
+			let relative = event.world_cursor - modular->pos();
+			if (inside_modular_grid(
+					round(relative / double(module::size)), {})) {
+				return m_ui.grabbed() ? this->drop(relative)
+									  : this->drag(relative, event.shift);
+			}
+		}
+		return window::click(event);
+	}
+
+	handler_result drop(const vd relative) const
+	{
+		Expects(m_ui.grabbed());
+		let modular = m_ui.landed_modular();
+		let drop_pos = impl::drop_pos(relative, m_ui.grabbed()->size());
+		if (modular->can_attach(drop_pos, *m_ui.grabbed())) {
+			auto bindings = (&m_ui.grabbed_raw().container() == &*modular)
+				? modular->binding(m_ui.grabbed_raw().pos())
+				: std::vector<int8_t>();
+			return make_handler_result<action::drop_into_modular>(
+				drop_pos, move(bindings));
+		} else if (modular->module_at(drop_pos)) {
+			return make_handler_result<action::use_grabbed_item>(
+				drop_pos, m_ui.blueprints());
+		}
+		return handled();
+	}
+
+	handler_result drag(const vd relative, const bool shift) const
+	{
+		Expects(!m_ui.grabbed());
+		let pick_pos = floor(relative / static_cast<double>(module::size));
+		let modular = m_ui.landed_modular();
+		Expects(modular);
+		if (!modular->module_at(pick_pos)) {
+			return {};
+		} else if (shift) {
+			return make_handler_result<action::quick_detach>(pick_pos);
+		} else if (modular->can_detach(pick_pos)) {
+			return make_handler_result<action::grab_from_modular>(pick_pos);
+		} else {
+			return {};
+		}
+	}
+
+public:
+	const ui& m_ui;
+};
 
 const ui::recycler_queue_type& ui::recycler_queue() const
 {
@@ -106,7 +180,15 @@ const ui::recycler_queue_type& ui::recycler_queue() const
 		return make_main_menu(rm);
 	case mode::world:
 		if (let modular = ui.landed_modular()) {
-			return make_inventory_menu(ui, rm, *modular, resolution);
+			return std::make_unique<ship_editor>([&] {
+				ship_editor::info info;
+				info.ui = ui;
+				info.modular = modular;
+				info.resource_manager = rm;
+				info.resolution = resolution;
+				info.relative = false;
+				return info;
+			}());
 		}
 		break;
 	case mode::prompt:
@@ -252,7 +334,11 @@ bool ui::ui::command(const world& world, const command::any& any)
 			if (move.release) {
 				return false;
 			}
-			return execute(click(world, move.screen_pos, move.to, move.shift));
+			if (auto actions =
+					m_root->click(root_event(move.screen_pos, move.shift))) {
+				return execute(std::move(*actions));
+			}
+			return false;
 		},
 		[&](const command::activate& activate) {
 			if (grabbed()) {
@@ -269,70 +355,6 @@ bool ui::ui::command(const world& world, const command::any& any)
 			return false;
 		},
 		[&](const auto&) { return false; });
-}
-
-[[nodiscard]] static bool
-inside_modular_grid(vi32 module_pos, vu32 umodule_size)
-{
-	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
-	let module_size = vi32(umodule_size);
-	return module_pos.x >= -half_size + module_size.x / 2
-		&& module_pos.x <= half_size
-		&& module_pos.y >= -half_size + module_size.y / 2
-		&& module_pos.y <= half_size;
-}
-
-handler_result ui::click(
-	const world& world,
-	const vi32 screen_pos,
-	const vd world_pos,
-	const bool shift)
-{
-	if (auto actions = m_root->click(root_event(screen_pos, shift))) {
-		return actions;
-	} else if (!landed_modular()) {
-		return {};
-	}
-	let relative = world_pos - world.target()->pos();
-	if (!inside_modular_grid(round(relative / double(module::size)), {})) {
-		return {};
-	}
-	return this->grabbed() ? this->drop(relative) : this->drag(relative, shift);
-}
-
-handler_result ui::drop(const vd relative) const
-{
-	Expects(grabbed());
-	let modular = this->landed_modular();
-	let drop_pos = impl::drop_pos(relative, grabbed()->size());
-	if (modular->can_attach(drop_pos, *grabbed())) {
-		auto bindings = (&m_grabbed.container() == &*modular)
-			? modular->binding(m_grabbed.pos())
-			: std::vector<int8_t>();
-		return make_handler_result<action::drop_into_modular>(
-			drop_pos, move(bindings));
-	} else if (modular->module_at(drop_pos)) {
-		return make_handler_result<action::use_grabbed_item>(
-			drop_pos, m_world_stack.blueprints());
-	}
-	return handled();
-}
-
-handler_result ui::drag(const vd relative, const bool shift) const
-{
-	Expects(!grabbed());
-	let pick_pos = floor(relative / static_cast<double>(module::size));
-	let modular = this->landed_modular();
-	Expects(modular);
-	if (!modular->module_at(pick_pos)) {
-		return {};
-	} else if (shift) {
-		return make_handler_result<action::quick_detach>(pick_pos);
-	} else if (modular->can_detach(pick_pos)) {
-		return make_handler_result<action::grab_from_modular>(pick_pos);
-	} else {
-		return {};
-	}
 }
 
 static std::vector<bool> make_available_map(
