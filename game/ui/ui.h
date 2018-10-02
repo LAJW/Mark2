@@ -18,7 +18,7 @@ class recycler;
 class ui final : public interface::ui
 {
 public:
-	using queue_type = array2d<mark::slot, 16, 32>;
+	using recycler_queue_type = array2d<mark::slot, 16, 32>;
 
 	ui(resource::manager& rm,
 	   random& random,
@@ -92,7 +92,7 @@ private:
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
 	slot m_grabbed;
-	queue_type m_queue;
+	recycler_queue_type m_recycler_queue;
 	const unit::base* m_prev_world_target = nullptr;
 };
 } // namespace ui

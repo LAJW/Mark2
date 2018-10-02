@@ -62,7 +62,7 @@ void ui::render_logo(ref<update_context> context) const
 /// Create game overlay inventory menu with cargo container management and the
 /// recycler
 [[nodiscard]] static std::unique_ptr<mark::ui::window> make_inventory_menu(
-	const ui::queue_type& queue,
+	const ui::recycler_queue_type& recycler_queue,
 	const ui& ui,
 	resource::manager& rm,
 	const unit::modular& modular,
@@ -86,7 +86,7 @@ void ui::render_logo(ref<update_context> context) const
 		_.pos = { resolution.x - 50 - 300, 50 };
 		_.size = inventory_size;
 		_.ui = ui;
-		_.queue = queue;
+		_.queue = recycler_queue;
 		return _;
 	}()))));
 	return inventory;
@@ -94,7 +94,7 @@ void ui::render_logo(ref<update_context> context) const
 
 [[nodiscard]] static std::unique_ptr<window> route(
 	const mode mode,
-	const ui::queue_type& queue,
+	const ui::recycler_queue_type& recycler_queue,
 	const ui& ui,
 	resource::manager& rm,
 	optional<const unit::modular&> modular,
@@ -105,7 +105,8 @@ void ui::render_logo(ref<update_context> context) const
 		return make_main_menu(rm);
 	case mode::world:
 		if (modular) {
-			return make_inventory_menu(queue, ui, rm, *modular, resolution);
+			return make_inventory_menu(
+				recycler_queue, ui, rm, *modular, resolution);
 		}
 	case mode::prompt:
 		return make_prompt(rm);
@@ -148,7 +149,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	if (state_changed()) {
 		m_root = route(
 			m_mode,
-			m_queue,
+			m_recycler_queue,
 			*this,
 			m_rm,
 			this->landed_modular(),
@@ -179,7 +180,7 @@ void ui::execute(action::base& action)
 		execute_info.modular = *landed_modular;
 	}
 	execute_info.tooltip = m_tooltip;
-	execute_info.queue = m_queue;
+	execute_info.queue = m_recycler_queue;
 	execute_info.grabbed = m_grabbed;
 	execute_info.random = m_random;
 	action.execute(execute_info);
