@@ -62,7 +62,6 @@ void ui::render_logo(ref<update_context> context) const
 /// Create game overlay inventory menu with cargo container management and the
 /// recycler
 [[nodiscard]] static std::unique_ptr<mark::ui::window> make_inventory_menu(
-	const ui::recycler_queue_type& recycler_queue,
 	const ui& ui,
 	resource::manager& rm,
 	const unit::modular& modular,
@@ -86,15 +85,18 @@ void ui::render_logo(ref<update_context> context) const
 		_.pos = { resolution.x - 50 - 300, 50 };
 		_.size = inventory_size;
 		_.ui = ui;
-		_.queue = recycler_queue;
 		return _;
 	}()))));
 	return inventory;
 }
 
+const ui::recycler_queue_type& ui::recycler_queue() const
+{
+	return m_recycler_queue;
+}
+
 [[nodiscard]] static std::unique_ptr<window> route(
 	const mode mode,
-	const ui::recycler_queue_type& recycler_queue,
 	const ui& ui,
 	resource::manager& rm,
 	optional<const unit::modular&> modular,
@@ -105,8 +107,7 @@ void ui::render_logo(ref<update_context> context) const
 		return make_main_menu(rm);
 	case mode::world:
 		if (modular) {
-			return make_inventory_menu(
-				recycler_queue, ui, rm, *modular, resolution);
+			return make_inventory_menu(ui, rm, *modular, resolution);
 		}
 		break;
 	case mode::prompt:
@@ -143,13 +144,18 @@ void ui::update_state()
 	}
 }
 
-void ui::update(update_context& context, vd resolution, vd mouse_pos_)
+[[nodiscard]] static vd
+screen_to_world(vd camera_pos, vd resolution, vd screen_pos)
+{
+	return camera_pos + screen_pos - resolution / 2.;
+}
+
+void ui::update(update_context& context, vd resolution, vd mouse_pos)
 {
 	if (state_changed()) {
 		update_state();
 		m_root = route(
 			m_mode,
-			m_recycler_queue,
 			*this,
 			m_rm,
 			this->landed_modular(),
@@ -157,9 +163,10 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 	}
 	if (m_stack.get().back() == mode::world) {
 		auto& world = m_world_stack.world();
-		m_action_bar.update(world, context, resolution, mouse_pos_);
+		let world_mouse_pos =
+			screen_to_world(world.camera(), resolution, mouse_pos);
+		m_action_bar.update(world, context, resolution, world_mouse_pos);
 		if (let modular = this->landed_modular()) {
-			let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
 			this->container_ui(ref(context), mouse_pos, *modular);
 		}
 	}

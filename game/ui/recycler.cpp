@@ -22,7 +22,6 @@ recycler::recycler(const info& info)
 	: chunky_window(info)
 	, m_ui(*info.ui)
 	, m_font(info.rm->image("font.png"))
-	, m_queue(*info.queue)
 	, m_grid(info.rm->image("inventory-grid.png"))
 {
 	auto& rm = *info.rm;
@@ -85,7 +84,7 @@ void recycler::update(update_context& context)
 	let queued_items = [&] {
 		std::vector<std::pair<vector<size_t>, const interface::item&>>
 			queued_items;
-		for (let[pos, slot] : enumerate(m_queue)) {
+		for (let[pos, slot] : enumerate(m_ui.recycler_queue())) {
 			if (!slot.empty()) {
 				queued_items.emplace_back(pos, item_of(slot));
 			}
@@ -143,7 +142,7 @@ void recycler::update(update_context& context)
 
 void recycler::render(update_context& context) const
 {
-	for (let i : range(vi32(m_queue.size()))) {
+	for (let i : range(vi32(m_ui.recycler_queue().size()))) {
 		context.sprites[101].push_back([&] {
 			sprite _;
 			_.image = m_grid;
@@ -157,7 +156,7 @@ void recycler::render(update_context& context) const
 
 auto recycler::has(const mark::interface::item& item) const noexcept -> bool
 {
-	return any_of(m_queue.data(), [&](let& slot) {
+	return any_of(m_ui.recycler_queue().data(), [&](let& slot) {
 		return !slot.empty() && &item_of(slot) == &item;
 	});
 }

@@ -40,6 +40,7 @@ public:
 	/// Returns true if module is present in the recycler
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
 		noexcept override;
+	[[nodiscard]] const recycler_queue_type& recycler_queue() const;
 
 private:
 	void execute(action::base& action);
