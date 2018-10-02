@@ -108,13 +108,13 @@ void ui::render_logo(ref<update_context> context) const
 			return make_inventory_menu(
 				recycler_queue, ui, rm, *modular, resolution);
 		}
+		break;
 	case mode::prompt:
 		return make_prompt(rm);
 	case mode::options:
 		return make_options(rm);
-	default:
-		return std::make_unique<window>();
 	}
+	return std::make_unique<window>();
 }
 
 void ui::update_recycler_position(const vi32 resolution)
@@ -145,8 +145,8 @@ void ui::update_state()
 
 void ui::update(update_context& context, vd resolution, vd mouse_pos_)
 {
-	update_state();
 	if (state_changed()) {
+		update_state();
 		m_root = route(
 			m_mode,
 			m_recycler_queue,
