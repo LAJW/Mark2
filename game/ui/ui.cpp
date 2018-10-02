@@ -99,14 +99,13 @@ const ui::recycler_queue_type& ui::recycler_queue() const
 	const mode mode,
 	const ui& ui,
 	resource::manager& rm,
-	optional<const unit::modular&> modular,
 	const vi32 resolution)
 {
 	switch (mode) {
 	case mode::main_menu:
 		return make_main_menu(rm);
 	case mode::world:
-		if (modular) {
+		if (let modular = ui.landed_modular()) {
 			return make_inventory_menu(ui, rm, *modular, resolution);
 		}
 		break;
@@ -154,12 +153,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos)
 {
 	if (state_changed()) {
 		update_state();
-		m_root = route(
-			m_mode,
-			*this,
-			m_rm,
-			this->landed_modular(),
-			vi32(resolution));
+		m_root = route(m_mode, *this, m_rm, vi32(resolution));
 	}
 	if (m_stack.get().back() == mode::world) {
 		auto& world = m_world_stack.world();
