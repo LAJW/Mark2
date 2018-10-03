@@ -54,11 +54,6 @@ private:
 	dispatch(vi32 screen_pos, bool shift, dispatch_callback proc);
 	/// Handler for the mouse over event
 	[[nodiscard]] handler_result hover(vi32 screen_pos, vd world_pos);
-	/// Process container UI frame
-	void container_ui(
-		ref<update_context> context,
-		vd resolution,
-		const unit::modular& modular);
 	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
@@ -71,8 +66,6 @@ private:
 
 	// Root UI component
 	unique_ptr<window> m_root;
-
-	const resource::image_ptr m_grid_bg;
 
 	// Used to detect container change
 	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;

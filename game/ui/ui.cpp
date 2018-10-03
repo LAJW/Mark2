@@ -36,7 +36,6 @@ ui::ui(
 	world_stack& world_stack)
 	: m_action_bar(rm)
 	, m_root(std::make_unique<window>())
-	, m_grid_bg(rm.image("grid-background.png"))
 	, m_tooltip(rm)
 	, m_rm(rm)
 	, m_random(random)
@@ -77,6 +76,115 @@ const std::unordered_map<std::string, YAML::Node>& ui::blueprints() const
 
 const slot& ui::grabbed_raw() const { return m_grabbed; }
 
+/// Calculate tooltip's world position for a module
+[[nodiscard]] static vd tooltip_pos(const mark::module::base& module)
+{
+	let module_size = vd(module.size()) * static_cast<double>(module::size);
+	return module.pos() + vd(module_size.x, -module_size.y) / 2.0;
+}
+
+[[nodiscard]] static optional<handler_result>
+modular_tooltip(vd world_pos, const unit::modular& modular)
+{
+	let pick_pos = impl::pick_pos(world_pos - modular.pos());
+	if (let module = modular.module_at(pick_pos)) {
+		return make_handler_result<action::set_tooltip>(
+			tooltip_pos(*module), &*module, module->describe());
+	}
+	return {};
+}
+
+[[nodiscard]] static std::vector<bool> make_available_map(
+	const mark::interface::item& item,
+	const mark::unit::modular& modular)
+{
+	using namespace mark;
+	let grid_size = gsl::narrow<int>(unit::modular::max_size);
+	let surface = range<vi32>(
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
+	std::vector<bool> available(grid_size * grid_size, false);
+	for (let top_left : surface) {
+		if (modular.can_attach(top_left, item)) {
+			for (let relative : range(item.size())) {
+				let pos = top_left + vi32(grid_size / 2, grid_size / 2)
+					+ vi32(relative);
+				if (pos.x < grid_size && pos.y < grid_size) {
+					available[pos.x + pos.y * grid_size] = true;
+				}
+			}
+		}
+	}
+	return available;
+}
+
+void draw_grid_background(
+	ref<std::vector<renderable>> sprites,
+	const interface::item& grabbed,
+	const mark::unit::modular& modular,
+	const resource::image_ptr& tile_image)
+{
+	let available = make_available_map(grabbed, modular);
+	constexpr let grid_size = unit::modular::max_size;
+	let surface = range<vi32>(
+		{ -int(grid_size) / 2, -int(grid_size) / 2 },
+		{ grid_size / 2, grid_size / 2 });
+	for (let offset : surface) {
+		if (available
+				[offset.x + grid_size / 2
+				 + (offset.y + grid_size / 2) * grid_size]) {
+			sprites->push_back([&] {
+				sprite _;
+				_.image = tile_image;
+				_.pos = modular.pos() + vd(offset) * double(module::size)
+					+ vd(module::size, module::size) / 2.;
+				_.size = module::size;
+				_.color = { 0, 255, 255, 255 };
+				return _;
+			}());
+		}
+	}
+}
+
+[[nodiscard]] static sprite draw_grabbed_over_modular(
+	const interface::item& grabbed,
+	const unit::modular& modular,
+	const vi32& drop_pos)
+{
+	sprite _;
+	_.image = grabbed.thumbnail();
+	_.pos = modular.pos() + vd(drop_pos) * 16.
+		+ vd(grabbed.size().x / 2., grabbed.size().y / 2.) * 16.;
+	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
+		* module::size;
+	_.color = modular.can_attach(drop_pos, grabbed) ? sf::Color::Green
+													: sf::Color::Red;
+	_.centred = true;
+	return _;
+}
+
+[[nodiscard]] static sprite
+draw_grabbed_over_void(const interface::item& grabbed, const vd& mouse_pos)
+{
+	sprite _;
+	_.image = grabbed.thumbnail();
+	_.pos = mouse_pos;
+	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
+		* module::size;
+	return _;
+}
+
+[[nodiscard]] static sprite draw_grabbed(
+	const interface::item& grabbed,
+	const unit::modular& modular,
+	const vd& mouse_pos)
+{
+	let drop_pos = impl::drop_pos(mouse_pos - modular.pos(), grabbed.size());
+	return inside_modular_grid(drop_pos, grabbed.size())
+		? draw_grabbed_over_modular(grabbed, modular, drop_pos)
+		: draw_grabbed_over_void(grabbed, mouse_pos);
+}
+
 class ship_editor final : public window
 {
 public:
@@ -91,6 +199,7 @@ public:
 	ship_editor(const info& info)
 		: window(info)
 		, m_ui(*info.ui)
+		, m_grid_bg(info.resource_manager->image("grid-background.png"))
 	{
 		let inventory_size = vu32(16 * 16, (16 * 4 + 32) * container_count);
 		Expects(success(this->append(std::make_unique<inventory>([&] {
@@ -123,6 +232,19 @@ public:
 			}
 		}
 		return window::click(event);
+	}
+
+	handler_result hover(const event& event) override
+	{
+		if (let modular = m_ui.landed_modular()) {
+			if (!m_ui.grabbed()) {
+				if (auto action =
+						modular_tooltip(event.world_cursor, *modular)) {
+					return { std::move(*action) };
+				}
+			}
+		}
+		return {};
 	}
 
 	handler_result drop(const vd relative) const
@@ -160,8 +282,21 @@ public:
 		}
 	}
 
+	void update(update_context& context) override
+	{
+		let modular = m_ui.landed_modular();
+		let grabbed = m_ui.grabbed();
+		if (grabbed && modular) {
+			draw_grid_background(
+				ref(context.sprites[1]), *grabbed, *modular, m_grid_bg);
+			context.sprites[105].push_back(
+				draw_grabbed(*grabbed, *modular, {} /* mouse_pos */));
+		}
+	}
+
 public:
 	const ui& m_ui;
+	resource::image_ptr m_grid_bg;
 };
 
 const ui::recycler_queue_type& ui::recycler_queue() const
@@ -242,9 +377,6 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos)
 		let world_mouse_pos =
 			screen_to_world(world.camera(), resolution, mouse_pos);
 		m_action_bar.update(world, context, resolution, world_mouse_pos);
-		if (let modular = this->landed_modular()) {
-			this->container_ui(ref(context), mouse_pos, *modular);
-		}
 	}
 	if (m_stack.get().back() == mode::main_menu) {
 		render_logo(ref(context));
@@ -289,33 +421,8 @@ bool ui::execute(const handler_result& actions)
 	return event;
 }
 
-/// Calculate tooltip's world position for a module
-[[nodiscard]] static vd tooltip_pos(const mark::module::base& module)
+handler_result ui::ui::hover(vi32 screen_pos, vd)
 {
-	let module_size = vd(module.size()) * static_cast<double>(module::size);
-	return module.pos() + vd(module_size.x, -module_size.y) / 2.0;
-}
-
-[[nodiscard]] static optional<handler_result>
-modular_tooltip(vd world_pos, const unit::modular& modular)
-{
-	let pick_pos = impl::pick_pos(world_pos - modular.pos());
-	if (let module = modular.module_at(pick_pos)) {
-		return make_handler_result<action::set_tooltip>(
-			tooltip_pos(*module), &*module, module->describe());
-	}
-	return {};
-}
-
-handler_result ui::ui::hover(vi32 screen_pos, vd world_pos)
-{
-	if (let modular = landed_modular()) {
-		if (!grabbed() && !m_stack.paused()) {
-			if (auto action = modular_tooltip(world_pos, *modular)) {
-				return { std::move(*action) };
-			}
-		}
-	}
 	return m_root->hover(root_event(screen_pos, false));
 }
 
@@ -355,110 +462,6 @@ bool ui::ui::command(const world& world, const command::any& any)
 			return false;
 		},
 		[&](const auto&) { return false; });
-}
-
-static std::vector<bool> make_available_map(
-	const mark::interface::item& item,
-	const mark::unit::modular& modular)
-{
-	using namespace mark;
-	let grid_size = gsl::narrow<int>(unit::modular::max_size);
-	let surface = range<vi32>(
-		{ -int(grid_size) / 2, -int(grid_size) / 2 },
-		{ grid_size / 2, grid_size / 2 });
-	std::vector<bool> available(grid_size * grid_size, false);
-	for (let top_left : surface) {
-		if (modular.can_attach(top_left, item)) {
-			for (let relative : range(item.size())) {
-				let pos = top_left + vi32(grid_size / 2, grid_size / 2)
-					+ vi32(relative);
-				if (pos.x < grid_size && pos.y < grid_size) {
-					available[pos.x + pos.y * grid_size] = true;
-				}
-			}
-		}
-	}
-	return available;
-}
-
-[[nodiscard]] static sprite draw_grabbed_over_modular(
-	const interface::item& grabbed,
-	const unit::modular& modular,
-	const vi32& drop_pos)
-{
-	sprite _;
-	_.image = grabbed.thumbnail();
-	_.pos = modular.pos() + vd(drop_pos) * 16.
-		+ vd(grabbed.size().x / 2., grabbed.size().y / 2.) * 16.;
-	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
-		* module::size;
-	_.color = modular.can_attach(drop_pos, grabbed) ? sf::Color::Green
-													: sf::Color::Red;
-	_.centred = true;
-	return _;
-}
-
-[[nodiscard]] static sprite
-draw_grabbed_over_void(const interface::item& grabbed, const vd& mouse_pos)
-{
-	sprite _;
-	_.image = grabbed.thumbnail();
-	_.pos = mouse_pos;
-	_.size = static_cast<float>(std::max(grabbed.size().x, grabbed.size().y))
-		* module::size;
-	return _;
-}
-
-[[nodiscard]] static sprite draw_grabbed(
-	const interface::item& grabbed,
-	const unit::modular& modular,
-	const vd& mouse_pos)
-{
-	let drop_pos = impl::drop_pos(mouse_pos - modular.pos(), grabbed.size());
-	return inside_modular_grid(drop_pos, grabbed.size())
-		? draw_grabbed_over_modular(grabbed, modular, drop_pos)
-		: draw_grabbed_over_void(grabbed, mouse_pos);
-}
-
-void draw_grid_background(
-	ref<std::vector<renderable>> sprites,
-	const interface::item& grabbed,
-	const mark::unit::modular& modular,
-	const resource::image_ptr& tile_image)
-{
-	let available = make_available_map(grabbed, modular);
-	constexpr let grid_size = unit::modular::max_size;
-	let surface = range<vi32>(
-		{ -int(grid_size) / 2, -int(grid_size) / 2 },
-		{ grid_size / 2, grid_size / 2 });
-	for (let offset : surface) {
-		if (available
-				[offset.x + grid_size / 2
-				 + (offset.y + grid_size / 2) * grid_size]) {
-			sprites->push_back([&] {
-				sprite _;
-				_.image = tile_image;
-				_.pos = modular.pos() + vd(offset) * double(module::size)
-					+ vd(module::size, module::size) / 2.;
-				_.size = module::size;
-				_.color = { 0, 255, 255, 255 };
-				return _;
-			}());
-		}
-	}
-}
-
-void ui::container_ui(
-	ref<update_context> context,
-	const vd mouse_pos,
-	const unit::modular& modular)
-{
-	if (let grabbed = this->grabbed()) {
-		draw_grid_background(
-			ref(context->sprites[1]), *grabbed, modular, m_grid_bg);
-		context->sprites[105].push_back(
-			draw_grabbed(*grabbed, modular, mouse_pos));
-	}
 }
 
 auto ui::grabbed() const noexcept -> optional<const interface::item&>
