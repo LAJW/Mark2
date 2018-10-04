@@ -175,7 +175,7 @@ bool ui::execute(const handler_result& actions)
 	return event;
 }
 
-bool ui::ui::command(const world&, const command::any& any)
+bool ui::ui::command(const command::any& any)
 {
 	return match(
 		any,

@@ -29,7 +29,7 @@ public:
 	/// Update UI state, render frames, etc.
 	void update(update_context& context, vd resolution, vd mouse_pos_);
 	/// Handle all events
-	[[nodiscard]] bool command(const world& world, const command::any& command);
+	[[nodiscard]] bool command(const command::any& command);
 	/// Get a grabbed item
 	[[nodiscard]] optional<const interface::item&> grabbed() const
 		noexcept override;
