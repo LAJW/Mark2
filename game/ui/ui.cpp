@@ -3,7 +3,6 @@
 #include <algorithm/match.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
-#include <ui/recycler.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -11,6 +10,7 @@
 #include <ui/main_menu.h>
 #include <ui/options.h>
 #include <ui/prompt.h>
+#include <ui/recycler.h>
 #include <ui/ship_editor.h>
 #include <ui/window.h>
 #include <unit/landing_pad.h>
@@ -163,18 +163,24 @@ bool ui::execute(const handler_result& actions)
 }
 
 /// Create an event for the root component
-[[nodiscard]] static event root_event(vi32 screen_pos, bool shift)
+[[nodiscard]] static event root_event(const command::move& move)
 {
 	mark::ui::event event;
-	event.absolute_cursor = screen_pos;
-	event.cursor = screen_pos;
-	event.shift = shift;
+	event.absolute_cursor = move.screen_pos;
+	event.cursor = move.screen_pos;
+	event.world_cursor = move.to;
+	event.shift = move.shift;
 	return event;
 }
 
-handler_result ui::ui::hover(vi32 screen_pos, vd)
+[[nodiscard]] static event root_event(const command::guide& guide)
 {
-	return m_root->hover(root_event(screen_pos, false));
+	mark::ui::event event;
+	event.absolute_cursor = guide.screen_pos;
+	event.cursor = guide.screen_pos;
+	event.world_cursor = guide.pos;
+	event.shift = false;
+	return event;
 }
 
 bool ui::ui::command(const world& world, const command::any& any)
@@ -187,14 +193,13 @@ bool ui::ui::command(const world& world, const command::any& any)
 			return true;
 		},
 		[&](const command::guide& guide) {
-			return execute(hover(guide.screen_pos, guide.pos));
+			return execute(m_root->hover(root_event(guide)));
 		},
 		[&](const command::move& move) {
 			if (move.release) {
 				return false;
 			}
-			if (auto actions =
-					m_root->click(root_event(move.screen_pos, move.shift))) {
+			if (auto actions = m_root->click(root_event(move))) {
 				return execute(std::move(*actions));
 			}
 			return false;

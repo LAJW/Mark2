@@ -50,8 +50,6 @@ private:
 	[[nodiscard]] bool execute(const handler_result&);
 	using dispatch_callback =
 		std::function<handler_result(const event&, window&)>;
-	/// Handler for the mouse over event
-	[[nodiscard]] handler_result hover(vi32 screen_pos, vd world_pos);
 	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
