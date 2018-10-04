@@ -111,12 +111,6 @@ void ui::update_state()
 	}
 }
 
-[[nodiscard]] static vd
-screen_to_world(vd camera_pos, vd resolution, vd screen_pos)
-{
-	return camera_pos + screen_pos - resolution / 2.;
-}
-
 void ui::update(update_context& context, vd resolution, vd mouse_pos)
 {
 	if (state_changed()) {
@@ -125,9 +119,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos)
 	}
 	if (m_stack.get().back() == mode::world) {
 		auto& world = m_world_stack.world();
-		let world_mouse_pos =
-			screen_to_world(world.camera(), resolution, mouse_pos);
-		m_action_bar.update(world, context, resolution, world_mouse_pos);
+		m_action_bar.update(world, context, resolution, mouse_pos);
 	}
 	if (m_stack.get().back() == mode::main_menu) {
 		render_logo(ref(context));
