@@ -41,7 +41,7 @@ public:
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
 		noexcept override;
 	[[nodiscard]] const recycler_queue_type& recycler_queue() const;
-	[[nodiscard]] const slot& grabbed_raw() const;
+	[[nodiscard]] const slot& grabbed_slot() const;
 	[[nodiscard]] const std::unordered_map<std::string, YAML::Node>&
 	blueprints() const;
 

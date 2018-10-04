@@ -57,7 +57,7 @@ const std::unordered_map<std::string, YAML::Node>& ui::blueprints() const
 	return m_world_stack.blueprints();
 }
 
-const slot& ui::grabbed_raw() const { return m_grabbed; }
+const slot& ui::grabbed_slot() const { return m_grabbed; }
 
 const ui::recycler_queue_type& ui::recycler_queue() const
 {

@@ -196,8 +196,8 @@ handler_result ship_editor::drop(const vd relative) const
 	let modular = m_ui.landed_modular();
 	let drop_pos = impl::drop_pos(relative, m_ui.grabbed()->size());
 	if (modular->can_attach(drop_pos, *m_ui.grabbed())) {
-		auto bindings = (&m_ui.grabbed_raw().container() == &*modular)
-			? modular->binding(m_ui.grabbed_raw().pos())
+		auto bindings = (&m_ui.grabbed_slot().container() == &*modular)
+			? modular->binding(m_ui.grabbed_slot().pos())
 			: std::vector<int8_t>();
 		return make_handler_result<action::drop_into_modular>(
 			drop_pos, move(bindings));
