@@ -156,7 +156,7 @@ void mark::module::base::update(update_context& context)
 	} else {
 		m_cur_heat = 0.f;
 	}
-	if (is_landed(this->parent())) {
+	if (!is_landed(this->parent())) {
 		if (health_percentage <= 0.5f) {
 			context.render([&] {
 				update_context::spray_info _;
