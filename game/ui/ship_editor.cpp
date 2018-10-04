@@ -179,6 +179,7 @@ handler_result ship_editor::click(const event& event)
 
 handler_result ship_editor::hover(const event& event)
 {
+	m_world_cursor = event.world_cursor;
 	if (let modular = m_ui.landed_modular()) {
 		if (!m_ui.grabbed()) {
 			if (auto action = modular_tooltip(event.world_cursor, *modular)) {
@@ -232,7 +233,7 @@ void ship_editor::update(update_context& context)
 		draw_grid_background(
 			ref(context.sprites[1]), *grabbed, *modular, m_grid_bg);
 		context.sprites[105].push_back(
-			draw_grabbed(*grabbed, *modular, {} /* mouse_pos */));
+			draw_grabbed(*grabbed, *modular, m_world_cursor));
 	}
 	window::update(context);
 }

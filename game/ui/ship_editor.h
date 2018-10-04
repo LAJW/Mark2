@@ -30,6 +30,7 @@ private:
 
 	const ui& m_ui;
 	resource::image_ptr m_grid_bg;
+	vd m_world_cursor;
 };
 
 } // namespace ui
