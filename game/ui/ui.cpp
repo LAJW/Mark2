@@ -175,9 +175,8 @@ bool ui::execute(const handler_result& actions)
 	return event;
 }
 
-bool ui::ui::command(const world& world, const command::any& any)
+bool ui::ui::command(const world&, const command::any& any)
 {
-
 	return match(
 		any,
 		[&](const command::cancel&) {
@@ -202,10 +201,8 @@ bool ui::ui::command(const world& world, const command::any& any)
 				return true;
 			}
 			if (let modular = this->landed_modular()) {
-				let pick_pos = floor(
-					(activate.pos - world.target()->pos())
-					/ static_cast<double>(module::size));
-				modular->toggle_bind(activate.id, pick_pos);
+				modular->toggle_bind(
+					activate.id, impl::pick_pos(activate.pos - modular->pos()));
 				return true;
 			}
 			return false;
