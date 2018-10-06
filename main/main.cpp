@@ -186,7 +186,7 @@ void mark::main(std::vector<std::string> args)
 		if (!stack.paused()) {
 			world.update(context, resolution);
 		}
-		ui.update(context, resolution, info.mouse_pos);
+		ui.update(ref(context), resolution, info.mouse_pos);
 
 		mark::renderer::render_info render_info;
 		render_info.camera = world.camera();

@@ -112,7 +112,7 @@ void ui::update_state()
 }
 
 void ui::update(
-	update_context& context,
+	ref<update_context> context,
 	const vd resolution,
 	const vd mouse_pos)
 {
@@ -122,14 +122,14 @@ void ui::update(
 	}
 	if (m_stack.get().back() == mode::world) {
 		auto& world = m_world_stack.world();
-		m_action_bar.update(world, context, resolution, mouse_pos);
+		m_action_bar.update(world, *context, resolution, mouse_pos);
 	}
 	if (m_stack.get().back() == mode::main_menu) {
 		render_logo(ref(context));
 	}
 	m_root->resize(round(resolution));
-	m_root->update(context);
-	m_tooltip.update(context);
+	m_root->update(*context);
+	m_tooltip.update(*context);
 }
 
 void ui::execute(action::base& action)

@@ -27,7 +27,7 @@ public:
 	/// Default destructor defined in the source file for enabling PIMPL
 	~ui();
 	/// Update UI state, render frames, etc.
-	void update(update_context& context, vd resolution, vd mouse_pos_);
+	void update(ref<update_context> context, vd resolution, vd mouse_pos_);
 	/// Handle all events
 	[[nodiscard]] bool command(const command::any& command);
 	/// Get a grabbed item
