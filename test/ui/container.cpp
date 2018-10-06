@@ -131,18 +131,15 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 16, 32 + 16 };
 			event.cursor = { 16, 32 + 16 };
 			event.shift = false;
-			let result = container.click(event);
-			THEN("Container should return 'handled'")
-			{
-				REQUIRE(result.handled == true);
-			}
+			let actions = container.click(event);
+			THEN("Container should return 'handled'") { REQUIRE(actions); }
 			THEN("An action for placing the item at a specified position "
 				 "should be returned")
 			{
-				REQUIRE(result.actions.size() == 1);
+				REQUIRE(actions->size() == 1);
 				let action =
 					dynamic_cast<const ui::action::drop_into_container*>(
-						result.actions.front().get());
+						actions->front().get());
 				REQUIRE(&action->container() == &cargo);
 				REQUIRE(action->pos().x == 0);
 				REQUIRE(action->pos().y == 0);
@@ -158,14 +155,10 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 16, 32 + 16 * 5 };
 			event.cursor = { 16, 32 + 16 * 5 };
 			event.shift = false;
-			let result = container.click(event);
+			let actions = container.click(event);
 			THEN("Click should return 'unhandled'")
 			{
-				REQUIRE(result.handled == false);
-			}
-			THEN("Click should return no actions")
-			{
-				REQUIRE(result.actions.empty());
+				REQUIRE(!actions);
 			}
 		}
 	}
@@ -192,15 +185,12 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 0, 32 };
 			event.cursor = { 0, 32 };
 			event.shift = false;
-			let result = container.click(event);
-			THEN("It should return 'handled'")
-			{
-				REQUIRE(result.handled == true);
-			}
+			let actions = container.click(event);
+			THEN("It should return 'handled'") { REQUIRE(actions); }
 			THEN("It should yield a single 'grab' action")
 			{
-				REQUIRE(result.actions.size() == 1);
-				let action = result.actions.front().get();
+				REQUIRE(actions->size() == 1);
+				let action = actions->front().get();
 				REQUIRE(
 					dynamic_cast<ui::action::grab_from_container*>(action)
 					!= nullptr);
@@ -208,10 +198,10 @@ SCENARIO("UI Container Element")
 			THEN("The grab action should point to {0, 0} and the parent "
 				 "container")
 			{
-				REQUIRE(result.actions.size() == 1);
+				REQUIRE(actions->size() == 1);
 				let action =
 					dynamic_cast<const ui::action::grab_from_container&>(
-						*result.actions.front());
+						*actions->front());
 				REQUIRE(&action.container() == &cargo);
 				REQUIRE(action.pos().x == 0);
 				REQUIRE(action.pos().y == 0);
@@ -226,15 +216,12 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 0, 32 };
 			event.cursor = { 0, 32 };
 			event.shift = false;
-			let result = container.click(event);
-			THEN("It should return 'handled'")
-			{
-				REQUIRE(result.handled == true);
-			}
+			let actions = container.click(event);
+			THEN("It should return 'handled'") { REQUIRE(actions); }
 			THEN("It should yield a single 'release_grabbed' action")
 			{
-				REQUIRE(result.actions.size() == 1);
-				let action = result.actions.front().get();
+				REQUIRE(actions->size() == 1);
+				let action = actions->front().get();
 				REQUIRE(
 					dynamic_cast<ui::action::release_grabbed*>(action)
 					!= nullptr);
@@ -248,23 +235,20 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 0, 32 };
 			event.cursor = { 0, 32 };
 			event.shift = true;
-			let result = container.click(event);
-			THEN("It should return handled")
-			{
-				REQUIRE(result.handled == true);
-			}
+			let actions = container.click(event);
+			THEN("It should return handled") { REQUIRE(actions); }
 			THEN("It should yield a single 'recycle' action")
 			{
-				REQUIRE(result.actions.size() == 1);
-				let action = result.actions.front().get();
+				REQUIRE(actions->size() == 1);
+				let action = actions->front().get();
 				REQUIRE(dynamic_cast<ui::action::recycle*>(action) != nullptr);
 			}
 			THEN("That action should point to the 0,0 module and selected "
 				 "container")
 			{
-				REQUIRE(result.actions.size() == 1);
-				let action = dynamic_cast<const ui::action::recycle&>(
-					*result.actions.front());
+				REQUIRE(actions->size() == 1);
+				let action =
+					dynamic_cast<const ui::action::recycle&>(*actions->front());
 				REQUIRE(&action.container() == &cargo);
 				REQUIRE(action.pos().x == 0);
 				REQUIRE(action.pos().y == 0);
@@ -277,15 +261,12 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 0, 64 };
 			event.cursor = { 0, 64 };
 			event.shift = false;
-			let result = container.click(event);
+			let actions = container.click(event);
 			THEN("It should return 'handled' to prevent event passthrough")
 			{
-				REQUIRE(result.handled == true);
+				REQUIRE(actions);
 			}
-			THEN("It should return no actions")
-			{
-				REQUIRE(result.actions.empty());
-			}
+			THEN("It should return no actions") { REQUIRE(actions->empty()); }
 		}
 		WHEN("We click on the empty space below the module")
 		{
@@ -294,15 +275,12 @@ SCENARIO("UI Container Element")
 			event.absolute_cursor = { 0, 64 };
 			event.cursor = { 0, 64 };
 			event.shift = false;
-			let result = container.click(event);
+			let actions = container.click(event);
 			THEN("It should return 'handled' to prevent event passthrough")
 			{
-				REQUIRE(result.handled == true);
+				REQUIRE(actions);
 			}
-			THEN("It should return no actions")
-			{
-				REQUIRE(result.actions.empty());
-			}
+			THEN("It should return no actions") { REQUIRE(actions->empty()); }
 		}
 		WHEN("We remove an item from the cargo module and call update")
 		{
