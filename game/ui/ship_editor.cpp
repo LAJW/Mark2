@@ -22,7 +22,7 @@ let constexpr margin = 50;
 let constexpr container_count = 8;
 
 [[nodiscard]] static bool
-inside_modular_grid(vi32 module_pos, vu32 umodule_size)
+inside_modular_grid(const vi32 module_pos, const vu32 umodule_size)
 {
 	let half_size = gsl::narrow<int>(unit::modular::max_size / 2);
 	let module_size = vi32(umodule_size);
@@ -40,7 +40,7 @@ inside_modular_grid(vi32 module_pos, vu32 umodule_size)
 }
 
 [[nodiscard]] static optional<handler_result>
-modular_tooltip(vd world_pos, const unit::modular& modular)
+modular_tooltip(const vd world_pos, const unit::modular& modular)
 {
 	let pick_pos = impl::pick_pos(world_pos - modular.pos());
 	if (let module = modular.module_at(pick_pos)) {

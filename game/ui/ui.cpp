@@ -111,7 +111,10 @@ void ui::update_state()
 	}
 }
 
-void ui::update(update_context& context, vd resolution, vd mouse_pos)
+void ui::update(
+	update_context& context,
+	const vd resolution,
+	const vd mouse_pos)
 {
 	if (state_changed()) {
 		update_state();
