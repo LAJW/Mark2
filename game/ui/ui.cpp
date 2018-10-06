@@ -30,7 +30,7 @@ ui::ui(
 	world_stack& world_stack)
 	: m_action_bar(rm)
 	, m_root(std::make_unique<window>())
-	, m_tooltip(rm)
+	, m_tooltip(ref(rm))
 	, m_rm(rm)
 	, m_random(random)
 	, m_stack(stack)
@@ -129,7 +129,7 @@ void ui::update(
 	}
 	m_root->resize(round(resolution));
 	m_root->update(*context);
-	m_tooltip.update(*context);
+	m_tooltip.update(ref(context));
 }
 
 void ui::execute(action::base& action)

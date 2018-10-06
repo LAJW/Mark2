@@ -1,5 +1,6 @@
 #pragma once
 #include <adsr.h>
+#include <ref.h>
 #include <stdafx.h>
 
 namespace mark {
@@ -8,9 +9,9 @@ namespace ui {
 class tooltip final
 {
 public:
-	explicit tooltip(resource::manager& rm) noexcept;
+	explicit tooltip(ref<resource::manager> rm) noexcept;
 	/// Update tooltip state, render
-	void update(update_context&) noexcept;
+	void update(ref<update_context>) noexcept;
 	/// Set tooltip to render at a specified screen/world position with supplied
 	/// text. object_id is there to force redrawing of the tooltip when pointing
 	/// at a different object, while allowing to update existing tooltip
@@ -22,7 +23,7 @@ public:
 
 private:
 	/// Render a tooltip in screen coordinates
-	void render(update_context&) const;
+	void render(ref<update_context>) const;
 
 	std::string m_text;
 	std::variant<vd, vi32> m_pos;
