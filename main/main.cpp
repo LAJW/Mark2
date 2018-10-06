@@ -173,7 +173,7 @@ void mark::main(std::vector<std::string> args)
 		auto& world = world_stack.world();
 		let target = world.camera() + info.mouse_pos - info.window_res / 2.;
 		for (let command : hid.commands(round(info.mouse_pos), target)) {
-			if (!ui.command(world, random, command) && !stack.paused()) {
+			if (!ui.command(command) && !stack.paused()) {
 				world.command(command);
 			}
 		}
@@ -186,7 +186,7 @@ void mark::main(std::vector<std::string> args)
 		if (!stack.paused()) {
 			world.update(context, resolution);
 		}
-		ui.update(context, resolution, info.mouse_pos);
+		ui.update(ref(context), resolution, info.mouse_pos);
 
 		mark::renderer::render_info render_info;
 		render_info.camera = world.camera();

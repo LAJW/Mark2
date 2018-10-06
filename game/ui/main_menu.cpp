@@ -29,7 +29,7 @@ auto mark::ui::make_main_menu(mark::resource::manager& rm) -> unique_ptr<window>
 		_.font_size = 46;
 		return _;
 	}()))));
-	(success(menu->append(std::make_unique<chunky_button>([&] {
+	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
 		chunky_button::info _;
 		_.size = { 300, 50 };
 		_.font = rm.image("font.png");
@@ -37,8 +37,7 @@ auto mark::ui::make_main_menu(mark::resource::manager& rm) -> unique_ptr<window>
 		_.text = "Solitary Traveller";
 		_.relative = true;
 		_.on_click = [&](const event&) {
-			return handler_result::make(
-				std::make_unique<action::push_ui_state>(mode::world));
+			return make_handler_result<action::push_ui_state>(mode::world);
 		};
 		return _;
 	}()))));
@@ -50,8 +49,7 @@ auto mark::ui::make_main_menu(mark::resource::manager& rm) -> unique_ptr<window>
 		_.text = "Configuration of preferences";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			return handler_result::make(
-				std::make_unique<action::push_ui_state>(mode::options));
+			return make_handler_result<action::push_ui_state>(mode::options);
 		};
 		return _;
 	}()))));
@@ -63,8 +61,7 @@ auto mark::ui::make_main_menu(mark::resource::manager& rm) -> unique_ptr<window>
 		_.text = "Abandon Expedition";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			return handler_result::make(
-				std::make_unique<action::push_ui_state>(mode::prompt));
+			return make_handler_result<action::push_ui_state>(mode::prompt);
 		};
 		return _;
 	}()))));

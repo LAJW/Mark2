@@ -34,7 +34,7 @@ auto mark::ui::make_options(resource::manager& rm) -> unique_ptr<window>
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "Video [dummy]";
 		_.relative = true;
-		_.on_click = [&](let&) -> handler_result { return { true, {} }; };
+		_.on_click = [&](let&) -> handler_result { return handled(); };
 		return _;
 	}()))));
 	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
@@ -44,7 +44,7 @@ auto mark::ui::make_options(resource::manager& rm) -> unique_ptr<window>
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "Sound [dummy]";
 		_.relative = true;
-		_.on_click = [&](let&) -> handler_result { return { true, {} }; };
+		_.on_click = [&](let&) -> handler_result { return handled(); };
 		return _;
 	}()))));
 	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
@@ -54,7 +54,7 @@ auto mark::ui::make_options(resource::manager& rm) -> unique_ptr<window>
 		_.background = rm.image("chunky-blue-button.png");
 		_.text = "Controls [dummy]";
 		_.relative = true;
-		_.on_click = [&](let&) -> handler_result { return { true, {} }; };
+		_.on_click = [&](let&) { return handled(); };
 		return _;
 	}()))));
 	Ensures(success(menu->append(std::make_unique<chunky_button>([&] {
@@ -65,8 +65,7 @@ auto mark::ui::make_options(resource::manager& rm) -> unique_ptr<window>
 		_.text = "Cancel";
 		_.relative = true;
 		_.on_click = [&](let&) {
-			return handler_result::make(
-				std::make_unique<action::pop_ui_state>());
+			return make_handler_result<action::pop_ui_state>();
 		};
 		return _;
 	}()))));

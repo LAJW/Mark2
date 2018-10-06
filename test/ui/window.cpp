@@ -107,7 +107,7 @@ SCENARIO("Window")
 	}
 	GIVEN("A window with another window within it")
 	{
-		ui::window window({});
+		ui::window window;
 		auto child_window = std::make_unique<ui::window>(ui::window::info{});
 		let& child_window_ref = *child_window;
 		REQUIRE(success(window.append(move(child_window))));
@@ -271,7 +271,7 @@ SCENARIO("Window")
 	}
 	GIVEN("A window with two other windows within it")
 	{
-		ui::window window({});
+		ui::window window;
 		REQUIRE(success(
 			window.append(std::make_unique<ui::window>(ui::window::info{}))));
 		REQUIRE(success(
@@ -389,7 +389,7 @@ SCENARIO("Window")
 	}
 	GIVEN("A window with three other windows within it")
 	{
-		ui::window window({});
+		ui::window window;
 		REQUIRE(success(
 			window.append(std::make_unique<ui::window>(ui::window::info{}))));
 		REQUIRE(success(

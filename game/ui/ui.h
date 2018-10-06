@@ -18,6 +18,8 @@ class recycler;
 class ui final : public interface::ui
 {
 public:
+	using recycler_queue_type = array2d<mark::slot, 16, 32>;
+
 	ui(resource::manager& rm,
 	   random& random,
 	   mode_stack& stack,
@@ -25,50 +27,43 @@ public:
 	/// Default destructor defined in the source file for enabling PIMPL
 	~ui();
 	/// Update UI state, render frames, etc.
-	void update(update_context& context, vd resolution, vd mouse_pos_);
+	void update(ref<update_context> context, vd resolution, vd mouse_pos_);
 	/// Handle all events
-	[[nodiscard]] bool
-	command(world& world, random& random, const command::any& command);
+	[[nodiscard]] bool command(const command::any& command);
 	/// Get a grabbed item
 	[[nodiscard]] optional<const interface::item&> grabbed() const
 		noexcept override;
 	/// Returns a modular, if a modular is present in the landing pad
-	[[nodiscard]] mark::unit::modular* landed_modular() noexcept;
+	[[nodiscard]] optional<mark::unit::modular&> landed_modular() noexcept;
+	[[nodiscard]] optional<const mark::unit::modular&> landed_modular() const
+		noexcept;
 	/// Returns true if module is present in the recycler
 	[[nodiscard]] bool in_recycler(const mark::interface::item& item) const
 		noexcept override;
+	[[nodiscard]] const recycler_queue_type& recycler_queue() const;
+	[[nodiscard]] const slot& grabbed_slot() const;
+	[[nodiscard]] const std::unordered_map<std::string, YAML::Node>&
+	blueprints() const;
 
 private:
+	void execute(action::base& action);
+	[[nodiscard]] bool execute(const handler_result&);
 	using dispatch_callback =
 		std::function<handler_result(const event&, window&)>;
-	[[nodiscard]] bool
-	dispatch(vi32 screen_pos, bool shift, dispatch_callback proc);
-	/// Handler for the click event
-	[[nodiscard]] auto click(vi32 screen_pos, bool shift) -> bool;
-	/// Handler for the mouse over event
-	[[nodiscard]] auto hover(vi32 screen_pos) -> bool;
-	/// Process the move command
-	[[nodiscard]] bool
-	command(ref<world> world, ref<random> random, const command::move& move);
-	/// Process the "drag" user command
-	void drop(ref<world> world, ref<random> random, vd relative);
-	/// Process the "drop" user command
-	void drag(ref<world> world, vd relative, bool shift);
-	void container_ui(
-		ref<update_context> context,
-		vd resolution,
-		const unit::modular& modular);
+	/// Get the recycler
 	[[nodiscard]] optional<mark::ui::recycler&> recycler() noexcept;
 	[[nodiscard]] optional<const mark::ui::recycler&> recycler() const noexcept;
+	void render_logo(ref<update_context> context) const;
+	void update_state();
+	[[nodiscard]] bool state_changed() const;
 
 	action_bar m_action_bar;
 
-	const resource::image_ptr m_grid_bg;
+	// Root UI component
+	unique_ptr<window> m_root;
 
 	// Used to detect container change
 	std::vector<std::reference_wrapper<mark::module::cargo>> m_containers;
-
-	std::vector<unique_ptr<window>> m_windows;
 
 	// Used to detect stack state change
 	mode m_mode = mode::world;
@@ -78,9 +73,9 @@ private:
 	random& m_random;
 	mode_stack& m_stack;
 	world_stack& m_world_stack;
-	using queue_type = array2d<mark::slot, 16, 32>;
 	slot m_grabbed;
-	queue_type m_queue;
+	recycler_queue_type m_recycler_queue;
+	const unit::base* m_prev_world_target = nullptr;
 };
 } // namespace ui
 } // namespace mark

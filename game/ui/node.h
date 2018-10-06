@@ -74,6 +74,9 @@ public:
 	void pos(vi32 pos) { m_pos = pos; }
 	[[nodiscard]] virtual auto size() const -> vi32 { return { 0, 0 }; }
 	[[nodiscard]] auto relative() const noexcept -> bool { return m_relative; }
+	/// Called by the parent component when resizing.
+	/// Override to handle the resize action.
+	virtual void resize(vi32 outer_size) { (void)outer_size; }
 
 protected:
 	node(const info& info)

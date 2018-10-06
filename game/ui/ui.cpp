@@ -1,122 +1,138 @@
 ﻿#include "ui.h"
 #include <algorithm.h>
+#include <algorithm/match.h>
 #include <interface/has_bindings.h>
 #include <module/base.h>
 #include <resource/manager.h>
 #include <sprite.h>
 #include <stdafx.h>
 #include <ui/impl/ui.h>
-#include <ui/inventory.h>
 #include <ui/main_menu.h>
 #include <ui/options.h>
 #include <ui/prompt.h>
 #include <ui/recycler.h>
+#include <ui/ship_editor.h>
 #include <ui/window.h>
 #include <unit/landing_pad.h>
 #include <unit/modular.h>
 #include <update_context.h>
+#include <vector.h>
 #include <world.h>
 #include <world_stack.h>
 
-let container_count = 8;
+namespace mark {
+namespace ui {
 
-mark::ui::ui::ui(
+ui::ui(
 	resource::manager& rm,
 	random& random,
 	mode_stack& stack,
 	world_stack& world_stack)
 	: m_action_bar(rm)
-	, m_grid_bg(rm.image("grid-background.png"))
-	, m_tooltip(rm)
+	, m_root(std::make_unique<window>())
+	, m_tooltip(ref(rm))
 	, m_rm(rm)
 	, m_random(random)
 	, m_stack(stack)
 	, m_world_stack(world_stack)
+{}
+
+ui::~ui() = default;
+
+void ui::render_logo(ref<update_context> context) const
 {
-	m_windows.push_back(
-		std::make_unique<mark::ui::window>(mark::ui::window::info()));
-	m_windows.push_back(
-		std::make_unique<mark::ui::window>(mark::ui::window::info()));
+	context->sprites[100].push_back([&] {
+		sprite _;
+		_.centred = false;
+		_.size = 256.f;
+		_.pos = vi32(700, 300);
+		_.frame = std::numeric_limits<size_t>::max();
+		_.image = m_rm.image("mark-modular.png");
+		return _;
+	}());
 }
 
-mark::ui::ui::~ui() = default;
-
-void mark::ui::ui::update(update_context& context, vd resolution, vd mouse_pos_)
+const std::unordered_map<std::string, YAML::Node>& ui::blueprints() const
 {
-	let resolution_i = vi32(resolution);
-	auto& world = m_world_stack.world();
-	if (!m_stack.get().empty() && m_stack.get().back() != m_mode) {
-		m_mode = m_stack.get().back();
-		// router
-		if (m_mode == mode::main_menu) {
-			m_windows.front() = make_main_menu(m_rm);
-		} else if (m_mode == mode::world) {
-			m_windows.front() =
-				std::make_unique<mark::ui::window>(mark::ui::window::info());
-		} else if (m_mode == mode::prompt) {
-			m_windows.front() = make_prompt(m_rm);
-		} else if (m_mode == mode::options) {
-			m_windows.front() = make_options(m_rm);
+	return m_world_stack.blueprints();
+}
+
+const slot& ui::grabbed_slot() const { return m_grabbed; }
+
+const ui::recycler_queue_type& ui::recycler_queue() const
+{
+	return m_recycler_queue;
+}
+
+[[nodiscard]] static std::unique_ptr<window> route(
+	const mode mode,
+	const ui& ui,
+	resource::manager& rm,
+	const vi32 resolution)
+{
+	switch (mode) {
+	case mode::main_menu:
+		return make_main_menu(rm);
+	case mode::world:
+		if (let modular = ui.landed_modular()) {
+			return std::make_unique<ship_editor>([&] {
+				ship_editor::info info;
+				info.ui = ui;
+				info.modular = modular;
+				info.resource_manager = rm;
+				info.resolution = resolution;
+				info.relative = false;
+				return info;
+			}());
 		}
+		break;
+	case mode::prompt:
+		return make_prompt(rm);
+	case mode::options:
+		return make_options(rm);
+	}
+	return std::make_unique<window>();
+}
+
+bool ui::state_changed() const
+{
+	let& world = m_world_stack.world();
+	let mode_changed = !m_stack.get().empty() && m_stack.get().back() != m_mode;
+	let world_target_changed = &*world.target() != m_prev_world_target;
+	return mode_changed || world_target_changed;
+}
+
+void ui::update_state()
+{
+	auto& world = m_world_stack.world();
+	m_prev_world_target = &*world.target();
+	if (!m_stack.get().empty()) {
+		m_mode = m_stack.get().back();
+	}
+}
+
+void ui::update(
+	ref<update_context> context,
+	const vd resolution,
+	const vd mouse_pos)
+{
+	if (state_changed()) {
+		update_state();
+		m_root = route(m_mode, *this, m_rm, vi32(resolution));
 	}
 	if (m_stack.get().back() == mode::world) {
-		m_action_bar.update(world, context, resolution, mouse_pos_);
-		let image_circle = m_rm.image("circle.png");
-		let mouse_pos = world.camera() + mouse_pos_ - resolution / 2.;
-		// Display landing pad UI
-		if (let modular = this->landed_modular()) {
-			if (m_windows.size() == 2) {
-				let inventory_size =
-					mark::vu32(16 * 16, (16 * 4 + 32) * container_count);
-				m_windows.push_back(std::make_unique<mark::ui::inventory>([&] {
-					inventory::info _;
-					_.modular = *modular;
-					_.rm = m_rm;
-					_.ui = *this;
-					_.pos = { 50, 50 };
-					_.size = inventory_size;
-					return _;
-				}()));
-				m_windows.push_back(std::make_unique<mark::ui::recycler>([&] {
-					recycler::info _;
-					_.rm = m_rm;
-					_.pos = { resolution_i.x - 50 - 300, 50 };
-					_.size = inventory_size;
-					_.ui = *this;
-					_.queue = m_queue;
-					return _;
-				}()));
-			} else {
-				this->recycler()->pos(vi32(resolution_i.x - 50 - 300, 50));
-			}
-			this->container_ui(ref(context), mouse_pos, *modular);
-		} else {
-			m_windows[1]->clear();
-			if (m_windows.size() == 4) {
-				m_windows.pop_back(); // Clear recycler UI
-				m_windows.pop_back(); // Clear inventory UI
-			}
-			m_grabbed = {};
-		}
+		auto& world = m_world_stack.world();
+		m_action_bar.update(world, *context, resolution, mouse_pos);
 	}
 	if (m_stack.get().back() == mode::main_menu) {
-		context.sprites[100].push_back([&] {
-			sprite _;
-			_.centred = false;
-			_.size = 256.f;
-			_.pos = vi32(700, 300);
-			_.frame = std::numeric_limits<size_t>::max();
-			_.image = m_rm.image("mark-modular.png");
-			return _;
-		}());
+		render_logo(ref(context));
 	}
-	for (let& window : m_windows) {
-		window->update(context);
-	}
-	m_tooltip.update(context);
+	m_root->resize(round(resolution));
+	m_root->update(*context);
+	m_tooltip.update(ref(context));
 }
 
-bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
+void ui::execute(action::base& action)
 {
 	action::base::execute_info execute_info;
 	execute_info.mode_stack = m_stack;
@@ -126,263 +142,79 @@ bool mark::ui::ui::dispatch(vi32 screen_pos, bool shift, dispatch_callback proc)
 		execute_info.modular = *landed_modular;
 	}
 	execute_info.tooltip = m_tooltip;
-	execute_info.queue = m_queue;
+	execute_info.queue = m_recycler_queue;
 	execute_info.grabbed = m_grabbed;
+	execute_info.random = m_random;
+	action.execute(execute_info);
+}
+
+bool ui::execute(const handler_result& actions)
+{
+	if (actions) {
+		for (let& action : *actions) {
+			this->execute(*action);
+		}
+	}
+	return actions.has_value();
+}
+
+/// Create an event for the root component
+[[nodiscard]] static event root_event(const command::move& move)
+{
 	mark::ui::event event;
-	event.absolute_cursor = screen_pos;
-	event.cursor = screen_pos;
-	event.shift = shift;
-	for (auto& window : m_windows) {
-		let result = proc(event, *window);
-		if (result.handled) {
-			for (auto& action : result.actions) {
-				action->execute(execute_info);
-			}
+	event.absolute_cursor = move.screen_pos;
+	event.cursor = move.screen_pos;
+	event.world_cursor = move.to;
+	event.shift = move.shift;
+	return event;
+}
+
+[[nodiscard]] static event root_event(const command::guide& guide)
+{
+	mark::ui::event event;
+	event.absolute_cursor = guide.screen_pos;
+	event.cursor = guide.screen_pos;
+	event.world_cursor = guide.pos;
+	event.shift = false;
+	return event;
+}
+
+bool ui::ui::command(const command::any& any)
+{
+	return match(
+		any,
+		[&](const command::cancel&) {
+			m_stack.pop();
 			return true;
-		}
-	}
-	return false;
-}
-
-bool mark::ui::ui::click(vi32 screen_pos, bool shift)
-{
-	return dispatch(screen_pos, shift, [&](const event& event, window& window) {
-		return window.click(event);
-	});
-}
-
-bool mark::ui::ui::hover(vi32 screen_pos)
-{
-	return dispatch(screen_pos, false, [&](const event& event, window& window) {
-		return window.hover(event);
-	});
-}
-
-namespace mark {
-static auto modular(ref<mark::world> world) -> shared_ptr<unit::modular>
-{
-	let target = world->target();
-	let landing_pad = std::dynamic_pointer_cast<unit::landing_pad>(target);
-	return landing_pad ? landing_pad->ship() : nullptr;
-}
-} // namespace mark
-
-bool mark::ui::ui::command(
-	world& world,
-	random& random,
-	const mark::command::any& any)
-{
-	if (std::holds_alternative<command::cancel>(any)) {
-		m_stack.pop();
-		return true;
-	}
-	if (let guide = std::get_if<command::guide>(&any)) {
-		return this->hover(guide->screen_pos);
-	}
-	if (this->m_stack.paused()) {
-		if (auto move = std::get_if<command::move>(&any)) {
-			if (!move->release) {
-				return this->click(move->screen_pos, move->shift);
+		},
+		[&](const command::guide& guide) {
+			return execute(m_root->hover(root_event(guide)));
+		},
+		[&](const command::move& move) {
+			if (move.release) {
+				return false;
+			}
+			if (auto actions = m_root->click(root_event(move))) {
+				return execute(std::move(*actions));
 			}
 			return false;
-		}
-	}
-	if (let activate = std::get_if<command::activate>(&any)) {
-		let modular = mark::modular(ref(world));
-		if (!modular) {
+		},
+		[&](const command::activate& activate) {
+			if (grabbed()) {
+				m_grabbed = {};
+				return true;
+			}
+			if (let modular = this->landed_modular()) {
+				modular->toggle_bind(
+					activate.id, impl::pick_pos(activate.pos - modular->pos()));
+				return true;
+			}
 			return false;
-		}
-		if (grabbed()) {
-			m_grabbed = {};
-			return true;
-		}
-		let relative =
-			(activate->pos - world.target()->pos()) / double(module::size);
-		let pick_pos = floor(relative);
-		modular->toggle_bind(activate->id, pick_pos);
-		return true;
-	}
-	if (let move = std::get_if<command::move>(&any)) {
-		return this->command(ref(world), ref(random), *move);
-	}
-	return false;
+		},
+		[&](const auto&) { return false; });
 }
 
-auto mark::ui::ui::command(
-	ref<world> world,
-	ref<random> random,
-	const mark::command::move& move) -> bool
-{
-	if (move.release) {
-		return false;
-	}
-	if (this->click(move.screen_pos, move.shift)) {
-		return true;
-	}
-	if (!modular(ref(world))) {
-		return false;
-	}
-	let relative = (move.to - world->target()->pos()) / double(module::size);
-	let module_pos = round(relative);
-	if (!(std::abs(module_pos.x) <= 17 && std::abs(module_pos.y) <= 17)) {
-		return true;
-	}
-	// modular drag&drop
-	if (this->grabbed()) {
-		this->drop(ref(world), ref(random), move.to - world->target()->pos());
-	} else {
-		this->drag(ref(world), relative, move.shift);
-	}
-	return true;
-}
-
-void mark::ui::ui::drop(ref<world> world, ref<random> random, const vd relative)
-{
-	Expects(grabbed());
-	let modular = mark::modular(ref(world));
-	// module's top-left corner
-	let drop_pos = impl::drop_pos(relative, grabbed()->size());
-	if (modular->can_attach(drop_pos, *grabbed())) {
-		let grabbed_bind = modular->binding(m_grabbed.pos());
-		Expects(!modular->attach(drop_pos, detach(m_grabbed)));
-		for (let& bind : grabbed_bind) {
-			modular->toggle_bind(bind, drop_pos);
-		}
-		return;
-	}
-	if (let module = modular->module_at(drop_pos)) {
-		let[error, consumed] =
-			item_of(m_grabbed).use_on(*random, world->blueprints(), *module);
-		if (error == error::code::success && consumed) {
-			detach(m_grabbed);
-		}
-	}
-}
-
-void mark::ui::ui::drag(ref<world> world, const vd relative, const bool shift)
-{
-	Expects(!grabbed());
-	let pick_pos = floor(relative);
-	let modular = mark::modular(ref(world));
-	let pos = modular->pos_at(pick_pos);
-	if (!pos) {
-		return;
-	}
-	if (shift) {
-		if (auto detached = modular->detach(pick_pos)) {
-			if (failure(push(*modular, move(detached)))) {
-				// It should be possible to reattach a module, if it was already
-				// attached
-				Expects(success(modular->attach(*pos, move(detached))));
-			}
-		}
-	} else {
-		if (modular->can_detach(pick_pos)) {
-			m_grabbed = { *modular, pick_pos };
-		}
-	}
-}
-
-static std::vector<bool> make_available_map(
-	const mark::interface::item& item,
-	const mark::unit::modular& modular)
-{
-	using namespace mark;
-	let grid_size = gsl::narrow<int>(unit::modular::max_size);
-	let surface = range<vi32>(
-		{ -int(grid_size) / 2, -int(grid_size) / 2 },
-		{ grid_size / 2, grid_size / 2 });
-	std::vector<bool> available(grid_size * grid_size, false);
-	for (let top_left : surface) {
-		if (modular.can_attach(top_left, item)) {
-			for (let relative : range(item.size())) {
-				let pos = top_left + vi32(grid_size / 2, grid_size / 2)
-					+ vi32(relative);
-				if (pos.x < grid_size && pos.y < grid_size) {
-					available[pos.x + pos.y * grid_size] = true;
-				}
-			}
-		}
-	}
-	return available;
-}
-
-void mark::ui::ui::container_ui(
-	ref<update_context> context,
-	const vd mouse_pos,
-	const unit::modular& modular)
-{
-	constexpr let grid_size = unit::modular::max_size;
-	let surface = range<vi32>(
-		{ -int(grid_size) / 2, -int(grid_size) / 2 },
-		{ grid_size / 2, grid_size / 2 });
-	if (grabbed()) {
-		let available = make_available_map(*grabbed(), modular);
-		for (let offset : surface) {
-			if (available
-					[offset.x + grid_size / 2
-					 + (offset.y + grid_size / 2) * grid_size]) {
-				context->sprites[1].push_back([&] {
-					sprite _;
-					_.image = m_grid_bg;
-					_.pos = modular.pos() + vd(offset) * double(module::size)
-						+ vd(module::size, module::size) / 2.;
-					_.size = module::size;
-					_.color = { 0, 255, 255, 255 };
-					return _;
-				}());
-			}
-		}
-		let drop_pos =
-			impl::drop_pos(mouse_pos - modular.pos(), grabbed()->size());
-		if (std::abs(drop_pos.x) <= 17 && std::abs(drop_pos.y) <= 17) {
-			let size = static_cast<float>(
-						   std::max(grabbed()->size().x, grabbed()->size().y))
-				* module::size;
-			let color = modular.can_attach(drop_pos, *grabbed())
-				? sf::Color::Green
-				: sf::Color::Red;
-			context->sprites[100].emplace_back([&] {
-				sprite _;
-				_.image = grabbed()->thumbnail();
-				_.pos = modular.pos() + vd(drop_pos) * 16.;
-				_.size = size;
-				_.color = color;
-				_.centred = false;
-				return _;
-			}());
-		} else {
-			let size = static_cast<float>(
-						   std::max(grabbed()->size().x, grabbed()->size().y))
-				* module::size;
-			context->sprites[105].emplace_back([&] {
-				sprite _;
-				_.image = grabbed()->thumbnail();
-				_.pos = mouse_pos;
-				_.size = size;
-				return _;
-			}());
-		}
-	}
-
-	// Display tooltips
-	if (!grabbed()) {
-		let pick_pos = impl::pick_pos(mouse_pos - modular.pos());
-		if (std::abs(pick_pos.x) <= 17 && std::abs(pick_pos.y) <= 17) {
-			// modular
-			if (let module = modular.module_at(pick_pos)) {
-				let description = module->describe();
-				let module_size =
-					vd(module->size()) * static_cast<double>(module::size);
-				let tooltip_pos =
-					module->pos() + vd(module_size.x, -module_size.y) / 2.0;
-				m_tooltip.set(tooltip_pos, &*module, description);
-			}
-		}
-	}
-}
-
-auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
+auto ui::grabbed() const noexcept -> optional<const interface::item&>
 {
 	if (m_grabbed.empty()) {
 		return {};
@@ -390,18 +222,34 @@ auto mark::ui::ui::grabbed() const noexcept -> optional<const interface::item&>
 	return item_of(m_grabbed);
 }
 
-auto mark::ui::ui::landed_modular() noexcept -> mark::unit::modular*
+template <
+	typename world_stack_type,
+	typename modular_type =
+		add_const_if_t<unit::modular, std::is_const_v<world_stack_type>>>
+optional<modular_type&> landed_modular(world_stack_type& world_stack)
 {
 	let landing_pad = std::dynamic_pointer_cast<mark::unit::landing_pad>(
-		m_world_stack.world().target());
+		world_stack.world().target());
 	if (!landing_pad) {
-		return nullptr;
+		return {};
 	}
-	return dynamic_cast<mark::unit::modular*>(landing_pad->ship().get());
+	if (let modular = dynamic_cast<modular_type*>(landing_pad->ship().get())) {
+		return *modular;
+	}
+	return {};
 }
 
-auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
-	-> bool
+auto ui::landed_modular() noexcept -> optional<mark::unit::modular&>
+{
+	return mark::ui::landed_modular(m_world_stack);
+}
+
+auto ui::landed_modular() const noexcept -> optional<const mark::unit::modular&>
+{
+	return mark::ui::landed_modular(m_world_stack);
+}
+
+auto ui::in_recycler(const mark::interface::item& item) const noexcept -> bool
 {
 	if (let recycler = this->recycler()) {
 		return recycler->has(item);
@@ -409,19 +257,27 @@ auto mark::ui::ui::in_recycler(const mark::interface::item& item) const noexcept
 	return false;
 }
 
-auto mark::ui::ui::recycler() noexcept -> optional<mark::ui::recycler&>
+template <typename T>
+[[nodiscard]] auto get_recycler(T& root)
 {
-	if (m_windows.size() == 4) {
-		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
+	using value_type = add_const_if_t<mark::ui::recycler, std::is_const_v<T>>&;
+	using return_type = optional<value_type>;
+	let children = root.children();
+	if (children.size() == 2) {
+		return return_type(dynamic_cast<value_type>(children.back().get()));
 	}
-	return {};
+	return return_type();
 }
 
-auto mark::ui::ui::recycler() const noexcept
-	-> optional<const mark::ui::recycler&>
+optional<mark::ui::recycler&> ui::recycler() noexcept
 {
-	if (m_windows.size() == 4) {
-		return dynamic_cast<mark::ui::recycler&>(*m_windows.back());
-	}
-	return {};
+	return get_recycler(*m_root);
 }
+
+optional<const mark::ui::recycler&> ui::recycler() const noexcept
+{
+	return get_recycler(*m_root);
+}
+
+} // namespace ui
+} // namespace mark

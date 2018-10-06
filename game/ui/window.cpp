@@ -36,17 +36,16 @@ std::error_code mark::ui::window::append(std::unique_ptr<node>&& node) noexcept
 propagate(window& window, std::function<handler_result(node&)> propagator)
 {
 	if (!window.visibility()) {
-		return { false };
+		return {};
 	}
 	// Iterating over a copy to allow deletion in the middle
 	// Using underlying list would be faster but unsafe
 	for (auto child : window.children()) {
-		auto child_result = propagator(child.get());
-		if (child_result.handled) {
+		if (auto child_result = propagator(child.get())) {
 			return child_result;
 		}
 	}
-	return { false };
+	return {};
 }
 
 handler_result mark::ui::window::click(const event& event)

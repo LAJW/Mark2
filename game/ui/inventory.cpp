@@ -1,6 +1,6 @@
 #include "inventory.h"
-#include <algorithm/diff.h>
 #include <algorithm.h>
+#include <algorithm/diff.h>
 #include <module/cargo.h>
 #include <sprite.h>
 #include <stdafx.h>
@@ -25,19 +25,17 @@ void mark::ui::inventory::update(update_context& context)
 	}
 	let containers = modular->containers();
 	let children = this->children();
-	let[removed, added] =
-		diff(children, containers, [](let& a, let& b) {
-			let& container = dynamic_cast<const mark::ui::container&>(a.get());
-			let item_count = count_if(b.get().items(), [](let& item) {
-				return item.get() != nullptr;
-			});
-			return &container.cargo() == &b.get()
-				&& container.children().size() == item_count;
-		});
+	let[removed, added] = diff(children, containers, [](let& a, let& b) {
+		let& container = dynamic_cast<const mark::ui::container&>(a.get());
+		let item_count = count_if(
+			b.get().items(), [](let& item) { return item.get() != nullptr; });
+		return &container.cargo() == &b.get()
+			&& container.children().size() == item_count;
+	});
 	for (let& it : removed) {
 		(void)this->remove(it->get());
 	}
-	for (let& [it, container] : added) {
+	for (let & [ it, container ] : added) {
 		auto container_window = std::make_unique<mark::ui::container>([&] {
 			mark::ui::container::info _;
 			_.rm = m_rm;

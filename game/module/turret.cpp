@@ -1,5 +1,6 @@
 ﻿#include "turret.h"
 #include <algorithm.h>
+#include <algorithm/match.h>
 #include <exception.h>
 #include <particle.h>
 #include <property_manager.h>
@@ -278,10 +279,10 @@ auto mark::module::turret::passive() const noexcept -> bool { return false; }
 
 void mark::module::turret::command(const command::any& any)
 {
-	if (std::holds_alternative<command::activate>(any)) {
+	match(any, [&](const command::activate&) {
 		m_is_charging = true;
-	} else if (std::holds_alternative<command::release>(any)) {
+	}, [&](const command::release&) {
 		m_is_charging = false;
-	}
+	}, [](let&) {});
 	targeting_system().command(any);
 }

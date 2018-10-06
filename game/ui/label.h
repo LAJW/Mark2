@@ -26,11 +26,10 @@ public:
 
 	label(const info&);
 	void update(update_context&) override;
-	handler_result click(const event&) override { return { false }; }
-	handler_result hover(const event&) override { return { false }; }
+	handler_result click(const event&) override { return {}; }
+	handler_result hover(const event&) override { return {}; }
 
 private:
-
 	// Size of the label
 	const vu32 m_size;
 	const not_null<resource::image_ptr> m_font;

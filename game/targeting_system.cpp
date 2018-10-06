@@ -1,4 +1,5 @@
 #include "targeting_system.h"
+#include <algorithm/match.h>
 #include <interface/world_object.h>
 #include <random.h>
 #include <resource/manager.h>
@@ -125,15 +126,17 @@ mark::targeting_system::targeting_system(interface::world_object& parent)
 
 void mark::targeting_system::command(const command::any& any)
 {
-	if (let activate = std::get_if<command::activate>(&any)) {
-		m_target = std::make_pair(true, activate->pos);
-	} else if (let release = std::get_if<command::release>(&any)) {
-		if (std::holds_alternative<target_type>(m_target)) {
-			m_target = std::make_pair(false, release->pos);
-		}
-	} else if (let guide = std::get_if<command::guide>(&any)) {
-		this->target(guide->pos);
-	} else if (let queue = std::get_if<command::queue>(&any)) {
-		this->queue(queue->pos, false);
-	}
+	match(
+		any,
+		[&](const command::activate& activate) {
+			m_target = std::make_pair(true, activate.pos);
+		},
+		[&](const command::release& release) {
+			if (std::holds_alternative<target_type>(m_target)) {
+				m_target = std::make_pair(false, release.pos);
+			}
+		},
+		[&](const command::guide guide) { this->target(guide.pos); },
+		[&](const command::queue queue) { this->queue(queue.pos, false); },
+		[](let&) {});
 }

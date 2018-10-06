@@ -22,27 +22,27 @@ void mark::ui::tooltip::set(
 	m_adsr.trigger();
 }
 
-mark::ui::tooltip::tooltip(resource::manager& rm) noexcept
-	: m_font(rm.image("font.png"))
-	, m_background(rm.image("white.png"))
+mark::ui::tooltip::tooltip(ref<resource::manager> rm) noexcept
+	: m_font(rm->image("font.png"))
+	, m_background(rm->image("white.png"))
 	, m_adsr(0, 1, 0, .5f)
 	, m_load(0, 1, 0, .15f)
 {}
 
-void mark::ui::tooltip::update(update_context& context) noexcept
+void mark::ui::tooltip::update(ref<update_context> context) noexcept
 {
-	m_adsr.update(context.dt);
-	m_load.update(context.dt);
+	m_adsr.update(context->dt);
+	m_load.update(context->dt);
 	if (m_text.empty()) {
 		return;
 	}
-	this->render(context);
+	this->render(ref(context));
 }
 
-void mark::ui::tooltip::render(update_context& context) const
+void mark::ui::tooltip::render(ref<update_context> context) const
 {
 	let opacity = static_cast<uint8_t>(m_adsr.get() * 255.0);
-	context.sprites[tooltip_layer].emplace_back([&] {
+	context->sprites[tooltip_layer].emplace_back([&] {
 		sprite _;
 		_.image = m_background;
 		_.pos = m_pos;
@@ -52,7 +52,7 @@ void mark::ui::tooltip::render(update_context& context) const
 		return _;
 	}());
 
-	mark::render(context.sprites[tooltip_layer], [&] {
+	mark::render(context->sprites[tooltip_layer], [&] {
 		text_info _;
 		_.font = m_font;
 		if (let pos = std::get_if<vd>(&m_pos)) {

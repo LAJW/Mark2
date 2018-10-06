@@ -88,13 +88,14 @@ namespace mark {
 
 mark::ui::handler_result mark::ui::container::click(const event& event)
 {
-	auto super_result = this->window::click(event);
-	if (super_result.handled) {
-		return super_result;
+	if (auto super_actions = this->window::click(event)) {
+		return super_actions;
 	}
 	let grabbed = m_ui.grabbed();
 	if (!grabbed) {
-		return { contains(event.cursor, { this->pos(), this->size() }), {} };
+		return contains(event.cursor, { this->pos(), this->size() })
+			? handled()
+			: handler_result();
 	}
 	auto& module = *grabbed;
 	let module_size = vd(module.size());
@@ -102,10 +103,11 @@ mark::ui::handler_result mark::ui::container::click(const event& event)
 		/ static_cast<double>(mark::module::size);
 	let pos = round(relative_pos - module_size / 2.);
 	if (!m_container.can_attach(pos, module)) {
-		return { contains(event.cursor, { this->pos(), this->size() }), {} };
+		return contains(event.cursor, { this->pos(), this->size() })
+			? handled()
+			: handler_result();
 	}
-	return handler_result::make(
-		std::make_unique<action::drop_into_container>(m_container, pos));
+	return make_handler_result<action::drop_into_container>(m_container, pos);
 }
 
 const mark::module::cargo& mark::ui::container::cargo() const
@@ -138,29 +140,25 @@ void mark::ui::container::attach(vi32 pos, interface::item& item)
 		[pos, this, &item](const event& event) -> handler_result {
 			if (let grabbed = m_ui.grabbed()) {
 				if (grabbed->equals(item)) {
-					return handler_result::make(
-						std::make_unique<action::release_grabbed>());
+					return make_handler_result<action::release_grabbed>();
 				}
 				// TODO: Propagate error/notify user that object cannot be put
 				// here
 				if (!m_container.at(pos)->can_stack(*grabbed)) {
-					return { true, {} };
+					return handled();
 				}
-				return handler_result::make(
-					std::make_unique<action::stack_into_container>(
-						m_container, pos));
+				return make_handler_result<action::stack_into_container>(
+					m_container, pos);
 			}
 			if (let actual_pos = m_container.pos_at(pos)) {
 				if (event.shift) {
-					return handler_result::make(
-						std::make_unique<action::recycle>(
-							m_container, *actual_pos));
+					return make_handler_result<action::recycle>(
+						m_container, *actual_pos);
 				}
-				return handler_result::make(
-					std::make_unique<action::grab_from_container>(
-						m_container, *actual_pos));
+				return make_handler_result<action::grab_from_container>(
+					m_container, *actual_pos);
 			}
-			return { true, {} };
+			return handled();
 		});
 	Expects(success(this->append(move(button))));
 }
