@@ -19,6 +19,7 @@ public:
 	void update(update_context&) override;
 	void render(update_context&) const;
 	[[nodiscard]] bool has(const mark::interface::item& item) const noexcept;
+	void resize(vi32 outer_size) override;
 
 private:
 	const ui& m_ui;

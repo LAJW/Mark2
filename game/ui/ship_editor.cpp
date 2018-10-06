@@ -18,6 +18,7 @@
 namespace mark {
 namespace ui {
 
+let constexpr margin = 50;
 let constexpr container_count = 8;
 
 [[nodiscard]] static bool
@@ -151,14 +152,14 @@ ship_editor::ship_editor(const info& info)
 		_.modular = info.modular;
 		_.rm = info.resource_manager;
 		_.ui = info.ui;
-		_.pos = { 50, 50 };
+		_.pos = { margin, margin };
 		_.size = inventory_size;
 		return _;
 	}()))));
 	Expects(success(this->append(std::make_unique<recycler>([&] {
 		recycler::info _;
 		_.rm = info.resource_manager;
-		_.pos = { info.resolution.x - 50 - 300, 50 };
+		_.pos = { info.resolution.x - margin - 300, margin };
 		_.size = inventory_size;
 		_.ui = info.ui;
 		return _;
@@ -238,11 +239,11 @@ void ship_editor::update(update_context& context)
 	window::update(context);
 }
 
-void ship_editor::update_recycler_position(const vi32 resolution)
+void ship_editor::resize(const vi32 outer_size)
 {
-	auto recycler = this->children().back();
-	// TODO: Allow aligning windows to the right/bottom of the screen
-	recycler.get().pos({ resolution.x - 50 - 300, 50 });
+	for (auto& window : children()) {
+		window.get().resize(outer_size);
+	}
 }
 
 } // namespace ui

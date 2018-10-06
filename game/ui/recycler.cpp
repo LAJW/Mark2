@@ -161,5 +161,12 @@ auto recycler::has(const mark::interface::item& item) const noexcept -> bool
 	});
 }
 
+void recycler::resize(const vi32 outer_size)
+{
+	let constexpr margin = 50;
+	let x = outer_size.x - this->size().x - margin;
+	this->pos({ x, margin });
+}
+
 } // namespace ui
 } // namespace mark

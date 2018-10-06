@@ -124,6 +124,7 @@ void ui::update(update_context& context, vd resolution, vd mouse_pos)
 	if (m_stack.get().back() == mode::main_menu) {
 		render_logo(ref(context));
 	}
+	m_root->resize(round(resolution));
 	m_root->update(context);
 	m_tooltip.update(context);
 }

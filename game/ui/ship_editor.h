@@ -21,12 +21,12 @@ public:
 	[[nodiscard]] handler_result click(const event& event) override;
 	[[nodiscard]] handler_result hover(const event& event) override;
 	void update(update_context& context) override;
+	void resize(vi32) override;
 
 private:
 	[[nodiscard]] handler_result drop(const vd relative) const;
 	[[nodiscard]] handler_result
 	drag(const vd relative, const bool shift) const;
-	void update_recycler_position(const vi32 resolution);
 
 	const ui& m_ui;
 	resource::image_ptr m_grid_bg;
