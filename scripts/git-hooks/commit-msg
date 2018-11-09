@@ -1,0 +1,4 @@
+#!/bin/sh
+args=("$@")
+PowerShell -NoProfile -ExecutionPolicy Bypass \
+	-Command "& 'C:\Users\lajw\sources\mark2\scripts\git-lint.ps1' ${args[0]}"
