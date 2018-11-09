@@ -1,3 +1,18 @@
+##############################################################################
+# Git Lint script
+# (because there's no working git-linter for Windows right now)
+#
+# Usage:
+#
+# Validate current branch (diff from origin/develop):
+# & ./git-lint.ps1
+# 
+# Validate commit message:
+# & ./git-lint.ps1 "path/to/commmit-message"
+#
+# This script returns 1 on failure
+##############################################################################
+
 function Validate-Message($message) {
 	$lines = $message -split [Environment]::NewLine
 	$title = $lines[0]
@@ -19,16 +34,30 @@ function Hashes {
 	return $hashes -Split [Environment]::NewLine
 }
 
-$foundErrors = 0;
-foreach ($hash in Hashes) {
-	$body = git log -1 $hash --format="%B"
+function Validate-Branch {
+	$exitCode = 0;
+	foreach ($hash in Hashes) {
+		$body = git log -1 $hash --format="%B"
+		try {
+			Validate-Message($body)
+		} catch [Exception] {
+			Write-Host "$($hash) $($PSItem.ToString())"
+			Write-Host $body
+			$exitCode = 1
+		}
+	}
+	return $exitCode
+}
+
+if ($args.length -gt 0) {
+	$body = Get-Content -Path $args[0]
 	try {
 		Validate-Message($body)
 	} catch [Exception] {
-		Write-Host "$($hash) $($PSItem.ToString())"
-		Write-Host $body
-		$foundErrors = 1;
+		Write-Host $PSItem.ToString()
+		exit 1
 	}
+	exit 0
+} else {
+	exit Validate-Branch
 }
-
-exit $exitCode;
