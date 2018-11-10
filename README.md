@@ -68,6 +68,24 @@ Notes:
    | REFACTOR: | Change that does not add or remove functionality |
    | ASSET:    | Changes to game assets (images, sounds) |
 
+   A linter is provided with this repository. You can validate commit messages
+   starting from origin/develop by running the following in PowerShell: 
+
+   ```
+   & ../scripts/git-lint.ps1
+   ```
+
+   You can also install hooks so that they check if your commit message is
+   incorrectly formatted when committing:
+
+   ```
+   & ../scripts/install-hooks.ps1
+   ```
+
+   The validator will run any time you run `git commit`. Don't worry - this
+   only installs hooks for the local repository, and globally not for the
+   enitre machine.
+
 3. After you're done committing, push your branch to the repository
 4. Create a PR
 5. Answer review comments, and get at least one approval. Remember not to
