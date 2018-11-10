@@ -1,4 +1,5 @@
 ##############################################################################
+#
 # Git Lint script
 # (because there's no working git-linter for Windows right now)
 #
@@ -11,6 +12,7 @@
 # & ./git-lint.ps1 "path/to/commmit-message"
 #
 # This script returns 1 on failure
+#
 ##############################################################################
 
 function Validate-Message($message) {
@@ -24,7 +26,7 @@ function Validate-Message($message) {
 		throw [Exception] "First line should start with ASSET:, BREAK:, FEAT:, FIX:, MAINT:, REFACTOR:, STYLE: or TEST:"
 	} elseif ($lines.length -gt 1 -and $lines[1].length -gt 0) {
 		throw [Exception] "Second line should be empty"
-	} elseif (($lines | Where-Object {$_.length -gt 80}).length -gt 0) {
+	} elseif ($lines | where length -gt 80) {
 		throw [Exception] "Lines should have at most 80 characters"
 	}
 }
