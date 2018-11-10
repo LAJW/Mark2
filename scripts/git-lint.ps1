@@ -7,7 +7,7 @@
 #
 # Validate current branch (diff from origin/develop):
 # & ./git-lint.ps1
-# 
+#
 # Validate commit message:
 # & ./git-lint.ps1 "path/to/commmit-message"
 #
@@ -16,7 +16,8 @@
 ##############################################################################
 
 function Validate-Message($message) {
-	$lines = $message -split [Environment]::NewLine
+	# Lines with comments removed
+	$lines = $message -split [Environment]::NewLine | % { ($_ -split "#")[0] }
 	$title = $lines[0]
 	if ($title.length -gt 50) {
 		throw [Exception] "First line should be at most 50 characters"
