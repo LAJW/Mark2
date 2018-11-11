@@ -16,6 +16,7 @@
 ##############################################################################
 
 function Validate-Message($message) {
+	$tags = "ASSET,BREAK,FEAT,FIX,MAINT,REFACTOR,STYLE,TEST" -Split "," | % { $_ + ": "}
 	# Lines with comments removed
 	$lines = $message -split [Environment]::NewLine | % { ($_ -split "#")[0] }
 	$title = $lines[0]
@@ -23,8 +24,9 @@ function Validate-Message($message) {
 		throw [Exception] "First line should be at most 50 characters"
 	} elseif ($title -Match '\.$') {
 		throw [Exception] "First line should not end with a dot"
-	} elseif ($title -NotMatch '^(ASSET|BREAK|FEAT|FIX|MAINT|REFACTOR|STYLE|TEST): ') {
-		throw [Exception] "First line should start with ASSET:, BREAK:, FEAT:, FIX:, MAINT:, REFACTOR:, STYLE: or TEST:"
+	} elseif (!($tags | Where-Object { ([string]$title).StartsWith($_) })) {
+		$hint = ($tags | %{ "'$($_)'" }) -Join ", "
+		throw [Exception] "First line should start with one of the following: $($hint)"
 	} elseif ($lines.length -gt 1 -and $lines[1].length -gt 0) {
 		throw [Exception] "Second line should be empty"
 	} elseif ($lines | where length -gt 80) {
