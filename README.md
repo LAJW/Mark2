@@ -1,5 +1,5 @@
 # Dead Project
-This is a dead project full of regrets. Avert your eyes. Dropped because of game design problems I couldn't solve - ship management and cRPG gameplay can't be performed by a human in real time. Go watch the [FTL postmortem](https://www.youtube.com/watch?v=P4Um97AUqp4) - they were here too and salved it.
+This is a dead project full of regrets. Avert your eyes. Dropped because of game design problems I couldn't solve - ship management and cRPG gameplay can't be performed by a human in real time. Go watch the [FTL postmortem](https://www.youtube.com/watch?v=P4Um97AUqp4) - they were here too and salvaged it.
 
 Note: CMake + Cotire is seemingly impossible to set up correctly on Windows, so don't rely on it for quick iteration in games. This is what put the final nail in the coffin here.
 
