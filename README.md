@@ -1,5 +1,10 @@
+# Dead Project
+This is a dead project full of regrets. Avert your eyes. Dropped because of game design problems I couldn't solve - ship management and cRPG gameplay can't be performed by a human in real time. Go watch the [FTL postmortem](https://www.youtube.com/watch?v=P4Um97AUqp4) - they were here too and salved it.
+
+Note: CMake + Cotire is seemingly impossible to set up correctly on Windows, so don't rely on it for quick iteration in games. This is what put the final nail in the coffin here.
+
 # Introduction
-A 2D action RPG set in a post-post-apocalyptic world, with a twist - you're
+A 2D cRPG set in a post-post-apocalyptic world, with a twist - you're
 controlling a ship/hovercraft built from 2D blocks, each of which has
 permadeath.
 
@@ -7,8 +12,8 @@ permadeath.
 We're supporting two builds: Windows, and Mac. Linux might be coming. 
 
 # Build and Test - Visual Studio
-1. Install Visual Studio 2017 C++ (with native CMake support)
-2. Run a following command in the project root
+1. Install Visual Studio 2017 C++ (with native CMake support) (19 needs tweaks)
+2. Run the following command in the project root
    ```
    git submodule update --init --recursive
    ```
@@ -46,54 +51,3 @@ Notes:
    cmake --build . --target unit_test -- -j8
    build/bin/unit_test
    ```
-
-# Contribute
-
-1. Create a branch using a following naming convention:
-   ```
-   <user-name>/branch-name
-   ```
-
-2. Make some changes. Each commit should start with one of the following
-   prefixes. Each change should be small enough to fit within the bounds of the
-   description. It's there for easier rollback:
-
-   | Prefix    | Description |
-   | --------- | ----------- |
-   | FEAT:     | A new feature, functionality or a new unused function |
-   | FIX:      | Change that fixes a bug in code |
-   | TEST:     | Commit containing changes only to unit tests |
-   | MAINT:    | Maintenance change - affecting build scripts or configuration scripts |
-   | BREAK:    | Change that brakes backwards compatibility in some way (moving assets, changing save file structure, architectural-level change stopping other PRs from getting easily merged, etc.) |
-   | REFACTOR: | Change that does not add or remove functionality |
-   | ASSET:    | Changes to game assets (images, sounds) |
-
-   A linter is provided with this repository. You can validate commit messages
-   starting from origin/develop by running the following in PowerShell: 
-
-   ```
-   & ../scripts/git-lint.ps1
-   ```
-
-   You can also install hooks so that they check if your commit message is
-   incorrectly formatted when committing:
-
-   ```
-   & ../scripts/install-hooks.ps1
-   ```
-
-   The validator will run any time you run `git commit`. Don't worry - this
-   only installs hooks for the local repository, and globally not for the
-   enitre machine.
-
-3. After you're done committing, push your branch to the repository
-4. Create a PR
-5. Answer review comments, and get at least one approval. Remember not to
-   squash existing commits until you're about to merge.
-6. Satisfy the needs of CI (unless we've run out of time)
-7. Run this to reformat your code:
-   ```
-   git filter-branch --tree-filter 'git-clang-format-3.8 origin/develop' -f -- origin/develop..HEAD
-   ```
-8. Merge
-9. Delete the branch
